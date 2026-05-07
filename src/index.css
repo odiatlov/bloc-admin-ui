@@ -1,0 +1,28 @@
+/* Basic reset and layout styles for the admin UI */
+:root{
+  --sidebar-width: 220px;
+  --topbar-height: 56px;
+  --bg: #f5f7fb;
+  --surface: #ffffff;
+  --muted: #6b7280;
+}
+*{box-sizing:border-box}
+html,body,#root{height:100%;margin:0}
+body{font-family:Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:#111}
+
+.topbar{height:var(--topbar-height);display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:var(--surface);box-shadow:0 1px 0 rgba(16,24,40,0.04);}
+.admin-body{display:flex;min-height:calc(100vh - var(--topbar-height))}
+.sidebar{width:var(--sidebar-width);background:linear-gradient(180deg,#fff,#fbfdff);padding:20px;border-right:1px solid rgba(16,24,40,0.04)}
+.admin-main{flex:1;padding:24px}
+.brand{font-weight:700;margin-bottom:16px}
+.sidebar nav ul{list-style:none;padding:0;margin:0}
+.sidebar nav li{margin:8px 0}
+.sidebar a{color:var(--muted);text-decoration:none}
+
+.dashboard .cards{display:flex;gap:12px;margin-top:12px}
+.card{background:var(--surface);padding:16px;border-radius:8px;box-shadow:0 1px 2px rgba(16,24,40,0.04)}
+
+/* Responsive */
+@media (max-width:720px){
+  .sidebar{display:none}
+}
