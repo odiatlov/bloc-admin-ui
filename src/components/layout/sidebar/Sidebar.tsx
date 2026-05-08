@@ -1,7 +1,6 @@
 import React from 'react'
 import Drawer from '@mui/material/Drawer'
 import Toolbar from '@mui/material/Toolbar'
-import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import List from '@mui/material/List'
 import ListItemButton from '@mui/material/ListItemButton'
@@ -11,18 +10,30 @@ import Divider from '@mui/material/Divider'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import PeopleIcon from '@mui/icons-material/People'
 import SettingsIcon from '@mui/icons-material/Settings'
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn'
+import OpacityIcon from '@mui/icons-material/Opacity'
+import AssessmentIcon from '@mui/icons-material/Assessment'
 import { NavLink } from 'react-router-dom'
+import { RoleContext } from '../../../contexts/RoleContext'
+import { rolePermissions } from '../../../mocks/roles'
 
 type Props = {
   drawerWidth: number
 }
 
 const Sidebar: React.FC<Props> = ({ drawerWidth }) => {
+  const { role } = React.useContext(RoleContext)
+
   const navItems = [
-    { label: 'Dashboard', to: '/admin/dashboard', icon: <DashboardIcon /> },
-    { label: 'Users', to: '/admin/users', icon: <PeopleIcon /> },
-    { label: 'Settings', to: '/admin/settings', icon: <SettingsIcon /> },
+    { label: 'Dashboard', to: '/admin/dashboard', icon: <DashboardIcon />, permission: 'dashboard' as const },
+    { label: 'Residents', to: '/admin/residents', icon: <PeopleIcon />, permission: 'residents' as const },
+    { label: 'Finance', to: '/admin/finance', icon: <MonetizationOnIcon />, permission: 'finance' as const },
+    { label: 'Consumption', to: '/admin/consumption', icon: <OpacityIcon />, permission: 'consumption' as const },
+    { label: 'Reports', to: '/admin/reports', icon: <AssessmentIcon />, permission: 'reports' as const },
+    { label: 'Settings', to: '/admin/settings', icon: <SettingsIcon />, permission: 'settings' as const },
   ]
+
+  const allowed = rolePermissions[role] || []
 
   return (
     <Drawer variant="permanent" anchor="left" sx={{ width: drawerWidth, flexShrink: 0, [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' } }}>
@@ -31,12 +42,14 @@ const Sidebar: React.FC<Props> = ({ drawerWidth }) => {
       </Toolbar>
       <Divider />
       <List>
-        {navItems.map((item) => (
-          <ListItemButton key={item.to} component={NavLink} to={item.to}>
-            <ListItemIcon>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.label} />
-          </ListItemButton>
-        ))}
+        {navItems
+          .filter((it) => allowed.includes(it.permission))
+          .map((item) => (
+            <ListItemButton key={item.to} component={NavLink} to={item.to}>
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.label} />
+            </ListItemButton>
+          ))}
       </List>
     </Drawer>
   )

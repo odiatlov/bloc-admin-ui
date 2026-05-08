@@ -2,15 +2,15 @@ import React from 'react'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 
-const Users: React.FC = () => {
+const Consumption: React.FC = () => {
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
-        Users
+        Consumption
       </Typography>
-      <Typography>List of users will go here.</Typography>
+      <Typography>Utility readings and meter indexes (water, electricity, etc.).</Typography>
     </Box>
   )
 }
 
-export default Users
+export default Consumption
