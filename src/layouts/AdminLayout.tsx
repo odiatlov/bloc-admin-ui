@@ -3,8 +3,8 @@ import { Outlet } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import CssBaseline from '@mui/material/CssBaseline'
 import Toolbar from '@mui/material/Toolbar'
-import Sidebar from '../components/Sidebar'
-import Topbar from '../components/Topbar'
+import Sidebar from '../components/layout/Sidebar'
+import Topbar from '../components/layout/Topbar'
 
 const drawerWidth = 240
 

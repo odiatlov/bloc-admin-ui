@@ -3,9 +3,9 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './index.css'
 import AdminLayout from './layouts/AdminLayout'
-import Dashboard from './pages/Dashboard'
-import Users from './pages/Users'
-import Settings from './pages/Settings'
+import Dashboard from './pages/Dashboard/Dashboard'
+import Users from './pages/Users/Users'
+import Settings from './pages/Settings/Settings'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
