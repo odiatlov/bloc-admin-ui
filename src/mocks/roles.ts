@@ -1,12 +1,12 @@
-export type Permission = 'dashboard' | 'tenants' | 'settings'
+export type Permission = 'dashboard' | 'residents' | 'finance' | 'consumption' | 'reports' | 'settings'
 
 export type RolePermissions = {
-	[role: string]: Permission[]
+  [role: string]: Permission[]
 }
 
 export const rolePermissions: RolePermissions = {
-	Admin: ['dashboard', 'tenants', 'settings'],
-	Tenant: ['dashboard'],
+  Admin: ['dashboard', 'residents', 'finance', 'consumption', 'reports', 'settings'],
+  Tenant: ['dashboard'],
 }
 
 export const availableRoles = Object.keys(rolePermissions)

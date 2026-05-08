@@ -1,12 +1,12 @@
 import React from 'react'
 import { RoleContext } from '../../contexts/RoleContext'
-import AdminDashboard from './AdminDashboard'
-import TenantDashboard from './TenantDashboard'
+import AdminDashboard from './Admin/AdminDashboard'
+import ResidentDashboard from './Resident/ResidentDashboard'
 
 const RoleAwareDashboard: React.FC = () => {
   const { role } = React.useContext(RoleContext)
 
-  if (role === 'Tenant') return <TenantDashboard />
+  if (role === 'Tenant') return <ResidentDashboard />
   return <AdminDashboard />
 }
 
