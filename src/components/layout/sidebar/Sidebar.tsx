@@ -1,6 +1,8 @@
 import React from 'react'
 import Drawer from '@mui/material/Drawer'
 import Toolbar from '@mui/material/Toolbar'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
 import List from '@mui/material/List'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
@@ -23,26 +25,14 @@ const Sidebar: React.FC<Props> = ({ drawerWidth }) => {
   ]
 
   return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: drawerWidth,
-        flexShrink: 0,
-        [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
-      }}
-    >
-      <Toolbar sx={{ px: 2 }}>
-        <div style={{ fontWeight: 700, fontSize: 18 }}>Bloc Admin</div>
+    <Drawer variant="permanent" anchor="left" sx={{ width: drawerWidth, flexShrink: 0, [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' } }}>
+      <Toolbar>
+        <Typography sx={{ fontWeight: 700, fontSize: 18 }}>Bloc Admin</Typography>
       </Toolbar>
       <Divider />
       <List>
         {navItems.map((item) => (
-          <ListItemButton
-            key={item.to}
-            component={NavLink}
-            to={item.to}
-            sx={{ '&.active': { backgroundColor: 'action.selected' } }}
-          >
+          <ListItemButton key={item.to} component={NavLink} to={item.to}>
             <ListItemIcon>{item.icon}</ListItemIcon>
             <ListItemText primary={item.label} />
           </ListItemButton>
