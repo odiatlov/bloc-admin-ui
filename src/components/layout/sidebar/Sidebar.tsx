@@ -23,7 +23,7 @@ const Sidebar: React.FC<Props> = ({ drawerWidth }) => {
 
   const navItems = [
     { label: 'Dashboard', to: '/admin/dashboard', icon: <DashboardIcon />, permission: 'dashboard' as const },
-    { label: 'Users', to: '/admin/users', icon: <PeopleIcon />, permission: 'users' as const },
+    { label: 'Tenants', to: '/admin/tenants', icon: <PeopleIcon />, permission: 'tenants' as const },
     { label: 'Settings', to: '/admin/settings', icon: <SettingsIcon />, permission: 'settings' as const },
   ]
 

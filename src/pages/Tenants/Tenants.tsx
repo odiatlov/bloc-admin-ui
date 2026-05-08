@@ -2,15 +2,15 @@ import React from 'react'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 
-const Users: React.FC = () => {
+const Tenants: React.FC = () => {
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
-        Users
+        Tenants
       </Typography>
-      <Typography>List of users will go here.</Typography>
+      <Typography>List of tenants will go here.</Typography>
     </Box>
   )
 }
 
-export default Users
+export default Tenants

@@ -8,7 +8,7 @@ import './index.css'
 import AdminLayout from './layouts/AdminLayout'
 import RoleAwareDashboard from './pages/Dashboard/RoleAwareDashboard'
 import { RoleProvider } from './contexts/RoleContext'
-import Users from './pages/Users/Users'
+import Tenants from './pages/Tenants/Tenants'
 import Settings from './pages/Settings/Settings'
 import createAuroraTheme from './theme/auroraTheme'
 import globalStyles from './theme/globalStyles'
@@ -31,7 +31,7 @@ const RootApp: React.FC = () => {
             <Route path="/admin" element={<AdminLayout toggleTheme={toggleTheme} themeMode={mode} />}>
               <Route index element={<RoleAwareDashboard />} />
               <Route path="dashboard" element={<RoleAwareDashboard />} />
-              <Route path="users" element={<Users />} />
+              <Route path="tenants" element={<Tenants />} />
               <Route path="settings" element={<Settings />} />
             </Route>
           </Routes>
