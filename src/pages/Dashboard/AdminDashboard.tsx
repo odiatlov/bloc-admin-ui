@@ -1,9 +1,9 @@
 import React from 'react'
 
-const Dashboard: React.FC = () => {
+const AdminDashboard: React.FC = () => {
   return (
     <section className="dashboard">
-      <h2>Dashboard</h2>
+      <h2>Admin Dashboard</h2>
       <div className="cards">
         <div className="card">Users: 124</div>
         <div className="card">Active: 87</div>
@@ -13,4 +13,4 @@ const Dashboard: React.FC = () => {
   )
 }
 
-export default Dashboard
+export default AdminDashboard

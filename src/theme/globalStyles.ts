@@ -1,4 +1,4 @@
-import { Theme } from '@mui/material/styles'
+import type { Theme } from '@mui/material/styles'
 
 const globalStyles = (theme: Theme) => ({
   a: { color: 'inherit', textDecoration: 'none' },

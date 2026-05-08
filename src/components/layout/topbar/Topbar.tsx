@@ -10,6 +10,8 @@ import IconButton from '@mui/material/IconButton'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 
+import { RoleContext, type Role } from '../../../contexts/RoleContext'
+
 type Props = {
   drawerWidth?: number
   toggleTheme?: () => void
@@ -17,10 +19,10 @@ type Props = {
 }
 
 const Topbar: React.FC<Props> = ({ drawerWidth = 240, toggleTheme, themeMode = 'dark' }) => {
-  const [role, setRole] = React.useState<string>('Admin')
+  const { role, setRole } = React.useContext(RoleContext)
 
   const handleRoleChange = (e: SelectChangeEvent<string>) => {
-    setRole(e.target.value as string)
+    setRole(e.target.value as Role)
   }
 
   return (

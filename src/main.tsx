@@ -6,7 +6,8 @@ import CssBaseline from '@mui/material/CssBaseline'
 import GlobalStyles from '@mui/material/GlobalStyles'
 import './index.css'
 import AdminLayout from './layouts/AdminLayout'
-import Dashboard from './pages/Dashboard/Dashboard'
+import RoleAwareDashboard from './pages/Dashboard/RoleAwareDashboard'
+import { RoleProvider } from './contexts/RoleContext'
 import Users from './pages/Users/Users'
 import Settings from './pages/Settings/Settings'
 import createAuroraTheme from './theme/auroraTheme'
@@ -24,15 +25,17 @@ const RootApp: React.FC = () => {
       <CssBaseline />
       <GlobalStyles styles={globalStyles(theme)} />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
-          <Route path="/admin" element={<AdminLayout toggleTheme={toggleTheme} themeMode={mode} />}>
-            <Route index element={<Dashboard />} />
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="users" element={<Users />} />
-            <Route path="settings" element={<Settings />} />
-          </Route>
-        </Routes>
+        <RoleProvider>
+          <Routes>
+            <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="/admin" element={<AdminLayout toggleTheme={toggleTheme} themeMode={mode} />}>
+              <Route index element={<RoleAwareDashboard />} />
+              <Route path="dashboard" element={<RoleAwareDashboard />} />
+              <Route path="users" element={<Users />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
+          </Routes>
+        </RoleProvider>
       </BrowserRouter>
     </ThemeProvider>
   )
