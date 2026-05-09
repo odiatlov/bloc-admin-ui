@@ -5,7 +5,7 @@
   "layout": {
     "topbar": {
       "role": {
-        "admin": "Admin",
+        "admin": "Administrator",
         "tenant": "Locatar"
       },
       "logout": "Deconectare",
@@ -17,11 +17,10 @@
     "residents": "Locatari",
     "finance": "Finanțe",
     "myBills": "Facturile mele",
-    "waterIndex": "Indice apă",
+    "waterIndex": "Index apă",
     "consumption": "Consum",
     "reports": "Rapoarte",
-    "settings": "Setări",
-    "mySettings": "Setările mele"
+    "settings": "Setări"
   },
   "dashboard": {
     "admin": {
@@ -38,8 +37,7 @@
     }
   ,
     "role": {
-      "residentTitle": "Panoul Locatarului",
-      "residentWelcome": "Bine ați venit în Panoul Locatarului"
+      "residentTitle": "Panoul Locatarului"
     }
   ,
     "resident": {

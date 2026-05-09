@@ -1,12 +1,12 @@
 {
   "app": {
-    "title": "Bloc Admin"
+    "title": "Block Admin"
   },
   "layout": {
     "topbar": {
       "role": {
-        "admin": "Admin",
-        "tenant": "Tenant"
+        "admin": "Administrator",
+        "tenant": "Resident"
       },
       "logout": "Logout",
       "language": "Language"
@@ -20,8 +20,7 @@
     "waterIndex": "Water Index",
     "consumption": "Consumption",
     "reports": "Reports",
-    "settings": "Settings",
-    "mySettings": "My Settings"
+    "settings": "Settings"
   },
   "dashboard": {
     "admin": {
@@ -38,8 +37,7 @@
     }
   ,
     "role": {
-      "residentTitle": "Resident Dashboard",
-      "residentWelcome": "Welcome to the Resident Dashboard"
+      "residentTitle": "Resident Dashboard"
     }
   ,
     "resident": {
