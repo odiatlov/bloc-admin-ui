@@ -6,7 +6,7 @@ export type RolePermissions = {
 
 export const rolePermissions: RolePermissions = {
   Admin: ['dashboard', 'residents', 'finance', 'consumption', 'reports', 'settings'],
-  Tenant: ['dashboard'],
+  Tenant: ['dashboard', 'finance', 'consumption', 'settings'],
 }
 
 export const availableRoles = Object.keys(rolePermissions)
