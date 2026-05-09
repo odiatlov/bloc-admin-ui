@@ -1,5 +1,64 @@
 {
-  "dashboard": "Dashboard",
-  "residents": "Residents",
-  "finance": "Finance"
+  "app": {
+    "title": "Bloc Admin"
+  },
+  "layout": {
+    "topbar": {
+      "role": {
+        "admin": "Admin",
+        "tenant": "Tenant"
+      },
+      "logout": "Logout",
+      "language": "Language"
+    }
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "residents": "Residents",
+    "finance": "Finance",
+    "consumption": "Consumption",
+    "reports": "Reports",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "admin": {
+      "title": "Admin Dashboard",
+      "overview": {
+        "residents": "Residents",
+        "apartments": "Apartments",
+        "blocks": "Blocks"
+      }
+    ,
+      "keyMetrics": "Key Metrics",
+      "monthlyRevenue": "Monthly revenue:",
+      "outstandingInvoices": "Outstanding invoices:"
+    }
+  ,
+    "role": {
+      "residentTitle": "Resident Dashboard",
+      "residentWelcome": "Welcome to the Resident Dashboard"
+    }
+  },
+  "pages": {
+    "consumption": {
+      "title": "Consumption",
+      "description": "Utility readings and meter indexes (water, electricity, etc.)."
+    },
+    "finance": {
+      "title": "Finance",
+      "description": "Manage invoices, payments, and balances."
+    },
+    "settings": {
+      "title": "Settings",
+      "description": "Application settings will go here."
+    },
+    "reports": {
+      "title": "Reports",
+      "description": "Exports, PDFs, and statistics."
+    },
+    "residents": {
+      "title": "Residents",
+      "description": "Manage residents and apartments in one place."
+    }
+  }
 }

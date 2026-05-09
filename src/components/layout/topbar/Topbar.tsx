@@ -11,6 +11,7 @@ import LightModeIcon from '@mui/icons-material/LightMode'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 
 import { RoleContext, type Role } from '../../../contexts/RoleContext'
+import { useTranslation } from 'react-i18next'
 
 type Props = {
   drawerWidth?: number
@@ -20,9 +21,31 @@ type Props = {
 
 const Topbar: React.FC<Props> = ({ drawerWidth = 240, toggleTheme, themeMode = 'dark' }) => {
   const { role, setRole } = React.useContext(RoleContext)
+  const { t, i18n } = useTranslation()
+
+  const [language, setLanguage] = React.useState<string>(i18n.language || 'en')
+
+  React.useEffect(() => {
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('appLanguage') : null
+    if (saved && saved !== i18n.language) {
+      i18n.changeLanguage(saved)
+      setLanguage(saved)
+    }
+  }, [i18n])
 
   const handleRoleChange = (e: SelectChangeEvent<string>) => {
     setRole(e.target.value as Role)
+  }
+
+  const handleLanguageChange = (e: SelectChangeEvent<string>) => {
+    const lang = e.target.value
+    setLanguage(lang)
+    i18n.changeLanguage(lang)
+    try {
+      localStorage.setItem('appLanguage', lang)
+    } catch (err) {
+      // ignore
+    }
   }
 
   return (
@@ -33,8 +56,8 @@ const Topbar: React.FC<Props> = ({ drawerWidth = 240, toggleTheme, themeMode = '
       <Toolbar>
         <FormControl variant="standard" sx={{ minWidth: 120 }}>
           <Select value={role} onChange={handleRoleChange} inputProps={{ 'aria-label': 'role-select' }}>
-            <MenuItem value="Admin">Admin</MenuItem>
-            <MenuItem value="Tenant">Tenant</MenuItem>
+            <MenuItem value="Admin">{t('layout.topbar.role.admin')}</MenuItem>
+            <MenuItem value="Tenant">{t('layout.topbar.role.tenant')}</MenuItem>
           </Select>
         </FormControl>
 
@@ -44,7 +67,14 @@ const Topbar: React.FC<Props> = ({ drawerWidth = 240, toggleTheme, themeMode = '
           {themeMode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
         </IconButton>
 
-        <Button color="inherit">Logout</Button>
+          <FormControl variant="standard" sx={{ minWidth: 96, mr: 1 }}>
+            <Select value={language} onChange={handleLanguageChange} inputProps={{ 'aria-label': 'language-select' }}>
+              <MenuItem value="en">EN</MenuItem>
+              <MenuItem value="ro">RO</MenuItem>
+            </Select>
+          </FormControl>
+
+          <Button color="inherit">{t('layout.topbar.logout')}</Button>
       </Toolbar>
     </AppBar>
   )

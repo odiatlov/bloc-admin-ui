@@ -1,14 +1,16 @@
 import React from 'react'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
+import { useTranslation } from 'react-i18next'
 
 const Consumption: React.FC = () => {
+  const { t } = useTranslation()
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
-        Consumption
+        {t('pages.consumption.title')}
       </Typography>
-      <Typography>Utility readings and meter indexes (water, electricity, etc.).</Typography>
+      <Typography>{t('pages.consumption.description')}</Typography>
     </Box>
   )
 }
