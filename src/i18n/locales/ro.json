@@ -16,9 +16,12 @@
     "dashboard": "Panou principal",
     "residents": "Locatari",
     "finance": "Finanțe",
+    "myBills": "Facturile mele",
+    "waterIndex": "Indice apă",
     "consumption": "Consum",
     "reports": "Rapoarte",
-    "settings": "Setări"
+    "settings": "Setări",
+    "mySettings": "Setările mele"
   },
   "dashboard": {
     "admin": {
@@ -37,6 +40,16 @@
     "role": {
       "residentTitle": "Panoul Locatarului",
       "residentWelcome": "Bine ați venit în Panoul Locatarului"
+    }
+  ,
+    "resident": {
+      "currentDue": "Sumă datorată curent",
+      "pay": "Plătește",
+      "lastSubmittedIndex": "Ultimul indice trimis",
+      "indexValue": "Indice: {{value}}",
+      "noIndex": "Nu a fost trimis niciun indice.",
+      "recentAnnouncements": "Anunțuri recente",
+      "noAnnouncements": "Nu există anunțuri"
     }
   },
   "pages": {

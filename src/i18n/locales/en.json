@@ -16,9 +16,12 @@
     "dashboard": "Dashboard",
     "residents": "Residents",
     "finance": "Finance",
+    "myBills": "My Bills",
+    "waterIndex": "Water Index",
     "consumption": "Consumption",
     "reports": "Reports",
-    "settings": "Settings"
+    "settings": "Settings",
+    "mySettings": "My Settings"
   },
   "dashboard": {
     "admin": {
@@ -37,6 +40,16 @@
     "role": {
       "residentTitle": "Resident Dashboard",
       "residentWelcome": "Welcome to the Resident Dashboard"
+    }
+  ,
+    "resident": {
+      "currentDue": "Current amount due",
+      "pay": "Pay",
+      "lastSubmittedIndex": "Last submitted index",
+      "indexValue": "Index: {{value}}",
+      "noIndex": "No index submitted yet.",
+      "recentAnnouncements": "Recent announcements",
+      "noAnnouncements": "No announcements"
     }
   },
   "pages": {

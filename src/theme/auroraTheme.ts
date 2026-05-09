@@ -98,7 +98,7 @@ const createAuroraTheme = (mode: 'light' | 'dark' = 'dark') =>
         styleOverrides: {
           root: {
             textTransform: 'none',
-            color: mode === 'dark' ? '#e6eef6' : '#0b1220'
+            color:'#e6eef6'
           }
         }
       }
