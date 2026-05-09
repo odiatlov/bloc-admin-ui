@@ -14,9 +14,11 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^9.0.1",
     "@mui/material": "^9.0.1",
-    "react-router-dom": "^6.14.1",
+    "i18next": "^26.0.10",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "react-i18next": "^17.0.7",
+    "react-router-dom": "^6.14.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -1,0 +1,64 @@
+{
+  "app": {
+    "title": "Bloc Admin"
+  },
+  "layout": {
+    "topbar": {
+      "role": {
+        "admin": "Admin",
+        "tenant": "Locatar"
+      },
+      "logout": "Deconectare",
+      "language": "Limbă"
+    }
+  },
+  "sidebar": {
+    "dashboard": "Panou principal",
+    "residents": "Locatari",
+    "finance": "Finanțe",
+    "consumption": "Consum",
+    "reports": "Rapoarte",
+    "settings": "Setări"
+  },
+  "dashboard": {
+    "admin": {
+      "title": "Panoul Administratorului",
+      "overview": {
+        "residents": "Locatari",
+        "apartments": "Apartamente",
+        "blocks": "Blocuri"
+      }
+    ,
+      "keyMetrics": "Indicatori cheie",
+      "monthlyRevenue": "Venit lunar:",
+      "outstandingInvoices": "Facturi restante:"
+    }
+  ,
+    "role": {
+      "residentTitle": "Panoul Locatarului",
+      "residentWelcome": "Bine ați venit în Panoul Locatarului"
+    }
+  },
+  "pages": {
+    "consumption": {
+      "title": "Consum",
+      "description": "Citiri utilități și indici de contoare (apă, energie electrică etc.)."
+    },
+    "finance": {
+      "title": "Finanțe",
+      "description": "Gestionați facturi, plăți și solduri."
+    },
+    "settings": {
+      "title": "Setări",
+      "description": "Setările aplicației vor fi afișate aici."
+    },
+    "reports": {
+      "title": "Rapoarte",
+      "description": "Exporturi, PDF-uri și statistici."
+    },
+    "residents": {
+      "title": "Locatari",
+      "description": "Gestionați locatarii și apartamentele într-un singur loc."
+    }
+  }
+}

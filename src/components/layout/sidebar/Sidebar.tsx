@@ -15,6 +15,7 @@ import OpacityIcon from '@mui/icons-material/Opacity'
 import AssessmentIcon from '@mui/icons-material/Assessment'
 import { NavLink } from 'react-router-dom'
 import { RoleContext } from '../../../contexts/RoleContext'
+import { useTranslation } from 'react-i18next'
 import { rolePermissions } from '../../../mocks/roles'
 
 type Props = {
@@ -23,14 +24,15 @@ type Props = {
 
 const Sidebar: React.FC<Props> = ({ drawerWidth }) => {
   const { role } = React.useContext(RoleContext)
+  const { t } = useTranslation()
 
   const navItems = [
-    { label: 'Dashboard', to: '/admin/dashboard', icon: <DashboardIcon />, permission: 'dashboard' as const },
-    { label: 'Residents', to: '/admin/residents', icon: <PeopleIcon />, permission: 'residents' as const },
-    { label: 'Finance', to: '/admin/finance', icon: <MonetizationOnIcon />, permission: 'finance' as const },
-    { label: 'Consumption', to: '/admin/consumption', icon: <OpacityIcon />, permission: 'consumption' as const },
-    { label: 'Reports', to: '/admin/reports', icon: <AssessmentIcon />, permission: 'reports' as const },
-    { label: 'Settings', to: '/admin/settings', icon: <SettingsIcon />, permission: 'settings' as const },
+    { label: t('sidebar.dashboard'), to: '/admin/dashboard', icon: <DashboardIcon />, permission: 'dashboard' as const },
+    { label: t('sidebar.residents'), to: '/admin/residents', icon: <PeopleIcon />, permission: 'residents' as const },
+    { label: t('sidebar.finance'), to: '/admin/finance', icon: <MonetizationOnIcon />, permission: 'finance' as const },
+    { label: t('sidebar.consumption'), to: '/admin/consumption', icon: <OpacityIcon />, permission: 'consumption' as const },
+    { label: t('sidebar.reports'), to: '/admin/reports', icon: <AssessmentIcon />, permission: 'reports' as const },
+    { label: t('sidebar.settings'), to: '/admin/settings', icon: <SettingsIcon />, permission: 'settings' as const },
   ]
 
   const allowed = rolePermissions[role] || []
@@ -38,7 +40,7 @@ const Sidebar: React.FC<Props> = ({ drawerWidth }) => {
   return (
     <Drawer variant="permanent" anchor="left" sx={{ width: drawerWidth, flexShrink: 0, [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' } }}>
       <Toolbar>
-        <Typography sx={{ fontWeight: 700, fontSize: 18 }}>Bloc Admin</Typography>
+        <Typography sx={{ fontWeight: 700, fontSize: 18 }}>{t('app.title')}</Typography>
       </Toolbar>
       <Divider />
       <List>
