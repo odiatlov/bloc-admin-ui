@@ -39,7 +39,7 @@ const Topbar: React.FC<Props> = ({ drawerWidth = 240, toggleTheme, themeMode = '
         </FormControl>
 
         <Box sx={{ flexGrow: 1 }} />
-
+        
         <IconButton color="inherit" onClick={toggleTheme} sx={{ mr: 1 }} aria-label="toggle theme">
           {themeMode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
         </IconButton>

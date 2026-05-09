@@ -15,9 +15,9 @@ const Card: React.FC<{ title: string; value: React.ReactNode }> = ({ title, valu
 const OverviewCards: React.FC = () => {
   return (
     <Box sx={{ display: 'flex', gap: 2, mt: 2, flexWrap: 'wrap' }}>
-      <Card title="Users" value={124} />
-      <Card title="Active" value={87} />
-      <Card title="Errors" value={3} />
+      <Card title="Residents" value={124} />
+      <Card title="Apartments" value={87} />
+      <Card title="Blocks" value={3} />
     </Box>
   )
 }
