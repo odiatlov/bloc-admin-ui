@@ -35,7 +35,7 @@ const Card: React.FC<CardProps> = ({ icon, title, value }) => (
   </Paper>
 )
 
-const OverviewCards: React.FC = () => {
+const AdminOverviewCards: React.FC = () => {
   const { t } = useTranslation()
   const apartments = new Set(residents.map((resident) => `${resident.apartment.block}-${resident.apartment.number}`)).size
 
@@ -58,4 +58,4 @@ const OverviewCards: React.FC = () => {
   )
 }
 
-export default OverviewCards
+export default AdminOverviewCards

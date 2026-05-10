@@ -1,13 +1,13 @@
 import React from 'react'
-import OverviewCards from './OverviewCards'
-import KeyMetrics from './KeyMetrics'
+import OverviewCards from './AdminOverviewCards'
+import KeyMetrics from './AdminKeyMetrics'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import { useTranslation } from 'react-i18next'
 import Paper from '@mui/material/Paper'
 import Button from '@mui/material/Button'
-import ActivityFeed from './ActivityFeed'
-import AlertsPanel from './AlertsPanel'
+import ActivityFeed from './AdminActivityFeed'
+import AlertsPanel from './AdminAlertsPanel'
 
 const AdminDashboard: React.FC = () => {
   const { t } = useTranslation()

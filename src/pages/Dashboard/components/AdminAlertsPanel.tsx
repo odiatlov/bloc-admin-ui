@@ -6,7 +6,7 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import { useTranslation } from 'react-i18next'
 import { consumptionSummaries, invoices } from '../../../mocks/apartmentData'
 
-const AlertsPanel: React.FC = () => {
+const AdminAlertsPanel: React.FC = () => {
   const { t } = useTranslation()
   const overdueInvoices = invoices.filter((invoice) => invoice.status === 'overdue').length
   const unusualConsumption = consumptionSummaries.filter((summary) => summary.anomaly !== 'normal').length
@@ -32,4 +32,4 @@ const AlertsPanel: React.FC = () => {
   )
 }
 
-export default AlertsPanel
+export default AdminAlertsPanel

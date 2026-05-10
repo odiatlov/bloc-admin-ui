@@ -10,7 +10,7 @@ const items = [
   { textKey: 'waterReadingSubmitted', timeKey: 'oneDayAgo' }
 ]
 
-const ActivityFeed: React.FC = () => {
+const AdminActivityFeed: React.FC = () => {
   const { t } = useTranslation()
   return (
     <Paper sx={{ p: 2, mb: 2 }}>
@@ -30,4 +30,4 @@ const ActivityFeed: React.FC = () => {
   )
 }
 
-export default ActivityFeed
+export default AdminActivityFeed

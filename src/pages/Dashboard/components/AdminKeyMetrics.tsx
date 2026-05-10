@@ -32,14 +32,14 @@ const Metric: React.FC<MetricProps> = ({ label, value, trend }) => (
 )
 
 
-const KeyMetrics: React.FC = () => {
+const AdminKeyMetrics: React.FC = () => {
   const {t} = useTranslation()
   const { monthlyRevenue, unpaidInvoices, cashAwaitingVerification } = useFinance()
 
   return (
     <Box sx={{ mt: 2 }}>
       <Typography variant="h6" gutterBottom>
-        {t('dashboard.admin.keyMetrics.title')}
+        {t('dashboard.admin.KeyMetrics.title')}
       </Typography>
 
       <Box
@@ -56,7 +56,7 @@ const KeyMetrics: React.FC = () => {
         <Metric
           label={t('dashboard.admin.keyMetrics.monthlyRevenue')}
           value={formatCurrency(monthlyRevenue)}
-          trend={t('dashboard.admin.keyMetrics.monthlyRevenueTrend')}
+          trend={t('dashboard.admin.KeyMetrics.monthlyRevenueTrend')}
         />
         <Metric
           label={t('dashboard.admin.keyMetrics.outstanding')}
@@ -73,4 +73,4 @@ const KeyMetrics: React.FC = () => {
   )
 }
 
-export default KeyMetrics
+export default AdminKeyMetrics
