@@ -1,16 +1,15 @@
 import React from 'react'
-import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import { useTranslation } from 'react-i18next'
+import PageHeader from '../../components/shared/PageHeader'
+import ResidentsOverview from './components/ResidentsOverview'
 
 const Residents: React.FC = () => {
   const { t } = useTranslation()
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>
-        {t('pages.residents.title')}
-      </Typography>
-      <Typography>{t('pages.residents.description')}</Typography>
+      <PageHeader title={t('pages.residents.title')} description={t('pages.residents.description')} />
+      <ResidentsOverview />
     </Box>
   )
 }

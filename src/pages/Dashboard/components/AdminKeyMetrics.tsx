@@ -4,6 +4,7 @@ import Typography from '@mui/material/Typography'
 import Paper from '@mui/material/Paper'
 import TrendingUpIcon from '@mui/icons-material/TrendingUp'
 import { useTranslation } from 'react-i18next'
+import { formatCurrency, useFinance } from '../../../hooks/useApartmentData'
 
 type MetricProps = {
   label: string
@@ -31,8 +32,10 @@ const Metric: React.FC<MetricProps> = ({ label, value, trend }) => (
 )
 
 
-const KeyMetrics: React.FC = () => {
+const AdminKeyMetrics: React.FC = () => {
   const {t} = useTranslation()
+  const { monthlyRevenue, unpaidInvoices, cashAwaitingVerification } = useFinance()
+
   return (
     <Box sx={{ mt: 2 }}>
       <Typography variant="h6" gutterBottom>
@@ -52,22 +55,22 @@ const KeyMetrics: React.FC = () => {
       >
         <Metric
           label={t('dashboard.admin.keyMetrics.monthlyRevenue')}
-          value="$12,400"
+          value={formatCurrency(monthlyRevenue)}
           trend={t('dashboard.admin.keyMetrics.monthlyRevenueTrend')}
         />
         <Metric
           label={t('dashboard.admin.keyMetrics.outstanding')}
-          value={t('dashboard.admin.keyMetrics.outstandingValue', { count: 27 })}
+          value={t('dashboard.admin.keyMetrics.outstandingValue', { count: unpaidInvoices })}
           trend={t('dashboard.admin.keyMetrics.outstandingTrend')}
         />
         <Metric
-          label={t('dashboard.admin.keyMetrics.collectionRate')}
-          value="94%"
-          trend={t('dashboard.admin.keyMetrics.collectionStable')}
+          label={t('dashboard.admin.keyMetrics.cashVerification')}
+          value={t('dashboard.admin.keyMetrics.cashVerificationValue', { count: cashAwaitingVerification })}
+          trend={t('dashboard.admin.keyMetrics.cashVerificationTrend')}
         />
       </Box>
     </Box>
   )
 }
 
-export default KeyMetrics
+export default AdminKeyMetrics

@@ -2,7 +2,15 @@
   "app": {
     "title": "Block Admin"
   },
-
+  "common": {
+    "actions": "Actions",
+    "all": "All",
+    "blockValue": "Block {{block}}",
+    "cancel": "Cancel",
+    "close": "Close",
+    "notAvailable": "N/A",
+    "save": "Save"
+  },
   "layout": {
     "topbar": {
       "role": {
@@ -10,11 +18,14 @@
         "resident": "Resident"
       },
       "logout": "Logout",
-      "language": "Language"
+      "language": "Language",
+      "openSidebar": "Open sidebar",
+      "toggleTheme": "Toggle theme"
     }
   },
-
   "sidebar": {
+    "apartments": "Apartments",
+    "blocks": "Blocks",
     "dashboard": "Dashboard",
     "residents": "Residents",
     "finance": "Finance",
@@ -23,26 +34,47 @@
     "consumption": "Consumption",
     "reports": "Reports",
     "settings": "Settings",
+    "overview": "Overview",
+    "searchBlocks": "Search blocks",
+    "staircases": "Staircases",
     "close": "Close sidebar"
   },
-
+  "status": {
+    "invoice": {
+      "paid": "Paid",
+      "unpaid": "Unpaid",
+      "overdue": "Overdue"
+    },
+    "cash": {
+      "unverified": "Unverified",
+      "verified": "Verified",
+      "deposited": "Deposited"
+    },
+    "financial": {
+      "current": "Current",
+      "due": "Due",
+      "overdue": "Overdue"
+    },
+    "anomaly": {
+      "normal": "Normal",
+      "warning": "Warning",
+      "critical": "Critical"
+    }
+  },
   "dashboard": {
     "admin": {
       "title": "Admin Dashboard",
       "description": "Overview of your association activity today",
-
       "options": {
         "addInvoice": "+ Invoice",
         "addWaterReading": "+ Water Reading",
         "exportExcel": "Export Excel"
       },
-
       "overview": {
         "residents": "Residents",
         "apartments": "Apartments",
         "blocks": "Blocks"
       },
-
       "activity": {
         "title": "Recent Activity",
         "invoiceGenerated": "Invoice generated - Block A",
@@ -52,27 +84,26 @@
         "fourHoursAgo": "4h ago",
         "oneDayAgo": "1d ago"
       },
-
       "alerts": {
         "title": "Alerts",
-        "unpaidInvoices": "3 unpaid invoices due today",
-        "missingReadings": "2 missing water readings",
-        "overdueApartment": "1 overdue apartment"
+        "overdueInvoices": "{{count}} overdue invoices require follow-up",
+        "unusualConsumption": "{{count}} apartments show unusual consumption",
+        "cashWorkflow": "Cash register has entries pending reconciliation"
       },
-
       "keyMetrics": {
         "title": "Key Insights",
         "monthlyRevenue": "Monthly Revenue",
         "outstanding": "Outstanding",
         "outstandingValue": "{{count}} invoices",
         "collectionRate": "Collection Rate",
-
+        "cashVerification": "Cash Verification",
+        "cashVerificationValue": "{{count}} pending",
         "monthlyRevenueTrend": "+8% vs last month",
         "outstandingTrend": "+3 new this week",
-        "collectionStable": "Stable"
+        "collectionStable": "Stable",
+        "cashVerificationTrend": "UNVERIFIED -> VERIFIED -> DEPOSITED"
       }
     },
-
     "resident": {
       "title": "Resident Dashboard",
       "currentDue": "Current amount due",
@@ -81,34 +112,229 @@
       "indexValue": "Index: {{value}}",
       "noIndex": "No index submitted yet.",
       "recentAnnouncements": "Recent announcements",
-      "noAnnouncements": "No announcements"
+      "noAnnouncements": "No announcements",
+      "lastPayment": "Last payment: {{amount}}",
+      "announcements": {
+        "elevator": "Elevator maintenance is scheduled for May 12.",
+        "water": "Water shutoff for building B is scheduled for April 22."
+      }
     }
   },
-
   "pages": {
     "residents": {
       "title": "Residents",
       "description": "Manage residents and apartments in one place."
     },
-
+    "blocks": {
+      "title": "Blocks",
+      "description": "Search, review, and open the blocks managed by the administrator."
+    },
     "finance": {
       "title": "Finance",
-      "description": "Manage invoices, payments, and balances."
+      "description": "Manage invoices, payments, cash reconciliation, and balances."
     },
-
     "consumption": {
       "title": "Consumption",
-      "description": "Utility readings and meter indexes (water, electricity, etc.)."
+      "description": "Utility readings, meter indexes, and anomaly detection."
     },
-
     "reports": {
       "title": "Reports",
-      "description": "Exports, PDFs, and statistics."
+      "description": "Generate monthly reports, preview them, and export standard formats."
     },
-
     "settings": {
       "title": "Settings",
-      "description": "Application settings will go here."
+      "description": "Configure buildings, pricing rules, payment rules, and notifications."
+    }
+  },
+  "residents": {
+    "apartmentLabel": "Apartment {{apartment}}, floor {{floor}}",
+    "family": {
+      "members": "Residents",
+      "residentCount": "{{count}} residents"
+    },
+    "filters": {
+      "block": "Block",
+      "financialStatus": "Financial status"
+    },
+    "actions": {
+      "openDetails": "Open details",
+      "backToList": "Back",
+      "sendReminder": "Send reminder",
+      "registerPayment": "Register payment"
+    },
+    "detail": {
+      "invoices": "Invoice history",
+      "payments": "Payment history",
+      "consumption": "Consumption history"
+    }
+  },
+  "finance": {
+    "tabs": {
+      "invoices": "Invoices",
+      "payments": "Payments",
+      "cashRegister": "Cash Register"
+    },
+    "columns": {
+      "invoice": "Invoice",
+      "payment": "Payment",
+      "cash": "Cash entry",
+      "apartment": "Apartment / family",
+      "resident": "Resident",
+      "month": "Month",
+      "amount": "Amount",
+      "status": "Status",
+      "method": "Method",
+      "verification": "Verification",
+      "notes": "Notes"
+    },
+    "metrics": {
+      "monthlyRevenue": "Monthly revenue",
+      "unpaidInvoices": "Unpaid invoices",
+      "cashAwaiting": "Cash awaiting verification"
+    },
+    "method": {
+      "cash": "Cash",
+      "bank": "Bank transfer"
+    },
+    "filters": {
+      "method": "Payment method"
+    },
+    "actions": {
+      "bulkActions": "Bulk actions",
+      "registerCash": "Register cash",
+      "verify": "Verify",
+      "deposit": "Mark deposited"
+    },
+    "dialog": {
+      "cashTitle": "Register cash payment",
+      "cashBody": "Register {{amount}} in cash for invoice {{invoice}}. The entry starts as unverified."
+    },
+    "cash": {
+      "notes": {
+        "partial": "Partial payment received at office",
+        "receipt": "Receipt checked by administrator",
+        "deposited": "Deposited to association account",
+        "manual": "Manual cash registration"
+      }
+    },
+    "expenses": {
+      "maintenance": "Maintenance",
+      "administrative": "Administrative"
+    }
+  },
+  "blocks": {
+    "title": "Block {{block}}",
+    "description": "Block-level apartments, hierarchy, finance, and consumption.",
+    "monthlyStaircasePayments": "Monthly staircase payments",
+    "results": "{{count}} blocks",
+    "actions": {
+      "openOverview": "Open overview"
+    },
+    "columns": {
+      "floor": "Floor",
+      "staircase": "Staircase"
+    },
+    "metrics": {
+      "bank": "Bank",
+      "cash": "Cash",
+      "totalInvoices": "Total invoices",
+      "totalPayments": "Total payments",
+      "unpaid": "Unpaid balance"
+    }
+  },
+  "resident": {
+    "bills": {
+      "description": "View invoices, payment status, and downloadable bill details.",
+      "viewDetails": "View details",
+      "download": "Download",
+      "detailsTitle": "Invoice details",
+      "detailsBody": "Invoice {{invoice}} for {{month}} has a total amount of {{amount}}."
+    }
+  },
+  "consumption": {
+    "resident": {
+      "description": "Submit water indexes and review previous readings.",
+      "history": "Reading history"
+    },
+    "sections": {
+      "readings": "Water readings",
+      "anomalies": "Anomaly detection"
+    },
+    "columns": {
+      "apartment": "Apartment",
+      "previous": "Previous index",
+      "current": "Current index",
+      "usage": "Usage",
+      "anomaly": "Anomaly"
+    },
+    "actions": {
+      "submitIndex": "Submit index",
+      "addReading": "Add reading"
+    },
+    "dialog": {
+      "submitTitle": "Submit water index",
+      "adminTitle": "Add water reading"
+    }
+  },
+  "reports": {
+    "filters": {
+      "month": "Month"
+    },
+    "actions": {
+      "preview": "Preview",
+      "export": "Export"
+    },
+    "preview": {
+      "title": "Report preview",
+      "invoices": "Invoices",
+      "revenue": "Revenue",
+      "waterUsage": "Water usage"
+    }
+  },
+  "settings": {
+    "admin": {
+      "blockManagement": "Block management",
+      "financialSetup": "Financial setup"
+    },
+    "resident": {
+      "description": "Manage profile, notifications, and language.",
+      "profile": "Profile"
+    },
+    "sections": {
+      "costs": "Block costs",
+      "deadlines": "Payment deadlines",
+      "notifications": "Notification preferences",
+      "staircaseCosts": "Staircase-specific costs"
+    },
+    "fields": {
+      "block": "Block",
+      "blockDeadline": "Block payment deadline",
+      "blockName": "Block name",
+      "name": "Name",
+      "email": "Email",
+      "language": "Language",
+      "blocks": "Blocks",
+      "currency": "Currency",
+      "deadline": "Payment deadline day",
+      "staircaseDeadline": "Staircase {{staircase}} payment deadline",
+      "staircaseName": "Staircase {{staircase}}",
+      "waterPrice": "Water price",
+      "maintenanceFee": "Maintenance fee",
+      "emailNotifications": "Email notifications",
+      "paymentReminders": "Payment reminders",
+      "overdueAlerts": "Overdue payment alerts",
+      "cashAlerts": "Cash reconciliation alerts"
+    },
+    "actions": {
+      "addBlock": "Add block",
+      "editBlock": "Edit block"
+    },
+    "costs": {
+      "gas": "Gas",
+      "electricity": "Electricity",
+      "garbage": "Garbage",
+      "water": "Water",
+      "heating": "Heating"
     }
   }
 }

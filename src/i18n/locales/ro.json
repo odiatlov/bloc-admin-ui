@@ -2,7 +2,15 @@
   "app": {
     "title": "Bloc Admin"
   },
-
+  "common": {
+    "actions": "Acțiuni",
+    "all": "Toate",
+    "blockValue": "Bloc {{block}}",
+    "cancel": "Anulează",
+    "close": "Închide",
+    "notAvailable": "N/A",
+    "save": "Salvează"
+  },
   "layout": {
     "topbar": {
       "role": {
@@ -10,11 +18,14 @@
         "resident": "Locatar"
       },
       "logout": "Deconectare",
-      "language": "Limbă"
+      "language": "Limba",
+      "openSidebar": "Deschide meniul",
+      "toggleTheme": "Schimbă tema"
     }
   },
-
   "sidebar": {
+    "apartments": "Apartamente",
+    "blocks": "Blocuri",
     "dashboard": "Panou principal",
     "residents": "Locatari",
     "finance": "Finanțe",
@@ -23,26 +34,47 @@
     "consumption": "Consum",
     "reports": "Rapoarte",
     "settings": "Setări",
-    "close": "Inchide meniul"
+    "overview": "Prezentare",
+    "searchBlocks": "Caută blocuri",
+    "staircases": "Scări",
+    "close": "Închide meniul"
   },
-
+  "status": {
+    "invoice": {
+      "paid": "Plătită",
+      "unpaid": "Neachitată",
+      "overdue": "Restanță"
+    },
+    "cash": {
+      "unverified": "Neverificată",
+      "verified": "Verificată",
+      "deposited": "Depusă"
+    },
+    "financial": {
+      "current": "La zi",
+      "due": "Scadentă",
+      "overdue": "Restanță"
+    },
+    "anomaly": {
+      "normal": "Normal",
+      "warning": "Atenție",
+      "critical": "Critic"
+    }
+  },
   "dashboard": {
     "admin": {
-      "title": "Panoul Administratorului",
-      "description": "Prezentare generală a activității asociației astăzi",
-
+      "title": "Panoul administratorului",
+      "description": "Prezentare generală a activității asociației",
       "options": {
         "addInvoice": "+ Factură",
         "addWaterReading": "+ Citire apă",
         "exportExcel": "Export Excel"
       },
-
       "overview": {
         "residents": "Locatari",
         "apartments": "Apartamente",
         "blocks": "Blocuri"
       },
-
       "activity": {
         "title": "Activitate recentă",
         "invoiceGenerated": "Factură generată - Bloc A",
@@ -52,63 +84,257 @@
         "fourHoursAgo": "acum 4h",
         "oneDayAgo": "acum 1 zi"
       },
-
       "alerts": {
         "title": "Alerte",
-        "unpaidInvoices": "3 facturi neachitate scadente azi",
-        "missingReadings": "2 citiri lipsă",
-        "overdueApartment": "1 apartament restant"
+        "overdueInvoices": "{{count}} facturi restante necesită urmărire",
+        "unusualConsumption": "{{count}} apartamente au consum neobișnuit",
+        "cashWorkflow": "Registrul de numerar are intrări de reconciliat"
       },
-
       "keyMetrics": {
         "title": "Indicatori cheie",
         "monthlyRevenue": "Venit lunar",
         "outstanding": "Facturi restante",
         "outstandingValue": "{{count}} facturi",
-        "collectionRate": "Rată colectare",
-
+        "collectionRate": "Rata colectare",
+        "cashVerification": "Verificare numerar",
+        "cashVerificationValue": "{{count}} în așteptare",
         "monthlyRevenueTrend": "+8% față de luna trecută",
         "outstandingTrend": "+3 noi săptămâna aceasta",
-        "collectionStable": "Stabil"
+        "collectionStable": "Stabil",
+        "cashVerificationTrend": "NEVERIFICATĂ -> VERIFICATĂ -> DEPUSĂ"
       }
     },
-
     "resident": {
-      "title": "Panoul Locatarului",
-      "currentDue": "Sumă datorată curent",
+      "title": "Panoul locatarului",
+      "currentDue": "Suma curentă datorată",
       "pay": "Plătește",
-      "lastSubmittedIndex": "Ultimul indice trimis",
-      "indexValue": "Indice: {{value}}",
-      "noIndex": "Nu a fost trimis niciun indice.",
+      "lastSubmittedIndex": "Ultimul index trimis",
+      "indexValue": "Index: {{value}}",
+      "noIndex": "Nu a fost trimis niciun index.",
       "recentAnnouncements": "Anunțuri recente",
-      "noAnnouncements": "Nu există anunțuri"
+      "noAnnouncements": "Nu există anunțuri",
+      "lastPayment": "Ultima plată: {{amount}}",
+      "announcements": {
+        "elevator": "Revizia liftului este programată pentru 12 mai.",
+        "water": "Oprirea apei pentru blocul B este programată pentru 22 aprilie."
+      }
     }
   },
-
   "pages": {
     "residents": {
       "title": "Locatari",
       "description": "Gestionați locatarii și apartamentele într-un singur loc."
     },
-
+    "blocks": {
+      "title": "Blocuri",
+      "description": "Căutați, verificați și deschideți blocurile administrate."
+    },
     "finance": {
       "title": "Finanțe",
-      "description": "Gestionați facturi, plăți și solduri."
+      "description": "Gestionați facturi, plăți, reconciliere numerar și solduri."
     },
-
     "consumption": {
       "title": "Consum",
-      "description": "Citiri utilități și indici de contoare (apă, energie electrică etc.)."
+      "description": "Citiri utilități, indexuri de contoare și detecție anomalii."
     },
-
     "reports": {
       "title": "Rapoarte",
-      "description": "Exporturi, PDF-uri și statistici."
+      "description": "Generați rapoarte lunare, previzualizați și exportați formate standard."
     },
-
     "settings": {
       "title": "Setări",
-      "description": "Setările aplicației vor fi afișate aici."
+      "description": "Configurați blocuri, reguli de preț, termene de plată și notificări."
+    }
+  },
+  "residents": {
+    "apartmentLabel": "Apartament {{apartment}}, etaj {{floor}}",
+    "family": {
+      "members": "Locatari",
+      "residentCount": "{{count}} locatari"
+    },
+    "filters": {
+      "block": "Bloc",
+      "financialStatus": "Status financiar"
+    },
+    "actions": {
+      "openDetails": "Deschide detalii",
+      "backToList": "Înapoi",
+      "sendReminder": "Trimite reminder",
+      "registerPayment": "Înregistrează plata"
+    },
+    "detail": {
+      "invoices": "Istoric facturi",
+      "payments": "Istoric plăți",
+      "consumption": "Istoric consum"
+    }
+  },
+  "finance": {
+    "tabs": {
+      "invoices": "Facturi",
+      "payments": "Plăți",
+      "cashRegister": "Registru numerar"
+    },
+    "columns": {
+      "invoice": "Factură",
+      "payment": "Plată",
+      "cash": "Intrare numerar",
+      "apartment": "Apartament / familie",
+      "resident": "Locatar",
+      "month": "Luna",
+      "amount": "Suma",
+      "status": "Status",
+      "method": "Metodă",
+      "verification": "Verificare",
+      "notes": "Note"
+    },
+    "metrics": {
+      "monthlyRevenue": "Venit lunar",
+      "unpaidInvoices": "Facturi neachitate",
+      "cashAwaiting": "Numerar de verificat"
+    },
+    "method": {
+      "cash": "Numerar",
+      "bank": "Transfer bancar"
+    },
+    "filters": {
+      "method": "Metoda de plată"
+    },
+    "actions": {
+      "bulkActions": "Acțiuni în masă",
+      "registerCash": "Înregistrează numerar",
+      "verify": "Verifică",
+      "deposit": "Marchează depus"
+    },
+    "dialog": {
+      "cashTitle": "Înregistrare plată numerar",
+      "cashBody": "Înregistrați {{amount}} numerar pentru factura {{invoice}}. Intrarea pornește ca neverificată."
+    },
+    "cash": {
+      "notes": {
+        "partial": "Plată parțială primită la birou",
+        "receipt": "Chitanță verificată de administrator",
+        "deposited": "Depusă în contul asociației",
+        "manual": "Înregistrare manuală numerar"
+      }
+    },
+    "expenses": {
+      "maintenance": "Întreținere",
+      "administrative": "Administrativ"
+    }
+  },
+  "blocks": {
+    "title": "Bloc {{block}}",
+    "description": "Apartamente, ierarhie, finanțe și consum la nivel de bloc.",
+    "monthlyStaircasePayments": "Plăți lunare pe scară",
+    "results": "{{count}} blocuri",
+    "actions": {
+      "openOverview": "Deschide prezentarea"
+    },
+    "columns": {
+      "floor": "Etaj",
+      "staircase": "Scară"
+    },
+    "metrics": {
+      "bank": "Bancă",
+      "cash": "Numerar",
+      "totalInvoices": "Total facturi",
+      "totalPayments": "Total plăți",
+      "unpaid": "Sold neachitat"
+    }
+  },
+  "resident": {
+    "bills": {
+      "description": "Vedeți facturile, statusul plăților și detalii descărcabile.",
+      "viewDetails": "Vezi detalii",
+      "download": "Descarcă",
+      "detailsTitle": "Detalii factură",
+      "detailsBody": "Factura {{invoice}} pentru {{month}} are suma totală {{amount}}."
+    }
+  },
+  "consumption": {
+    "resident": {
+      "description": "Trimiteți indexul de apă și vedeți citirile anterioare.",
+      "history": "Istoric citiri"
+    },
+    "sections": {
+      "readings": "Citiri apă",
+      "anomalies": "Detecție anomalii"
+    },
+    "columns": {
+      "apartment": "Apartament",
+      "previous": "Index anterior",
+      "current": "Index curent",
+      "usage": "Consum",
+      "anomaly": "Anomalie"
+    },
+    "actions": {
+      "submitIndex": "Trimite index",
+      "addReading": "Adaugă citire"
+    },
+    "dialog": {
+      "submitTitle": "Trimite index apă",
+      "adminTitle": "Adaugă citire apă"
+    }
+  },
+  "reports": {
+    "filters": {
+      "month": "Luna"
+    },
+    "actions": {
+      "preview": "Previzualizare",
+      "export": "Export"
+    },
+    "preview": {
+      "title": "Previzualizare raport",
+      "invoices": "Facturi",
+      "revenue": "Venit",
+      "waterUsage": "Consum apă"
+    }
+  },
+  "settings": {
+    "admin": {
+      "blockManagement": "Administrare blocuri",
+      "financialSetup": "Configurare financiară"
+    },
+    "resident": {
+      "description": "Gestionați profilul, notificările și limba.",
+      "profile": "Profil"
+    },
+    "sections": {
+      "costs": "Costuri pe bloc",
+      "deadlines": "Termene de plată",
+      "notifications": "Preferințe notificări",
+      "staircaseCosts": "Costuri specifice pe scară"
+    },
+    "fields": {
+      "block": "Bloc",
+      "blockDeadline": "Termen de plată bloc",
+      "blockName": "Nume bloc",
+      "name": "Nume",
+      "email": "Email",
+      "language": "Limba",
+      "blocks": "Blocuri",
+      "currency": "Monedă",
+      "deadline": "Zi scadentă plată",
+      "staircaseDeadline": "Termen de plată scara {{staircase}}",
+      "staircaseName": "Scara {{staircase}}",
+      "waterPrice": "Preț apă",
+      "maintenanceFee": "Taxă întreținere",
+      "emailNotifications": "Notificări email",
+      "paymentReminders": "Reminder plăți",
+      "overdueAlerts": "Alerte restante",
+      "cashAlerts": "Alerte reconciliere numerar"
+    },
+    "actions": {
+      "addBlock": "Adaugă bloc",
+      "editBlock": "Editează bloc"
+    },
+    "costs": {
+      "gas": "Gaz",
+      "electricity": "Electricitate",
+      "garbage": "Salubritate",
+      "water": "Apă",
+      "heating": "Încălzire"
     }
   }
 }

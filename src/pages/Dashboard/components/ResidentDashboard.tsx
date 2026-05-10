@@ -10,42 +10,16 @@ import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import Divider from '@mui/material/Divider'
 import { useTranslation } from 'react-i18next'
-
-type Bill = {
-  id: string
-  dueDate: string
-  amount: number
-  status: 'paid' | 'unpaid'
-}
-
-type Consumption = {
-  id: string
-  date: string
-  index: number
-}
+import { formatCurrency, useResidentPortal } from '../../../hooks/useApartmentData'
 
 const ResidentDashboard: React.FC = () => {
   const { t } = useTranslation()
-
-  // Mock data
-  const bills: Bill[] = [
-    { id: 'B-1001', dueDate: '2026-05-10', amount: 125.5, status: 'unpaid' },
-    { id: 'B-1000', dueDate: '2026-04-10', amount: 98.25, status: 'paid' },
-  ]
-
-  const consumption: Consumption[] = [
-    { id: 'C-202604', date: '2026-04-30', index: 324 },
-    { id: 'C-202603', date: '2026-03-31', index: 310 },
-  ]
-
+  const { currentBalance, lastPayment, residentReadings } = useResidentPortal()
+  const lastIndex = residentReadings.length ? residentReadings[0] : null
   const announcements = [
-    { id: 'A1', date: '2026-05-01', text: 'Elevator maintenance scheduled for May 12.' },
-    { id: 'A2', date: '2026-04-20', text: 'Water shutoff for building B on April 22.' },
+    { id: 'A1', date: '2026-05-01', textKey: 'dashboard.resident.announcements.elevator' },
+    { id: 'A2', date: '2026-04-20', textKey: 'dashboard.resident.announcements.water' },
   ]
-
-  const amountDue = bills.filter((b) => b.status === 'unpaid').reduce((s, b) => s + b.amount, 0)
-
-  const lastIndex = consumption.length ? consumption[0] : null
 
   return (
     <section className="dashboard">
@@ -58,7 +32,7 @@ const ResidentDashboard: React.FC = () => {
             <CardContent>
               <Typography variant="h6">{t('dashboard.resident.currentDue')}</Typography>
               <Typography variant="h3" sx={{ mt: 1, mb: 2 }}>
-                {amountDue.toLocaleString(undefined, { style: 'currency', currency: 'EUR' })}
+                {formatCurrency(currentBalance)}
               </Typography>
               <Button variant="contained" color="primary">
                 {t('dashboard.resident.pay')}
@@ -71,9 +45,9 @@ const ResidentDashboard: React.FC = () => {
               <Typography variant="h6">{t('dashboard.resident.lastSubmittedIndex')}</Typography>
               {lastIndex ? (
                 <Box sx={{ mt: 1 }}>
-                  <Typography>{t('dashboard.resident.indexValue', { value: lastIndex.index })}</Typography>
+                  <Typography>{t('dashboard.resident.indexValue', { value: lastIndex.currentValue })}</Typography>
                   <Typography variant="caption" color="text.secondary">
-                    {new Date(lastIndex.date).toLocaleDateString()}
+                    {lastIndex.month}
                   </Typography>
                 </Box>
               ) : (
@@ -85,12 +59,17 @@ const ResidentDashboard: React.FC = () => {
         <Card>
             <CardContent>
               <Typography variant="h6">{t('dashboard.resident.recentAnnouncements')}</Typography>
+              {lastPayment && (
+                <Typography variant="body2" color="text.secondary">
+                  {t('dashboard.resident.lastPayment', { amount: formatCurrency(lastPayment.amount) })}
+                </Typography>
+              )}
               <List>
                 {announcements.length ? (
                   announcements.map((a) => (
                     <React.Fragment key={a.id}>
                       <ListItem alignItems="flex-start">
-                        <ListItemText primary={a.text} secondary={new Date(a.date).toLocaleDateString()} />
+                        <ListItemText primary={t(a.textKey)} secondary={new Date(a.date).toLocaleDateString()} />
                       </ListItem>
                       <Divider component="li" />
                     </React.Fragment>
