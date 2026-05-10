@@ -3,6 +3,7 @@ import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
+import { useTranslation } from 'react-i18next'
 
 const alerts = [
   '3 unpaid invoices due today',
@@ -11,9 +12,10 @@ const alerts = [
 ]
 
 const AlertsPanel: React.FC = () => {
+  const { t } = useTranslation()
   return (
     <Paper sx={{ p: 2 }}>
-      <Typography variant="h6">Alerts</Typography>
+      <Typography variant="h6">{t('dashboard.admin.alerts.title')}</Typography>
 
       <Box sx={{ mt: 1 }}>
         {alerts.map((a, idx) => (

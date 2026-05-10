@@ -6,7 +6,7 @@ import ResidentDashboard from './Resident/ResidentDashboard'
 const RoleAwareDashboard: React.FC = () => {
   const { role } = React.useContext(RoleContext)
 
-  if (role === 'Tenant') return <ResidentDashboard />
+  if (role === 'Resident') return <ResidentDashboard />
   return <AdminDashboard />
 }
 

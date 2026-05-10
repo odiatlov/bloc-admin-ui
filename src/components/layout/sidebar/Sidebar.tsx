@@ -26,7 +26,7 @@ const Sidebar: React.FC<Props> = ({ drawerWidth }) => {
   const { role } = React.useContext(RoleContext)
   const { t } = useTranslation()
 
-  const navItems = role === 'Tenant'
+  const navItems = role === 'Resident'
     ? [
         { label: t('sidebar.dashboard'), to: '/admin/dashboard', icon: <DashboardIcon />, permission: 'dashboard' as const },
         { label: t('sidebar.myBills'), to: '/admin/finance', icon: <MonetizationOnIcon />, permission: 'finance' as const },

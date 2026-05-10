@@ -2,6 +2,7 @@ import React from 'react'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
+import { useTranslation } from 'react-i18next'
 
 const items = [
   { text: 'Invoice generated - Block A', time: '2h ago' },
@@ -10,9 +11,10 @@ const items = [
 ]
 
 const ActivityFeed: React.FC = () => {
+  const { t } = useTranslation()
   return (
     <Paper sx={{ p: 2, mb: 2 }}>
-      <Typography variant="h6">Recent Activity</Typography>
+      <Typography variant="h6">{t('dashboard.admin.activity.title')}</Typography>
 
       <Box sx={{ mt: 1 }}>
         {items.map((i, idx) => (

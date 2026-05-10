@@ -5,6 +5,7 @@ import Typography from '@mui/material/Typography'
 import PeopleIcon from '@mui/icons-material/People'
 import HomeIcon from '@mui/icons-material/Home'
 import ApartmentIcon from '@mui/icons-material/Apartment'
+import { useTranslation } from 'react-i18next'
 
 const Card = ({ icon, title, value }: any) => (
   <Paper
@@ -30,11 +31,12 @@ const Card = ({ icon, title, value }: any) => (
 )
 
 const OverviewCards: React.FC = () => {
+  const { t } = useTranslation()
   return (
     <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-      <Card icon={<PeopleIcon />} title="Residents" value={124} />
-      <Card icon={<HomeIcon />} title="Apartments" value={87} />
-      <Card icon={<ApartmentIcon />} title="Blocks" value={3} />
+      <Card icon={<PeopleIcon />} title={t('dashboard.admin.overview.residents')} value={124} />
+      <Card icon={<HomeIcon />} title={t('dashboard.admin.overview.apartments')} value={87} />
+      <Card icon={<ApartmentIcon />} title={t('dashboard.admin.overview.blocks')} value={3} />
     </Box>
   )
 }

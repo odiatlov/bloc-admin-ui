@@ -20,13 +20,13 @@ const AdminDashboard: React.FC = () => {
           {t('dashboard.admin.title')}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Overview of your association activity today
+          {t('dashboard.admin.description')}
         </Typography>
 
         <Box sx={{ display: 'flex', gap: 1, mt: 2, flexWrap: 'wrap' }}>
-          <Button variant="contained">+ Invoice</Button>
-          <Button variant="contained">+ Water Reading</Button>
-          <Button variant="contained">Export Excel</Button>
+          <Button variant="contained">{t('dashboard.admin.options.addInvoice')}</Button>
+          <Button variant="contained">{t('dashboard.admin.options.addWaterReading')}</Button>
+          <Button variant="contained">{t('dashboard.admin.options.exportExcel')}</Button>
         </Box>
       </Paper>
 
