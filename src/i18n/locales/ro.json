@@ -2,16 +2,18 @@
   "app": {
     "title": "Bloc Admin"
   },
+
   "layout": {
     "topbar": {
       "role": {
         "admin": "Administrator",
-        "tenant": "Locatar"
+        "resident": "Locatar"
       },
       "logout": "Deconectare",
       "language": "Limbă"
     }
   },
+
   "sidebar": {
     "dashboard": "Panou principal",
     "residents": "Locatari",
@@ -20,27 +22,59 @@
     "waterIndex": "Index apă",
     "consumption": "Consum",
     "reports": "Rapoarte",
-    "settings": "Setări"
+    "settings": "Setări",
+    "close": "Inchide meniul"
   },
+
   "dashboard": {
     "admin": {
       "title": "Panoul Administratorului",
+      "description": "Prezentare generală a activității asociației astăzi",
+
+      "options": {
+        "addInvoice": "+ Factură",
+        "addWaterReading": "+ Citire apă",
+        "exportExcel": "Export Excel"
+      },
+
       "overview": {
         "residents": "Locatari",
         "apartments": "Apartamente",
         "blocks": "Blocuri"
+      },
+
+      "activity": {
+        "title": "Activitate recentă",
+        "invoiceGenerated": "Factură generată - Bloc A",
+        "paymentReceived": "Plată primită - Ap. 12",
+        "waterReadingSubmitted": "Index apă trimis - Ap. 7",
+        "twoHoursAgo": "acum 2h",
+        "fourHoursAgo": "acum 4h",
+        "oneDayAgo": "acum 1 zi"
+      },
+
+      "alerts": {
+        "title": "Alerte",
+        "unpaidInvoices": "3 facturi neachitate scadente azi",
+        "missingReadings": "2 citiri lipsă",
+        "overdueApartment": "1 apartament restant"
+      },
+
+      "keyMetrics": {
+        "title": "Indicatori cheie",
+        "monthlyRevenue": "Venit lunar",
+        "outstanding": "Facturi restante",
+        "outstandingValue": "{{count}} facturi",
+        "collectionRate": "Rată colectare",
+
+        "monthlyRevenueTrend": "+8% față de luna trecută",
+        "outstandingTrend": "+3 noi săptămâna aceasta",
+        "collectionStable": "Stabil"
       }
-    ,
-      "keyMetrics": "Indicatori cheie",
-      "monthlyRevenue": "Venit lunar:",
-      "outstandingInvoices": "Facturi restante:"
-    }
-  ,
-    "role": {
-      "residentTitle": "Panoul Locatarului"
-    }
-  ,
+    },
+
     "resident": {
+      "title": "Panoul Locatarului",
       "currentDue": "Sumă datorată curent",
       "pay": "Plătește",
       "lastSubmittedIndex": "Ultimul indice trimis",
@@ -50,26 +84,31 @@
       "noAnnouncements": "Nu există anunțuri"
     }
   },
+
   "pages": {
-    "consumption": {
-      "title": "Consum",
-      "description": "Citiri utilități și indici de contoare (apă, energie electrică etc.)."
+    "residents": {
+      "title": "Locatari",
+      "description": "Gestionați locatarii și apartamentele într-un singur loc."
     },
+
     "finance": {
       "title": "Finanțe",
       "description": "Gestionați facturi, plăți și solduri."
     },
-    "settings": {
-      "title": "Setări",
-      "description": "Setările aplicației vor fi afișate aici."
+
+    "consumption": {
+      "title": "Consum",
+      "description": "Citiri utilități și indici de contoare (apă, energie electrică etc.)."
     },
+
     "reports": {
       "title": "Rapoarte",
       "description": "Exporturi, PDF-uri și statistici."
     },
-    "residents": {
-      "title": "Locatari",
-      "description": "Gestionați locatarii și apartamentele într-un singur loc."
+
+    "settings": {
+      "title": "Setări",
+      "description": "Setările aplicației vor fi afișate aici."
     }
   }
 }

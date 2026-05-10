@@ -9,6 +9,8 @@ import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
+import MenuIcon from '@mui/icons-material/Menu'
+import { useNavigate } from 'react-router-dom'
 
 import { RoleContext, type Role } from '../../../contexts/RoleContext'
 import { useTranslation } from 'react-i18next'
@@ -17,11 +19,20 @@ type Props = {
   drawerWidth?: number
   toggleTheme?: () => void
   themeMode?: 'light' | 'dark'
+  isMobile?: boolean
+  onMenuClick?: () => void
 }
 
-const Topbar: React.FC<Props> = ({ drawerWidth = 240, toggleTheme, themeMode = 'dark' }) => {
+const Topbar: React.FC<Props> = ({
+  drawerWidth = 240,
+  toggleTheme,
+  themeMode = 'dark',
+  isMobile = false,
+  onMenuClick,
+}) => {
   const { role, setRole } = React.useContext(RoleContext)
   const { t, i18n } = useTranslation()
+  const navigate = useNavigate()
 
   const [language, setLanguage] = React.useState<string>(i18n.language || 'en')
 
@@ -35,6 +46,7 @@ const Topbar: React.FC<Props> = ({ drawerWidth = 240, toggleTheme, themeMode = '
 
   const handleRoleChange = (e: SelectChangeEvent<string>) => {
     setRole(e.target.value as Role)
+    navigate('/admin/dashboard')
   }
 
   const handleLanguageChange = (e: SelectChangeEvent<string>) => {
@@ -51,30 +63,47 @@ const Topbar: React.FC<Props> = ({ drawerWidth = 240, toggleTheme, themeMode = '
   return (
     <AppBar
       position="fixed"
-      sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}
+      sx={{
+        width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` },
+        ml: { xs: 0, md: `${drawerWidth}px` },
+      }}
     >
-      <Toolbar>
-        <FormControl variant="standard" sx={{ minWidth: 120 }}>
+      <Toolbar sx={{ gap: { xs: 1, sm: 2 }, minWidth: 0 }}>
+        {isMobile && (
+          <IconButton
+            color="inherit"
+            edge="start"
+            onClick={onMenuClick}
+            aria-label="open sidebar"
+            sx={{ flexShrink: 0 }}
+          >
+            <MenuIcon />
+          </IconButton>
+        )}
+
+        <FormControl variant="standard" sx={{ minWidth: { xs: 96, sm: 120 }, flexShrink: 0 }}>
           <Select value={role} onChange={handleRoleChange} inputProps={{ 'aria-label': 'role-select' }}>
             <MenuItem value="Admin">{t('layout.topbar.role.admin')}</MenuItem>
-            <MenuItem value="Tenant">{t('layout.topbar.role.tenant')}</MenuItem>
+            <MenuItem value="Resident">{t('layout.topbar.role.resident')}</MenuItem>
           </Select>
         </FormControl>
 
         <Box sx={{ flexGrow: 1 }} />
         
-        <IconButton color="inherit" onClick={toggleTheme} sx={{ mr: 1 }} aria-label="toggle theme">
+        <IconButton color="inherit" onClick={toggleTheme} aria-label="toggle theme">
           {themeMode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
         </IconButton>
 
-          <FormControl variant="standard" sx={{ minWidth: 96, mr: 1 }}>
+          <FormControl variant="standard" sx={{ minWidth: 72, flexShrink: 0 }}>
             <Select value={language} onChange={handleLanguageChange} inputProps={{ 'aria-label': 'language-select' }}>
               <MenuItem value="en">EN</MenuItem>
               <MenuItem value="ro">RO</MenuItem>
             </Select>
           </FormControl>
 
-          <Button color="inherit">{t('layout.topbar.logout')}</Button>
+          <Button color="inherit" sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>
+            {t('layout.topbar.logout')}
+          </Button>
       </Toolbar>
     </AppBar>
   )

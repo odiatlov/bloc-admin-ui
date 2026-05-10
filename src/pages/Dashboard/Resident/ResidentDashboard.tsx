@@ -50,7 +50,7 @@ const ResidentDashboard: React.FC = () => {
   return (
     <section className="dashboard">
       <Typography variant="h4" gutterBottom>
-        {t('dashboard.role.residentTitle')}
+        {t('dashboard.resident.title')}
       </Typography>
 
       <Box sx={{ display: 'grid', gap: 2, mt: 1, gridTemplateColumns: { xs: '1fr', md: 'repeat(2,1fr)', lg: 'repeat(3,1fr)' } }}>

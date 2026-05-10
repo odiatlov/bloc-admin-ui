@@ -2,16 +2,18 @@
   "app": {
     "title": "Block Admin"
   },
+
   "layout": {
     "topbar": {
       "role": {
         "admin": "Administrator",
-        "tenant": "Resident"
+        "resident": "Resident"
       },
       "logout": "Logout",
       "language": "Language"
     }
   },
+
   "sidebar": {
     "dashboard": "Dashboard",
     "residents": "Residents",
@@ -20,27 +22,59 @@
     "waterIndex": "Water Index",
     "consumption": "Consumption",
     "reports": "Reports",
-    "settings": "Settings"
+    "settings": "Settings",
+    "close": "Close sidebar"
   },
+
   "dashboard": {
     "admin": {
       "title": "Admin Dashboard",
+      "description": "Overview of your association activity today",
+
+      "options": {
+        "addInvoice": "+ Invoice",
+        "addWaterReading": "+ Water Reading",
+        "exportExcel": "Export Excel"
+      },
+
       "overview": {
         "residents": "Residents",
         "apartments": "Apartments",
         "blocks": "Blocks"
+      },
+
+      "activity": {
+        "title": "Recent Activity",
+        "invoiceGenerated": "Invoice generated - Block A",
+        "paymentReceived": "Payment received - Apt 12",
+        "waterReadingSubmitted": "Water reading submitted - Apt 7",
+        "twoHoursAgo": "2h ago",
+        "fourHoursAgo": "4h ago",
+        "oneDayAgo": "1d ago"
+      },
+
+      "alerts": {
+        "title": "Alerts",
+        "unpaidInvoices": "3 unpaid invoices due today",
+        "missingReadings": "2 missing water readings",
+        "overdueApartment": "1 overdue apartment"
+      },
+
+      "keyMetrics": {
+        "title": "Key Insights",
+        "monthlyRevenue": "Monthly Revenue",
+        "outstanding": "Outstanding",
+        "outstandingValue": "{{count}} invoices",
+        "collectionRate": "Collection Rate",
+
+        "monthlyRevenueTrend": "+8% vs last month",
+        "outstandingTrend": "+3 new this week",
+        "collectionStable": "Stable"
       }
-    ,
-      "keyMetrics": "Key Metrics",
-      "monthlyRevenue": "Monthly revenue:",
-      "outstandingInvoices": "Outstanding invoices:"
-    }
-  ,
-    "role": {
-      "residentTitle": "Resident Dashboard"
-    }
-  ,
+    },
+
     "resident": {
+      "title": "Resident Dashboard",
       "currentDue": "Current amount due",
       "pay": "Pay",
       "lastSubmittedIndex": "Last submitted index",
@@ -50,26 +84,31 @@
       "noAnnouncements": "No announcements"
     }
   },
+
   "pages": {
-    "consumption": {
-      "title": "Consumption",
-      "description": "Utility readings and meter indexes (water, electricity, etc.)."
+    "residents": {
+      "title": "Residents",
+      "description": "Manage residents and apartments in one place."
     },
+
     "finance": {
       "title": "Finance",
       "description": "Manage invoices, payments, and balances."
     },
-    "settings": {
-      "title": "Settings",
-      "description": "Application settings will go here."
+
+    "consumption": {
+      "title": "Consumption",
+      "description": "Utility readings and meter indexes (water, electricity, etc.)."
     },
+
     "reports": {
       "title": "Reports",
       "description": "Exports, PDFs, and statistics."
     },
-    "residents": {
-      "title": "Residents",
-      "description": "Manage residents and apartments in one place."
+
+    "settings": {
+      "title": "Settings",
+      "description": "Application settings will go here."
     }
   }
 }

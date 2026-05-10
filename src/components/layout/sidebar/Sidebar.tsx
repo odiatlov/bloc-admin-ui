@@ -7,6 +7,8 @@ import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import Divider from '@mui/material/Divider'
+import IconButton from '@mui/material/IconButton'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import PeopleIcon from '@mui/icons-material/People'
 import SettingsIcon from '@mui/icons-material/Settings'
@@ -20,13 +22,21 @@ import { rolePermissions } from '../../../mocks/roles'
 
 type Props = {
   drawerWidth: number
+  mobileOpen?: boolean
+  onMobileClose?: () => void
 }
 
-const Sidebar: React.FC<Props> = ({ drawerWidth }) => {
+type SidebarContentProps = {
+  onNavigate?: () => void
+  onClose?: () => void
+  showCloseButton?: boolean
+}
+
+const SidebarContent: React.FC<SidebarContentProps> = ({ onNavigate, onClose, showCloseButton = false }) => {
   const { role } = React.useContext(RoleContext)
   const { t } = useTranslation()
 
-  const navItems = role === 'Tenant'
+  const navItems = role === 'Resident'
     ? [
         { label: t('sidebar.dashboard'), to: '/admin/dashboard', icon: <DashboardIcon />, permission: 'dashboard' as const },
         { label: t('sidebar.myBills'), to: '/admin/finance', icon: <MonetizationOnIcon />, permission: 'finance' as const },
@@ -45,8 +55,13 @@ const Sidebar: React.FC<Props> = ({ drawerWidth }) => {
   const allowed = rolePermissions[role] || []
 
   return (
-    <Drawer variant="permanent" anchor="left" sx={{ width: drawerWidth, flexShrink: 0, [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' } }}>
+    <>
       <Toolbar>
+        {showCloseButton && (
+          <IconButton edge="start" onClick={onClose} aria-label={t('sidebar.close')} sx={{ mr: 1 }}>
+            <ArrowBackIcon />
+          </IconButton>
+        )}
         <Typography sx={{ fontWeight: 700, fontSize: 18 }}>{t('app.title')}</Typography>
       </Toolbar>
       <Divider />
@@ -54,13 +69,46 @@ const Sidebar: React.FC<Props> = ({ drawerWidth }) => {
         {navItems
           .filter((it) => allowed.includes(it.permission))
           .map((item) => (
-            <ListItemButton key={item.to} component={NavLink} to={item.to}>
+            <ListItemButton key={item.to} component={NavLink} to={item.to} onClick={onNavigate}>
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.label} />
             </ListItemButton>
           ))}
       </List>
-    </Drawer>
+    </>
+  )
+}
+
+const Sidebar: React.FC<Props> = ({ drawerWidth, mobileOpen = false, onMobileClose }) => {
+  return (
+    <>
+      <Drawer
+        variant="temporary"
+        anchor="left"
+        open={mobileOpen}
+        onClose={onMobileClose}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          display: { xs: 'block', md: 'none' },
+          [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
+        }}
+      >
+        <SidebarContent onNavigate={onMobileClose} onClose={onMobileClose} showCloseButton />
+      </Drawer>
+
+      <Drawer
+        variant="permanent"
+        anchor="left"
+        sx={{
+          display: { xs: 'none', md: 'block' },
+          width: drawerWidth,
+          flexShrink: 0,
+          [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
+        }}
+      >
+        <SidebarContent />
+      </Drawer>
+    </>
   )
 }
 
