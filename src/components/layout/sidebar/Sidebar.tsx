@@ -8,6 +8,8 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import PeopleIcon from '@mui/icons-material/People'
@@ -15,6 +17,8 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn'
 import OpacityIcon from '@mui/icons-material/Opacity'
 import AssessmentIcon from '@mui/icons-material/Assessment'
+import HomeWorkIcon from '@mui/icons-material/HomeWork'
+import LogoutIcon from '@mui/icons-material/Logout'
 import { NavLink } from 'react-router-dom'
 import { RoleContext } from '../../../contexts/RoleContext'
 import { useTranslation } from 'react-i18next'
@@ -45,6 +49,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ onNavigate, onClose, sh
       ]
     : [
         { label: t('sidebar.dashboard'), to: '/admin/dashboard', icon: <DashboardIcon />, permission: 'dashboard' as const },
+        { label: t('sidebar.blocks'), to: '/admin/blocks', icon: <HomeWorkIcon />, permission: 'blocks' as const },
         { label: t('sidebar.residents'), to: '/admin/residents', icon: <PeopleIcon />, permission: 'residents' as const },
         { label: t('sidebar.finance'), to: '/admin/finance', icon: <MonetizationOnIcon />, permission: 'finance' as const },
         { label: t('sidebar.consumption'), to: '/admin/consumption', icon: <OpacityIcon />, permission: 'consumption' as const },
@@ -55,7 +60,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ onNavigate, onClose, sh
   const allowed = rolePermissions[role] || []
 
   return (
-    <>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Toolbar>
         {showCloseButton && (
           <IconButton edge="start" onClick={onClose} aria-label={t('sidebar.close')} sx={{ mr: 1 }}>
@@ -65,17 +70,25 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ onNavigate, onClose, sh
         <Typography sx={{ fontWeight: 700, fontSize: 18 }}>{t('app.title')}</Typography>
       </Toolbar>
       <Divider />
-      <List>
-        {navItems
-          .filter((it) => allowed.includes(it.permission))
-          .map((item) => (
-            <ListItemButton key={item.to} component={NavLink} to={item.to} onClick={onNavigate}>
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.label} />
-            </ListItemButton>
-          ))}
-      </List>
-    </>
+      <Box sx={{ flex: 1, overflowY: 'auto' }}>
+        <List>
+          {navItems
+            .filter((it) => allowed.includes(it.permission))
+            .map((item) => (
+              <ListItemButton key={item.to} component={NavLink} to={item.to} onClick={onNavigate}>
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.label} />
+              </ListItemButton>
+            ))}
+        </List>
+      </Box>
+      <Divider />
+      <Box sx={{ p: 2 }}>
+        <Button fullWidth startIcon={<LogoutIcon />} color="inherit" sx={{ justifyContent: 'flex-start' }}>
+          {t('layout.topbar.logout')}
+        </Button>
+      </Box>
+    </Box>
   )
 }
 

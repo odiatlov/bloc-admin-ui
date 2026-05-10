@@ -17,7 +17,7 @@ import PaymentIcon from '@mui/icons-material/Payment'
 import { useTranslation } from 'react-i18next'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
-import { formatApartment, formatCurrency, useResidents } from '../../../hooks/useApartmentData'
+import { formatCurrency, getBlockLabel, useResidents } from '../../../hooks/useApartmentData'
 import type { FinancialStatus } from '../../../mocks/apartmentData'
 
 const ResidentsOverview: React.FC = () => {
@@ -26,14 +26,14 @@ const ResidentsOverview: React.FC = () => {
     blocks,
     blockFilter,
     financialStatusFilter,
-    groupedResidents,
+    groupedApartments,
+    selectedApartment,
     selectedInvoices,
     selectedPayments,
     selectedReadings,
-    selectedResident,
     setBlockFilter,
     setFinancialStatusFilter,
-    setSelectedResidentId,
+    setSelectedApartmentId,
   } = useResidents()
   const [detailTab, setDetailTab] = React.useState(0)
 
@@ -66,8 +66,8 @@ const ResidentsOverview: React.FC = () => {
           <Select label={t('residents.filters.block')} value={blockFilter} onChange={(event: SelectChangeEvent) => setBlockFilter(event.target.value)}>
             <MenuItem value="all">{t('common.all')}</MenuItem>
             {blocks.map((block) => (
-              <MenuItem key={block} value={block}>
-                {t('common.blockValue', { block })}
+              <MenuItem key={block.id} value={block.id}>
+                {t('common.blockValue', { block: block.name })}
               </MenuItem>
             ))}
           </Select>
@@ -89,24 +89,24 @@ const ResidentsOverview: React.FC = () => {
       </Paper>
 
       <Box sx={{ display: 'grid', gap: 2 }}>
-        {Object.entries(groupedResidents).map(([block, group]) => (
+        {Object.entries(groupedApartments).map(([block, group]) => (
           <Paper key={block} sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>
-              {t('common.blockValue', { block })}
+              {t('common.blockValue', { block: getBlockLabel(block) })}
             </Typography>
             <Box sx={{ display: 'grid', gap: 1 }}>
-              {group.map((resident) => (
-                <Paper key={resident.id} variant="outlined" sx={{ p: 1.5, display: 'flex', gap: 2, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+              {group.map((apartment) => (
+                <Paper key={apartment.id} variant="outlined" sx={{ p: 1.5, display: 'flex', gap: 2, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
                   <Box>
-                    <Typography sx={{ fontWeight: 700 }}>{resident.name}</Typography>
+                    <Typography sx={{ fontWeight: 700 }}>{apartment.familyLabel}</Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {t('residents.apartmentLabel', { apartment: formatApartment(resident.apartment), floor: resident.apartment.floor })}
+                      {t('residents.family.residentCount', { count: apartment.residentCount })}
                     </Typography>
                   </Box>
                   <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
-                    <StatusChip status={resident.financialStatus} label={t(`status.financial.${resident.financialStatus}`)} />
-                    <Typography variant="body2">{formatCurrency(resident.debtBalance)}</Typography>
-                    <Button size="small" onClick={() => setSelectedResidentId(resident.id)}>
+                    <StatusChip status={apartment.financialStatus} label={t(`status.financial.${apartment.financialStatus}`)} />
+                    <Typography variant="body2">{formatCurrency(apartment.debtBalance)}</Typography>
+                    <Button size="small" onClick={() => setSelectedApartmentId(apartment.id)}>
                       {t('residents.actions.openDetails')}
                     </Button>
                   </Box>
@@ -117,20 +117,32 @@ const ResidentsOverview: React.FC = () => {
         ))}
       </Box>
 
-      <Drawer anchor="right" open={Boolean(selectedResident)} onClose={() => setSelectedResidentId(null)} slotProps={{ paper: { sx: { width: { xs: '100%', sm: 520 }, p: 2 } } }}>
-        {selectedResident && (
+      <Drawer anchor="right" open={Boolean(selectedApartment)} onClose={() => setSelectedApartmentId(null)} slotProps={{ paper: { sx: { width: { xs: '100%', sm: 520 }, p: 2 } } }}>
+        {selectedApartment && (
           <Box sx={{ display: 'grid', gap: 2 }}>
             <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
-              <Button startIcon={<ArrowBackIcon />} onClick={() => setSelectedResidentId(null)}>
+              <Button startIcon={<ArrowBackIcon />} onClick={() => setSelectedApartmentId(null)}>
                 {t('residents.actions.backToList')}
               </Button>
               <Box>
-                <Typography variant="h5">{selectedResident.name}</Typography>
+                <Typography variant="h5">{selectedApartment.familyLabel}</Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {t('residents.apartmentLabel', { apartment: formatApartment(selectedResident.apartment), floor: selectedResident.apartment.floor })}
+                  {t('residents.family.residentCount', { count: selectedApartment.residentCount })}
                 </Typography>
               </Box>
             </Box>
+            <Paper variant="outlined" sx={{ p: 1.5 }}>
+              <Typography variant="subtitle2" gutterBottom>
+                {t('residents.family.members')}
+              </Typography>
+              <Box sx={{ display: 'grid', gap: 0.5 }}>
+                {selectedApartment.residents.map((resident) => (
+                  <Typography key={resident.id} variant="body2">
+                    {resident.name}
+                  </Typography>
+                ))}
+              </Box>
+            </Paper>
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
               <Button startIcon={<NotificationsActiveIcon />} variant="outlined">
                 {t('residents.actions.sendReminder')}

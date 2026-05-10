@@ -8,6 +8,7 @@
     "blockValue": "Bloc {{block}}",
     "cancel": "Anulează",
     "close": "Închide",
+    "notAvailable": "N/A",
     "save": "Salvează"
   },
   "layout": {
@@ -17,10 +18,14 @@
         "resident": "Locatar"
       },
       "logout": "Deconectare",
-      "language": "Limba"
+      "language": "Limba",
+      "openSidebar": "Deschide meniul",
+      "toggleTheme": "Schimbă tema"
     }
   },
   "sidebar": {
+    "apartments": "Apartamente",
+    "blocks": "Blocuri",
     "dashboard": "Panou principal",
     "residents": "Locatari",
     "finance": "Finanțe",
@@ -29,6 +34,9 @@
     "consumption": "Consum",
     "reports": "Rapoarte",
     "settings": "Setări",
+    "overview": "Prezentare",
+    "searchBlocks": "Caută blocuri",
+    "staircases": "Scări",
     "close": "Închide meniul"
   },
   "status": {
@@ -117,6 +125,10 @@
       "title": "Locatari",
       "description": "Gestionați locatarii și apartamentele într-un singur loc."
     },
+    "blocks": {
+      "title": "Blocuri",
+      "description": "Căutați, verificați și deschideți blocurile administrate."
+    },
     "finance": {
       "title": "Finanțe",
       "description": "Gestionați facturi, plăți, reconciliere numerar și solduri."
@@ -136,6 +148,10 @@
   },
   "residents": {
     "apartmentLabel": "Apartament {{apartment}}, etaj {{floor}}",
+    "family": {
+      "members": "Locatari",
+      "residentCount": "{{count}} locatari"
+    },
     "filters": {
       "block": "Bloc",
       "financialStatus": "Status financiar"
@@ -162,6 +178,7 @@
       "invoice": "Factură",
       "payment": "Plată",
       "cash": "Intrare numerar",
+      "apartment": "Apartament / familie",
       "resident": "Locatar",
       "month": "Luna",
       "amount": "Suma",
@@ -199,6 +216,30 @@
         "deposited": "Depusă în contul asociației",
         "manual": "Înregistrare manuală numerar"
       }
+    },
+    "expenses": {
+      "maintenance": "Întreținere",
+      "administrative": "Administrativ"
+    }
+  },
+  "blocks": {
+    "title": "Bloc {{block}}",
+    "description": "Apartamente, ierarhie, finanțe și consum la nivel de bloc.",
+    "monthlyStaircasePayments": "Plăți lunare pe scară",
+    "results": "{{count}} blocuri",
+    "actions": {
+      "openOverview": "Deschide prezentarea"
+    },
+    "columns": {
+      "floor": "Etaj",
+      "staircase": "Scară"
+    },
+    "metrics": {
+      "bank": "Bancă",
+      "cash": "Numerar",
+      "totalInvoices": "Total facturi",
+      "totalPayments": "Total plăți",
+      "unpaid": "Sold neachitat"
     }
   },
   "resident": {
@@ -252,28 +293,48 @@
   },
   "settings": {
     "admin": {
-      "blocks": "Blocuri",
-      "pricing": "Reguli de preț"
+      "blockManagement": "Administrare blocuri",
+      "financialSetup": "Configurare financiară"
     },
     "resident": {
       "description": "Gestionați profilul, notificările și limba.",
       "profile": "Profil"
     },
     "sections": {
-      "notifications": "Preferințe notificări"
+      "costs": "Costuri pe bloc",
+      "deadlines": "Termene de plată",
+      "notifications": "Preferințe notificări",
+      "staircaseCosts": "Costuri specifice pe scară"
     },
     "fields": {
+      "block": "Bloc",
+      "blockDeadline": "Termen de plată bloc",
+      "blockName": "Nume bloc",
       "name": "Nume",
       "email": "Email",
       "language": "Limba",
       "blocks": "Blocuri",
+      "currency": "Monedă",
       "deadline": "Zi scadentă plată",
+      "staircaseDeadline": "Termen de plată scara {{staircase}}",
+      "staircaseName": "Scara {{staircase}}",
       "waterPrice": "Preț apă",
       "maintenanceFee": "Taxă întreținere",
       "emailNotifications": "Notificări email",
       "paymentReminders": "Reminder plăți",
       "overdueAlerts": "Alerte restante",
       "cashAlerts": "Alerte reconciliere numerar"
+    },
+    "actions": {
+      "addBlock": "Adaugă bloc",
+      "editBlock": "Editează bloc"
+    },
+    "costs": {
+      "gas": "Gaz",
+      "electricity": "Electricitate",
+      "garbage": "Salubritate",
+      "water": "Apă",
+      "heating": "Încălzire"
     }
   }
 }

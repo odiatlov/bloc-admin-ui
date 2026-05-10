@@ -16,7 +16,10 @@ import Settings from './pages/Settings/Settings'
 import createAuroraTheme from './theme/auroraTheme'
 import globalStyles from './theme/globalStyles'
 import Dashboard from './pages/Dashboard/Dashboard'
+import Blocks from './pages/Blocks/Blocks'
+import BlockContext from './pages/Blocks/BlockContext'
 
+// eslint-disable-next-line react-refresh/only-export-components
 const RootApp: React.FC = () => {
   const [mode, setMode] = useState<'light' | 'dark'>('dark')
 
@@ -35,11 +38,13 @@ const RootApp: React.FC = () => {
             <Route path="/admin" element={<AdminLayout toggleTheme={toggleTheme} themeMode={mode} />}>
               <Route index element={<Dashboard />} />
               <Route path="dashboard" element={<Dashboard />} />
+              <Route path="blocks" element={<Blocks />} />
               <Route path="residents" element={<Residents />} />
               <Route path="finance" element={<Finance />} />
               <Route path="consumption" element={<Consumption />} />
               <Route path="reports" element={<Reports />} />
               <Route path="settings" element={<Settings />} />
+              <Route path="blocks/:blockId/:section" element={<BlockContext />} />
             </Route>
           </Routes>
         </RoleProvider>

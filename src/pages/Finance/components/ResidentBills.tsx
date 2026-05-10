@@ -18,6 +18,7 @@ const ResidentBills: React.FC = () => {
 
   const columns: DataColumn<(typeof residentInvoices)[number]>[] = [
     { key: 'id', label: t('finance.columns.invoice'), render: (invoice) => invoice.id },
+    { key: 'apartment', label: t('finance.columns.apartment'), render: (invoice) => invoice.familyLabel },
     { key: 'month', label: t('finance.columns.month'), render: (invoice) => invoice.month },
     { key: 'amount', label: t('finance.columns.amount'), render: (invoice) => formatCurrency(invoice.totalAmount) },
     { key: 'status', label: t('finance.columns.status'), render: (invoice) => <StatusChip status={invoice.status} label={t(`status.invoice.${invoice.status}`)} /> },

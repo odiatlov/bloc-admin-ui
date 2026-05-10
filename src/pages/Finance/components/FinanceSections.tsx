@@ -42,7 +42,8 @@ const FinanceSections: React.FC = () => {
 
   const invoiceColumns: DataColumn<(typeof invoices)[number]>[] = [
     { key: 'id', label: t('finance.columns.invoice'), render: (invoice) => invoice.id },
-    { key: 'resident', label: t('finance.columns.resident'), render: (invoice) => invoice.resident?.name },
+    { key: 'apartment', label: t('finance.columns.apartment'), render: (invoice) => invoice.familyLabel },
+    { key: 'residents', label: t('residents.family.members'), render: (invoice) => invoice.residents.length },
     { key: 'month', label: t('finance.columns.month'), render: (invoice) => invoice.month },
     { key: 'amount', label: t('finance.columns.amount'), render: (invoice) => formatCurrency(invoice.totalAmount) },
     {
@@ -63,7 +64,7 @@ const FinanceSections: React.FC = () => {
 
   const paymentColumns: DataColumn<(typeof payments)[number]>[] = [
     { key: 'id', label: t('finance.columns.payment'), render: (payment) => payment.id },
-    { key: 'resident', label: t('finance.columns.resident'), render: (payment) => payment.resident?.name },
+    { key: 'apartment', label: t('finance.columns.apartment'), render: (payment) => payment.familyLabel },
     { key: 'method', label: t('finance.columns.method'), render: (payment) => t(`finance.method.${payment.method}`) },
     { key: 'amount', label: t('finance.columns.amount'), render: (payment) => formatCurrency(payment.amount) },
     {
@@ -75,7 +76,7 @@ const FinanceSections: React.FC = () => {
 
   const cashColumns: DataColumn<(typeof cashEntries)[number]>[] = [
     { key: 'id', label: t('finance.columns.cash'), render: (entry) => entry.id },
-    { key: 'resident', label: t('finance.columns.resident'), render: (entry) => entry.resident?.name },
+    { key: 'apartment', label: t('finance.columns.apartment'), render: (entry) => entry.familyLabel },
     { key: 'amount', label: t('finance.columns.amount'), render: (entry) => formatCurrency(entry.amount) },
     {
       key: 'status',

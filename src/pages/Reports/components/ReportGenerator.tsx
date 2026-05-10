@@ -34,8 +34,8 @@ const ReportGenerator: React.FC = () => {
           <Select label={t('residents.filters.block')} value={block} onChange={(event: SelectChangeEvent) => setBlock(event.target.value)}>
             <MenuItem value="all">{t('common.all')}</MenuItem>
             {blocks.map((item) => (
-              <MenuItem key={item} value={item}>
-                {t('common.blockValue', { block: item })}
+              <MenuItem key={item.id} value={item.id}>
+                {t('common.blockValue', { block: item.name })}
               </MenuItem>
             ))}
           </Select>

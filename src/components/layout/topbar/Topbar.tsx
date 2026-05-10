@@ -1,7 +1,6 @@
 import React from 'react'
 import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
-import Button from '@mui/material/Button'
 import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
@@ -34,13 +33,15 @@ const Topbar: React.FC<Props> = ({
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
 
-  const [language, setLanguage] = React.useState<string>(i18n.language || 'en')
+  const [language, setLanguage] = React.useState<string>(() => {
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('appLanguage') : null
+    return saved || i18n.language || 'en'
+  })
 
   React.useEffect(() => {
     const saved = typeof window !== 'undefined' ? localStorage.getItem('appLanguage') : null
     if (saved && saved !== i18n.language) {
       i18n.changeLanguage(saved)
-      setLanguage(saved)
     }
   }, [i18n])
 
@@ -55,7 +56,7 @@ const Topbar: React.FC<Props> = ({
     i18n.changeLanguage(lang)
     try {
       localStorage.setItem('appLanguage', lang)
-    } catch (err) {
+    } catch {
       // ignore
     }
   }
@@ -74,7 +75,7 @@ const Topbar: React.FC<Props> = ({
             color="inherit"
             edge="start"
             onClick={onMenuClick}
-            aria-label="open sidebar"
+            aria-label={t('layout.topbar.openSidebar')}
             sx={{ flexShrink: 0 }}
           >
             <MenuIcon />
@@ -90,7 +91,7 @@ const Topbar: React.FC<Props> = ({
 
         <Box sx={{ flexGrow: 1 }} />
         
-        <IconButton color="inherit" onClick={toggleTheme} aria-label="toggle theme">
+        <IconButton color="inherit" onClick={toggleTheme} aria-label={t('layout.topbar.toggleTheme')}>
           {themeMode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
         </IconButton>
 
@@ -101,9 +102,6 @@ const Topbar: React.FC<Props> = ({
             </Select>
           </FormControl>
 
-          <Button color="inherit" sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>
-            {t('layout.topbar.logout')}
-          </Button>
       </Toolbar>
     </AppBar>
   )

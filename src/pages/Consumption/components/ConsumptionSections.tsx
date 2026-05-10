@@ -50,13 +50,13 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
           <FormControl size="small" sx={{ minWidth: 180 }}>
             <InputLabel>{t('residents.filters.block')}</InputLabel>
             <Select label={t('residents.filters.block')} value={blockFilter} onChange={(event: SelectChangeEvent) => setBlockFilter(event.target.value)}>
-              <MenuItem value="all">{t('common.all')}</MenuItem>
-              {blocks.map((block) => (
-                <MenuItem key={block} value={block}>
-                  {t('common.blockValue', { block })}
-                </MenuItem>
-              ))}
-            </Select>
+            <MenuItem value="all">{t('common.all')}</MenuItem>
+            {blocks.map((block) => (
+              <MenuItem key={block.id} value={block.id}>
+                {t('common.blockValue', { block: block.name })}
+              </MenuItem>
+            ))}
+          </Select>
           </FormControl>
         ) : (
           <Typography variant="h6">{t('consumption.resident.history')}</Typography>
@@ -71,7 +71,7 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
       {mode === 'admin' && (
         <Box sx={{ display: 'grid', gap: 1 }}>
           <Typography variant="h6">{t('consumption.sections.anomalies')}</Typography>
-          <ResponsiveDataView ariaLabel={t('consumption.sections.anomalies')} columns={summaryColumns} getRowId={(summary) => `${summary.apartment.block}-${summary.apartment.number}-${summary.month}`} rows={summaries} />
+          <ResponsiveDataView ariaLabel={t('consumption.sections.anomalies')} columns={summaryColumns} getRowId={(summary) => `${summary.apartment.id}-${summary.month}`} rows={summaries} />
         </Box>
       )}
 

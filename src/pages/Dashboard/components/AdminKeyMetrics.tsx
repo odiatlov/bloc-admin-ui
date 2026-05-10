@@ -39,7 +39,7 @@ const AdminKeyMetrics: React.FC = () => {
   return (
     <Box sx={{ mt: 2 }}>
       <Typography variant="h6" gutterBottom>
-        {t('dashboard.admin.KeyMetrics.title')}
+        {t('dashboard.admin.keyMetrics.title')}
       </Typography>
 
       <Box
@@ -56,7 +56,7 @@ const AdminKeyMetrics: React.FC = () => {
         <Metric
           label={t('dashboard.admin.keyMetrics.monthlyRevenue')}
           value={formatCurrency(monthlyRevenue)}
-          trend={t('dashboard.admin.KeyMetrics.monthlyRevenueTrend')}
+          trend={t('dashboard.admin.keyMetrics.monthlyRevenueTrend')}
         />
         <Metric
           label={t('dashboard.admin.keyMetrics.outstanding')}

@@ -6,7 +6,7 @@ import PeopleIcon from '@mui/icons-material/People'
 import HomeIcon from '@mui/icons-material/Home'
 import ApartmentIcon from '@mui/icons-material/Apartment'
 import { useTranslation } from 'react-i18next'
-import { buildingBlocks, residents } from '../../../mocks/apartmentData'
+import { apartments, blocks, residents } from '../../../mocks/apartmentData'
 
 type CardProps = {
   icon: React.ReactNode
@@ -37,7 +37,6 @@ const Card: React.FC<CardProps> = ({ icon, title, value }) => (
 
 const AdminOverviewCards: React.FC = () => {
   const { t } = useTranslation()
-  const apartments = new Set(residents.map((resident) => `${resident.apartment.block}-${resident.apartment.number}`)).size
 
   return (
     <Box
@@ -52,8 +51,8 @@ const AdminOverviewCards: React.FC = () => {
       }}
     >
       <Card icon={<PeopleIcon />} title={t('dashboard.admin.overview.residents')} value={residents.length} />
-      <Card icon={<HomeIcon />} title={t('dashboard.admin.overview.apartments')} value={apartments} />
-      <Card icon={<ApartmentIcon />} title={t('dashboard.admin.overview.blocks')} value={buildingBlocks.length} />
+      <Card icon={<HomeIcon />} title={t('dashboard.admin.overview.apartments')} value={apartments.length} />
+      <Card icon={<ApartmentIcon />} title={t('dashboard.admin.overview.blocks')} value={blocks.length} />
     </Box>
   )
 }

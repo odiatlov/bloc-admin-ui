@@ -8,6 +8,7 @@
     "blockValue": "Block {{block}}",
     "cancel": "Cancel",
     "close": "Close",
+    "notAvailable": "N/A",
     "save": "Save"
   },
   "layout": {
@@ -17,10 +18,14 @@
         "resident": "Resident"
       },
       "logout": "Logout",
-      "language": "Language"
+      "language": "Language",
+      "openSidebar": "Open sidebar",
+      "toggleTheme": "Toggle theme"
     }
   },
   "sidebar": {
+    "apartments": "Apartments",
+    "blocks": "Blocks",
     "dashboard": "Dashboard",
     "residents": "Residents",
     "finance": "Finance",
@@ -29,6 +34,9 @@
     "consumption": "Consumption",
     "reports": "Reports",
     "settings": "Settings",
+    "overview": "Overview",
+    "searchBlocks": "Search blocks",
+    "staircases": "Staircases",
     "close": "Close sidebar"
   },
   "status": {
@@ -117,6 +125,10 @@
       "title": "Residents",
       "description": "Manage residents and apartments in one place."
     },
+    "blocks": {
+      "title": "Blocks",
+      "description": "Search, review, and open the blocks managed by the administrator."
+    },
     "finance": {
       "title": "Finance",
       "description": "Manage invoices, payments, cash reconciliation, and balances."
@@ -136,6 +148,10 @@
   },
   "residents": {
     "apartmentLabel": "Apartment {{apartment}}, floor {{floor}}",
+    "family": {
+      "members": "Residents",
+      "residentCount": "{{count}} residents"
+    },
     "filters": {
       "block": "Block",
       "financialStatus": "Financial status"
@@ -162,6 +178,7 @@
       "invoice": "Invoice",
       "payment": "Payment",
       "cash": "Cash entry",
+      "apartment": "Apartment / family",
       "resident": "Resident",
       "month": "Month",
       "amount": "Amount",
@@ -199,6 +216,30 @@
         "deposited": "Deposited to association account",
         "manual": "Manual cash registration"
       }
+    },
+    "expenses": {
+      "maintenance": "Maintenance",
+      "administrative": "Administrative"
+    }
+  },
+  "blocks": {
+    "title": "Block {{block}}",
+    "description": "Block-level apartments, hierarchy, finance, and consumption.",
+    "monthlyStaircasePayments": "Monthly staircase payments",
+    "results": "{{count}} blocks",
+    "actions": {
+      "openOverview": "Open overview"
+    },
+    "columns": {
+      "floor": "Floor",
+      "staircase": "Staircase"
+    },
+    "metrics": {
+      "bank": "Bank",
+      "cash": "Cash",
+      "totalInvoices": "Total invoices",
+      "totalPayments": "Total payments",
+      "unpaid": "Unpaid balance"
     }
   },
   "resident": {
@@ -252,28 +293,48 @@
   },
   "settings": {
     "admin": {
-      "blocks": "Building blocks",
-      "pricing": "Pricing rules"
+      "blockManagement": "Block management",
+      "financialSetup": "Financial setup"
     },
     "resident": {
       "description": "Manage profile, notifications, and language.",
       "profile": "Profile"
     },
     "sections": {
-      "notifications": "Notification preferences"
+      "costs": "Block costs",
+      "deadlines": "Payment deadlines",
+      "notifications": "Notification preferences",
+      "staircaseCosts": "Staircase-specific costs"
     },
     "fields": {
+      "block": "Block",
+      "blockDeadline": "Block payment deadline",
+      "blockName": "Block name",
       "name": "Name",
       "email": "Email",
       "language": "Language",
       "blocks": "Blocks",
+      "currency": "Currency",
       "deadline": "Payment deadline day",
+      "staircaseDeadline": "Staircase {{staircase}} payment deadline",
+      "staircaseName": "Staircase {{staircase}}",
       "waterPrice": "Water price",
       "maintenanceFee": "Maintenance fee",
       "emailNotifications": "Email notifications",
       "paymentReminders": "Payment reminders",
       "overdueAlerts": "Overdue payment alerts",
       "cashAlerts": "Cash reconciliation alerts"
+    },
+    "actions": {
+      "addBlock": "Add block",
+      "editBlock": "Edit block"
+    },
+    "costs": {
+      "gas": "Gas",
+      "electricity": "Electricity",
+      "garbage": "Garbage",
+      "water": "Water",
+      "heating": "Heating"
     }
   }
 }

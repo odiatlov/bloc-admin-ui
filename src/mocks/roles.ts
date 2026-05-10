@@ -1,7 +1,7 @@
-export type Permission = 'dashboard' | 'residents' | 'finance' | 'consumption' | 'reports' | 'settings'
+export type Permission = 'dashboard' | 'blocks' | 'residents' | 'finance' | 'consumption' | 'reports' | 'settings'
 
 export const rolePermissions: RolePermissions = {
-  Admin: ['dashboard', 'residents', 'finance', 'consumption', 'reports', 'settings'],
+  Admin: ['dashboard', 'blocks', 'residents', 'finance', 'consumption', 'reports', 'settings'],
   Resident: ['dashboard', 'finance', 'consumption', 'settings'],
 }
 
