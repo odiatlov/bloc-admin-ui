@@ -62,19 +62,19 @@ src/
 
 ## 🚀 Getting Started
 
-- Install dependencies
+Install dependencies
 
 ```bash
 npm install
 ```
 
-- Start development server
+Start development server
 
 ```bash
 npm run dev
 ```
 
-- Production build
+Production build
 
 ```bash
 npm run build
