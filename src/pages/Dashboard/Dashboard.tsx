@@ -1,13 +1,13 @@
 import React from 'react'
 import { RoleContext } from '../../contexts/RoleContext'
-import AdminDashboard from './Admin/AdminDashboard'
-import ResidentDashboard from './Resident/ResidentDashboard'
+import AdminDashboard from './components/AdminDashboard'
+import ResidentDashboard from './components/ResidentDashboard' 
 
-const RoleAwareDashboard: React.FC = () => {
+const Dashbaord: React.FC = () => {
   const { role } = React.useContext(RoleContext)
 
   if (role === 'Resident') return <ResidentDashboard />
   return <AdminDashboard />
 }
 
-export default RoleAwareDashboard
+export default Dashbaord

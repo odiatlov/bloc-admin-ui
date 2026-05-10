@@ -1,16 +1,18 @@
 import React from 'react'
-import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import { useTranslation } from 'react-i18next'
+import { RoleContext } from '../../contexts/RoleContext'
+import PageHeader from '../../components/shared/PageHeader'
+import SettingsSections from './components/SettingsSections'
 
 const Settings: React.FC = () => {
   const { t } = useTranslation()
+  const { role } = React.useContext(RoleContext)
+
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>
-        {t('pages.settings.title')}
-      </Typography>
-      <Typography>{t('pages.settings.description')}</Typography>
+      <PageHeader title={t('pages.settings.title')} description={role === 'Resident' ? t('settings.resident.description') : t('pages.settings.description')} />
+      <SettingsSections mode={role === 'Resident' ? 'resident' : 'admin'} />
     </Box>
   )
 }

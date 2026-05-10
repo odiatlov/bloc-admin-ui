@@ -1,0 +1,158 @@
+import React from 'react'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Divider from '@mui/material/Divider'
+import Drawer from '@mui/material/Drawer'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import Paper from '@mui/material/Paper'
+import Select, { type SelectChangeEvent } from '@mui/material/Select'
+import Tab from '@mui/material/Tab'
+import Tabs from '@mui/material/Tabs'
+import Typography from '@mui/material/Typography'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
+import PaymentIcon from '@mui/icons-material/Payment'
+import { useTranslation } from 'react-i18next'
+import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
+import StatusChip from '../../../components/shared/StatusChip'
+import { formatApartment, formatCurrency, useResidents } from '../../../hooks/useApartmentData'
+import type { FinancialStatus } from '../../../mocks/apartmentData'
+
+const ResidentsOverview: React.FC = () => {
+  const { t } = useTranslation()
+  const {
+    blocks,
+    blockFilter,
+    financialStatusFilter,
+    groupedResidents,
+    selectedInvoices,
+    selectedPayments,
+    selectedReadings,
+    selectedResident,
+    setBlockFilter,
+    setFinancialStatusFilter,
+    setSelectedResidentId,
+  } = useResidents()
+  const [detailTab, setDetailTab] = React.useState(0)
+
+  const invoiceColumns: DataColumn<(typeof selectedInvoices)[number]>[] = [
+    { key: 'id', label: t('finance.columns.invoice'), render: (invoice) => invoice.id },
+    { key: 'month', label: t('finance.columns.month'), render: (invoice) => invoice.month },
+    { key: 'amount', label: t('finance.columns.amount'), render: (invoice) => formatCurrency(invoice.totalAmount) },
+    { key: 'status', label: t('finance.columns.status'), render: (invoice) => <StatusChip status={invoice.status} label={t(`status.invoice.${invoice.status}`)} /> },
+  ]
+
+  const paymentColumns: DataColumn<(typeof selectedPayments)[number]>[] = [
+    { key: 'id', label: t('finance.columns.payment'), render: (payment) => payment.id },
+    { key: 'method', label: t('finance.columns.method'), render: (payment) => t(`finance.method.${payment.method}`) },
+    { key: 'amount', label: t('finance.columns.amount'), render: (payment) => formatCurrency(payment.amount) },
+    { key: 'status', label: t('finance.columns.verification'), render: (payment) => <StatusChip status={payment.verificationStatus} label={t(`status.cash.${payment.verificationStatus}`)} /> },
+  ]
+
+  const readingColumns: DataColumn<(typeof selectedReadings)[number]>[] = [
+    { key: 'month', label: t('finance.columns.month'), render: (reading) => reading.month },
+    { key: 'previous', label: t('consumption.columns.previous'), render: (reading) => reading.previousValue },
+    { key: 'current', label: t('consumption.columns.current'), render: (reading) => reading.currentValue },
+    { key: 'usage', label: t('consumption.columns.usage'), render: (reading) => reading.currentValue - reading.previousValue },
+  ]
+
+  return (
+    <Box sx={{ display: 'grid', gap: 2 }}>
+      <Paper sx={{ p: 2, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+        <FormControl size="small" sx={{ minWidth: 160 }}>
+          <InputLabel>{t('residents.filters.block')}</InputLabel>
+          <Select label={t('residents.filters.block')} value={blockFilter} onChange={(event: SelectChangeEvent) => setBlockFilter(event.target.value)}>
+            <MenuItem value="all">{t('common.all')}</MenuItem>
+            {blocks.map((block) => (
+              <MenuItem key={block} value={block}>
+                {t('common.blockValue', { block })}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl size="small" sx={{ minWidth: 180 }}>
+          <InputLabel>{t('residents.filters.financialStatus')}</InputLabel>
+          <Select
+            label={t('residents.filters.financialStatus')}
+            value={financialStatusFilter}
+            onChange={(event: SelectChangeEvent) => setFinancialStatusFilter(event.target.value as FinancialStatus | 'all')}
+          >
+            <MenuItem value="all">{t('common.all')}</MenuItem>
+            <MenuItem value="current">{t('status.financial.current')}</MenuItem>
+            <MenuItem value="due">{t('status.financial.due')}</MenuItem>
+            <MenuItem value="overdue">{t('status.financial.overdue')}</MenuItem>
+          </Select>
+        </FormControl>
+      </Paper>
+
+      <Box sx={{ display: 'grid', gap: 2 }}>
+        {Object.entries(groupedResidents).map(([block, group]) => (
+          <Paper key={block} sx={{ p: 2 }}>
+            <Typography variant="h6" gutterBottom>
+              {t('common.blockValue', { block })}
+            </Typography>
+            <Box sx={{ display: 'grid', gap: 1 }}>
+              {group.map((resident) => (
+                <Paper key={resident.id} variant="outlined" sx={{ p: 1.5, display: 'flex', gap: 2, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+                  <Box>
+                    <Typography sx={{ fontWeight: 700 }}>{resident.name}</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {t('residents.apartmentLabel', { apartment: formatApartment(resident.apartment), floor: resident.apartment.floor })}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <StatusChip status={resident.financialStatus} label={t(`status.financial.${resident.financialStatus}`)} />
+                    <Typography variant="body2">{formatCurrency(resident.debtBalance)}</Typography>
+                    <Button size="small" onClick={() => setSelectedResidentId(resident.id)}>
+                      {t('residents.actions.openDetails')}
+                    </Button>
+                  </Box>
+                </Paper>
+              ))}
+            </Box>
+          </Paper>
+        ))}
+      </Box>
+
+      <Drawer anchor="right" open={Boolean(selectedResident)} onClose={() => setSelectedResidentId(null)} slotProps={{ paper: { sx: { width: { xs: '100%', sm: 520 }, p: 2 } } }}>
+        {selectedResident && (
+          <Box sx={{ display: 'grid', gap: 2 }}>
+            <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
+              <Button startIcon={<ArrowBackIcon />} onClick={() => setSelectedResidentId(null)}>
+                {t('residents.actions.backToList')}
+              </Button>
+              <Box>
+                <Typography variant="h5">{selectedResident.name}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {t('residents.apartmentLabel', { apartment: formatApartment(selectedResident.apartment), floor: selectedResident.apartment.floor })}
+                </Typography>
+              </Box>
+            </Box>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              <Button startIcon={<NotificationsActiveIcon />} variant="outlined">
+                {t('residents.actions.sendReminder')}
+              </Button>
+              <Button startIcon={<PaymentIcon />} variant="contained">
+                {t('residents.actions.registerPayment')}
+              </Button>
+            </Box>
+            <Divider />
+            <Tabs value={detailTab} onChange={(_, value: number) => setDetailTab(value)} variant="scrollable" scrollButtons="auto">
+              <Tab label={t('residents.detail.invoices')} />
+              <Tab label={t('residents.detail.payments')} />
+              <Tab label={t('residents.detail.consumption')} />
+            </Tabs>
+            {detailTab === 0 && <ResponsiveDataView ariaLabel={t('residents.detail.invoices')} columns={invoiceColumns} getRowId={(invoice) => invoice.id} rows={selectedInvoices} />}
+            {detailTab === 1 && <ResponsiveDataView ariaLabel={t('residents.detail.payments')} columns={paymentColumns} getRowId={(payment) => payment.id} rows={selectedPayments} />}
+            {detailTab === 2 && <ResponsiveDataView ariaLabel={t('residents.detail.consumption')} columns={readingColumns} getRowId={(reading) => reading.id} rows={selectedReadings} />}
+          </Box>
+        )}
+      </Drawer>
+    </Box>
+  )
+}
+
+export default ResidentsOverview
