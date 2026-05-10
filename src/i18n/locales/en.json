@@ -7,7 +7,7 @@
     "topbar": {
       "role": {
         "admin": "Administrator",
-        "tenant": "Resident"
+        "resident": "Resident"
       },
       "logout": "Logout",
       "language": "Language"
@@ -22,7 +22,8 @@
     "waterIndex": "Water Index",
     "consumption": "Consumption",
     "reports": "Reports",
-    "settings": "Settings"
+    "settings": "Settings",
+    "close": "Close sidebar"
   },
 
   "dashboard": {
@@ -46,7 +47,10 @@
         "title": "Recent Activity",
         "invoiceGenerated": "Invoice generated - Block A",
         "paymentReceived": "Payment received - Apt 12",
-        "waterReadingSubmitted": "Water reading submitted - Apt 7"
+        "waterReadingSubmitted": "Water reading submitted - Apt 7",
+        "twoHoursAgo": "2h ago",
+        "fourHoursAgo": "4h ago",
+        "oneDayAgo": "1d ago"
       },
 
       "alerts": {
@@ -60,6 +64,7 @@
         "title": "Key Insights",
         "monthlyRevenue": "Monthly Revenue",
         "outstanding": "Outstanding",
+        "outstandingValue": "{{count}} invoices",
         "collectionRate": "Collection Rate",
 
         "monthlyRevenueTrend": "+8% vs last month",

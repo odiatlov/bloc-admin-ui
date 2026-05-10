@@ -5,9 +5,9 @@ import Box from '@mui/material/Box'
 import { useTranslation } from 'react-i18next'
 
 const items = [
-  { text: 'Invoice generated - Block A', time: '2h ago' },
-  { text: 'Payment received - Apt 12', time: '4h ago' },
-  { text: 'Water reading submitted - Apt 7', time: '1d ago' }
+  { textKey: 'invoiceGenerated', timeKey: 'twoHoursAgo' },
+  { textKey: 'paymentReceived', timeKey: 'fourHoursAgo' },
+  { textKey: 'waterReadingSubmitted', timeKey: 'oneDayAgo' }
 ]
 
 const ActivityFeed: React.FC = () => {
@@ -19,9 +19,9 @@ const ActivityFeed: React.FC = () => {
       <Box sx={{ mt: 1 }}>
         {items.map((i, idx) => (
           <Box key={idx} sx={{ mb: 1 }}>
-            <Typography variant="body2">{i.text}</Typography>
+            <Typography variant="body2">{t(`dashboard.admin.activity.${i.textKey}`)}</Typography>
             <Typography variant="caption" color="text.secondary">
-              {i.time}
+              {t(`dashboard.admin.activity.${i.timeKey}`)}
             </Typography>
           </Box>
         ))}

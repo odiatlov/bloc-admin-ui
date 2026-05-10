@@ -7,12 +7,16 @@ import HomeIcon from '@mui/icons-material/Home'
 import ApartmentIcon from '@mui/icons-material/Apartment'
 import { useTranslation } from 'react-i18next'
 
-const Card = ({ icon, title, value }: any) => (
+type CardProps = {
+  icon: React.ReactNode
+  title: string
+  value: number
+}
+
+const Card: React.FC<CardProps> = ({ icon, title, value }) => (
   <Paper
     sx={{
       p: 2,
-      flex: 1,
-      minWidth: 160,
       transition: '0.2s',
       '&:hover': { transform: 'translateY(-2px)' }
     }}
@@ -33,7 +37,17 @@ const Card = ({ icon, title, value }: any) => (
 const OverviewCards: React.FC = () => {
   const { t } = useTranslation()
   return (
-    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: {
+          xs: '1fr',
+          sm: 'repeat(2, minmax(0, 1fr))',
+          xl: 'repeat(3, minmax(0, 1fr))',
+        },
+        gap: 2,
+      }}
+    >
       <Card icon={<PeopleIcon />} title={t('dashboard.admin.overview.residents')} value={124} />
       <Card icon={<HomeIcon />} title={t('dashboard.admin.overview.apartments')} value={87} />
       <Card icon={<ApartmentIcon />} title={t('dashboard.admin.overview.blocks')} value={3} />

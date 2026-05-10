@@ -13,10 +13,10 @@ const AdminDashboard: React.FC = () => {
   const { t } = useTranslation()
 
   return (
-    <Box sx={{ p: 2 }}>
+    <Box sx={{ p: { xs: 0, sm: 2 } }}>
       {/* HEADER */}
-      <Paper sx={{ p: 2, mb: 2 }}>
-        <Typography variant="h4">
+      <Paper sx={{ p: { xs: 2, sm: 3 }, mb: 2 }}>
+        <Typography variant="h4" sx={{ fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
           {t('dashboard.admin.title')}
         </Typography>
         <Typography variant="body2" color="text.secondary">
@@ -24,14 +24,26 @@ const AdminDashboard: React.FC = () => {
         </Typography>
 
         <Box sx={{ display: 'flex', gap: 1, mt: 2, flexWrap: 'wrap' }}>
-          <Button variant="contained">{t('dashboard.admin.options.addInvoice')}</Button>
-          <Button variant="contained">{t('dashboard.admin.options.addWaterReading')}</Button>
-          <Button variant="contained">{t('dashboard.admin.options.exportExcel')}</Button>
+          <Button variant="contained" sx={{ width: { xs: '100%', sm: 'auto' } }}>
+            {t('dashboard.admin.options.addInvoice')}
+          </Button>
+          <Button variant="contained" sx={{ width: { xs: '100%', sm: 'auto' } }}>
+            {t('dashboard.admin.options.addWaterReading')}
+          </Button>
+          <Button variant="contained" sx={{ width: { xs: '100%', sm: 'auto' } }}>
+            {t('dashboard.admin.options.exportExcel')}
+          </Button>
         </Box>
       </Paper>
 
       {/* MAIN GRID */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 2 }}>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', lg: 'minmax(0, 2fr) minmax(280px, 1fr)' },
+          gap: 2,
+        }}
+      >
         <Box>
           <OverviewCards />
           <Box sx={{ mt: 2 }}>

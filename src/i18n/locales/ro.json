@@ -7,7 +7,7 @@
     "topbar": {
       "role": {
         "admin": "Administrator",
-        "tenant": "Locatar"
+        "resident": "Locatar"
       },
       "logout": "Deconectare",
       "language": "Limbă"
@@ -22,7 +22,8 @@
     "waterIndex": "Index apă",
     "consumption": "Consum",
     "reports": "Rapoarte",
-    "settings": "Setări"
+    "settings": "Setări",
+    "close": "Inchide meniul"
   },
 
   "dashboard": {
@@ -46,7 +47,10 @@
         "title": "Activitate recentă",
         "invoiceGenerated": "Factură generată - Bloc A",
         "paymentReceived": "Plată primită - Ap. 12",
-        "waterReadingSubmitted": "Index apă trimis - Ap. 7"
+        "waterReadingSubmitted": "Index apă trimis - Ap. 7",
+        "twoHoursAgo": "acum 2h",
+        "fourHoursAgo": "acum 4h",
+        "oneDayAgo": "acum 1 zi"
       },
 
       "alerts": {
@@ -60,6 +64,7 @@
         "title": "Indicatori cheie",
         "monthlyRevenue": "Venit lunar",
         "outstanding": "Facturi restante",
+        "outstandingValue": "{{count}} facturi",
         "collectionRate": "Rată colectare",
 
         "monthlyRevenueTrend": "+8% față de luna trecută",

@@ -6,9 +6,9 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import { useTranslation } from 'react-i18next'
 
 const alerts = [
-  '3 unpaid invoices due today',
-  '2 missing water readings',
-  '1 overdue apartment'
+  'unpaidInvoices',
+  'missingReadings',
+  'overdueApartment'
 ]
 
 const AlertsPanel: React.FC = () => {
@@ -21,7 +21,7 @@ const AlertsPanel: React.FC = () => {
         {alerts.map((a, idx) => (
           <Box key={idx} sx={{ display: 'flex', gap: 1, mb: 1 }}>
             <WarningAmberIcon fontSize="small" color="warning" />
-            <Typography variant="body2">{a}</Typography>
+            <Typography variant="body2">{t(`dashboard.admin.alerts.${a}`)}</Typography>
           </Box>
         ))}
       </Box>
