@@ -172,7 +172,8 @@
     "tabs": {
       "invoices": "Invoices",
       "payments": "Payments",
-      "cashRegister": "Cash Register"
+      "cashRegister": "Cash Register",
+      "maintenance": "Maintenance"
     },
     "columns": {
       "invoice": "Invoice",
@@ -219,7 +220,40 @@
     },
     "expenses": {
       "maintenance": "Maintenance",
-      "administrative": "Administrative"
+      "administrative": "Administrative",
+      "garbage": "Garbage collection",
+      "heating": "Heating",
+      "coldWater": "Cold water",
+      "staircaseElectricity": "Staircase electricity",
+      "surfaceRepairs": "Surface repairs",
+      "staircaseCleaning": "Staircase cleaning",
+      "gardening": "Gardening"
+    },
+    "debts": {
+      "previousBalance": "Previous unpaid balance"
+    },
+    "penalties": {
+      "latePayment": "Late payment penalty"
+    },
+    "maintenance": {
+      "adjustments": "Historical debts: {{debts}} · penalties: {{penalties}}",
+      "blockMonth": "Block {{block}} · {{month}}",
+      "generatedAt": "Generated {{generatedAt}}",
+      "status": {
+        "draft": "Draft",
+        "published": "Published"
+      }
+    }
+  },
+  "maintenance": {
+    "explain": {
+      "per_person": "{{label}} = {{amount}} because {{basis}} declared residents were counted.",
+      "per_apartment": "{{label}} = {{amount}} because the cost is split per apartment.",
+      "by_surface": "{{label}} = {{amount}} from {{basis}} sqm usable surface out of {{totalBasis}} sqm.",
+      "by_heating_area": "{{label}} = {{amount}} from {{basis}} sqm heating area out of {{totalBasis}} sqm.",
+      "individual_meter": "{{label}} = {{amount}} from {{basis}} cubic meters out of {{totalBasis}} cubic meters.",
+      "equal_split": "{{label}} = {{amount}} through equal split among eligible apartments.",
+      "custom": "{{label}} = {{amount}} using the configured custom share."
     }
   },
   "blocks": {
@@ -228,7 +262,9 @@
     "monthlyStaircasePayments": "Monthly staircase payments",
     "results": "{{count}} blocks",
     "actions": {
-      "openOverview": "Open overview"
+      "openOverview": "Open overview",
+      "backToList": "Back to blocks",
+      "backToDashboard": "Dashboard"
     },
     "columns": {
       "floor": "Floor",
@@ -244,11 +280,30 @@
   },
   "resident": {
     "bills": {
+      "adjustments": {
+        "title": "Adjustments"
+      },
+      "backToBills": "Back",
+      "breakdown": {
+        "basis": "Basis",
+        "method": "Allocation",
+        "methodTooltip": "Calculated using {{method}}",
+        "title": "Cost breakdown"
+      },
       "description": "View invoices, payment status, and downloadable bill details.",
       "viewDetails": "View details",
       "download": "Download",
       "detailsTitle": "Invoice details",
-      "detailsBody": "Invoice {{invoice}} for {{month}} has a total amount of {{amount}}."
+      "detailsBody": "Invoice {{invoice}} for {{month}} has a total amount of {{amount}}.",
+      "invoiceContext": "{{invoice}} · {{month}}",
+      "summary": {
+        "balance": "Remaining balance",
+        "debts": "Previous debt",
+        "expenses": "Current expenses",
+        "penalties": "Penalties",
+        "title": "Total calculation",
+        "total": "Total due"
+      }
     }
   },
   "consumption": {
@@ -258,14 +313,18 @@
     },
     "sections": {
       "readings": "Water readings",
-      "anomalies": "Anomaly detection"
+      "anomalies": "Anomaly detection",
+      "waterBalance": "Water balance"
     },
     "columns": {
       "apartment": "Apartment",
       "previous": "Previous index",
       "current": "Current index",
       "usage": "Usage",
-      "anomaly": "Anomaly"
+      "anomaly": "Anomaly",
+      "mainMeter": "Main meter",
+      "apartmentMeters": "Apartment meters",
+      "waterLoss": "Difference"
     },
     "actions": {
       "submitIndex": "Submit index",
@@ -335,6 +394,46 @@
       "garbage": "Garbage",
       "water": "Water",
       "heating": "Heating"
+    },
+    "allocation": {
+      "per_person": "Per declared person",
+      "per_apartment": "Per apartment",
+      "by_surface": "By usable surface",
+      "by_heating_area": "By heating area",
+      "individual_meter": "Individual meter",
+      "equal_split": "Equal split",
+      "custom": "Custom shares"
+    },
+    "customCosts": {
+      "active": "Active",
+      "add": "Add custom cost",
+      "allocation": "Allocation strategy",
+      "blockScope": "Whole block",
+      "description": "Configure recurring or one-off costs with block or staircase scope.",
+      "effectiveFrom": "Effective from",
+      "notesLabel": "Notes",
+      "recurring": "Monthly recurring",
+      "scope": "Scope",
+      "staircaseScope": "Staircase",
+      "title": "Custom costs",
+      "type": "Expense type",
+      "types": {
+        "administrationCost": "Administration cost",
+        "customMonthlyFee": "Custom monthly fee",
+        "elevatorMaintenance": "Elevator maintenance",
+        "gardening": "Gardening",
+        "intercomMaintenance": "Intercom maintenance",
+        "pestControl": "Pest control",
+        "repairs": "Repairs",
+        "staircaseCleaning": "Staircase cleaning"
+      },
+      "notes": {
+        "administration": "Monthly administration service cost.",
+        "cleaning": "Recurring cleaning contract for the selected staircase.",
+        "gardening": "Seasonal landscaping for shared green areas.",
+        "intercom": "Optional intercom maintenance contract.",
+        "manual": "Manual custom cost added by the administrator."
+      }
     }
   }
 }

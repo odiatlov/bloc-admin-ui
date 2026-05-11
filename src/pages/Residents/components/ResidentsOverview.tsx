@@ -15,6 +15,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 import PaymentIcon from '@mui/icons-material/Payment'
 import { useTranslation } from 'react-i18next'
+import InvoiceBreakdownDrawer from '../../../components/shared/InvoiceBreakdownDrawer'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
 import { formatCurrency, getBlockLabel, useResidents } from '../../../hooks/useApartmentData'
@@ -36,12 +37,23 @@ const ResidentsOverview: React.FC = () => {
     setSelectedApartmentId,
   } = useResidents()
   const [detailTab, setDetailTab] = React.useState(0)
+  const [selectedInvoiceId, setSelectedInvoiceId] = React.useState<string | null>(null)
+  const selectedInvoice = selectedInvoices.find((invoice) => invoice.id === selectedInvoiceId) ?? null
 
   const invoiceColumns: DataColumn<(typeof selectedInvoices)[number]>[] = [
     { key: 'id', label: t('finance.columns.invoice'), render: (invoice) => invoice.id },
     { key: 'month', label: t('finance.columns.month'), render: (invoice) => invoice.month },
     { key: 'amount', label: t('finance.columns.amount'), render: (invoice) => formatCurrency(invoice.totalAmount) },
     { key: 'status', label: t('finance.columns.status'), render: (invoice) => <StatusChip status={invoice.status} label={t(`status.invoice.${invoice.status}`)} /> },
+    {
+      key: 'actions',
+      label: t('common.actions'),
+      render: (invoice) => (
+        <Button size="small" onClick={() => setSelectedInvoiceId(invoice.id)}>
+          {t('resident.bills.viewDetails')}
+        </Button>
+      ),
+    },
   ]
 
   const paymentColumns: DataColumn<(typeof selectedPayments)[number]>[] = [
@@ -163,6 +175,7 @@ const ResidentsOverview: React.FC = () => {
           </Box>
         )}
       </Drawer>
+      <InvoiceBreakdownDrawer invoice={selectedInvoice} onClose={() => setSelectedInvoiceId(null)} formatCurrency={formatCurrency} />
     </Box>
   )
 }

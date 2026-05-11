@@ -1,11 +1,8 @@
 import React from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
 import { useTranslation } from 'react-i18next'
+import InvoiceBreakdownDrawer from '../../../components/shared/InvoiceBreakdownDrawer'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
 import { formatCurrency, useResidentPortal } from '../../../hooks/useApartmentData'
@@ -39,15 +36,7 @@ const ResidentBills: React.FC = () => {
   return (
     <>
       <ResponsiveDataView ariaLabel={t('sidebar.myBills')} columns={columns} getRowId={(invoice) => invoice.id} rows={residentInvoices} />
-      <Dialog open={Boolean(selectedInvoice)} onClose={() => setInvoiceId(null)} fullWidth maxWidth="sm">
-        <DialogTitle>{t('resident.bills.detailsTitle')}</DialogTitle>
-        <DialogContent>
-          {selectedInvoice && t('resident.bills.detailsBody', { invoice: selectedInvoice.id, amount: formatCurrency(selectedInvoice.totalAmount), month: selectedInvoice.month })}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setInvoiceId(null)}>{t('common.close')}</Button>
-        </DialogActions>
-      </Dialog>
+      <InvoiceBreakdownDrawer invoice={selectedInvoice ?? null} onClose={() => setInvoiceId(null)} formatCurrency={formatCurrency} />
     </>
   )
 }

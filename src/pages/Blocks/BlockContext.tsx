@@ -1,8 +1,11 @@
 import React from 'react'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
-import { Navigate, useParams } from 'react-router-dom'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import DashboardIcon from '@mui/icons-material/Dashboard'
+import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import PageHeader from '../../components/shared/PageHeader'
 import ResponsiveDataView, { type DataColumn } from '../../components/shared/ResponsiveDataView'
@@ -10,6 +13,7 @@ import { formatCurrency, useBlockContext } from '../../hooks/useApartmentData'
 
 const BlockContext: React.FC = () => {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const { blockId, section = 'overview' } = useParams()
   const {
     apartmentCount,
@@ -60,6 +64,16 @@ const BlockContext: React.FC = () => {
       <PageHeader
         title={t('blocks.title', { block: block.name })}
         description={t('blocks.description')}
+        actions={(
+          <>
+            <Button startIcon={<ArrowBackIcon />} variant="outlined" onClick={() => navigate('/admin/blocks')}>
+              {t('blocks.actions.backToList')}
+            </Button>
+            <Button startIcon={<DashboardIcon />} variant="text" onClick={() => navigate('/admin/dashboard')}>
+              {t('blocks.actions.backToDashboard')}
+            </Button>
+          </>
+        )}
       />
 
       <Box sx={{ display: 'grid', gap: 2 }}>
