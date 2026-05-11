@@ -19,6 +19,7 @@ export type AllocationType =
 export type AllocationScopeType = 'building' | 'staircase' | 'apartment' | 'apartment_group'
 export type MaintenanceMonthStatus = 'draft' | 'published'
 export type ExpenseKind = 'utility' | 'administrative' | 'manual' | 'penalty' | 'historical_debt'
+export type CostScopeLevel = 'block' | 'staircase'
 
 export type Block = {
   id: string
@@ -138,6 +139,20 @@ export type MonthlyExpense = {
   amount: number
   ruleId: string
   source: ExpenseKind
+}
+
+export type CustomCostConfiguration = {
+  id: string
+  blockId: string
+  staircaseId?: string
+  labelKey: string
+  amount: number
+  allocationType: AllocationType
+  scopeLevel: CostScopeLevel
+  isActive: boolean
+  isRecurringMonthly: boolean
+  effectiveFrom: string
+  notesKey?: string
 }
 
 export type HistoricalDebt = {

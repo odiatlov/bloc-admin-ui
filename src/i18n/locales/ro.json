@@ -277,7 +277,9 @@
     "monthlyStaircasePayments": "Plăți lunare pe scară",
     "results": "{{count}} blocuri",
     "actions": {
-      "openOverview": "Deschide prezentarea"
+      "openOverview": "Deschide prezentarea",
+      "backToList": "Inapoi la blocuri",
+      "backToDashboard": "Panou principal"
     },
     "columns": {
       "floor": "Etaj",
@@ -388,6 +390,46 @@
       "garbage": "Salubritate",
       "water": "Apă",
       "heating": "Încălzire"
+    },
+    "allocation": {
+      "per_person": "Pe persoana declarată",
+      "per_apartment": "Pe apartament",
+      "by_surface": "După suprafață utilă",
+      "by_heating_area": "După suprafața încălzită",
+      "individual_meter": "Contor individual",
+      "equal_split": "Împărțire egală",
+      "custom": "Cote personalizate"
+    },
+    "customCosts": {
+      "active": "Activ",
+      "add": "Adaugă cost personalizat",
+      "allocation": "Strategie de alocare",
+      "blockScope": "Tot blocul",
+      "description": "Configurează costuri recurente sau punctuale pe bloc ori pe scară.",
+      "effectiveFrom": "Valabil din",
+      "notesLabel": "Note",
+      "recurring": "Recurent lunar",
+      "scope": "Arie",
+      "staircaseScope": "Scară",
+      "title": "Costuri personalizate",
+      "type": "Tip cheltuială",
+      "types": {
+        "administrationCost": "Cost administrare",
+        "customMonthlyFee": "Taxă lunara personalizată",
+        "elevatorMaintenance": "Întreținere lift",
+        "gardening": "Grădinarit",
+        "intercomMaintenance": "Întreținere interfon",
+        "pestControl": "Dezinsecție",
+        "repairs": "Reparații",
+        "staircaseCleaning": "Curățenie scară"
+      },
+      "notes": {
+        "administration": "Cost lunar pentru serviciul de administrare.",
+        "cleaning": "Contract recurent de curățenie pentru scara selectată.",
+        "gardening": "Lucrări sezoniere pentru spațiile verzi comune.",
+        "intercom": "Contract opțional pentru mentenanța interfonului.",
+        "manual": "Cost personalizat adăugat manual de administrator."
+      }
     }
   }
 }

@@ -1,4 +1,4 @@
-import type { AdminExpense, AllocationRule, ExpenseCategory, HistoricalDebt, MonthlyExpense, Penalty } from '../../types/apartment'
+import type { AdminExpense, AllocationRule, CustomCostConfiguration, ExpenseCategory, HistoricalDebt, MonthlyExpense, Penalty } from '../../types/apartment'
 
 export const adminExpenses: AdminExpense[] = [
   { id: 'EXP-A-2026-05-MAINTENANCE', blockId: 'block-a', month: '2026-05', labelKey: 'finance.expenses.maintenance', amount: 120 },
@@ -48,4 +48,57 @@ export const historicalDebts: HistoricalDebt[] = [
 
 export const penalties: Penalty[] = [
   { id: 'PEN-A-12-2026-05', apartmentId: 'apt-a-12', month: '2026-05', amount: 8.5, reasonKey: 'finance.penalties.latePayment' },
+]
+
+export const customCostConfigurations: CustomCostConfiguration[] = [
+  {
+    id: 'CC-A-CLEANING-1',
+    blockId: 'block-a',
+    staircaseId: 'stair-a-1',
+    labelKey: 'settings.customCosts.types.staircaseCleaning',
+    amount: 120,
+    allocationType: 'equal_split',
+    scopeLevel: 'staircase',
+    isActive: true,
+    isRecurringMonthly: true,
+    effectiveFrom: '2026-05-01',
+    notesKey: 'settings.customCosts.notes.cleaning',
+  },
+  {
+    id: 'CC-A-GARDENING',
+    blockId: 'block-a',
+    labelKey: 'settings.customCosts.types.gardening',
+    amount: 75,
+    allocationType: 'custom',
+    scopeLevel: 'block',
+    isActive: true,
+    isRecurringMonthly: true,
+    effectiveFrom: '2026-05-01',
+    notesKey: 'settings.customCosts.notes.gardening',
+  },
+  {
+    id: 'CC-B-ADMIN',
+    blockId: 'block-b',
+    labelKey: 'settings.customCosts.types.administrationCost',
+    amount: 32,
+    allocationType: 'per_apartment',
+    scopeLevel: 'block',
+    isActive: true,
+    isRecurringMonthly: true,
+    effectiveFrom: '2026-05-01',
+    notesKey: 'settings.customCosts.notes.administration',
+  },
+  {
+    id: 'CC-C-INTERCOM',
+    blockId: 'block-c',
+    staircaseId: 'stair-c-2',
+    labelKey: 'settings.customCosts.types.intercomMaintenance',
+    amount: 45,
+    allocationType: 'equal_split',
+    scopeLevel: 'staircase',
+    isActive: false,
+    isRecurringMonthly: false,
+    effectiveFrom: '2026-06-01',
+    notesKey: 'settings.customCosts.notes.intercom',
+  },
 ]
