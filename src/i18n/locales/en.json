@@ -280,11 +280,30 @@
   },
   "resident": {
     "bills": {
+      "adjustments": {
+        "title": "Adjustments"
+      },
+      "backToBills": "Back",
+      "breakdown": {
+        "basis": "Basis",
+        "method": "Allocation",
+        "methodTooltip": "Calculated using {{method}}",
+        "title": "Cost breakdown"
+      },
       "description": "View invoices, payment status, and downloadable bill details.",
       "viewDetails": "View details",
       "download": "Download",
       "detailsTitle": "Invoice details",
-      "detailsBody": "Invoice {{invoice}} for {{month}} has a total amount of {{amount}}."
+      "detailsBody": "Invoice {{invoice}} for {{month}} has a total amount of {{amount}}.",
+      "invoiceContext": "{{invoice}} · {{month}}",
+      "summary": {
+        "balance": "Remaining balance",
+        "debts": "Previous debt",
+        "expenses": "Current expenses",
+        "penalties": "Penalties",
+        "title": "Total calculation",
+        "total": "Total due"
+      }
     }
   },
   "consumption": {

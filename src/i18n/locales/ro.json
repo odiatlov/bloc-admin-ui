@@ -295,11 +295,30 @@
   },
   "resident": {
     "bills": {
+      "adjustments": {
+        "title": "Ajustari"
+      },
+      "backToBills": "Inapoi",
+      "breakdown": {
+        "basis": "Baza",
+        "method": "Alocare",
+        "methodTooltip": "Calculat folosind {{method}}",
+        "title": "Defalcare costuri"
+      },
       "description": "Vedeți facturile, statusul plăților și detalii descărcabile.",
       "viewDetails": "Vezi detalii",
       "download": "Descarcă",
       "detailsTitle": "Detalii factură",
-      "detailsBody": "Factura {{invoice}} pentru {{month}} are suma totală {{amount}}."
+      "detailsBody": "Factura {{invoice}} pentru {{month}} are suma totală {{amount}}.",
+      "invoiceContext": "{{invoice}} · {{month}}",
+      "summary": {
+        "balance": "Sold rămas",
+        "debts": "Rest anterior",
+        "expenses": "Cheltuieli curente",
+        "penalties": "Penalizări",
+        "title": "Calcul total",
+        "total": "Total de plată"
+      }
     }
   },
   "consumption": {
