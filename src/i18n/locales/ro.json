@@ -21,6 +21,32 @@
       "language": "Limba",
       "openSidebar": "Deschide meniul",
       "toggleTheme": "Schimbă tema"
+    },
+    "debts": {
+      "previousBalance": "Sold restant anterior"
+    },
+    "penalties": {
+      "latePayment": "Penalizare pentru intarziere"
+    },
+    "maintenance": {
+      "adjustments": "Restante istorice: {{debts}} - penalizari: {{penalties}}",
+      "blockMonth": "Bloc {{block}} - {{month}}",
+      "generatedAt": "Generat {{generatedAt}}",
+      "status": {
+        "draft": "Ciorna",
+        "published": "Publicat"
+      }
+    }
+  },
+  "maintenance": {
+    "explain": {
+      "per_person": "{{label}} = {{amount}} deoarece sunt declarate {{basis}} persoane.",
+      "per_apartment": "{{label}} = {{amount}} deoarece costul este impartit pe apartament.",
+      "by_surface": "{{label}} = {{amount}} pentru {{basis}} mp utili din {{totalBasis}} mp.",
+      "by_heating_area": "{{label}} = {{amount}} pentru {{basis}} mp incalziti din {{totalBasis}} mp.",
+      "individual_meter": "{{label}} = {{amount}} pentru {{basis}} mc din {{totalBasis}} mc.",
+      "equal_split": "{{label}} = {{amount}} prin impartire egala intre apartamente eligibile.",
+      "custom": "{{label}} = {{amount}} pe baza cotei configurate manual."
     }
   },
   "sidebar": {
@@ -172,7 +198,8 @@
     "tabs": {
       "invoices": "Facturi",
       "payments": "Plăți",
-      "cashRegister": "Registru numerar"
+      "cashRegister": "Registru numerar",
+      "maintenance": "Intretinere"
     },
     "columns": {
       "invoice": "Factură",
@@ -219,7 +246,29 @@
     },
     "expenses": {
       "maintenance": "Întreținere",
-      "administrative": "Administrativ"
+      "administrative": "Administrativ",
+      "garbage": "Salubritate",
+      "heating": "Incalzire",
+      "coldWater": "Apa rece",
+      "staircaseElectricity": "Electricitate scara",
+      "surfaceRepairs": "Reparatii pe suprafata",
+      "staircaseCleaning": "Curatenie scara",
+      "gardening": "Gradinarit"
+    },
+    "debts": {
+      "previousBalance": "Sold restant anterior"
+    },
+    "penalties": {
+      "latePayment": "Penalizare pentru intarziere"
+    },
+    "maintenance": {
+      "adjustments": "Restante istorice: {{debts}} - penalizari: {{penalties}}",
+      "blockMonth": "Bloc {{block}} - {{month}}",
+      "generatedAt": "Generat {{generatedAt}}",
+      "status": {
+        "draft": "Ciorna",
+        "published": "Publicat"
+      }
     }
   },
   "blocks": {
@@ -258,14 +307,18 @@
     },
     "sections": {
       "readings": "Citiri apă",
-      "anomalies": "Detecție anomalii"
+      "anomalies": "Detecție anomalii",
+      "waterBalance": "Bilanț apă"
     },
     "columns": {
       "apartment": "Apartament",
       "previous": "Index anterior",
       "current": "Index curent",
       "usage": "Consum",
-      "anomaly": "Anomalie"
+      "anomaly": "Anomalie",
+      "mainMeter": "Contor general",
+      "apartmentMeters": "Contoare apartamente",
+      "waterLoss": "Diferenta"
     },
     "actions": {
       "submitIndex": "Trimite index",

@@ -23,7 +23,7 @@ type ConsumptionSectionsProps = {
 
 const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
   const { t } = useTranslation()
-  const { blockFilter, blocks, readings, setBlockFilter, summaries } = useConsumption()
+  const { blockFilter, blocks, readings, setBlockFilter, summaries, waterBalances } = useConsumption()
   const { residentReadings } = useResidentPortal()
   const [submitOpen, setSubmitOpen] = React.useState(false)
   const visibleReadings = mode === 'resident' ? residentReadings.map((reading) => ({ ...reading, usageValue: reading.currentValue - reading.previousValue })) : readings
@@ -41,6 +41,14 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
     { key: 'month', label: t('finance.columns.month'), render: (summary) => summary.month },
     { key: 'usage', label: t('consumption.columns.usage'), render: (summary) => summary.usageValue },
     { key: 'anomaly', label: t('consumption.columns.anomaly'), render: (summary) => <StatusChip status={summary.anomaly} label={t(`status.anomaly.${summary.anomaly}`)} /> },
+  ]
+
+  const waterBalanceColumns: DataColumn<(typeof waterBalances)[number]>[] = [
+    { key: 'block', label: t('residents.filters.block'), render: (balance) => t('common.blockValue', { block: balance.block.name }) },
+    { key: 'month', label: t('finance.columns.month'), render: (balance) => balance.month },
+    { key: 'main', label: t('consumption.columns.mainMeter'), render: (balance) => balance.mainUsage },
+    { key: 'apartments', label: t('consumption.columns.apartmentMeters'), render: (balance) => balance.apartmentUsage },
+    { key: 'difference', label: t('consumption.columns.waterLoss'), render: (balance) => balance.difference },
   ]
 
   return (
@@ -72,6 +80,8 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
         <Box sx={{ display: 'grid', gap: 1 }}>
           <Typography variant="h6">{t('consumption.sections.anomalies')}</Typography>
           <ResponsiveDataView ariaLabel={t('consumption.sections.anomalies')} columns={summaryColumns} getRowId={(summary) => `${summary.apartment.id}-${summary.month}`} rows={summaries} />
+          <Typography variant="h6">{t('consumption.sections.waterBalance')}</Typography>
+          <ResponsiveDataView ariaLabel={t('consumption.sections.waterBalance')} columns={waterBalanceColumns} getRowId={(balance) => `${balance.block.id}-${balance.month}`} rows={waterBalances} />
         </Box>
       )}
 

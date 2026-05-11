@@ -7,6 +7,7 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
+import Chip from '@mui/material/Chip'
 import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Select, { type SelectChangeEvent } from '@mui/material/Select'
@@ -28,6 +29,7 @@ const FinanceSections: React.FC = () => {
     cashAwaitingVerification,
     cashEntries,
     invoices,
+    maintenanceRuns,
     monthlyRevenue,
     paymentMethodFilter,
     payments,
@@ -136,6 +138,7 @@ const FinanceSections: React.FC = () => {
           <Tab label={t('finance.tabs.invoices')} />
           <Tab label={t('finance.tabs.payments')} />
           <Tab label={t('finance.tabs.cashRegister')} />
+          <Tab label={t('finance.tabs.maintenance')} />
         </Tabs>
       </Paper>
 
@@ -168,6 +171,55 @@ const FinanceSections: React.FC = () => {
 
       {tab === 2 && (
         <ResponsiveDataView ariaLabel={t('finance.tabs.cashRegister')} columns={cashColumns} getRowId={(entry) => entry.id} rows={cashEntries} />
+      )}
+
+      {tab === 3 && (
+        <Box sx={{ display: 'grid', gap: 2 }}>
+          {maintenanceRuns.map((run) => (
+            <Paper key={run.id} sx={{ p: 2, display: 'grid', gap: 1.5 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, flexWrap: 'wrap' }}>
+                <Box>
+                  <Typography variant="h6">{t('finance.maintenance.blockMonth', { block: run.blockId.replace('block-', '').toUpperCase(), month: run.month })}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {t('finance.maintenance.generatedAt', { generatedAt: run.generatedAt })}
+                  </Typography>
+                </Box>
+                <Chip color={run.status === 'published' ? 'success' : 'warning'} label={t(`finance.maintenance.status.${run.status}`)} />
+              </Box>
+              <Box sx={{ display: 'grid', gap: 1 }}>
+                {run.apartmentTotals.map((total) => {
+                  const invoice = invoices.find((candidate) => candidate.apartmentId === total.apartmentId && candidate.month === run.month)
+                  return (
+                    <Paper key={total.apartmentId} variant="outlined" sx={{ p: 1.5, display: 'grid', gap: 1 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, flexWrap: 'wrap' }}>
+                        <Typography sx={{ fontWeight: 700 }}>{invoice?.familyLabel ?? total.apartmentId}</Typography>
+                        <Typography sx={{ fontWeight: 700 }}>{formatCurrency(total.total)}</Typography>
+                      </Box>
+                      {total.lines.slice(0, 3).map((line) => (
+                        <Typography key={line.expenseId} variant="body2" color="text.secondary">
+                          {t(line.textKey, {
+                            label: t(line.labelKey),
+                            amount: formatCurrency(line.amount),
+                            basis: line.basis,
+                            totalBasis: line.totalBasis,
+                          })}
+                        </Typography>
+                      ))}
+                      {(total.debts.length > 0 || total.penalties.length > 0) && (
+                        <Typography variant="body2" color="warning.main">
+                          {t('finance.maintenance.adjustments', {
+                            debts: formatCurrency(total.debts.reduce((sum, debt) => sum + debt.principal, 0)),
+                            penalties: formatCurrency(total.penalties.reduce((sum, penalty) => sum + penalty.amount, 0)),
+                          })}
+                        </Typography>
+                      )}
+                    </Paper>
+                  )
+                })}
+              </Box>
+            </Paper>
+          ))}
+        </Box>
       )}
 
       <Dialog open={Boolean(selectedInvoice)} onClose={() => setDialogInvoiceId(null)} fullWidth maxWidth="sm">

@@ -172,7 +172,8 @@
     "tabs": {
       "invoices": "Invoices",
       "payments": "Payments",
-      "cashRegister": "Cash Register"
+      "cashRegister": "Cash Register",
+      "maintenance": "Maintenance"
     },
     "columns": {
       "invoice": "Invoice",
@@ -219,7 +220,40 @@
     },
     "expenses": {
       "maintenance": "Maintenance",
-      "administrative": "Administrative"
+      "administrative": "Administrative",
+      "garbage": "Garbage collection",
+      "heating": "Heating",
+      "coldWater": "Cold water",
+      "staircaseElectricity": "Staircase electricity",
+      "surfaceRepairs": "Surface repairs",
+      "staircaseCleaning": "Staircase cleaning",
+      "gardening": "Gardening"
+    },
+    "debts": {
+      "previousBalance": "Previous unpaid balance"
+    },
+    "penalties": {
+      "latePayment": "Late payment penalty"
+    },
+    "maintenance": {
+      "adjustments": "Historical debts: {{debts}} · penalties: {{penalties}}",
+      "blockMonth": "Block {{block}} · {{month}}",
+      "generatedAt": "Generated {{generatedAt}}",
+      "status": {
+        "draft": "Draft",
+        "published": "Published"
+      }
+    }
+  },
+  "maintenance": {
+    "explain": {
+      "per_person": "{{label}} = {{amount}} because {{basis}} declared residents were counted.",
+      "per_apartment": "{{label}} = {{amount}} because the cost is split per apartment.",
+      "by_surface": "{{label}} = {{amount}} from {{basis}} sqm usable surface out of {{totalBasis}} sqm.",
+      "by_heating_area": "{{label}} = {{amount}} from {{basis}} sqm heating area out of {{totalBasis}} sqm.",
+      "individual_meter": "{{label}} = {{amount}} from {{basis}} cubic meters out of {{totalBasis}} cubic meters.",
+      "equal_split": "{{label}} = {{amount}} through equal split among eligible apartments.",
+      "custom": "{{label}} = {{amount}} using the configured custom share."
     }
   },
   "blocks": {
@@ -258,14 +292,18 @@
     },
     "sections": {
       "readings": "Water readings",
-      "anomalies": "Anomaly detection"
+      "anomalies": "Anomaly detection",
+      "waterBalance": "Water balance"
     },
     "columns": {
       "apartment": "Apartment",
       "previous": "Previous index",
       "current": "Current index",
       "usage": "Usage",
-      "anomaly": "Anomaly"
+      "anomaly": "Anomaly",
+      "mainMeter": "Main meter",
+      "apartmentMeters": "Apartment meters",
+      "waterLoss": "Difference"
     },
     "actions": {
       "submitIndex": "Submit index",

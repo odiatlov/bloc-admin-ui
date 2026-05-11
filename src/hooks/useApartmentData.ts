@@ -1,11 +1,17 @@
 import React from 'react'
 import {
   adminExpenses,
+  allocationRules,
   apartments,
   blocks,
   cashPayments,
+  families,
+  historicalDebts,
   invoices,
+  mainMeterReadings,
+  monthlyExpenses,
   payments,
+  penalties,
   reportMonths,
   residents,
   staircases,
@@ -19,8 +25,9 @@ import {
   type PaymentMethod,
   type VerificationStatus,
 } from '../mocks/apartmentData'
+import { calculateWaterBalance, generateMonthlyMaintenance } from '../utils/maintenanceEngine'
 
-const currencyFormatter = new Intl.NumberFormat(undefined, { style: 'currency', currency: 'EUR' })
+const currencyFormatter = new Intl.NumberFormat(undefined, { style: 'currency', currency: 'RON' })
 
 export const formatCurrency = (value: number) => currencyFormatter.format(value)
 
@@ -57,9 +64,34 @@ const getBlockResidentCount = (blockId: string) =>
     .filter((apartment) => apartment.blockId === blockId)
     .reduce((sum, apartment) => sum + residentCountForApartment(apartment.id), 0)
 
+const maintenanceEngineInput = {
+  apartments,
+  debts: historicalDebts,
+  expenses: monthlyExpenses,
+  families,
+  mainMeterReadings,
+  penalties,
+  residents,
+  rules: allocationRules,
+  waterReadings,
+}
+
+const getMaintenanceRun = (blockId: string, month: string) => generateMonthlyMaintenance(blockId, month, maintenanceEngineInput)
+
+const getApartmentMaintenanceTotal = (apartmentId: string, month: string) => {
+  const apartment = apartments.find((item) => item.id === apartmentId)
+  if (!apartment) return null
+
+  const run = getMaintenanceRun(apartment.blockId, month)
+  return run.apartmentTotals.find((total) => total.apartmentId === apartmentId) ?? null
+}
+
 const getApartmentAllocationTotal = (apartmentId: string, month: string) => {
   const apartment = apartments.find((item) => item.id === apartmentId)
   if (!apartment) return 0
+
+  const maintenanceTotal = getApartmentMaintenanceTotal(apartmentId, month)
+  if (maintenanceTotal && maintenanceTotal.lines.length > 0) return maintenanceTotal.total
 
   const residentCount = residentCountForApartment(apartmentId)
   const blockResidentCount = getBlockResidentCount(apartment.blockId)
@@ -118,10 +150,12 @@ const enrichApartment = (apartment: Apartment) => {
 
 const enrichInvoice = (invoice: Invoice) => {
   const apartment = apartments.find((item) => item.id === invoice.apartmentId)
+  const maintenanceTotal = getApartmentMaintenanceTotal(invoice.apartmentId, invoice.month)
   return {
     ...invoice,
     apartment,
     familyLabel: apartment ? formatApartment(apartment) : '',
+    maintenanceTotal,
     residents: apartment ? getApartmentResidents(apartment.id) : [],
     totalAmount: getInvoiceTotal(invoice),
     paidAmount: getInvoicePaidAmount(invoice.id),
@@ -275,12 +309,14 @@ export const useFinance = () => {
   const monthlyRevenue = payments
     .filter((payment) => payment.verificationStatus !== 'unverified')
     .reduce((sum, payment) => sum + payment.amount, 0)
+  const maintenanceRuns = blocks.map((block) => getMaintenanceRun(block.id, reportMonths[0]))
 
   return {
     cashAwaitingVerification: cashEntries.filter((entry) => entry.status === 'unverified').length,
     cashEntries: enrichedCashEntries,
     invoices: enrichedInvoices,
     monthlyRevenue,
+    maintenanceRuns,
     paymentMethodFilter,
     payments: enrichedPayments,
     registerCashPayment,
@@ -313,6 +349,15 @@ export const useConsumption = () => {
       }),
     [readings],
   )
+  const waterBalances = React.useMemo(
+    () =>
+      blocks.map((block) => ({
+        block,
+        month: reportMonths[0],
+        ...calculateWaterBalance(block.id, reportMonths[0], maintenanceEngineInput),
+      })),
+    [],
+  )
 
   return {
     blockFilter,
@@ -320,6 +365,7 @@ export const useConsumption = () => {
     readings,
     summaries,
     setBlockFilter,
+    waterBalances,
   }
 }
 
