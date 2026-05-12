@@ -1,6 +1,6 @@
 import React from 'react'
 
-export type Role = 'Admin' | 'Resident'
+export type Role = 'Admin' | 'Resident' | 'Censor'
 
 type RoleContextType = {
   role: Role

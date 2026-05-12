@@ -13,9 +13,9 @@ const Consumption: React.FC = () => {
     <Box>
       <PageHeader
         title={role === 'Resident' ? t('sidebar.waterIndex') : t('pages.consumption.title')}
-        description={role === 'Resident' ? t('consumption.resident.description') : t('pages.consumption.description')}
+        description={role === 'Resident' ? t('consumption.resident.description') : role === 'Censor' ? t('censor.anomalies.description') : t('pages.consumption.description')}
       />
-      <ConsumptionSections mode={role === 'Resident' ? 'resident' : 'admin'} />
+      <ConsumptionSections mode={role === 'Resident' ? 'resident' : role === 'Censor' ? 'censor' : 'admin'} />
     </Box>
   )
 }

@@ -1,4 +1,4 @@
-import { StrictMode, useMemo, useState } from 'react'
+import React, { StrictMode, useMemo, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material/styles'
@@ -18,6 +18,22 @@ import globalStyles from './theme/globalStyles'
 import Dashboard from './pages/Dashboard/Dashboard'
 import Blocks from './pages/Blocks/Blocks'
 import BlockContext from './pages/Blocks/BlockContext'
+import { RoleContext } from './contexts/RoleContext'
+import { rolePermissions, type Permission } from './mocks/roles'
+
+type ProtectedRouteProps = {
+  permission: Permission
+  children: React.ReactElement
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, permission }) => {
+  const { role } = React.useContext(RoleContext)
+  const allowed = rolePermissions[role]?.includes(permission)
+
+  if (!allowed) return <Navigate to="/admin/dashboard" replace />
+
+  return children
+}
 
 // eslint-disable-next-line react-refresh/only-export-components
 const RootApp: React.FC = () => {
@@ -38,13 +54,13 @@ const RootApp: React.FC = () => {
             <Route path="/admin" element={<AdminLayout toggleTheme={toggleTheme} themeMode={mode} />}>
               <Route index element={<Dashboard />} />
               <Route path="dashboard" element={<Dashboard />} />
-              <Route path="blocks" element={<Blocks />} />
-              <Route path="residents" element={<Residents />} />
-              <Route path="finance" element={<Finance />} />
-              <Route path="consumption" element={<Consumption />} />
-              <Route path="reports" element={<Reports />} />
-              <Route path="settings" element={<Settings />} />
-              <Route path="blocks/:blockId/:section" element={<BlockContext />} />
+              <Route path="blocks" element={<ProtectedRoute permission="blocks"><Blocks /></ProtectedRoute>} />
+              <Route path="residents" element={<ProtectedRoute permission="residents"><Residents /></ProtectedRoute>} />
+              <Route path="finance" element={<ProtectedRoute permission="finance"><Finance /></ProtectedRoute>} />
+              <Route path="consumption" element={<ProtectedRoute permission="consumption"><Consumption /></ProtectedRoute>} />
+              <Route path="reports" element={<ProtectedRoute permission="reports"><Reports /></ProtectedRoute>} />
+              <Route path="settings" element={<ProtectedRoute permission="settings"><Settings /></ProtectedRoute>} />
+              <Route path="blocks/:blockId/:section" element={<ProtectedRoute permission="blocks"><BlockContext /></ProtectedRoute>} />
             </Route>
           </Routes>
         </RoleProvider>

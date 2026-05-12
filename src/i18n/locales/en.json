@@ -15,7 +15,8 @@
     "topbar": {
       "role": {
         "admin": "Administrator",
-        "resident": "Resident"
+        "resident": "Resident",
+        "censor": "Censor"
       },
       "logout": "Logout",
       "language": "Language",
@@ -32,6 +33,7 @@
     "myBills": "My Bills",
     "waterIndex": "Water Index",
     "consumption": "Consumption",
+    "reviews": "Reviews",
     "reports": "Reports",
     "settings": "Settings",
     "overview": "Overview",
@@ -59,6 +61,12 @@
       "normal": "Normal",
       "warning": "Warning",
       "critical": "Critical"
+    },
+    "review": {
+      "approved": "Approved",
+      "needs_changes": "Needs changes",
+      "pending": "Pending",
+      "rejected": "Rejected"
     }
   },
   "dashboard": {
@@ -118,6 +126,10 @@
         "elevator": "Elevator maintenance is scheduled for May 12.",
         "water": "Water shutoff for building B is scheduled for April 22."
       }
+    },
+    "censor": {
+      "title": "Censor Dashboard",
+      "description": "Review invoices, maintenance runs, and consumption anomalies awaiting approval."
     }
   },
   "pages": {
@@ -140,6 +152,10 @@
     "reports": {
       "title": "Reports",
       "description": "Generate monthly reports, preview them, and export standard formats."
+    },
+    "censor": {
+      "title": "Review queue",
+      "description": "Approve, reject, or request changes for association records before publication."
     },
     "settings": {
       "title": "Settings",
@@ -333,6 +349,65 @@
     "dialog": {
       "submitTitle": "Submit water index",
       "adminTitle": "Add water reading"
+    }
+  },
+  "censor": {
+    "actions": {
+      "approved": "Approve",
+      "needs_changes": "Request changes",
+      "openQueue": "Open review queue",
+      "rejected": "Reject",
+      "review": "Review",
+      "viewAnomalies": "View anomalies"
+    },
+    "anomalies": {
+      "description": "Read-only anomaly visibility for censor review."
+    },
+    "columns": {
+      "actor": "Actor",
+      "apartments": "Apartments",
+      "generatedAt": "Generated at",
+      "requestedAt": "Requested at",
+      "reviewedAt": "Reviewed at",
+      "reviewItem": "Review item",
+      "reviewState": "Review state",
+      "type": "Type"
+    },
+    "dialog": {
+      "title": "Review decision"
+    },
+    "metrics": {
+      "anomalies": "Visible anomalies",
+      "invoiceReviews": "Invoice reviews",
+      "needsAttention": "Needs attention",
+      "pending": "Pending approvals"
+    },
+    "review": {
+      "history": {
+        "approved": "Approved by censor",
+        "flagged": "Flagged automatically",
+        "needs_changes": "Changes requested by censor",
+        "pending": "Returned to pending review",
+        "rejected": "Rejected by censor",
+        "requestedChanges": "Changes requested",
+        "submitted": "Submitted for review"
+      },
+      "notes": {
+        "consumptionSpike": "Consumption is above the normal threshold and should be checked before reporting.",
+        "invoiceBalance": "Invoice total and outstanding balance require approval before publication.",
+        "maintenanceDraft": "Maintenance run has adjustments that require censor review."
+      }
+    },
+    "tabs": {
+      "anomalies": "Anomalies",
+      "history": "Review history",
+      "invoices": "Invoices",
+      "maintenance": "Maintenance"
+    },
+    "type": {
+      "anomaly": "Anomaly",
+      "invoice": "Invoice",
+      "maintenance": "Maintenance"
     }
   },
   "reports": {

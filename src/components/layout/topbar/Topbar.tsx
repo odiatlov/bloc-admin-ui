@@ -86,6 +86,7 @@ const Topbar: React.FC<Props> = ({
           <Select value={role} onChange={handleRoleChange} inputProps={{ 'aria-label': 'role-select' }}>
             <MenuItem value="Admin">{t('layout.topbar.role.admin')}</MenuItem>
             <MenuItem value="Resident">{t('layout.topbar.role.resident')}</MenuItem>
+            <MenuItem value="Censor">{t('layout.topbar.role.censor')}</MenuItem>
           </Select>
         </FormControl>
 
