@@ -19,6 +19,7 @@ import OpacityIcon from '@mui/icons-material/Opacity'
 import AssessmentIcon from '@mui/icons-material/Assessment'
 import HomeWorkIcon from '@mui/icons-material/HomeWork'
 import LogoutIcon from '@mui/icons-material/Logout'
+import FactCheckIcon from '@mui/icons-material/FactCheck'
 import { NavLink } from 'react-router-dom'
 import { RoleContext } from '../../../contexts/RoleContext'
 import { useTranslation } from 'react-i18next'
@@ -47,6 +48,13 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ onNavigate, onClose, sh
         { label: t('sidebar.waterIndex'), to: '/admin/consumption', icon: <OpacityIcon />, permission: 'consumption' as const },
         { label: t('sidebar.settings'), to: '/admin/settings', icon: <SettingsIcon />, permission: 'settings' as const },
       ]
+    : role === 'Censor'
+      ? [
+          { label: t('sidebar.dashboard'), to: '/admin/dashboard', icon: <DashboardIcon />, permission: 'dashboard' as const },
+          { label: t('sidebar.reviews'), to: '/admin/finance', icon: <FactCheckIcon />, permission: 'finance' as const },
+          { label: t('sidebar.consumption'), to: '/admin/consumption', icon: <OpacityIcon />, permission: 'consumption' as const },
+          { label: t('sidebar.reports'), to: '/admin/reports', icon: <AssessmentIcon />, permission: 'reports' as const },
+        ]
     : [
         { label: t('sidebar.dashboard'), to: '/admin/dashboard', icon: <DashboardIcon />, permission: 'dashboard' as const },
         { label: t('sidebar.blocks'), to: '/admin/blocks', icon: <HomeWorkIcon />, permission: 'blocks' as const },

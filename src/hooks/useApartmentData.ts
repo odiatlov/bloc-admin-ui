@@ -18,11 +18,14 @@ import {
   utilityMonthlyInputs,
   waterReadings,
   type Apartment,
+  type AnomalyLevel,
   type CashPayment,
+  type CensorReview,
   type FinancialStatus,
   type Invoice,
   type InvoiceStatus,
   type PaymentMethod,
+  type ReviewState,
   type VerificationStatus,
 } from '../mocks/apartmentData'
 import { calculateWaterBalance, generateMonthlyMaintenance } from '../utils/maintenanceEngine'
@@ -120,6 +123,49 @@ const getInvoiceStatus = (invoice: Invoice, sourcePayments = payments): InvoiceS
   if (paidAmount >= totalAmount) return 'paid'
   return new Date(invoice.dueDate) < today ? 'overdue' : 'unpaid'
 }
+
+const initialCensorReviews: CensorReview[] = [
+  {
+    id: 'REV-INV-0501',
+    targetId: 'INV-2026-0501',
+    targetType: 'invoice',
+    state: 'pending',
+    severity: 'warning',
+    requestedBy: 'Admin',
+    requestedAt: '2026-05-09T10:15:00',
+    noteKey: 'censor.review.notes.invoiceBalance',
+    history: [
+      { id: 'REV-INV-0501-H1', at: '2026-05-09T10:15:00', actor: 'Admin', state: 'pending', noteKey: 'censor.review.history.submitted' },
+    ],
+  },
+  {
+    id: 'REV-MNT-A-202605',
+    targetId: 'RUN-block-a-2026-05',
+    targetType: 'maintenance',
+    state: 'needs_changes',
+    severity: 'warning',
+    requestedBy: 'Admin',
+    requestedAt: '2026-05-09T13:30:00',
+    noteKey: 'censor.review.notes.maintenanceDraft',
+    history: [
+      { id: 'REV-MNT-A-202605-H1', at: '2026-05-09T13:30:00', actor: 'Admin', state: 'pending', noteKey: 'censor.review.history.submitted' },
+      { id: 'REV-MNT-A-202605-H2', at: '2026-05-09T15:05:00', actor: 'Censor', state: 'needs_changes', noteKey: 'censor.review.history.requestedChanges' },
+    ],
+  },
+  {
+    id: 'REV-ANM-APT-B-41-202605',
+    targetId: 'apt-b-41-2026-05',
+    targetType: 'anomaly',
+    state: 'pending',
+    severity: 'critical',
+    requestedBy: 'System',
+    requestedAt: '2026-05-10T08:00:00',
+    noteKey: 'censor.review.notes.consumptionSpike',
+    history: [
+      { id: 'REV-ANM-APT-B-41-202605-H1', at: '2026-05-10T08:00:00', actor: 'System', state: 'pending', noteKey: 'censor.review.history.flagged' },
+    ],
+  },
+]
 
 const getApartmentFinancialStatus = (apartmentId: string): FinancialStatus => {
   const apartmentInvoices = invoices.filter((invoice) => invoice.apartmentId === apartmentId)
@@ -396,6 +442,73 @@ export const useReports = () => {
     },
     setBlock,
     setMonth,
+  }
+}
+
+export const useCensorReviews = () => {
+  const [reviewItems, setReviewItems] = React.useState<CensorReview[]>(initialCensorReviews)
+
+  const enrichedInvoices = React.useMemo(() => invoices.map(enrichInvoice), [])
+  const maintenanceRuns = React.useMemo(() => blocks.map((block) => getMaintenanceRun(block.id, reportMonths[0])), [])
+  const anomalySummaries = React.useMemo(
+    () =>
+      waterReadings
+        .map((reading) => {
+          const apartment = apartments.find((item) => item.id === reading.apartmentId) ?? apartments[0]
+          const usageValue = reading.currentValue - reading.previousValue
+          const anomaly: AnomalyLevel = usageValue > 35 ? 'critical' : usageValue > 20 ? 'warning' : 'normal'
+          return { apartment, id: `${apartment.id}-${reading.month}`, month: reading.month, usageValue, anomaly }
+        })
+        .filter((summary) => summary.anomaly !== 'normal'),
+    [],
+  )
+
+  const setReviewState = (reviewId: string, state: ReviewState) => {
+    setReviewItems((items) =>
+      items.map((item) =>
+        item.id === reviewId
+          ? {
+              ...item,
+              state,
+              history: [
+                {
+                  id: `${reviewId}-${Date.now()}`,
+                  actor: 'Censor',
+                  at: new Date().toISOString(),
+                  state,
+                  noteKey: `censor.review.history.${state}`,
+                },
+                ...item.history,
+              ],
+            }
+          : item,
+      ),
+    )
+  }
+
+  const invoiceReviews = reviewItems
+    .filter((review) => review.targetType === 'invoice')
+    .map((review) => ({ review, invoice: enrichedInvoices.find((invoice) => invoice.id === review.targetId) }))
+    .filter((item): item is { review: CensorReview; invoice: (typeof enrichedInvoices)[number] } => Boolean(item.invoice))
+
+  const maintenanceReviews = reviewItems
+    .filter((review) => review.targetType === 'maintenance')
+    .map((review) => ({ review, run: maintenanceRuns.find((run) => run.id === review.targetId) }))
+    .filter((item): item is { review: CensorReview; run: (typeof maintenanceRuns)[number] } => Boolean(item.run))
+
+  const anomalyReviews = reviewItems
+    .filter((review) => review.targetType === 'anomaly')
+    .map((review) => ({ review, anomaly: anomalySummaries.find((summary) => summary.id === review.targetId) }))
+    .filter((item): item is { review: CensorReview; anomaly: (typeof anomalySummaries)[number] } => Boolean(item.anomaly))
+
+  return {
+    anomalyReviews,
+    invoiceReviews,
+    maintenanceReviews,
+    pendingCount: reviewItems.filter((review) => review.state === 'pending').length,
+    rejectedCount: reviewItems.filter((review) => review.state === 'rejected' || review.state === 'needs_changes').length,
+    reviewItems,
+    setReviewState,
   }
 }
 

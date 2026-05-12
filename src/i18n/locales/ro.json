@@ -15,7 +15,8 @@
     "topbar": {
       "role": {
         "admin": "Administrator",
-        "resident": "Locatar"
+        "resident": "Locatar",
+        "censor": "Cenzor"
       },
       "logout": "Deconectare",
       "language": "Limba",
@@ -58,6 +59,7 @@
     "myBills": "Facturile mele",
     "waterIndex": "Index apă",
     "consumption": "Consum",
+    "reviews": "Revizii",
     "reports": "Rapoarte",
     "settings": "Setări",
     "overview": "Prezentare",
@@ -85,6 +87,12 @@
       "normal": "Normal",
       "warning": "Atenție",
       "critical": "Critic"
+    },
+    "review": {
+      "approved": "Aprobat",
+      "needs_changes": "Necesită modificări",
+      "pending": "În așteptare",
+      "rejected": "Respins"
     }
   },
   "dashboard": {
@@ -144,6 +152,10 @@
         "elevator": "Revizia liftului este programată pentru 12 mai.",
         "water": "Oprirea apei pentru blocul B este programată pentru 22 aprilie."
       }
+    },
+    "censor": {
+      "title": "Panoul cenzorului",
+      "description": "Verificati facturi, rulari de întreținere si anomalii de consum în așteptarea aprobării."
     }
   },
   "pages": {
@@ -166,6 +178,10 @@
     "reports": {
       "title": "Rapoarte",
       "description": "Generați rapoarte lunare, previzualizați și exportați formate standard."
+    },
+    "censor": {
+      "title": "Coada de revizie",
+      "description": "Aprobați, respingeți sau cereți modificări pentru înregistrări înainte de publicare."
     },
     "settings": {
       "title": "Setări",
@@ -348,6 +364,65 @@
     "dialog": {
       "submitTitle": "Trimite index apă",
       "adminTitle": "Adaugă citire apă"
+    }
+  },
+  "censor": {
+    "actions": {
+      "approved": "Aprobă",
+      "needs_changes": "Cere modificari",
+      "openQueue": "Deschide coada",
+      "rejected": "Respinge",
+      "review": "Revizuiește",
+      "viewAnomalies": "Vezi anomalii"
+    },
+    "anomalies": {
+      "description": "Vizibilitate modul citire asupra anomaliilor pentru revizia cenzorului."
+    },
+    "columns": {
+      "actor": "Actor",
+      "apartments": "Apartamente",
+      "generatedAt": "Generat la",
+      "requestedAt": "Solicitat la",
+      "reviewedAt": "Revizuit la",
+      "reviewItem": "Element revizie",
+      "reviewState": "Stare revizie",
+      "type": "Tip"
+    },
+    "dialog": {
+      "title": "Decizie revizie"
+    },
+    "metrics": {
+      "anomalies": "Anomalii vizibile",
+      "invoiceReviews": "Revizii facturi",
+      "needsAttention": "Necesită atenție",
+      "pending": "Aprobări în așteptare"
+    },
+    "review": {
+      "history": {
+        "approved": "Aprobat de cenzor",
+        "flagged": "Marcat automat",
+        "needs_changes": "Modificări cerute de cenzor",
+        "pending": "Revenit în așteptarea reviziei",
+        "rejected": "Respins de cenzor",
+        "requestedChanges": "Modificări solicitate",
+        "submitted": "Trimis pentru revizie"
+      },
+      "notes": {
+        "consumptionSpike": "Consumul depășește pragul normal și trebuie verificat înainte de raportare.",
+        "invoiceBalance": "Totalul facturii și soldul restant necesită aprobare înainte de publicare.",
+        "maintenanceDraft": "Rularea de întreținere are ajustări care necesită revizia cenzorului."
+      }
+    },
+    "tabs": {
+      "anomalies": "Anomalii",
+      "history": "Istoric revizie",
+      "invoices": "Facturi",
+      "maintenance": "Întreținere"
+    },
+    "type": {
+      "anomaly": "Anomalie",
+      "invoice": "Factură",
+      "maintenance": "Întreținere"
     }
   },
   "reports": {

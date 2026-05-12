@@ -5,6 +5,8 @@ export type InvoiceStatus = 'paid' | 'unpaid' | 'overdue'
 export type PaymentMethod = 'cash' | 'bank'
 export type VerificationStatus = 'unverified' | 'verified' | 'deposited'
 export type AnomalyLevel = 'normal' | 'warning' | 'critical'
+export type ReviewState = 'pending' | 'approved' | 'rejected' | 'needs_changes'
+export type ReviewTargetType = 'invoice' | 'maintenance' | 'anomaly'
 export type UtilityCategory = 'gas' | 'electricity' | 'garbage' | 'water' | 'heating'
 
 export type AllocationType =
@@ -233,4 +235,24 @@ export type MonthlyMaintenanceRun = {
   generatedAt: string
   publishedAt?: string
   apartmentTotals: ApartmentMaintenanceTotal[]
+}
+
+export type ReviewHistoryEntry = {
+  id: string
+  at: string
+  actor: string
+  state: ReviewState
+  noteKey: string
+}
+
+export type CensorReview = {
+  id: string
+  targetId: string
+  targetType: ReviewTargetType
+  state: ReviewState
+  severity: AnomalyLevel
+  requestedBy: string
+  requestedAt: string
+  noteKey: string
+  history: ReviewHistoryEntry[]
 }

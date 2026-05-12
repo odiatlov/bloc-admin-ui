@@ -8,9 +8,9 @@ type StatusChipProps = {
 }
 
 const getColor = (status: string): ChipProps['color'] => {
-  if (['paid', 'active', 'current', 'deposited', 'normal'].includes(status)) return 'success'
-  if (['unpaid', 'due', 'verified', 'warning'].includes(status)) return 'warning'
-  if (['overdue', 'inactive', 'unverified', 'critical'].includes(status)) return 'error'
+  if (['paid', 'active', 'current', 'deposited', 'normal', 'approved'].includes(status)) return 'success'
+  if (['unpaid', 'due', 'verified', 'warning', 'pending', 'needs_changes'].includes(status)) return 'warning'
+  if (['overdue', 'inactive', 'unverified', 'critical', 'rejected'].includes(status)) return 'error'
   return 'default'
 }
 

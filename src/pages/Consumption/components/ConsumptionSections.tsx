@@ -18,7 +18,7 @@ import StatusChip from '../../../components/shared/StatusChip'
 import { formatApartment, useConsumption, useResidentPortal } from '../../../hooks/useApartmentData'
 
 type ConsumptionSectionsProps = {
-  mode: 'admin' | 'resident'
+  mode: 'admin' | 'resident' | 'censor'
 }
 
 const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
@@ -27,6 +27,7 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
   const { residentReadings } = useResidentPortal()
   const [submitOpen, setSubmitOpen] = React.useState(false)
   const visibleReadings = mode === 'resident' ? residentReadings.map((reading) => ({ ...reading, usageValue: reading.currentValue - reading.previousValue })) : readings
+  const canEditReadings = mode !== 'censor'
 
   const readingColumns: DataColumn<(typeof visibleReadings)[number]>[] = [
     { key: 'apartment', label: t('consumption.columns.apartment'), render: (reading) => formatApartment(reading.apartment) },
@@ -54,7 +55,7 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
       <Paper sx={{ p: 2, display: 'flex', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
-        {mode === 'admin' ? (
+        {mode !== 'resident' ? (
           <FormControl size="small" sx={{ minWidth: 180 }}>
             <InputLabel>{t('residents.filters.block')}</InputLabel>
             <Select label={t('residents.filters.block')} value={blockFilter} onChange={(event: SelectChangeEvent) => setBlockFilter(event.target.value)}>
@@ -69,14 +70,16 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
         ) : (
           <Typography variant="h6">{t('consumption.resident.history')}</Typography>
         )}
-        <Button variant="contained" onClick={() => setSubmitOpen(true)}>
-          {mode === 'resident' ? t('consumption.actions.submitIndex') : t('consumption.actions.addReading')}
-        </Button>
+        {canEditReadings && (
+          <Button variant="contained" onClick={() => setSubmitOpen(true)}>
+            {mode === 'resident' ? t('consumption.actions.submitIndex') : t('consumption.actions.addReading')}
+          </Button>
+        )}
       </Paper>
 
       <ResponsiveDataView ariaLabel={t('consumption.sections.readings')} columns={readingColumns} getRowId={(reading) => reading.id} rows={visibleReadings} />
 
-      {mode === 'admin' && (
+      {mode !== 'resident' && (
         <Box sx={{ display: 'grid', gap: 1 }}>
           <Typography variant="h6">{t('consumption.sections.anomalies')}</Typography>
           <ResponsiveDataView ariaLabel={t('consumption.sections.anomalies')} columns={summaryColumns} getRowId={(summary) => `${summary.apartment.id}-${summary.month}`} rows={summaries} />
