@@ -8,7 +8,7 @@
     "blockValue": "Bloc {{block}}",
     "cancel": "Anulează",
     "close": "Închide",
-    "notAvailable": "N/A",
+    "notAvailable": "indisponibil",
     "save": "Salvează"
   },
   "layout": {
@@ -27,14 +27,14 @@
       "previousBalance": "Sold restant anterior"
     },
     "penalties": {
-      "latePayment": "Penalizare pentru intarziere"
+      "latePayment": "Penalizare pentru întârziere"
     },
     "maintenance": {
       "adjustments": "Restante istorice: {{debts}} - penalizari: {{penalties}}",
       "blockMonth": "Bloc {{block}} - {{month}}",
       "generatedAt": "Generat {{generatedAt}}",
       "status": {
-        "draft": "Ciorna",
+        "draft": "Ciornă",
         "published": "Publicat"
       }
     }
@@ -42,11 +42,11 @@
   "maintenance": {
     "explain": {
       "per_person": "{{label}} = {{amount}} deoarece sunt declarate {{basis}} persoane.",
-      "per_apartment": "{{label}} = {{amount}} deoarece costul este impartit pe apartament.",
+      "per_apartment": "{{label}} = {{amount}} deoarece costul este împărțit pe apartament.",
       "by_surface": "{{label}} = {{amount}} pentru {{basis}} mp utili din {{totalBasis}} mp.",
-      "by_heating_area": "{{label}} = {{amount}} pentru {{basis}} mp incalziti din {{totalBasis}} mp.",
+      "by_heating_area": "{{label}} = {{amount}} pentru {{basis}} mp încălziți din {{totalBasis}} mp.",
       "individual_meter": "{{label}} = {{amount}} pentru {{basis}} mc din {{totalBasis}} mc.",
-      "equal_split": "{{label}} = {{amount}} prin impartire egala intre apartamente eligibile.",
+      "equal_split": "{{label}} = {{amount}} prin împărțire egală între apartamente eligibile.",
       "custom": "{{label}} = {{amount}} pe baza cotei configurate manual."
     }
   },
@@ -201,7 +201,7 @@
     "actions": {
       "openDetails": "Deschide detalii",
       "backToList": "Înapoi",
-      "sendReminder": "Trimite reminder",
+      "sendReminder": "Trimite atenționare",
       "registerPayment": "Înregistrează plata"
     },
     "detail": {
@@ -215,13 +215,13 @@
       "invoices": "Facturi",
       "payments": "Plăți",
       "cashRegister": "Registru numerar",
-      "maintenance": "Intretinere"
+      "maintenance": "Întreținere"
     },
     "columns": {
       "invoice": "Factură",
       "payment": "Plată",
       "cash": "Intrare numerar",
-      "apartment": "Apartament / familie",
+      "apartment": "Apartament",
       "resident": "Locatar",
       "month": "Luna",
       "amount": "Suma",
@@ -275,14 +275,14 @@
       "previousBalance": "Sold restant anterior"
     },
     "penalties": {
-      "latePayment": "Penalizare pentru intarziere"
+      "latePayment": "Penalizare pentru întârziere"
     },
     "maintenance": {
-      "adjustments": "Restante istorice: {{debts}} - penalizari: {{penalties}}",
+      "adjustments": "Restanțe istorice: {{debts}} - penalizări: {{penalties}}",
       "blockMonth": "Bloc {{block}} - {{month}}",
       "generatedAt": "Generat {{generatedAt}}",
       "status": {
-        "draft": "Ciorna",
+        "draft": "Ciornă",
         "published": "Publicat"
       }
     }
@@ -294,7 +294,7 @@
     "results": "{{count}} blocuri",
     "actions": {
       "openOverview": "Deschide prezentarea",
-      "backToList": "Inapoi la blocuri",
+      "backToList": "Înapoi la blocuri",
       "backToDashboard": "Panou principal"
     },
     "columns": {
@@ -312,9 +312,9 @@
   "resident": {
     "bills": {
       "adjustments": {
-        "title": "Ajustari"
+        "title": "Ajustări"
       },
-      "backToBills": "Inapoi",
+      "backToBills": "Înapoi",
       "breakdown": {
         "basis": "Baza",
         "method": "Alocare",
@@ -470,7 +470,7 @@
       "waterPrice": "Preț apă",
       "maintenanceFee": "Taxă întreținere",
       "emailNotifications": "Notificări email",
-      "paymentReminders": "Reminder plăți",
+      "paymentReminders": "Atenționări plăți",
       "overdueAlerts": "Alerte restante",
       "cashAlerts": "Alerte reconciliere numerar"
     },

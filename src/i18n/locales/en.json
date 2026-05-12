@@ -8,7 +8,7 @@
     "blockValue": "Block {{block}}",
     "cancel": "Cancel",
     "close": "Close",
-    "notAvailable": "N/A",
+    "notAvailable": "Not available",
     "save": "Save"
   },
   "layout": {
@@ -195,7 +195,7 @@
       "invoice": "Invoice",
       "payment": "Payment",
       "cash": "Cash entry",
-      "apartment": "Apartment / family",
+      "apartment": "Apartment",
       "resident": "Resident",
       "month": "Month",
       "amount": "Amount",
