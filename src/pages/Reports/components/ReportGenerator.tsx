@@ -52,7 +52,7 @@ const ReportGenerator: React.FC = () => {
         <Typography variant="h6" gutterBottom>
           {t('reports.preview.title')}
         </Typography>
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' }, gap: 2 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(5, minmax(0, 1fr))' }, gap: 2 }}>
           <Paper variant="outlined" sx={{ p: 2 }}>
             <Typography variant="body2" color="text.secondary">
               {t('reports.preview.invoices')}
@@ -70,6 +70,18 @@ const ReportGenerator: React.FC = () => {
               {t('reports.preview.waterUsage')}
             </Typography>
             <Typography variant="h5">{preview.waterUsage}</Typography>
+          </Paper>
+          <Paper variant="outlined" sx={{ p: 2 }}>
+            <Typography variant="body2" color="text.secondary">
+              {t('reports.preview.surfaceTotal')}
+            </Typography>
+            <Typography variant="h5">{preview.surfaceTotal.toFixed(1)}</Typography>
+          </Paper>
+          <Paper variant="outlined" sx={{ p: 2 }}>
+            <Typography variant="body2" color="text.secondary">
+              {t('reports.preview.boilerTax')}
+            </Typography>
+            <Typography variant="h5">{formatCurrency(preview.boilerTax)}</Typography>
           </Paper>
         </Box>
       </Paper>

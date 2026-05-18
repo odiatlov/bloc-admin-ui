@@ -16,6 +16,7 @@ const Blocks: React.FC = () => {
 
   const columns: DataColumn<(typeof blockOverviews)[number]>[] = [
     { key: 'block', label: t('sidebar.blocks'), render: (overview) => t('common.blockValue', { block: overview.block.name }) },
+    { key: 'admin', label: 'Admin', render: (overview) => overview.activeAdmin?.name ?? t('common.notAvailable') },
     { key: 'apartments', label: t('dashboard.admin.overview.apartments'), render: (overview) => overview.apartmentCount },
     { key: 'residents', label: t('dashboard.admin.overview.residents'), render: (overview) => overview.residentCount },
     {

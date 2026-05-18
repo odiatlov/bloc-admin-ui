@@ -14,7 +14,11 @@ Mock data is split by business domain and re-exported through `src/mocks/index.t
 
 ## Domain Model
 
-Apartments include the Romanian association fields needed for realistic allocation: usable surface, heating area, indivisible share, declared family/person records, owner/tenant/inactive resident roles, and district/private heating status.
+Apartments include the Romanian association fields needed for realistic allocation: usable surface, total surface, heated surface, optional balcony surface, indivisible share, declared family/person records, resident-apartment ownership links, and apartment/building heating configuration. Surface values are stored in square meters and validated with `validateApartmentSurfaces`.
+
+Residents no longer belong to a single apartment directly. `ResidentApartment` is the junction model and stores ownership type (`owner`, `tenant`, `co_owner`, `family_member`), start/end dates, and the primary residence flag. This supports one resident owning or renting apartments across buildings with different administrators.
+
+Administrator assignment is modeled with `BuildingAdminAssignment`. Each record stores the building, admin, active dates, audit fields (`createdBy`, `updatedBy`), and the assignment reason. The current active admin is derived from active assignment history rather than hardcoded in page logic.
 
 Monthly generated data is separated from static setup:
 
@@ -35,6 +39,40 @@ The engine never hardcodes formulas in invoice code. Each `MonthlyExpense` point
 - `custom`
 
 Scopes support whole building, staircase, individual apartment, and custom apartment groups. This covers common Romanian flows such as garbage by declared persons, administration by apartment, heating by heating area, water by meter, staircase electricity by eligible apartments, and manual repairs by a custom group.
+
+Heating is modeled through `HeatingType`: `central`, `individual`, `gas_boiler`, and `district`. The maintenance engine keeps heating allocation modular through `by_heating_area`, and gas-boiler apartments can add a configurable boiler fee line, currently using the Romanian demo rule of 20% over eligible shared costs.
+
+## Permissions Model
+
+Mock authentication uses account identities with one or more roles. A person can be both `Admin` and `Resident`, or `Resident` and `Censor`, but the active role is chosen only at login. The app no longer exposes a top-bar account switcher, so users cannot jump into another account after authentication.
+
+- `SuperAdmin`: application support team account with full visibility for maintenance/support.
+- `Admin`: sees only buildings from active `BuildingAdminAssignment` records.
+- `Resident`: sees only apartments linked through `ResidentApartment`.
+- `Censor`: sees review/reporting surfaces according to configured role permissions.
+
+## API Shape Recommendation
+
+Recommended resource endpoints for a backend migration:
+
+- `GET /auth/mock-accounts`, `POST /auth/login`, `POST /auth/logout`
+- `GET /buildings`, `GET /buildings/:id`, `GET /buildings/:id/admin-assignments`
+- `POST /buildings/:id/admin-assignments`, `PATCH /admin-assignments/:id/end`
+- `GET /apartments`, `GET /apartments/:id`, `PATCH /apartments/:id/surfaces`
+- `GET /residents/:id/apartments`, `POST /resident-apartments`, `PATCH /resident-apartments/:id`
+- `POST /maintenance-runs`, `GET /maintenance-runs/:id`
+- `GET /reports/monthly?month=YYYY-MM&buildingId=...`
+
+## Database Schema Suggestions
+
+- `buildings(id, name, address, heating_type, created_at, updated_at)`
+- `apartments(id, building_id, staircase_id, floor, number, usable_surface, total_surface, heated_surface, balcony_surface, indivisible_share, heating_type, boiler_tax_enabled, boiler_tax_percentage)`
+- `residents(id, name, email, phone, status)`
+- `resident_apartments(id, resident_id, apartment_id, ownership_type, ownership_start_date, ownership_end_date, is_primary_residence)`
+- `administrators(id, name, email, phone, role)`
+- `building_admin_assignments(id, building_id, admin_id, start_date, end_date, is_active, assignment_reason, created_by, updated_by)`
+- `monthly_expenses(id, building_id, month, category_id, amount, rule_id, source)`
+- `maintenance_runs(id, building_id, month, status, generated_at, published_at)`
 
 ## Workflows
 

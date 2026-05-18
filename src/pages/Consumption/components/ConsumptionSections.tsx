@@ -24,14 +24,16 @@ type ConsumptionSectionsProps = {
 const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
   const { t } = useTranslation()
   const { blockFilter, blocks, readings, setBlockFilter, summaries, waterBalances } = useConsumption()
-  const { residentReadings } = useResidentPortal()
+  const { apartments, residentReadings } = useResidentPortal()
   const [submitOpen, setSubmitOpen] = React.useState(false)
+  const [selectedApartmentId, setSelectedApartmentId] = React.useState(apartments[0]?.id ?? '')
   const visibleReadings = mode === 'resident' ? residentReadings.map((reading) => ({ ...reading, usageValue: reading.currentValue - reading.previousValue })) : readings
   const canEditReadings = mode !== 'censor'
 
   const readingColumns: DataColumn<(typeof visibleReadings)[number]>[] = [
     { key: 'apartment', label: t('consumption.columns.apartment'), render: (reading) => formatApartment(reading.apartment) },
     { key: 'month', label: t('finance.columns.month'), render: (reading) => reading.month },
+    { key: 'type', label: t('consumption.columns.waterType'), render: (reading) => t(`consumption.waterType.${reading.waterType}`) },
     { key: 'previous', label: t('consumption.columns.previous'), render: (reading) => reading.previousValue },
     { key: 'current', label: t('consumption.columns.current'), render: (reading) => reading.currentValue },
     { key: 'usage', label: t('consumption.columns.usage'), render: (reading) => reading.usageValue },
@@ -91,7 +93,22 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
       <Dialog open={submitOpen} onClose={() => setSubmitOpen(false)} fullWidth maxWidth="sm">
         <DialogTitle>{mode === 'resident' ? t('consumption.dialog.submitTitle') : t('consumption.dialog.adminTitle')}</DialogTitle>
         <DialogContent sx={{ display: 'grid', gap: 2, pt: 1 }}>
-          <TextField label={t('consumption.columns.current')} type="number" fullWidth />
+          {mode === 'resident' && (
+            <FormControl fullWidth>
+              <InputLabel>{t('consumption.columns.apartment')}</InputLabel>
+              <Select label={t('consumption.columns.apartment')} value={selectedApartmentId} onChange={(event: SelectChangeEvent) => setSelectedApartmentId(event.target.value)}>
+                {apartments.map((apartment) => (
+                  <MenuItem key={apartment.id} value={apartment.id}>
+                    {formatApartment(apartment)}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
+          <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' } }}>
+            <TextField label={t('consumption.dialog.coldWaterIndex')} type="number" fullWidth />
+            <TextField label={t('consumption.dialog.hotWaterIndex')} type="number" fullWidth />
+          </Box>
           <TextField label={t('finance.columns.month')} fullWidth defaultValue="2026-05" />
         </DialogContent>
         <DialogActions>

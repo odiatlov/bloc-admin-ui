@@ -1,22 +1,85 @@
 import React from 'react'
+import { mockAccounts } from '../mocks/auth'
+import type { AuthRole, MockAccount } from '../types/apartment'
 
-export type Role = 'Admin' | 'Resident' | 'Censor'
+export type Role = AuthRole
 
 type RoleContextType = {
   role: Role
+  account: MockAccount
+  token: string
+  isAuthenticated: boolean
+  login: (accountId: string, role?: Role) => void
+  logout: () => void
   setRole: (r: Role) => void
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const RoleContext = React.createContext<RoleContextType>({
   role: 'Admin',
+  account: mockAccounts[1],
+  token: mockAccounts[1].token,
+  isAuthenticated: true,
+  login: () => undefined,
+  logout: () => undefined,
   setRole: () => undefined,
 })
 
 export const RoleProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const [role, setRole] = React.useState<Role>('Admin')
+  const [account, setAccount] = React.useState<MockAccount>(() => {
+    const savedAccountId = typeof window !== 'undefined' ? localStorage.getItem('mockAccountId') : null
+    return mockAccounts.find((item) => item.id === savedAccountId) ?? mockAccounts[1]
+  })
+  const [isAuthenticated, setIsAuthenticated] = React.useState(() => {
+    if (typeof window === 'undefined') return true
+    return localStorage.getItem('mockSessionActive') !== 'false'
+  })
+  const [role, setActiveRole] = React.useState<Role>(() => {
+    const savedRole = typeof window !== 'undefined' ? localStorage.getItem('mockActiveRole') : null
+    return account.roles.includes(savedRole as Role) ? savedRole as Role : account.defaultRole
+  })
 
-  return <RoleContext.Provider value={{ role, setRole }}>{children}</RoleContext.Provider>
+  const persistAccount = (nextAccount: MockAccount, requestedRole?: Role) => {
+    const nextRole = requestedRole && nextAccount.roles.includes(requestedRole) ? requestedRole : nextAccount.defaultRole
+    setAccount(nextAccount)
+    setActiveRole(nextRole)
+    setIsAuthenticated(true)
+    try {
+      localStorage.setItem('mockAccountId', nextAccount.id)
+      localStorage.setItem('mockActiveRole', nextRole)
+      localStorage.setItem('mockSessionActive', 'true')
+      localStorage.setItem('mockJwt', nextAccount.token)
+    } catch {
+      // ignore mock persistence failures
+    }
+  }
+
+  const login = (accountId: string, requestedRole?: Role) => {
+    persistAccount(mockAccounts.find((item) => item.id === accountId) ?? mockAccounts[1], requestedRole)
+  }
+
+  const logout = () => {
+    setIsAuthenticated(false)
+    try {
+      localStorage.setItem('mockSessionActive', 'false')
+      localStorage.removeItem('mockJwt')
+    } catch {
+      // ignore
+    }
+  }
+
+  const setRole = (nextRole: Role) => {
+    if (!account.roles.includes(nextRole)) return
+    persistAccount(account, nextRole)
+  }
+
+  return (
+    <RoleContext.Provider
+      value={{ account, isAuthenticated, login, logout, role, setRole, token: isAuthenticated ? account.token : '' }}
+    >
+      {children}
+    </RoleContext.Provider>
+  )
 }
 
 export default RoleProvider

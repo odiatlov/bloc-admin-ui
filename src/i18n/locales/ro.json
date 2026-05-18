@@ -349,6 +349,7 @@
     },
     "columns": {
       "apartment": "Apartament",
+      "waterType": "Tip apa",
       "previous": "Index anterior",
       "current": "Index curent",
       "usage": "Consum",
@@ -363,7 +364,13 @@
     },
     "dialog": {
       "submitTitle": "Trimite index apă",
-      "adminTitle": "Adaugă citire apă"
+      "adminTitle": "Adaugă citire apă",
+      "coldWaterIndex": "Index apa rece",
+      "hotWaterIndex": "Index apa calda"
+    },
+    "waterType": {
+      "cold": "Apa rece",
+      "hot": "Apa calda"
     }
   },
   "censor": {

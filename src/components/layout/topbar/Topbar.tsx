@@ -10,9 +10,9 @@ import LightModeIcon from '@mui/icons-material/LightMode'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import MenuIcon from '@mui/icons-material/Menu'
 import { useNavigate } from 'react-router-dom'
-
-import { RoleContext, type Role } from '../../../contexts/RoleContext'
+import { RoleContext } from '../../../contexts/RoleContext'
 import { useTranslation } from 'react-i18next'
+import type { AuthRole } from '../../../types/apartment'
 
 type Props = {
   drawerWidth?: number
@@ -29,7 +29,7 @@ const Topbar: React.FC<Props> = ({
   isMobile = false,
   onMenuClick,
 }) => {
-  const { role, setRole } = React.useContext(RoleContext)
+  const { account, role, setRole } = React.useContext(RoleContext)
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
 
@@ -45,11 +45,6 @@ const Topbar: React.FC<Props> = ({
     }
   }, [i18n])
 
-  const handleRoleChange = (e: SelectChangeEvent<string>) => {
-    setRole(e.target.value as Role)
-    navigate('/admin/dashboard')
-  }
-
   const handleLanguageChange = (e: SelectChangeEvent<string>) => {
     const lang = e.target.value
     setLanguage(lang)
@@ -59,6 +54,18 @@ const Topbar: React.FC<Props> = ({
     } catch {
       // ignore
     }
+  }
+
+  const roleLabel = (value: AuthRole) => {
+    if (value === 'Admin') return t('layout.topbar.role.admin')
+    if (value === 'Resident') return t('layout.topbar.role.resident')
+    if (value === 'Censor') return t('layout.topbar.role.censor')
+    return 'Support'
+  }
+
+  const handleRoleChange = (e: SelectChangeEvent<string>) => {
+    setRole(e.target.value as AuthRole)
+    navigate('/admin/dashboard')
   }
 
   return (
@@ -82,11 +89,13 @@ const Topbar: React.FC<Props> = ({
           </IconButton>
         )}
 
-        <FormControl variant="standard" sx={{ minWidth: { xs: 96, sm: 120 }, flexShrink: 0 }}>
+        <FormControl variant="standard" sx={{ minWidth: { xs: 120, sm: 160 }, flexShrink: 0 }}>
           <Select value={role} onChange={handleRoleChange} inputProps={{ 'aria-label': 'role-select' }}>
-            <MenuItem value="Admin">{t('layout.topbar.role.admin')}</MenuItem>
-            <MenuItem value="Resident">{t('layout.topbar.role.resident')}</MenuItem>
-            <MenuItem value="Censor">{t('layout.topbar.role.censor')}</MenuItem>
+            {account.roles.map((item) => (
+              <MenuItem key={item} value={item}>
+                {roleLabel(item)}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
 

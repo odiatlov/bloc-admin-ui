@@ -1,5 +1,5 @@
 export type ResidentStatus = 'active' | 'inactive'
-export type ResidentRole = 'owner' | 'tenant' | 'family_member'
+export type ResidentRole = 'owner' | 'tenant' | 'co_owner' | 'family_member'
 export type FinancialStatus = 'current' | 'due' | 'overdue'
 export type InvoiceStatus = 'paid' | 'unpaid' | 'overdue'
 export type PaymentMethod = 'cash' | 'bank'
@@ -8,6 +8,7 @@ export type AnomalyLevel = 'normal' | 'warning' | 'critical'
 export type ReviewState = 'pending' | 'approved' | 'rejected' | 'needs_changes'
 export type ReviewTargetType = 'invoice' | 'maintenance' | 'anomaly'
 export type UtilityCategory = 'gas' | 'electricity' | 'garbage' | 'water' | 'heating'
+export type WaterMeterType = 'cold' | 'hot'
 
 export type AllocationType =
   | 'per_person'
@@ -22,11 +23,16 @@ export type AllocationScopeType = 'building' | 'staircase' | 'apartment' | 'apar
 export type MaintenanceMonthStatus = 'draft' | 'published'
 export type ExpenseKind = 'utility' | 'administrative' | 'manual' | 'penalty' | 'historical_debt'
 export type CostScopeLevel = 'block' | 'staircase'
+export type HeatingType = 'central' | 'individual' | 'gas_boiler' | 'district'
+export type AuthRole = 'SuperAdmin' | 'Admin' | 'Resident' | 'Censor'
 
 export type Block = {
   id: string
   name: string
   hasStaircases: boolean
+  address?: string
+  heatingType: HeatingType
+  activeAdminId?: string
 }
 
 export type Staircase = {
@@ -44,9 +50,13 @@ export type Apartment = {
   familyName: string
   primaryOwnerId: string
   usableSurface: number
-  heatingArea: number
+  totalSurface: number
+  heatedSurface: number
+  balconySurface?: number
   indivisibleShare: number
-  heatingSystem: 'district' | 'private'
+  heatingType: HeatingType
+  boilerTaxEnabled: boolean
+  boilerTaxPercentage: number
 }
 
 export type Family = {
@@ -58,11 +68,52 @@ export type Family = {
 
 export type Resident = {
   id: string
-  apartmentId: string
   name: string
   status: ResidentStatus
   email: string
-  role: ResidentRole
+  phone?: string
+}
+
+export type ResidentApartment = {
+  id: string
+  residentId: string
+  apartmentId: string
+  ownershipType: ResidentRole
+  ownershipStartDate: string
+  ownershipEndDate?: string
+  isPrimaryResidence: boolean
+}
+
+export type Administrator = {
+  id: string
+  name: string
+  email: string
+  phone: string
+  role: Exclude<AuthRole, 'Resident'>
+}
+
+export type BuildingAdminAssignment = {
+  id: string
+  blockId: string
+  adminId: string
+  startDate: string
+  endDate?: string
+  isActive: boolean
+  assignmentReason: string
+  createdBy: string
+  updatedBy: string
+}
+
+export type MockAccount = {
+  id: string
+  name: string
+  email: string
+  roles: AuthRole[]
+  defaultRole: AuthRole
+  residentId?: string
+  adminId?: string
+  supportTeam?: string
+  token: string
 }
 
 export type Invoice = {
@@ -184,6 +235,7 @@ export type WaterReading = {
   residentId: string
   apartmentId: string
   month: string
+  waterType: WaterMeterType
   previousValue: number
   currentValue: number
 }

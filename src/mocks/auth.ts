@@ -1,0 +1,52 @@
+import type { MockAccount } from '../types/apartment'
+
+export const mockAccounts: MockAccount[] = [
+  {
+    id: 'acct-super',
+    name: 'BlocAdmin Support Team',
+    email: 'support@blocadmin.example.com',
+    roles: ['SuperAdmin'],
+    defaultRole: 'SuperAdmin',
+    adminId: 'ADM-SUPER',
+    supportTeam: 'Application Maintenance & Customer Support',
+    token: 'mock-jwt-super-admin',
+  },
+  {
+    id: 'acct-admin-a',
+    name: 'Andrei Georgescu',
+    email: 'andrei.admin@example.com',
+    roles: ['Admin', 'Resident'],
+    defaultRole: 'Admin',
+    adminId: 'ADM-1',
+    residentId: 'R-1003',
+    token: 'mock-jwt-admin-andrei',
+  },
+  {
+    id: 'acct-admin-b',
+    name: 'Irina Dumitru',
+    email: 'irina.admin@example.com',
+    roles: ['Admin', 'Resident'],
+    defaultRole: 'Admin',
+    adminId: 'ADM-2',
+    residentId: 'R-1005',
+    token: 'mock-jwt-admin-irina',
+  },
+  {
+    id: 'acct-resident-only',
+    name: 'Maria Ionescu',
+    email: 'maria.ionescu@example.com',
+    roles: ['Resident'],
+    defaultRole: 'Resident',
+    residentId: 'R-1004',
+    token: 'mock-jwt-resident-maria',
+  },
+  {
+    id: 'acct-resident-censor',
+    name: 'Ana Popescu',
+    email: 'ana.popescu@example.com',
+    roles: ['Resident', 'Censor'],
+    defaultRole: 'Resident',
+    residentId: 'R-1001',
+    token: 'mock-jwt-resident-ana',
+  },
+]
