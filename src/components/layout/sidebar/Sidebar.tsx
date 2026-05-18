@@ -9,7 +9,6 @@ import ListItemText from '@mui/material/ListItemText'
 import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import PeopleIcon from '@mui/icons-material/People'
@@ -18,12 +17,12 @@ import MonetizationOnIcon from '@mui/icons-material/MonetizationOn'
 import OpacityIcon from '@mui/icons-material/Opacity'
 import AssessmentIcon from '@mui/icons-material/Assessment'
 import HomeWorkIcon from '@mui/icons-material/HomeWork'
-import LogoutIcon from '@mui/icons-material/Logout'
 import FactCheckIcon from '@mui/icons-material/FactCheck'
 import { NavLink } from 'react-router-dom'
 import { RoleContext } from '../../../contexts/RoleContext'
 import { useTranslation } from 'react-i18next'
 import { rolePermissions } from '../../../mocks/roles'
+import LogoutConfirmButton from '../../shared/LogoutConfirmButton'
 
 type Props = {
   drawerWidth: number
@@ -92,9 +91,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ onNavigate, onClose, sh
       </Box>
       <Divider />
       <Box sx={{ p: 2 }}>
-        <Button fullWidth startIcon={<LogoutIcon />} color="inherit" sx={{ justifyContent: 'flex-start' }}>
-          {t('layout.topbar.logout')}
-        </Button>
+        <LogoutConfirmButton fullWidth sidebar />
       </Box>
     </Box>
   )

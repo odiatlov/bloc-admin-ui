@@ -11,6 +11,13 @@
     "notAvailable": "Not available",
     "save": "Save"
   },
+  "auth": {
+    "logout": {
+      "title": "Log out?",
+      "body": "Are you sure you want to end this mock session?",
+      "confirm": "Yes, log out"
+    }
+  },
   "layout": {
     "topbar": {
       "role": {
@@ -114,6 +121,9 @@
     },
     "resident": {
       "title": "Resident Dashboard",
+      "myApartments": "My apartments",
+      "adminContact": "{{admin}} · {{phone}}",
+      "primaryResidence": "primary residence",
       "currentDue": "Current amount due",
       "pay": "Pay",
       "lastSubmittedIndex": "Last submitted index",
@@ -164,6 +174,12 @@
   },
   "residents": {
     "apartmentLabel": "Apartment {{apartment}}, floor {{floor}}",
+    "ownership": {
+      "owner": "Owner",
+      "tenant": "Tenant",
+      "co_owner": "Co-owner",
+      "family_member": "Family member"
+    },
     "family": {
       "members": "Residents",
       "residentCount": "{{count}} residents"
@@ -243,7 +259,8 @@
       "staircaseElectricity": "Staircase electricity",
       "surfaceRepairs": "Surface repairs",
       "staircaseCleaning": "Staircase cleaning",
-      "gardening": "Gardening"
+      "gardening": "Gardening",
+      "boilerTax": "Gas boiler 20% fee"
     },
     "debts": {
       "previousBalance": "Previous unpaid balance"
@@ -267,6 +284,7 @@
       "per_apartment": "{{label}} = {{amount}} because the cost is split per apartment.",
       "by_surface": "{{label}} = {{amount}} from {{basis}} sqm usable surface out of {{totalBasis}} sqm.",
       "by_heating_area": "{{label}} = {{amount}} from {{basis}} sqm heating area out of {{totalBasis}} sqm.",
+      "boiler_tax": "{{label}} = {{amount}} as {{percentage}}% applied to eligible shared costs for the apartment boiler.",
       "individual_meter": "{{label}} = {{amount}} from {{basis}} cubic meters out of {{totalBasis}} cubic meters.",
       "equal_split": "{{label}} = {{amount}} through equal split among eligible apartments.",
       "custom": "{{label}} = {{amount}} using the configured custom share."
@@ -284,7 +302,11 @@
     },
     "columns": {
       "floor": "Floor",
-      "staircase": "Staircase"
+      "staircase": "Staircase",
+      "usableSurface": "Usable sqm",
+      "totalSurface": "Total sqm",
+      "heatedSurface": "Heated sqm",
+      "heatingType": "Heating"
     },
     "metrics": {
       "bank": "Bank",
@@ -334,6 +356,7 @@
     },
     "columns": {
       "apartment": "Apartment",
+      "waterType": "Water type",
       "previous": "Previous index",
       "current": "Current index",
       "usage": "Usage",
@@ -348,7 +371,13 @@
     },
     "dialog": {
       "submitTitle": "Submit water index",
-      "adminTitle": "Add water reading"
+      "adminTitle": "Add water reading",
+      "coldWaterIndex": "Cold water index",
+      "hotWaterIndex": "Hot water index"
+    },
+    "waterType": {
+      "cold": "Cold water",
+      "hot": "Hot water"
     }
   },
   "censor": {
@@ -423,6 +452,9 @@
       "invoices": "Invoices",
       "revenue": "Revenue",
       "waterUsage": "Water usage"
+      ,
+      "surfaceTotal": "Usable surface",
+      "boilerTax": "Boiler fees"
     }
   },
   "settings": {

@@ -18,6 +18,7 @@ import globalStyles from './theme/globalStyles'
 import Dashboard from './pages/Dashboard/Dashboard'
 import Blocks from './pages/Blocks/Blocks'
 import BlockContext from './pages/Blocks/BlockContext'
+import Login from './pages/Login/Login'
 import { RoleContext } from './contexts/RoleContext'
 import { rolePermissions, type Permission } from './mocks/roles'
 
@@ -26,8 +27,10 @@ type ProtectedRouteProps = {
   children: React.ReactElement
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, permission }) => {
-  const { role } = React.useContext(RoleContext)
+  const { isAuthenticated, role } = React.useContext(RoleContext)
+  if (!isAuthenticated) return <Navigate to="/login" replace />
   const allowed = rolePermissions[role]?.includes(permission)
 
   if (!allowed) return <Navigate to="/admin/dashboard" replace />
@@ -51,9 +54,10 @@ const RootApp: React.FC = () => {
         <RoleProvider>
           <Routes>
             <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/admin" element={<AdminLayout toggleTheme={toggleTheme} themeMode={mode} />}>
-              <Route index element={<Dashboard />} />
-              <Route path="dashboard" element={<Dashboard />} />
+              <Route index element={<ProtectedRoute permission="dashboard"><Dashboard /></ProtectedRoute>} />
+              <Route path="dashboard" element={<ProtectedRoute permission="dashboard"><Dashboard /></ProtectedRoute>} />
               <Route path="blocks" element={<ProtectedRoute permission="blocks"><Blocks /></ProtectedRoute>} />
               <Route path="residents" element={<ProtectedRoute permission="residents"><Residents /></ProtectedRoute>} />
               <Route path="finance" element={<ProtectedRoute permission="finance"><Finance /></ProtectedRoute>} />

@@ -1,9 +1,11 @@
 import React from 'react'
 import {
   adminExpenses,
+  administrators,
   allocationRules,
   apartments,
   blocks,
+  buildingAdminAssignments,
   cashPayments,
   families,
   historicalDebts,
@@ -14,6 +16,7 @@ import {
   penalties,
   reportMonths,
   residents,
+  residentApartments,
   staircases,
   utilityMonthlyInputs,
   waterReadings,
@@ -28,7 +31,10 @@ import {
   type ReviewState,
   type VerificationStatus,
 } from '../mocks/apartmentData'
+import { RoleContext } from '../contexts/RoleContext'
+import { filterApartmentsForAccount, filterBlocksForAccount } from '../application/accessScope'
 import { calculateWaterBalance, generateMonthlyMaintenance } from '../utils/maintenanceEngine'
+import type { AuthRole, MockAccount } from '../types/apartment'
 
 const currencyFormatter = new Intl.NumberFormat(undefined, { style: 'currency', currency: 'RON' })
 
@@ -37,7 +43,18 @@ export const formatCurrency = (value: number) => currencyFormatter.format(value)
 export const getBlockLabel = (blockId: string) => blocks.find((block) => block.id === blockId)?.name ?? blockId
 
 export const getApartmentResidents = (apartmentId: string) =>
-  residents.filter((resident) => resident.apartmentId === apartmentId)
+  residentApartments
+    .filter((link) => link.apartmentId === apartmentId && !link.ownershipEndDate)
+    .map((link) => {
+      const resident = residents.find((item) => item.id === link.residentId)
+      return resident ? { ...resident, apartmentLink: link } : null
+    })
+    .filter((resident): resident is NonNullable<typeof resident> => Boolean(resident))
+
+const getResidentsForApartments = (apartmentIds: string[]) => {
+  const residentIds = new Set(residentApartments.filter((link) => apartmentIds.includes(link.apartmentId) && !link.ownershipEndDate).map((link) => link.residentId))
+  return residents.filter((resident) => residentIds.has(resident.id))
+}
 
 export const getPrimaryOwner = (apartment: Apartment) =>
   residents.find((resident) => resident.id === apartment.primaryOwnerId) ?? getApartmentResidents(apartment.id)[0]
@@ -57,10 +74,10 @@ export const formatApartment = (apartment: Apartment) => {
 }
 
 const today = new Date('2026-05-10T00:00:00')
-const firstResidentId = residents[0]?.id ?? ''
+const toScope = (account: MockAccount, role: AuthRole) => ({ ...account, role })
 
 const residentCountForApartment = (apartmentId: string) =>
-  residents.filter((resident) => resident.apartmentId === apartmentId && resident.status === 'active').length
+  getApartmentResidents(apartmentId).filter((resident) => resident.status === 'active').length
 
 const getBlockResidentCount = (blockId: string) =>
   apartments
@@ -74,6 +91,7 @@ const maintenanceEngineInput = {
   families,
   mainMeterReadings,
   penalties,
+  residentApartments,
   residents,
   rules: allocationRules,
   waterReadings,
@@ -214,19 +232,25 @@ export const getBlockNavigationItems = () => blocks
 export const getBlockStaircases = (blockId: string) => staircases.filter((staircase) => staircase.blockId === blockId)
 
 export const useBlocksOverview = () => {
+  const { account, role } = React.useContext(RoleContext)
   const [search, setSearch] = React.useState('')
+  const scopedBlocks = React.useMemo(() => filterBlocksForAccount(blocks, toScope(account, role), buildingAdminAssignments, residentApartments, apartments), [account, role])
+  const scopedApartments = React.useMemo(() => filterApartmentsForAccount(apartments, toScope(account, role), buildingAdminAssignments, residentApartments), [account, role])
 
   const blockOverviews = React.useMemo(
     () =>
-      blocks.map((block) => {
-        const blockApartments = apartments.filter((apartment) => apartment.blockId === block.id)
-        const blockResidents = residents.filter((resident) => blockApartments.some((apartment) => apartment.id === resident.apartmentId))
+      scopedBlocks.map((block) => {
+        const blockApartments = scopedApartments.filter((apartment) => apartment.blockId === block.id)
+        const blockResidents = getResidentsForApartments(blockApartments.map((apartment) => apartment.id))
         const blockInvoices = invoices.map(enrichInvoice).filter((invoice) => invoice.apartment?.blockId === block.id)
         const blockPayments = payments.filter((payment) => blockInvoices.some((invoice) => invoice.id === payment.invoiceId))
         const staircaseCount = block.hasStaircases ? staircases.filter((staircase) => staircase.blockId === block.id).length : 0
+        const activeAssignment = buildingAdminAssignments.find((assignment) => assignment.blockId === block.id && assignment.isActive)
 
         return {
           block,
+          activeAdmin: administrators.find((admin) => admin.id === activeAssignment?.adminId),
+          assignmentHistory: buildingAdminAssignments.filter((assignment) => assignment.blockId === block.id),
           apartmentCount: blockApartments.length,
           residentCount: blockResidents.length,
           staircaseCount,
@@ -235,7 +259,7 @@ export const useBlocksOverview = () => {
           unpaidBalance: blockInvoices.reduce((sum, invoice) => sum + Math.max(invoice.totalAmount - invoice.paidAmount, 0), 0),
         }
       }),
-    [],
+    [scopedApartments, scopedBlocks],
   )
 
   const filteredBlocks = React.useMemo(
@@ -251,11 +275,14 @@ export const useBlocksOverview = () => {
 }
 
 export const useResidents = () => {
+  const { account, role } = React.useContext(RoleContext)
   const [blockFilter, setBlockFilter] = React.useState('all')
   const [financialStatusFilter, setFinancialStatusFilter] = React.useState<FinancialStatus | 'all'>('all')
   const [selectedApartmentId, setSelectedApartmentId] = React.useState<string | null>(null)
 
-  const enrichedApartments = React.useMemo(() => apartments.map(enrichApartment), [])
+  const scopedApartments = React.useMemo(() => filterApartmentsForAccount(apartments, toScope(account, role), buildingAdminAssignments, residentApartments), [account, role])
+  const scopedBlocks = React.useMemo(() => filterBlocksForAccount(blocks, toScope(account, role), buildingAdminAssignments, residentApartments, apartments), [account, role])
+  const enrichedApartments = React.useMemo(() => scopedApartments.map(enrichApartment), [scopedApartments])
 
   const filteredApartments = React.useMemo(
     () =>
@@ -284,7 +311,7 @@ export const useResidents = () => {
     .map((reading) => ({ ...reading, apartment: apartments.find((apartment) => apartment.id === reading.apartmentId) ?? apartments[0] }))
 
   return {
-    blocks,
+    blocks: scopedBlocks,
     blockFilter,
     financialStatusFilter,
     groupedApartments,
@@ -299,14 +326,20 @@ export const useResidents = () => {
 }
 
 export const useFinance = () => {
+  const { account, role } = React.useContext(RoleContext)
   const [paymentMethodFilter, setPaymentMethodFilter] = React.useState<PaymentMethod | 'all'>('all')
   const [cashEntries, setCashEntries] = React.useState<CashPayment[]>(cashPayments)
+  const scopedApartmentIds = React.useMemo(
+    () => new Set(filterApartmentsForAccount(apartments, toScope(account, role), buildingAdminAssignments, residentApartments).map((apartment) => apartment.id)),
+    [account, role],
+  )
 
-  const enrichedInvoices = React.useMemo(() => invoices.map(enrichInvoice), [])
+  const enrichedInvoices = React.useMemo(() => invoices.filter((invoice) => scopedApartmentIds.has(invoice.apartmentId)).map(enrichInvoice), [scopedApartmentIds])
 
   const enrichedPayments = React.useMemo(
     () =>
       payments
+        .filter((payment) => scopedApartmentIds.has(payment.apartmentId))
         .filter((payment) => paymentMethodFilter === 'all' || payment.method === paymentMethodFilter)
         .map((payment) => {
           const apartment = apartments.find((item) => item.id === payment.apartmentId)
@@ -317,12 +350,12 @@ export const useFinance = () => {
             invoice: invoices.find((invoice) => invoice.id === payment.invoiceId),
           }
         }),
-    [paymentMethodFilter],
+    [paymentMethodFilter, scopedApartmentIds],
   )
 
   const enrichedCashEntries = React.useMemo(
     () =>
-      cashEntries.map((payment) => {
+      cashEntries.filter((payment) => scopedApartmentIds.has(payment.apartmentId)).map((payment) => {
         const apartment = apartments.find((item) => item.id === payment.apartmentId)
         return {
           ...payment,
@@ -330,7 +363,7 @@ export const useFinance = () => {
           familyLabel: apartment ? formatApartment(apartment) : '',
         }
       }),
-    [cashEntries],
+    [cashEntries, scopedApartmentIds],
   )
 
   const setCashStatus = (id: string, status: VerificationStatus) => {
@@ -353,9 +386,11 @@ export const useFinance = () => {
   }
 
   const monthlyRevenue = payments
+    .filter((payment) => scopedApartmentIds.has(payment.apartmentId))
     .filter((payment) => payment.verificationStatus !== 'unverified')
     .reduce((sum, payment) => sum + payment.amount, 0)
-  const maintenanceRuns = blocks.map((block) => getMaintenanceRun(block.id, reportMonths[0]))
+  const scopedBlocks = filterBlocksForAccount(blocks, toScope(account, role), buildingAdminAssignments, residentApartments, apartments)
+  const maintenanceRuns = scopedBlocks.map((block) => getMaintenanceRun(block.id, reportMonths[0]))
 
   return {
     cashAwaitingVerification: cashEntries.filter((entry) => entry.status === 'unverified').length,
@@ -373,18 +408,23 @@ export const useFinance = () => {
 }
 
 export const useConsumption = () => {
+  const { account, role } = React.useContext(RoleContext)
   const [blockFilter, setBlockFilter] = React.useState('all')
+  const scopedApartments = React.useMemo(() => filterApartmentsForAccount(apartments, toScope(account, role), buildingAdminAssignments, residentApartments), [account, role])
+  const scopedBlocks = React.useMemo(() => filterBlocksForAccount(blocks, toScope(account, role), buildingAdminAssignments, residentApartments, apartments), [account, role])
+  const scopedApartmentIds = React.useMemo(() => new Set(scopedApartments.map((apartment) => apartment.id)), [scopedApartments])
 
   const readings = React.useMemo(
     () =>
       waterReadings
+        .filter((reading) => scopedApartmentIds.has(reading.apartmentId))
         .map((reading) => ({
           ...reading,
           apartment: apartments.find((apartment) => apartment.id === reading.apartmentId) ?? apartments[0],
           usageValue: reading.currentValue - reading.previousValue,
         }))
         .filter((reading) => blockFilter === 'all' || reading.apartment.blockId === blockFilter),
-    [blockFilter],
+    [blockFilter, scopedApartmentIds],
   )
 
   const summaries = React.useMemo(
@@ -397,17 +437,17 @@ export const useConsumption = () => {
   )
   const waterBalances = React.useMemo(
     () =>
-      blocks.map((block) => ({
+      scopedBlocks.map((block) => ({
         block,
         month: reportMonths[0],
         ...calculateWaterBalance(block.id, reportMonths[0], maintenanceEngineInput),
       })),
-    [],
+    [scopedBlocks],
   )
 
   return {
     blockFilter,
-    blocks,
+    blocks: scopedBlocks,
     readings,
     summaries,
     setBlockFilter,
@@ -416,10 +456,15 @@ export const useConsumption = () => {
 }
 
 export const useReports = () => {
+  const { account, role } = React.useContext(RoleContext)
   const [month, setMonth] = React.useState(reportMonths[0])
   const [block, setBlock] = React.useState('all')
+  const scopedApartments = React.useMemo(() => filterApartmentsForAccount(apartments, toScope(account, role), buildingAdminAssignments, residentApartments), [account, role])
+  const scopedBlocks = React.useMemo(() => filterBlocksForAccount(blocks, toScope(account, role), buildingAdminAssignments, residentApartments, apartments), [account, role])
+  const scopedApartmentIds = React.useMemo(() => new Set(scopedApartments.map((apartment) => apartment.id)), [scopedApartments])
 
   const filteredInvoices = invoices
+    .filter((invoice) => scopedApartmentIds.has(invoice.apartmentId))
     .map(enrichInvoice)
     .filter((invoice) => invoice.month === month && (block === 'all' || invoice.apartment?.blockId === block))
   const filteredReadings = waterReadings
@@ -428,16 +473,23 @@ export const useReports = () => {
       apartment: apartments.find((apartment) => apartment.id === reading.apartmentId) ?? apartments[0],
       usageValue: reading.currentValue - reading.previousValue,
     }))
-    .filter((reading) => reading.month === month && (block === 'all' || reading.apartment.blockId === block))
+    .filter((reading) => scopedApartmentIds.has(reading.apartmentId) && reading.month === month && (block === 'all' || reading.apartment.blockId === block))
+  const reportApartments = scopedApartments.filter((apartment) => block === 'all' || apartment.blockId === block)
+  const reportRuns = (block === 'all' ? scopedBlocks : scopedBlocks.filter((item) => item.id === block)).map((item) => getMaintenanceRun(item.id, month))
 
   return {
     block,
-    blocks,
+    blocks: scopedBlocks,
     month,
     months: reportMonths,
     preview: {
       invoiceCount: filteredInvoices.length,
       revenue: filteredInvoices.reduce((sum, invoice) => sum + invoice.totalAmount, 0),
+      surfaceTotal: reportApartments.reduce((sum, apartment) => sum + apartment.usableSurface, 0),
+      boilerTax: reportRuns.reduce(
+        (sum, run) => sum + run.apartmentTotals.reduce((runSum, total) => runSum + total.lines.filter((line) => line.categoryId === 'boiler_tax').reduce((lineSum, line) => lineSum + line.amount, 0), 0),
+        0,
+      ),
       waterUsage: filteredReadings.reduce((sum, reading) => sum + reading.usageValue, 0),
     },
     setBlock,
@@ -446,13 +498,18 @@ export const useReports = () => {
 }
 
 export const useCensorReviews = () => {
+  const { account, role } = React.useContext(RoleContext)
   const [reviewItems, setReviewItems] = React.useState<CensorReview[]>(initialCensorReviews)
+  const scopedApartments = React.useMemo(() => filterApartmentsForAccount(apartments, toScope(account, role), buildingAdminAssignments, residentApartments), [account, role])
+  const scopedBlocks = React.useMemo(() => filterBlocksForAccount(blocks, toScope(account, role), buildingAdminAssignments, residentApartments, apartments), [account, role])
+  const scopedApartmentIds = React.useMemo(() => new Set(scopedApartments.map((apartment) => apartment.id)), [scopedApartments])
 
-  const enrichedInvoices = React.useMemo(() => invoices.map(enrichInvoice), [])
-  const maintenanceRuns = React.useMemo(() => blocks.map((block) => getMaintenanceRun(block.id, reportMonths[0])), [])
+  const enrichedInvoices = React.useMemo(() => invoices.filter((invoice) => scopedApartmentIds.has(invoice.apartmentId)).map(enrichInvoice), [scopedApartmentIds])
+  const maintenanceRuns = React.useMemo(() => scopedBlocks.map((block) => getMaintenanceRun(block.id, reportMonths[0])), [scopedBlocks])
   const anomalySummaries = React.useMemo(
     () =>
       waterReadings
+        .filter((reading) => scopedApartmentIds.has(reading.apartmentId))
         .map((reading) => {
           const apartment = apartments.find((item) => item.id === reading.apartmentId) ?? apartments[0]
           const usageValue = reading.currentValue - reading.previousValue
@@ -460,7 +517,7 @@ export const useCensorReviews = () => {
           return { apartment, id: `${apartment.id}-${reading.month}`, month: reading.month, usageValue, anomaly }
         })
         .filter((summary) => summary.anomaly !== 'normal'),
-    [],
+    [scopedApartmentIds],
   )
 
   const setReviewState = (reviewId: string, state: ReviewState) => {
@@ -513,8 +570,11 @@ export const useCensorReviews = () => {
 }
 
 export const useBlockContext = (blockId?: string, month = reportMonths[0]) => {
-  const block = blocks.find((item) => item.id === blockId) ?? null
-  const blockApartments = apartments.filter((apartment) => apartment.blockId === block?.id).map(enrichApartment)
+  const { account, role } = React.useContext(RoleContext)
+  const scopedBlocks = React.useMemo(() => filterBlocksForAccount(blocks, toScope(account, role), buildingAdminAssignments, residentApartments, apartments), [account, role])
+  const scopedApartments = React.useMemo(() => filterApartmentsForAccount(apartments, toScope(account, role), buildingAdminAssignments, residentApartments), [account, role])
+  const block = scopedBlocks.find((item) => item.id === blockId) ?? null
+  const blockApartments = scopedApartments.filter((apartment) => apartment.blockId === block?.id).map(enrichApartment)
   const blockInvoices = invoices
     .map(enrichInvoice)
     .filter((invoice) => invoice.month === month && invoice.apartment?.blockId === block?.id)
@@ -548,21 +608,42 @@ export const useBlockContext = (blockId?: string, month = reportMonths[0]) => {
 }
 
 export const useResidentPortal = () => {
-  const resident = residents.find((item) => item.id === firstResidentId) ?? residents[0]
-  const apartment = apartments.find((item) => item.id === resident?.apartmentId) ?? apartments[0]
-  const residentInvoices = invoices.filter((invoice) => invoice.apartmentId === apartment.id).map(enrichInvoice)
-  const residentPayments = payments.filter((payment) => payment.apartmentId === apartment.id)
+  const { account, role } = React.useContext(RoleContext)
+  const resident = residents.find((item) => item.id === account.residentId) ?? residents[0]
+  const residentApartmentLinks = residentApartments.filter((link) => link.residentId === resident?.id && !link.ownershipEndDate)
+  const residentApartmentIds = new Set(residentApartmentLinks.map((link) => link.apartmentId))
+  const residentApartmentsList = apartments
+    .filter((item) => residentApartmentIds.has(item.id))
+    .map((apartment) => {
+      const block = blocks.find((item) => item.id === apartment.blockId)
+      const activeAssignment = buildingAdminAssignments.find((assignment) => assignment.blockId === apartment.blockId && assignment.isActive)
+      return {
+        ...enrichApartment(apartment),
+        residentApartment: residentApartmentLinks.find((link) => link.apartmentId === apartment.id),
+        activeAdmin: administrators.find((admin) => admin.id === activeAssignment?.adminId),
+        block,
+      }
+    })
+  const apartment = residentApartmentsList.find((item) => item.residentApartment?.isPrimaryResidence) ?? residentApartmentsList[0] ?? enrichApartment(apartments[0])
+  const residentInvoices = invoices.filter((invoice) => residentApartmentIds.has(invoice.apartmentId)).map(enrichInvoice)
+  const residentPayments = payments.filter((payment) => residentApartmentIds.has(payment.apartmentId))
   const residentReadings = waterReadings
-    .filter((reading) => reading.apartmentId === apartment.id)
+    .filter((reading) => residentApartmentIds.has(reading.apartmentId))
     .map((reading) => ({
       ...reading,
-      apartment,
+      apartment: apartments.find((item) => item.id === reading.apartmentId) ?? apartment,
       usageValue: reading.currentValue - reading.previousValue,
     }))
   const currentBalance = residentInvoices.reduce((sum, invoice) => sum + Math.max(invoice.totalAmount - invoice.paidAmount, 0), 0)
+  const apartmentsByBlock = residentApartmentsList.reduce<Record<string, typeof residentApartmentsList>>((acc, item) => {
+    acc[item.blockId] = [...(acc[item.blockId] ?? []), item]
+    return acc
+  }, {})
 
   return {
     apartment,
+    apartments: residentApartmentsList,
+    apartmentsByBlock,
     currentBalance,
     familyLabel: formatApartment(apartment),
     lastPayment: residentPayments[0],
@@ -570,5 +651,6 @@ export const useResidentPortal = () => {
     residentInvoices,
     residentPayments,
     residentReadings,
+    role,
   }
 }

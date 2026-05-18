@@ -35,6 +35,10 @@ const BlockContext: React.FC = () => {
     { key: 'residents', label: t('residents.family.members'), render: (apartment) => apartment.residentCount },
     { key: 'floor', label: t('blocks.columns.floor'), render: (apartment) => apartment.floor },
     { key: 'staircase', label: t('blocks.columns.staircase'), render: (apartment) => staircaseTotals.find((item) => item.staircase.id === apartment.staircaseId)?.staircase.name ?? t('common.notAvailable') },
+    { key: 'usableSurface', label: t('blocks.columns.usableSurface'), render: (apartment) => apartment.usableSurface },
+    { key: 'totalSurface', label: t('blocks.columns.totalSurface'), render: (apartment) => apartment.totalSurface },
+    { key: 'heatedSurface', label: t('blocks.columns.heatedSurface'), render: (apartment) => apartment.heatedSurface },
+    { key: 'heatingType', label: t('blocks.columns.heatingType'), render: (apartment) => apartment.heatingType },
   ]
 
   const invoiceColumns: DataColumn<(typeof blockInvoices)[number]>[] = [

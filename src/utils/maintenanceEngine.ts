@@ -10,6 +10,7 @@ import type {
   MonthlyMaintenanceRun,
   Penalty,
   Resident,
+  ResidentApartment,
   WaterReading,
 } from '../types/apartment'
 
@@ -21,6 +22,7 @@ type MaintenanceEngineInput = {
   expenses: MonthlyExpense[]
   debts: HistoricalDebt[]
   penalties: Penalty[]
+  residentApartments: ResidentApartment[]
   waterReadings: WaterReading[]
   mainMeterReadings: MainMeterReading[]
 }
@@ -31,10 +33,11 @@ const sum = (values: number[]) => values.reduce((total, value) => total + value,
 
 const readingUsage = (reading: WaterReading | MainMeterReading) => Math.max(reading.currentValue - reading.previousValue, 0)
 
-const getDeclaredPersons = (apartmentId: string, families: Family[], residents: Resident[]) => {
+const getDeclaredPersons = (apartmentId: string, families: Family[], residents: Resident[], residentApartments: ResidentApartment[]) => {
   const declaredPersons = families.find((family) => family.apartmentId === apartmentId)?.declaredPersons
   if (declaredPersons !== undefined) return declaredPersons
-  return residents.filter((resident) => resident.apartmentId === apartmentId && resident.status === 'active').length
+  const activeResidentIds = new Set(residents.filter((resident) => resident.status === 'active').map((resident) => resident.id))
+  return residentApartments.filter((link) => link.apartmentId === apartmentId && activeResidentIds.has(link.residentId) && !link.ownershipEndDate).length
 }
 
 const getScopedApartments = (rule: AllocationRule, apartments: Apartment[]) => {
@@ -73,12 +76,16 @@ const getBasis = (
   month: string,
   families: Family[],
   residents: Resident[],
+  residentApartments: ResidentApartment[],
   waterReadings: WaterReading[],
 ) => {
-  if (rule.allocationType === 'per_person') return getDeclaredPersons(apartment.id, families, residents)
+  if (rule.allocationType === 'per_person') return getDeclaredPersons(apartment.id, families, residents, residentApartments)
   if (rule.allocationType === 'per_apartment' || rule.allocationType === 'equal_split') return 1
   if (rule.allocationType === 'by_surface') return apartment.usableSurface
-  if (rule.allocationType === 'by_heating_area') return apartment.heatingSystem === 'district' ? apartment.heatingArea : 0
+  if (rule.allocationType === 'by_heating_area') {
+    if (apartment.heatingType === 'individual' || apartment.heatingType === 'gas_boiler') return 0
+    return apartment.heatedSurface
+  }
   if (rule.allocationType === 'individual_meter') {
     return sum(waterReadings.filter((reading) => reading.apartmentId === apartment.id && reading.month === month).map(readingUsage))
   }
@@ -113,12 +120,12 @@ const buildExplanation = (
 export const allocateExpense = (
   expense: MonthlyExpense,
   rule: AllocationRule,
-  input: Pick<MaintenanceEngineInput, 'apartments' | 'families' | 'residents' | 'waterReadings'>,
+  input: Pick<MaintenanceEngineInput, 'apartments' | 'families' | 'residentApartments' | 'residents' | 'waterReadings'>,
 ) => {
   const scopedApartments = getScopedApartments(rule, input.apartments)
   const weightedApartments = scopedApartments.map((apartment) => ({
     apartment,
-    basis: getBasis(apartment, rule, expense.month, input.families, input.residents, input.waterReadings),
+    basis: getBasis(apartment, rule, expense.month, input.families, input.residents, input.residentApartments, input.waterReadings),
   }))
   const totalBasis = sum(weightedApartments.map((entry) => entry.basis))
 
@@ -136,9 +143,35 @@ export const generateMonthlyMaintenance = (blockId: string, month: string, input
     const rule = input.rules.find((candidate) => candidate.id === expense.ruleId)
     return rule ? allocateExpense(expense, rule, input) : []
   })
+  const boilerTaxLines = blockApartments.flatMap((apartment) => {
+    if (!apartment.boilerTaxEnabled) return []
+    const taxableLines = lines.filter((line) => line.values.apartment === apartment.number && line.allocationType !== 'individual_meter')
+    const taxableAmount = sum(taxableLines.map((line) => line.amount))
+    if (taxableAmount <= 0) return []
+    const amount = roundMoney((taxableAmount * apartment.boilerTaxPercentage) / 100)
+    return [{
+      expenseId: `BOILER-TAX-${apartment.id}-${month}`,
+      categoryId: 'boiler_tax',
+      labelKey: 'finance.expenses.boilerTax',
+      allocationType: 'by_heating_area' as const,
+      amount,
+      basis: apartment.heatedSurface,
+      totalBasis: sum(blockApartments.filter((item) => item.boilerTaxEnabled).map((item) => item.heatedSurface)),
+      textKey: 'maintenance.explain.boiler_tax',
+      values: {
+        amount,
+        apartment: apartment.number,
+        basis: apartment.heatedSurface,
+        percentage: apartment.boilerTaxPercentage,
+        taxableAmount,
+        totalBasis: sum(blockApartments.filter((item) => item.boilerTaxEnabled).map((item) => item.heatedSurface)),
+      },
+    }]
+  })
+  const allLines = [...lines, ...boilerTaxLines]
 
   const apartmentTotals: ApartmentMaintenanceTotal[] = blockApartments.map((apartment) => {
-    const apartmentLines = lines.filter((line) => line.values.apartment === apartment.number)
+    const apartmentLines = allLines.filter((line) => line.values.apartment === apartment.number)
     const debts = input.debts.filter((debt) => debt.apartmentId === apartment.id && debt.month === month)
     const penalties = input.penalties.filter((penalty) => penalty.apartmentId === apartment.id && penalty.month === month)
     const total = sum(apartmentLines.map((line) => line.amount)) + sum(debts.map((debt) => debt.principal)) + sum(penalties.map((penalty) => penalty.amount))
