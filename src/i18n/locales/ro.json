@@ -30,7 +30,7 @@
       "latePayment": "Penalizare pentru întârziere"
     },
     "maintenance": {
-      "adjustments": "Restante istorice: {{debts}} - penalizari: {{penalties}}",
+      "adjustments": "Restante istorice: {{debts}} - penalizări: {{penalties}}",
       "blockMonth": "Bloc {{block}} - {{month}}",
       "generatedAt": "Generat {{generatedAt}}",
       "status": {
@@ -130,12 +130,12 @@
         "outstanding": "Facturi restante",
         "outstandingValue": "{{count}} facturi",
         "collectionRate": "Rata colectare",
-        "cashVerification": "Verificare numerar",
-        "cashVerificationValue": "{{count}} în așteptare",
+        "cashVerificațion": "Verificare numerar",
+        "cashVerificaționValue": "{{count}} în așteptare",
         "monthlyRevenueTrend": "+8% față de luna trecută",
         "outstandingTrend": "+3 noi săptămâna aceasta",
         "collectionStable": "Stabil",
-        "cashVerificationTrend": "NEVERIFICATĂ -> VERIFICATĂ -> DEPUSĂ"
+        "cashVerificaționTrend": "NEVERIFICATĂ -> VERIFICATĂ -> DEPUSĂ"
       }
     },
     "resident": {
@@ -155,7 +155,7 @@
     },
     "censor": {
       "title": "Panoul cenzorului",
-      "description": "Verificati facturi, rulari de întreținere si anomalii de consum în așteptarea aprobării."
+      "description": "Verificați facturi, rulari de întreținere și anomalii de consum în așteptarea aprobării."
     }
   },
   "pages": {
@@ -264,12 +264,12 @@
       "maintenance": "Întreținere",
       "administrative": "Administrativ",
       "garbage": "Salubritate",
-      "heating": "Incalzire",
-      "coldWater": "Apa rece",
+      "heating": "Încălzire",
+      "coldWater": "Apă rece",
       "staircaseElectricity": "Electricitate scara",
       "surfaceRepairs": "Reparatii pe suprafata",
-      "staircaseCleaning": "Curatenie scara",
-      "gardening": "Gradinarit"
+      "staircaseCleaning": "Curățenie scara",
+      "gardening": "Grădinărit"
     },
     "debts": {
       "previousBalance": "Sold restant anterior"
@@ -356,7 +356,7 @@
       "anomaly": "Anomalie",
       "mainMeter": "Contor general",
       "apartmentMeters": "Contoare apartamente",
-      "waterLoss": "Diferenta"
+      "waterLoss": "Diferența"
     },
     "actions": {
       "submitIndex": "Trimite index",
@@ -365,18 +365,18 @@
     "dialog": {
       "submitTitle": "Trimite index apă",
       "adminTitle": "Adaugă citire apă",
-      "coldWaterIndex": "Index apa rece",
-      "hotWaterIndex": "Index apa calda"
+      "coldWaterIndex": "Index apă rece",
+      "hotWaterIndex": "Index apă caldă"
     },
     "waterType": {
-      "cold": "Apa rece",
-      "hot": "Apa calda"
+      "cold": "Apă rece",
+      "hot": "Apă caldă"
     }
   },
   "censor": {
     "actions": {
       "approved": "Aprobă",
-      "needs_changes": "Cere modificari",
+      "needs_changes": "Cere modificări",
       "openQueue": "Deschide coada",
       "rejected": "Respinge",
       "review": "Revizuiește",
@@ -516,7 +516,7 @@
       "type": "Tip cheltuială",
       "types": {
         "administrationCost": "Cost administrare",
-        "customMonthlyFee": "Taxă lunara personalizată",
+        "customMonthlyFee": "Taxă lunară personalizată",
         "elevatorMaintenance": "Întreținere lift",
         "gardening": "Grădinarit",
         "intercomMaintenance": "Întreținere interfon",
