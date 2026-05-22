@@ -132,6 +132,7 @@
       "myApartments": "My apartments",
       "adminContact": "{{admin}} · {{phone}}",
       "primaryResidence": "primary residence",
+      "surfaceSummary": "{{usable}} sqm usable · {{total}} sqm total",
       "currentDue": "Current amount due",
       "pay": "Pay",
       "lastSubmittedIndex": "Last submitted index",
@@ -299,6 +300,12 @@
       "custom": "{{label}} = {{amount}} using the configured custom share."
     }
   },
+  "heatingType": {
+    "central": "Central heating",
+    "individual": "Individual heating",
+    "gas_boiler": "Gas boiler",
+    "district": "District heating"
+  },
   "blocks": {
     "title": "Block {{block}}",
     "description": "Block-level apartments, hierarchy, finance, and consumption.",
@@ -370,7 +377,7 @@
       "current": "Current index",
       "usage": "Usage",
       "totalUsage": "Total usage",
-      "meterValue": "{{previous}} -> {{current}} ({{usage}})",
+      "meterValue": "{{previous}} → {{current}} ({{usage}})",
       "anomaly": "Anomaly",
       "mainMeter": "Main meter",
       "apartmentMeters": "Apartment meters",

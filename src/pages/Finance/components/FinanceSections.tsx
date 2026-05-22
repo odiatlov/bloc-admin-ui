@@ -20,7 +20,7 @@ import PaidIcon from '@mui/icons-material/Paid'
 import { useTranslation } from 'react-i18next'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
-import { formatCurrency, formatMonth, useFinance } from '../../../hooks/useApartmentData'
+import { formatCurrency, formatMonth, formatNumber, useFinance } from '../../../hooks/useApartmentData'
 import type { PaymentMethod } from '../../../mocks/apartmentData'
 
 const FinanceSections: React.FC = () => {
@@ -200,8 +200,9 @@ const FinanceSections: React.FC = () => {
                           {t(line.textKey, {
                             label: t(line.labelKey),
                             amount: formatCurrency(line.amount),
-                            basis: line.basis,
-                            totalBasis: line.totalBasis,
+                            basis: formatNumber(line.basis),
+                            totalBasis: formatNumber(line.totalBasis),
+                            percentage: typeof line.values.percentage === 'number' ? formatNumber(line.values.percentage) : line.values.percentage,
                           })}
                         </Typography>
                       ))}

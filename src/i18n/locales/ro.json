@@ -50,6 +50,12 @@
       "custom": "{{label}} = {{amount}} pe baza cotei configurate manual."
     }
   },
+  "heatingType": {
+    "central": "Încălzire centrală",
+    "individual": "Încălzire individuală",
+    "gas_boiler": "Centrală pe gaz",
+    "district": "Încălzire de cartier"
+  },
   "sidebar": {
     "apartments": "Apartamente",
     "blocks": "Blocuri",
@@ -148,6 +154,7 @@
     "resident": {
       "title": "Panoul locatarului",
       "quickActions": "Acțiuni rapide",
+      "surfaceSummary": "{{usable}} mp utili · {{total}} mp total",
       "currentDue": "Suma curentă datorată",
       "pay": "Plătește",
       "lastSubmittedIndex": "Ultimul index trimis",
@@ -363,7 +370,7 @@
       "current": "Index curent",
       "usage": "Consum",
       "totalUsage": "Consum total",
-      "meterValue": "{{previous}} -> {{current}} ({{usage}})",
+      "meterValue": "{{previous}} → {{current}} ({{usage}})",
       "anomaly": "Anomalie",
       "mainMeter": "Contor general",
       "apartmentMeters": "Contoare apartamente",

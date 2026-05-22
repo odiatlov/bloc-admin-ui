@@ -15,7 +15,7 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import { useTranslation } from 'react-i18next'
 import type { ApartmentMaintenanceTotal } from '../../types/apartment'
-import { formatMonth } from '../../utils/formatters'
+import { formatMonth, formatNumber } from '../../utils/formatters'
 
 type InvoiceWithBreakdown = {
   id: string
@@ -129,8 +129,9 @@ const InvoiceBreakdownDrawer: React.FC<InvoiceBreakdownDrawerProps> = ({ formatC
                     {t(line.textKey, {
                       label: t(line.labelKey),
                       amount: formatCurrency(line.amount),
-                      basis: line.basis,
-                      totalBasis: line.totalBasis,
+                      basis: formatNumber(line.basis),
+                      totalBasis: formatNumber(line.totalBasis),
+                      percentage: typeof line.values.percentage === 'number' ? formatNumber(line.values.percentage) : line.values.percentage,
                     })}
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
@@ -138,7 +139,7 @@ const InvoiceBreakdownDrawer: React.FC<InvoiceBreakdownDrawerProps> = ({ formatC
                       {t('resident.bills.breakdown.method')}: {t(`settings.allocation.${line.allocationType}`)}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      {t('resident.bills.breakdown.basis')}: {line.basis} / {line.totalBasis}
+                      {t('resident.bills.breakdown.basis')}: {formatNumber(line.basis)} / {formatNumber(line.totalBasis)}
                     </Typography>
                   </Box>
                 </AccordionDetails>

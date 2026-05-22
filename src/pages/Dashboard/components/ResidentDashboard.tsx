@@ -20,7 +20,7 @@ const ResidentDashboard: React.FC = () => {
   const { apartmentsByBlock, currentBalance, lastPayment, resident, residentReadings } = useResidentPortal()
   const lastIndex = residentReadings.length ? residentReadings[0] : null
   const renderMeter = (meter: WaterReadingRow['meters']['cold']) =>
-    meter ? `${formatNumber(meter.currentValue)} (${formatNumber(meter.usageValue)})` : t('common.notAvailable')
+    meter ? t('consumption.columns.meterValue', { previous: formatNumber(meter.previousValue), current: formatNumber(meter.currentValue), usage: formatNumber(meter.usageValue) }) : t('common.notAvailable')
   const announcements = [
     { id: 'A1', date: '2026-05-01', textKey: 'dashboard.resident.announcements.elevator' },
     { id: 'A2', date: '2026-04-20', textKey: 'dashboard.resident.announcements.water' },
@@ -123,7 +123,7 @@ const ResidentDashboard: React.FC = () => {
                             {apartment.residentApartment?.isPrimaryResidence ? ` - ${t('dashboard.resident.primaryResidence')}` : ''}
                           </Typography>
                           <Typography variant="body2" color="text.secondary">
-                            {apartment.usableSurface} sqm utili - {apartment.totalSurface} sqm total
+                            {t('dashboard.resident.surfaceSummary', { usable: formatNumber(apartment.usableSurface), total: formatNumber(apartment.totalSurface) })}
                           </Typography>
                         </Box>
                       ))}
