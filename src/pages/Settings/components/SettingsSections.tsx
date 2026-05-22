@@ -91,9 +91,6 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
           <FormControlLabel control={<Checkbox defaultChecked />} label={t('settings.fields.emailNotifications')} />
           <FormControlLabel control={<Checkbox defaultChecked />} label={t('settings.fields.paymentReminders')} />
         </Paper>
-        <Button variant="contained" sx={{ justifySelf: 'start' }}>
-          {t('common.save')}
-        </Button>
       </Box>
     )
   }
@@ -323,9 +320,6 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
         <FormControlLabel control={<Checkbox defaultChecked />} label={t('settings.fields.overdueAlerts')} />
         <FormControlLabel control={<Checkbox defaultChecked />} label={t('settings.fields.cashAlerts')} />
       </Paper>
-      <Button variant="contained" sx={{ justifySelf: 'start' }}>
-        {t('common.save')}
-      </Button>
     </Box>
   )
 }

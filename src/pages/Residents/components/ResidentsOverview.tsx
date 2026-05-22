@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next'
 import InvoiceBreakdownDrawer from '../../../components/shared/InvoiceBreakdownDrawer'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
-import { formatCurrency, getBlockLabel, useResidents } from '../../../hooks/useApartmentData'
+import { formatCurrency, formatMonth, formatNumber, getBlockLabel, useResidents, type WaterReadingRow } from '../../../hooks/useApartmentData'
 import type { FinancialStatus } from '../../../mocks/apartmentData'
 
 const ResidentsOverview: React.FC = () => {
@@ -42,7 +42,7 @@ const ResidentsOverview: React.FC = () => {
 
   const invoiceColumns: DataColumn<(typeof selectedInvoices)[number]>[] = [
     { key: 'id', label: t('finance.columns.invoice'), render: (invoice) => invoice.id },
-    { key: 'month', label: t('finance.columns.month'), render: (invoice) => invoice.month },
+    { key: 'month', label: t('finance.columns.month'), render: (invoice) => formatMonth(invoice.month) },
     { key: 'amount', label: t('finance.columns.amount'), render: (invoice) => formatCurrency(invoice.totalAmount) },
     { key: 'status', label: t('finance.columns.status'), render: (invoice) => <StatusChip status={invoice.status} label={t(`status.invoice.${invoice.status}`)} /> },
     {
@@ -63,11 +63,13 @@ const ResidentsOverview: React.FC = () => {
     { key: 'status', label: t('finance.columns.verification'), render: (payment) => <StatusChip status={payment.verificationStatus} label={t(`status.cash.${payment.verificationStatus}`)} /> },
   ]
 
+  const renderMeter = (meter: WaterReadingRow['meters']['cold']) =>
+    meter ? t('consumption.columns.meterValue', { previous: formatNumber(meter.previousValue), current: formatNumber(meter.currentValue), usage: formatNumber(meter.usageValue) }) : t('common.notAvailable')
   const readingColumns: DataColumn<(typeof selectedReadings)[number]>[] = [
-    { key: 'month', label: t('finance.columns.month'), render: (reading) => reading.month },
-    { key: 'previous', label: t('consumption.columns.previous'), render: (reading) => reading.previousValue },
-    { key: 'current', label: t('consumption.columns.current'), render: (reading) => reading.currentValue },
-    { key: 'usage', label: t('consumption.columns.usage'), render: (reading) => reading.currentValue - reading.previousValue },
+    { key: 'month', label: t('finance.columns.month'), render: (reading) => formatMonth(reading.month) },
+    { key: 'coldWater', label: t('consumption.waterType.cold'), render: (reading) => renderMeter(reading.meters.cold) },
+    { key: 'hotWater', label: t('consumption.waterType.hot'), render: (reading) => renderMeter(reading.meters.hot) },
+    { key: 'usage', label: t('consumption.columns.totalUsage'), render: (reading) => formatNumber(reading.usageValue) },
   ]
 
   return (

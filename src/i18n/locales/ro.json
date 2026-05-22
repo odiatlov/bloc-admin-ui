@@ -50,6 +50,12 @@
       "custom": "{{label}} = {{amount}} pe baza cotei configurate manual."
     }
   },
+  "heatingType": {
+    "central": "Încălzire centrală",
+    "individual": "Încălzire individuală",
+    "gas_boiler": "Centrală pe gaz",
+    "district": "Încălzire de cartier"
+  },
   "sidebar": {
     "apartments": "Apartamente",
     "blocks": "Blocuri",
@@ -99,15 +105,21 @@
     "admin": {
       "title": "Panoul administratorului",
       "description": "Prezentare generală a activității asociației",
+      "quickActions": "Acțiuni rapide",
       "options": {
         "addInvoice": "+ Factură",
+        "newInvoice": "+ Factură nouă",
         "addWaterReading": "+ Citire apă",
-        "exportExcel": "Export Excel"
+        "exportExcel": "Export Excel",
+        "open": "Deschide"
       },
       "overview": {
         "residents": "Locatari",
         "apartments": "Apartamente",
-        "blocks": "Blocuri"
+        "blocks": "Blocuri",
+        "propertyStats": "Statistici proprietăți",
+        "propertyStatsDescription": "Acoperire portofoliu",
+        "statsValue": "{{blocks}} Blocuri | {{apartments}} Apartamente | {{residents}} Locatari"
       },
       "activity": {
         "title": "Activitate recentă",
@@ -130,16 +142,19 @@
         "outstanding": "Facturi restante",
         "outstandingValue": "{{count}} facturi",
         "collectionRate": "Rata colectare",
-        "cashVerificațion": "Verificare numerar",
-        "cashVerificaționValue": "{{count}} în așteptare",
+        "cashVerification": "Verificare numerar",
+        "cashVerificationValue": "{{count}} în așteptare",
         "monthlyRevenueTrend": "+8% față de luna trecută",
         "outstandingTrend": "+3 noi săptămâna aceasta",
         "collectionStable": "Stabil",
-        "cashVerificaționTrend": "NEVERIFICATĂ -> VERIFICATĂ -> DEPUSĂ"
+        "cashVerificationTrend": "NEVERIFICATĂ -> VERIFICATĂ -> DEPUSĂ",
+        "pendingReview": "În verificare"
       }
     },
     "resident": {
       "title": "Panoul locatarului",
+      "quickActions": "Acțiuni rapide",
+      "surfaceSummary": "{{usable}} mp utili · {{total}} mp total",
       "currentDue": "Suma curentă datorată",
       "pay": "Plătește",
       "lastSubmittedIndex": "Ultimul index trimis",
@@ -155,6 +170,7 @@
     },
     "censor": {
       "title": "Panoul cenzorului",
+      "quickActions": "Acțiuni rapide",
       "description": "Verificați facturi, rulari de întreținere și anomalii de consum în așteptarea aprobării."
     }
   },
@@ -353,6 +369,8 @@
       "previous": "Index anterior",
       "current": "Index curent",
       "usage": "Consum",
+      "totalUsage": "Consum total",
+      "meterValue": "{{previous}} → {{current}} ({{usage}})",
       "anomaly": "Anomalie",
       "mainMeter": "Contor general",
       "apartmentMeters": "Contoare apartamente",

@@ -1,5 +1,7 @@
 import React from 'react'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import SaveIcon from '@mui/icons-material/Save'
 import { useTranslation } from 'react-i18next'
 import { RoleContext } from '../../contexts/RoleContext'
 import PageHeader from '../../components/shared/PageHeader'
@@ -11,7 +13,15 @@ const Settings: React.FC = () => {
 
   return (
     <Box>
-      <PageHeader title={t('pages.settings.title')} description={role === 'Resident' ? t('settings.resident.description') : t('pages.settings.description')} />
+      <PageHeader
+        title={t('pages.settings.title')}
+        description={role === 'Resident' ? t('settings.resident.description') : t('pages.settings.description')}
+        actions={(
+          <Button startIcon={<SaveIcon />} variant="contained">
+            {t('common.save')}
+          </Button>
+        )}
+      />
       <SettingsSections mode={role === 'Resident' ? 'resident' : 'admin'} />
     </Box>
   )

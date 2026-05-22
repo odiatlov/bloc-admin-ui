@@ -37,7 +37,7 @@ const AdminKeyMetrics: React.FC = () => {
   const { monthlyRevenue, unpaidInvoices, cashAwaitingVerification } = useFinance()
 
   return (
-    <Box sx={{ mt: 2 }}>
+    <Box>
       <Typography variant="h6" gutterBottom>
         {t('dashboard.admin.keyMetrics.title')}
       </Typography>
