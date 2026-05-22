@@ -80,8 +80,10 @@
     "admin": {
       "title": "Admin Dashboard",
       "description": "Overview of your association activity today",
+      "quickActions": "Quick Actions",
       "options": {
         "addInvoice": "+ Invoice",
+        "newInvoice": "+ New Invoice",
         "addWaterReading": "+ Water Reading",
         "exportExcel": "Export Excel",
         "open": "Open"
@@ -89,7 +91,10 @@
       "overview": {
         "residents": "Residents",
         "apartments": "Apartments",
-        "blocks": "Blocks"
+        "blocks": "Blocks",
+        "propertyStats": "Property Stats",
+        "propertyStatsDescription": "Portfolio coverage",
+        "statsValue": "{{blocks}} Blocks | {{apartments}} Apartments | {{residents}} Residents"
       },
       "activity": {
         "title": "Recent Activity",
@@ -117,11 +122,13 @@
         "monthlyRevenueTrend": "+8% vs last month",
         "outstandingTrend": "+3 new this week",
         "collectionStable": "Stable",
-        "cashVerificationTrend": "UNVERIFIED -> VERIFIED -> DEPOSITED"
+        "cashVerificationTrend": "UNVERIFIED -> VERIFIED -> DEPOSITED",
+        "pendingReview": "Pending review"
       }
     },
     "resident": {
       "title": "Resident Dashboard",
+      "quickActions": "Quick Actions",
       "myApartments": "My apartments",
       "adminContact": "{{admin}} · {{phone}}",
       "primaryResidence": "primary residence",
@@ -140,6 +147,7 @@
     },
     "censor": {
       "title": "Censor Dashboard",
+      "quickActions": "Quick Actions",
       "description": "Review invoices, maintenance runs, and consumption anomalies awaiting approval."
     }
   },

@@ -13,16 +13,23 @@ const items = [
 const AdminActivityFeed: React.FC = () => {
   const { t } = useTranslation()
   return (
-    <Paper sx={{ p: 2 }}>
-      <Typography variant="h6">{t('dashboard.admin.activity.title')}</Typography>
+    <Paper sx={{ p: 2.25, height: '100%' }}>
+      <Typography variant="h6" sx={{ mb: 1.5 }}>
+        {t('dashboard.admin.activity.title')}
+      </Typography>
 
-      <Box sx={{ mt: 1 }}>
+      <Box sx={{ display: 'grid', gap: 1.5 }}>
         {items.map((i, idx) => (
-          <Box key={idx} sx={{ mb: 1 }}>
-            <Typography variant="body2">{t(`dashboard.admin.activity.${i.textKey}`)}</Typography>
-            <Typography variant="caption" color="text.secondary">
-              {t(`dashboard.admin.activity.${i.timeKey}`)}
-            </Typography>
+          <Box key={idx} sx={{ display: 'grid', gridTemplateColumns: '12px minmax(0, 1fr)', gap: 1.25, alignItems: 'start' }}>
+            <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'primary.main', mt: '0.5rem', boxShadow: (theme) => `0 0 0 4px ${theme.palette.action.hover}` }} />
+            <Box sx={{ minWidth: 0 }}>
+              <Typography variant="body2" sx={{ lineHeight: 1.4 }}>
+                {t(`dashboard.admin.activity.${i.textKey}`)}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {t(`dashboard.admin.activity.${i.timeKey}`)}
+              </Typography>
+            </Box>
           </Box>
         ))}
       </Box>
