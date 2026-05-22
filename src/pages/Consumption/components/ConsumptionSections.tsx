@@ -15,7 +15,7 @@ import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
-import { formatApartment, useConsumption, useResidentPortal } from '../../../hooks/useApartmentData'
+import { formatApartment, formatMonth, formatNumber, useConsumption, useResidentPortal, type WaterReadingRow } from '../../../hooks/useApartmentData'
 
 type ConsumptionSectionsProps = {
   mode: 'admin' | 'resident' | 'censor'
@@ -27,31 +27,32 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
   const { apartments, residentReadings } = useResidentPortal()
   const [submitOpen, setSubmitOpen] = React.useState(false)
   const [selectedApartmentId, setSelectedApartmentId] = React.useState(apartments[0]?.id ?? '')
-  const visibleReadings = mode === 'resident' ? residentReadings.map((reading) => ({ ...reading, usageValue: reading.currentValue - reading.previousValue })) : readings
+  const visibleReadings = mode === 'resident' ? residentReadings : readings
   const canEditReadings = mode !== 'censor'
+  const renderMeter = (meter: WaterReadingRow['meters']['cold']) =>
+    meter ? t('consumption.columns.meterValue', { previous: formatNumber(meter.previousValue), current: formatNumber(meter.currentValue), usage: formatNumber(meter.usageValue) }) : t('common.notAvailable')
 
   const readingColumns: DataColumn<(typeof visibleReadings)[number]>[] = [
     { key: 'apartment', label: t('consumption.columns.apartment'), render: (reading) => formatApartment(reading.apartment) },
-    { key: 'month', label: t('finance.columns.month'), render: (reading) => reading.month },
-    { key: 'type', label: t('consumption.columns.waterType'), render: (reading) => t(`consumption.waterType.${reading.waterType}`) },
-    { key: 'previous', label: t('consumption.columns.previous'), render: (reading) => reading.previousValue },
-    { key: 'current', label: t('consumption.columns.current'), render: (reading) => reading.currentValue },
-    { key: 'usage', label: t('consumption.columns.usage'), render: (reading) => reading.usageValue },
+    { key: 'month', label: t('finance.columns.month'), render: (reading) => formatMonth(reading.month) },
+    { key: 'coldWater', label: t('consumption.waterType.cold'), render: (reading) => renderMeter(reading.meters.cold) },
+    { key: 'hotWater', label: t('consumption.waterType.hot'), render: (reading) => renderMeter(reading.meters.hot) },
+    { key: 'usage', label: t('consumption.columns.totalUsage'), render: (reading) => formatNumber(reading.usageValue) },
   ]
 
   const summaryColumns: DataColumn<(typeof summaries)[number]>[] = [
     { key: 'apartment', label: t('consumption.columns.apartment'), render: (summary) => formatApartment(summary.apartment) },
-    { key: 'month', label: t('finance.columns.month'), render: (summary) => summary.month },
-    { key: 'usage', label: t('consumption.columns.usage'), render: (summary) => summary.usageValue },
+    { key: 'month', label: t('finance.columns.month'), render: (summary) => formatMonth(summary.month) },
+    { key: 'usage', label: t('consumption.columns.totalUsage'), render: (summary) => formatNumber(summary.usageValue) },
     { key: 'anomaly', label: t('consumption.columns.anomaly'), render: (summary) => <StatusChip status={summary.anomaly} label={t(`status.anomaly.${summary.anomaly}`)} /> },
   ]
 
   const waterBalanceColumns: DataColumn<(typeof waterBalances)[number]>[] = [
     { key: 'block', label: t('residents.filters.block'), render: (balance) => t('common.blockValue', { block: balance.block.name }) },
-    { key: 'month', label: t('finance.columns.month'), render: (balance) => balance.month },
-    { key: 'main', label: t('consumption.columns.mainMeter'), render: (balance) => balance.mainUsage },
-    { key: 'apartments', label: t('consumption.columns.apartmentMeters'), render: (balance) => balance.apartmentUsage },
-    { key: 'difference', label: t('consumption.columns.waterLoss'), render: (balance) => balance.difference },
+    { key: 'month', label: t('finance.columns.month'), render: (balance) => formatMonth(balance.month) },
+    { key: 'main', label: t('consumption.columns.mainMeter'), render: (balance) => formatNumber(balance.mainUsage) },
+    { key: 'apartments', label: t('consumption.columns.apartmentMeters'), render: (balance) => formatNumber(balance.apartmentUsage) },
+    { key: 'difference', label: t('consumption.columns.waterLoss'), render: (balance) => formatNumber(balance.difference) },
   ]
 
   return (
@@ -109,7 +110,7 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
             <TextField label={t('consumption.dialog.coldWaterIndex')} type="number" fullWidth />
             <TextField label={t('consumption.dialog.hotWaterIndex')} type="number" fullWidth />
           </Box>
-          <TextField label={t('finance.columns.month')} fullWidth defaultValue="2026-05" />
+          <TextField label={t('finance.columns.month')} fullWidth defaultValue="05-2026" />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setSubmitOpen(false)}>{t('common.cancel')}</Button>

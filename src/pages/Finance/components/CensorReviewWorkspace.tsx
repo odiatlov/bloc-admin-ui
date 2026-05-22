@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next'
 import InvoiceBreakdownDrawer from '../../../components/shared/InvoiceBreakdownDrawer'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
-import { formatApartment, formatCurrency, useCensorReviews } from '../../../hooks/useApartmentData'
+import { formatApartment, formatCurrency, formatMonth, formatNumber, useCensorReviews } from '../../../hooks/useApartmentData'
 import type { CensorReview, ReviewState } from '../../../types/apartment'
 
 const reviewActions: ReviewState[] = ['approved', 'needs_changes', 'rejected']
@@ -38,7 +38,7 @@ const CensorReviewWorkspace: React.FC = () => {
   const invoiceColumns: DataColumn<(typeof invoiceReviews)[number]>[] = [
     { key: 'invoice', label: t('finance.columns.invoice'), render: ({ invoice }) => invoice.id },
     { key: 'apartment', label: t('finance.columns.apartment'), render: ({ invoice }) => invoice.familyLabel },
-    { key: 'month', label: t('finance.columns.month'), render: ({ invoice }) => invoice.month },
+    { key: 'month', label: t('finance.columns.month'), render: ({ invoice }) => formatMonth(invoice.month) },
     { key: 'amount', label: t('finance.columns.amount'), render: ({ invoice }) => formatCurrency(invoice.totalAmount) },
     { key: 'invoiceStatus', label: t('finance.columns.status'), render: ({ invoice }) => <StatusChip status={invoice.status} label={t(`status.invoice.${invoice.status}`)} /> },
     { key: 'reviewState', label: t('censor.columns.reviewState'), render: ({ review }) => <StatusChip status={review.state} label={t(`status.review.${review.state}`)} /> },
@@ -59,7 +59,7 @@ const CensorReviewWorkspace: React.FC = () => {
   ]
 
   const maintenanceColumns: DataColumn<(typeof maintenanceReviews)[number]>[] = [
-    { key: 'run', label: t('censor.columns.reviewItem'), render: ({ run }) => t('finance.maintenance.blockMonth', { block: run.blockId.replace('block-', '').toUpperCase(), month: run.month }) },
+    { key: 'run', label: t('censor.columns.reviewItem'), render: ({ run }) => t('finance.maintenance.blockMonth', { block: run.blockId.replace('block-', '').toUpperCase(), month: formatMonth(run.month) }) },
     { key: 'generatedAt', label: t('censor.columns.generatedAt'), render: ({ run }) => run.generatedAt },
     { key: 'apartments', label: t('censor.columns.apartments'), render: ({ run }) => run.apartmentTotals.length },
     { key: 'total', label: t('finance.columns.amount'), render: ({ run }) => formatCurrency(run.apartmentTotals.reduce((sum, total) => sum + total.total, 0)) },
@@ -77,8 +77,8 @@ const CensorReviewWorkspace: React.FC = () => {
 
   const anomalyColumns: DataColumn<(typeof anomalyReviews)[number]>[] = [
     { key: 'apartment', label: t('consumption.columns.apartment'), render: ({ anomaly }) => formatApartment(anomaly.apartment) },
-    { key: 'month', label: t('finance.columns.month'), render: ({ anomaly }) => anomaly.month },
-    { key: 'usage', label: t('consumption.columns.usage'), render: ({ anomaly }) => anomaly.usageValue },
+    { key: 'month', label: t('finance.columns.month'), render: ({ anomaly }) => formatMonth(anomaly.month) },
+    { key: 'usage', label: t('consumption.columns.usage'), render: ({ anomaly }) => formatNumber(anomaly.usageValue) },
     { key: 'anomaly', label: t('consumption.columns.anomaly'), render: ({ anomaly }) => <StatusChip status={anomaly.anomaly} label={t(`status.anomaly.${anomaly.anomaly}`)} /> },
     { key: 'state', label: t('censor.columns.reviewState'), render: ({ review }) => <StatusChip status={review.state} label={t(`status.review.${review.state}`)} /> },
     {

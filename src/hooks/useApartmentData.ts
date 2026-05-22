@@ -30,15 +30,16 @@ import {
   type PaymentMethod,
   type ReviewState,
   type VerificationStatus,
+  type WaterMeterType,
+  type WaterReading,
 } from '../mocks/apartmentData'
 import { RoleContext } from '../contexts/RoleContext'
 import { filterApartmentsForAccount, filterBlocksForAccount } from '../application/accessScope'
 import { calculateWaterBalance, generateMonthlyMaintenance } from '../utils/maintenanceEngine'
+import { formatCurrency, formatMonth, formatNumber } from '../utils/formatters'
 import type { AuthRole, MockAccount } from '../types/apartment'
 
-const currencyFormatter = new Intl.NumberFormat(undefined, { style: 'currency', currency: 'RON' })
-
-export const formatCurrency = (value: number) => currencyFormatter.format(value)
+export { formatCurrency, formatMonth, formatNumber }
 
 export const getBlockLabel = (blockId: string) => blocks.find((block) => block.id === blockId)?.name ?? blockId
 
@@ -95,6 +96,52 @@ const maintenanceEngineInput = {
   residents,
   rules: allocationRules,
   waterReadings,
+}
+
+type WaterMeterSnapshot = {
+  previousValue: number
+  currentValue: number
+  usageValue: number
+}
+
+export type WaterReadingRow = {
+  id: string
+  apartment: Apartment
+  month: string
+  meters: Partial<Record<WaterMeterType, WaterMeterSnapshot>>
+  usageValue: number
+}
+
+const getWaterReadingRows = (sourceReadings: WaterReading[]) => {
+  const rows = new Map<string, WaterReadingRow>()
+
+  sourceReadings.forEach((reading) => {
+    const apartment = apartments.find((item) => item.id === reading.apartmentId) ?? apartments[0]
+    const key = `${reading.apartmentId}-${reading.month}`
+    const existing = rows.get(key) ?? {
+      id: key,
+      apartment,
+      month: reading.month,
+      meters: {},
+      usageValue: 0,
+    }
+    const usageValue = Math.max(reading.currentValue - reading.previousValue, 0)
+
+    rows.set(key, {
+      ...existing,
+      meters: {
+        ...existing.meters,
+        [reading.waterType]: {
+          previousValue: reading.previousValue,
+          currentValue: reading.currentValue,
+          usageValue,
+        },
+      },
+      usageValue: existing.usageValue + usageValue,
+    })
+  })
+
+  return Array.from(rows.values())
 }
 
 const getMaintenanceRun = (blockId: string, month: string) => generateMonthlyMaintenance(blockId, month, maintenanceEngineInput)
@@ -306,9 +353,9 @@ export const useResidents = () => {
   const selectedApartment = enrichedApartments.find((apartment) => apartment.id === selectedApartmentId) ?? null
   const selectedInvoices = invoices.filter((invoice) => invoice.apartmentId === selectedApartment?.id).map(enrichInvoice)
   const selectedPayments = payments.filter((payment) => payment.apartmentId === selectedApartment?.id)
-  const selectedReadings = waterReadings
+  const selectedReadings = getWaterReadingRows(waterReadings
     .filter((reading) => reading.apartmentId === selectedApartment?.id)
-    .map((reading) => ({ ...reading, apartment: apartments.find((apartment) => apartment.id === reading.apartmentId) ?? apartments[0] }))
+  )
 
   return {
     blocks: scopedBlocks,
@@ -416,13 +463,9 @@ export const useConsumption = () => {
 
   const readings = React.useMemo(
     () =>
-      waterReadings
+      getWaterReadingRows(waterReadings
         .filter((reading) => scopedApartmentIds.has(reading.apartmentId))
-        .map((reading) => ({
-          ...reading,
-          apartment: apartments.find((apartment) => apartment.id === reading.apartmentId) ?? apartments[0],
-          usageValue: reading.currentValue - reading.previousValue,
-        }))
+      )
         .filter((reading) => blockFilter === 'all' || reading.apartment.blockId === blockFilter),
     [blockFilter, scopedApartmentIds],
   )
@@ -508,13 +551,12 @@ export const useCensorReviews = () => {
   const maintenanceRuns = React.useMemo(() => scopedBlocks.map((block) => getMaintenanceRun(block.id, reportMonths[0])), [scopedBlocks])
   const anomalySummaries = React.useMemo(
     () =>
-      waterReadings
+      getWaterReadingRows(waterReadings
         .filter((reading) => scopedApartmentIds.has(reading.apartmentId))
+      )
         .map((reading) => {
-          const apartment = apartments.find((item) => item.id === reading.apartmentId) ?? apartments[0]
-          const usageValue = reading.currentValue - reading.previousValue
-          const anomaly: AnomalyLevel = usageValue > 35 ? 'critical' : usageValue > 20 ? 'warning' : 'normal'
-          return { apartment, id: `${apartment.id}-${reading.month}`, month: reading.month, usageValue, anomaly }
+          const anomaly: AnomalyLevel = reading.usageValue > 35 ? 'critical' : reading.usageValue > 20 ? 'warning' : 'normal'
+          return { apartment: reading.apartment, id: reading.id, month: reading.month, usageValue: reading.usageValue, anomaly }
         })
         .filter((summary) => summary.anomaly !== 'normal'),
     [scopedApartmentIds],
@@ -627,13 +669,9 @@ export const useResidentPortal = () => {
   const apartment = residentApartmentsList.find((item) => item.residentApartment?.isPrimaryResidence) ?? residentApartmentsList[0] ?? enrichApartment(apartments[0])
   const residentInvoices = invoices.filter((invoice) => residentApartmentIds.has(invoice.apartmentId)).map(enrichInvoice)
   const residentPayments = payments.filter((payment) => residentApartmentIds.has(payment.apartmentId))
-  const residentReadings = waterReadings
+  const residentReadings = getWaterReadingRows(waterReadings
     .filter((reading) => residentApartmentIds.has(reading.apartmentId))
-    .map((reading) => ({
-      ...reading,
-      apartment: apartments.find((item) => item.id === reading.apartmentId) ?? apartment,
-      usageValue: reading.currentValue - reading.previousValue,
-    }))
+  )
   const currentBalance = residentInvoices.reduce((sum, invoice) => sum + Math.max(invoice.totalAmount - invoice.paidAmount, 0), 0)
   const apartmentsByBlock = residentApartmentsList.reduce<Record<string, typeof residentApartmentsList>>((acc, item) => {
     acc[item.blockId] = [...(acc[item.blockId] ?? []), item]

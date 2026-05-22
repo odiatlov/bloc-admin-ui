@@ -83,7 +83,8 @@
       "options": {
         "addInvoice": "+ Invoice",
         "addWaterReading": "+ Water Reading",
-        "exportExcel": "Export Excel"
+        "exportExcel": "Export Excel",
+        "open": "Open"
       },
       "overview": {
         "residents": "Residents",
@@ -360,6 +361,8 @@
       "previous": "Previous index",
       "current": "Current index",
       "usage": "Usage",
+      "totalUsage": "Total usage",
+      "meterValue": "{{previous}} -> {{current}} ({{usage}})",
       "anomaly": "Anomaly",
       "mainMeter": "Main meter",
       "apartmentMeters": "Apartment meters",

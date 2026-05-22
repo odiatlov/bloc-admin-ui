@@ -13,7 +13,7 @@ const items = [
 const AdminActivityFeed: React.FC = () => {
   const { t } = useTranslation()
   return (
-    <Paper sx={{ p: 2, mb: 2 }}>
+    <Paper sx={{ p: 2 }}>
       <Typography variant="h6">{t('dashboard.admin.activity.title')}</Typography>
 
       <Box sx={{ mt: 1 }}>

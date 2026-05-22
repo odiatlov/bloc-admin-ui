@@ -4,7 +4,6 @@ import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import DashboardIcon from '@mui/icons-material/Dashboard'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import PageHeader from '../../components/shared/PageHeader'
@@ -69,14 +68,9 @@ const BlockContext: React.FC = () => {
         title={t('blocks.title', { block: block.name })}
         description={t('blocks.description')}
         actions={(
-          <>
-            <Button startIcon={<ArrowBackIcon />} variant="outlined" onClick={() => navigate('/admin/blocks')}>
-              {t('blocks.actions.backToList')}
-            </Button>
-            <Button startIcon={<DashboardIcon />} variant="text" onClick={() => navigate('/admin/dashboard')}>
-              {t('blocks.actions.backToDashboard')}
-            </Button>
-          </>
+          <Button startIcon={<ArrowBackIcon />} variant="outlined" onClick={() => navigate('/admin/blocks')}>
+            {t('blocks.actions.backToList')}
+          </Button>
         )}
       />
 

@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import PreviewIcon from '@mui/icons-material/Preview'
 import { useTranslation } from 'react-i18next'
-import { formatCurrency, useReports } from '../../../hooks/useApartmentData'
+import { formatCurrency, formatMonth, formatNumber, useReports } from '../../../hooks/useApartmentData'
 
 const ReportGenerator: React.FC = () => {
   const { t } = useTranslation()
@@ -24,7 +24,7 @@ const ReportGenerator: React.FC = () => {
           <Select label={t('reports.filters.month')} value={month} onChange={(event: SelectChangeEvent) => setMonth(event.target.value)}>
             {months.map((item) => (
               <MenuItem key={item} value={item}>
-                {item}
+                {formatMonth(item)}
               </MenuItem>
             ))}
           </Select>
@@ -69,13 +69,13 @@ const ReportGenerator: React.FC = () => {
             <Typography variant="body2" color="text.secondary">
               {t('reports.preview.waterUsage')}
             </Typography>
-            <Typography variant="h5">{preview.waterUsage}</Typography>
+            <Typography variant="h5">{formatNumber(preview.waterUsage)}</Typography>
           </Paper>
           <Paper variant="outlined" sx={{ p: 2 }}>
             <Typography variant="body2" color="text.secondary">
               {t('reports.preview.surfaceTotal')}
             </Typography>
-            <Typography variant="h5">{preview.surfaceTotal.toFixed(1)}</Typography>
+            <Typography variant="h5">{formatNumber(preview.surfaceTotal)}</Typography>
           </Paper>
           <Paper variant="outlined" sx={{ p: 2 }}>
             <Typography variant="body2" color="text.secondary">

@@ -10,12 +10,14 @@ import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import Divider from '@mui/material/Divider'
 import { useTranslation } from 'react-i18next'
-import { formatCurrency, getBlockLabel, useResidentPortal } from '../../../hooks/useApartmentData'
+import { formatCurrency, formatMonth, formatNumber, getBlockLabel, useResidentPortal, type WaterReadingRow } from '../../../hooks/useApartmentData'
 
 const ResidentDashboard: React.FC = () => {
   const { t } = useTranslation()
   const { apartmentsByBlock, currentBalance, lastPayment, resident, residentReadings } = useResidentPortal()
   const lastIndex = residentReadings.length ? residentReadings[0] : null
+  const renderMeter = (meter: WaterReadingRow['meters']['cold']) =>
+    meter ? `${formatNumber(meter.currentValue)} (${formatNumber(meter.usageValue)})` : t('common.notAvailable')
   const announcements = [
     { id: 'A1', date: '2026-05-01', textKey: 'dashboard.resident.announcements.elevator' },
     { id: 'A2', date: '2026-04-20', textKey: 'dashboard.resident.announcements.water' },
@@ -34,7 +36,7 @@ const ResidentDashboard: React.FC = () => {
         <Card>
           <CardContent>
             <Typography variant="h6">{t('dashboard.resident.currentDue')}</Typography>
-            <Typography variant="h3" sx={{ mt: 1, mb: 2 }}>
+            <Typography variant="h4" sx={{ mt: 1, mb: 2 }}>
               {formatCurrency(currentBalance)}
             </Typography>
             <Button variant="contained" color="primary">
@@ -48,9 +50,9 @@ const ResidentDashboard: React.FC = () => {
             <Typography variant="h6">{t('dashboard.resident.lastSubmittedIndex')}</Typography>
             {lastIndex ? (
               <Box sx={{ mt: 1 }}>
-                <Typography>{t('dashboard.resident.indexValue', { value: lastIndex.currentValue })}</Typography>
+                <Typography>{t('dashboard.resident.indexValue', { value: formatNumber(lastIndex.usageValue) })}</Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {lastIndex.month} - {t(`consumption.waterType.${lastIndex.waterType}`)}
+                  {formatMonth(lastIndex.month)} - {t('consumption.waterType.cold')}: {renderMeter(lastIndex.meters.cold)} - {t('consumption.waterType.hot')}: {renderMeter(lastIndex.meters.hot)}
                 </Typography>
               </Box>
             ) : (

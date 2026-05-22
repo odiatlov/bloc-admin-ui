@@ -15,6 +15,7 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import { useTranslation } from 'react-i18next'
 import type { ApartmentMaintenanceTotal } from '../../types/apartment'
+import { formatMonth } from '../../utils/formatters'
 
 type InvoiceWithBreakdown = {
   id: string
@@ -50,7 +51,7 @@ const InvoiceBreakdownDrawer: React.FC<InvoiceBreakdownDrawerProps> = ({ formatC
             <Box>
               <Typography variant="h5">{t('resident.bills.detailsTitle')}</Typography>
               <Typography variant="body2" color="text.secondary">
-                {t('resident.bills.invoiceContext', { invoice: invoice.id, month: invoice.month })}
+                {t('resident.bills.invoiceContext', { invoice: invoice.id, month: formatMonth(invoice.month) })}
               </Typography>
             </Box>
           </Box>

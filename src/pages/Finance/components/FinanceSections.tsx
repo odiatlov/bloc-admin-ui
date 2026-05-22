@@ -20,7 +20,7 @@ import PaidIcon from '@mui/icons-material/Paid'
 import { useTranslation } from 'react-i18next'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
-import { formatCurrency, useFinance } from '../../../hooks/useApartmentData'
+import { formatCurrency, formatMonth, useFinance } from '../../../hooks/useApartmentData'
 import type { PaymentMethod } from '../../../mocks/apartmentData'
 
 const FinanceSections: React.FC = () => {
@@ -46,7 +46,7 @@ const FinanceSections: React.FC = () => {
     { key: 'id', label: t('finance.columns.invoice'), render: (invoice) => invoice.id },
     { key: 'apartment', label: t('finance.columns.apartment'), render: (invoice) => invoice.familyLabel },
     { key: 'residents', label: t('residents.family.members'), render: (invoice) => invoice.residents.length },
-    { key: 'month', label: t('finance.columns.month'), render: (invoice) => invoice.month },
+    { key: 'month', label: t('finance.columns.month'), render: (invoice) => formatMonth(invoice.month) },
     { key: 'amount', label: t('finance.columns.amount'), render: (invoice) => formatCurrency(invoice.totalAmount) },
     {
       key: 'status',
@@ -179,7 +179,7 @@ const FinanceSections: React.FC = () => {
             <Paper key={run.id} sx={{ p: 2, display: 'grid', gap: 1.5 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, flexWrap: 'wrap' }}>
                 <Box>
-                  <Typography variant="h6">{t('finance.maintenance.blockMonth', { block: run.blockId.replace('block-', '').toUpperCase(), month: run.month })}</Typography>
+                  <Typography variant="h6">{t('finance.maintenance.blockMonth', { block: run.blockId.replace('block-', '').toUpperCase(), month: formatMonth(run.month) })}</Typography>
                   <Typography variant="body2" color="text.secondary">
                     {t('finance.maintenance.generatedAt', { generatedAt: run.generatedAt })}
                   </Typography>

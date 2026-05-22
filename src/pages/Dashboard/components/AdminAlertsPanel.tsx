@@ -4,14 +4,14 @@ import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import { useTranslation } from 'react-i18next'
-import { waterReadings } from '../../../mocks/apartmentData'
-import { useFinance } from '../../../hooks/useApartmentData'
+import { useConsumption, useFinance } from '../../../hooks/useApartmentData'
 
 const AdminAlertsPanel: React.FC = () => {
   const { t } = useTranslation()
   const { invoices: enrichedInvoices } = useFinance()
+  const { readings } = useConsumption()
   const overdueInvoices = enrichedInvoices.filter((invoice) => invoice.status === 'overdue').length
-  const unusualConsumption = waterReadings.filter((reading) => reading.currentValue - reading.previousValue > 20).length
+  const unusualConsumption = readings.filter((reading) => reading.usageValue > 20).length
   const alerts = [
     t('dashboard.admin.alerts.overdueInvoices', { count: overdueInvoices }),
     t('dashboard.admin.alerts.unusualConsumption', { count: unusualConsumption }),
