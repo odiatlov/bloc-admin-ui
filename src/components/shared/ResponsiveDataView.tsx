@@ -20,13 +20,22 @@ export type DataColumn<T> = {
 type ResponsiveDataViewProps<T> = {
   ariaLabel: string
   columns: DataColumn<T>[]
+  desktopTableMinWidth?: number
   getRowId: (row: T) => string
   rows: T[]
 }
 
-const ResponsiveDataView = <T,>({ ariaLabel, columns, getRowId, rows }: ResponsiveDataViewProps<T>) => (
+const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900, getRowId, rows }: ResponsiveDataViewProps<T>) => (
   <>
-    <TableContainer component={Paper} sx={{ display: { xs: 'none', md: 'block' } }}>
+    <TableContainer
+      component={Paper}
+      sx={{
+        display: 'none',
+        [`@media (min-width:${desktopTableMinWidth}px)`]: {
+          display: 'block',
+        },
+      }}
+    >
       <Table size="small" aria-label={ariaLabel}>
         <TableHead>
           <TableRow>
@@ -47,7 +56,15 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, getRowId, rows }: Responsi
       </Table>
     </TableContainer>
 
-    <Box sx={{ display: { xs: 'grid', md: 'none' }, gap: 1.5 }}>
+    <Box
+      sx={{
+        display: 'grid',
+        gap: 1.5,
+        [`@media (min-width:${desktopTableMinWidth}px)`]: {
+          display: 'none',
+        },
+      }}
+    >
       {rows.map((row) => (
         <Card key={getRowId(row)}>
           <CardContent sx={{ display: 'grid', gap: 1 }}>
