@@ -5,7 +5,8 @@ const createAuroraTheme = (mode: 'light' | 'dark' = 'dark') =>
     palette: {
       mode,
       primary: {
-        main: '#818CF8',
+        // Indigo-400 for Dark Mode (vibrant) and Indigo-600 for Light Mode (contrastant)
+        main: mode === 'dark' ? '#818CF8' : '#4F46E5',
         contrastText: '#ffffff',
       },
       secondary: {
@@ -96,11 +97,33 @@ const createAuroraTheme = (mode: 'light' | 'dark' = 'dark') =>
       },
       MuiButton: {
         styleOverrides: {
-          root: {
+          root: ({ ownerState }) => ({
             textTransform: 'none',
-          }
-        }
-      }
+            borderRadius: '6px',
+            fontWeight: 500,
+
+            // Styles for Contained variant (Contained Button)
+            ...(ownerState.variant === 'contained' && ownerState.color === 'primary' && {
+              backgroundColor: mode === 'dark' ? '#6366F1' : '#4F46E5',
+              color: '#ffffff',
+              '&:hover': {
+                backgroundColor: mode === 'dark' ? '#4F46E5' : '#4338CA',
+              },
+            }),
+
+            // Styles for the Outlined variant (Outlined Button)
+            ...(ownerState.variant === 'outlined' && ownerState.color === 'primary' && {
+              borderColor: mode === 'dark' ? '#818CF8' : '#4F46E5',
+              color: mode === 'dark' ? '#818CF8' : '#4F46E5',
+              backgroundColor: 'transparent',
+              '&:hover': {
+                borderColor: mode === 'dark' ? '#818CF8' : '#4338CA',
+                backgroundColor: mode === 'dark' ? 'rgba(99, 102, 241, 0.15)' : 'rgba(79, 70, 229, 0.05)',
+              },
+            }),
+          }),
+        },
+      },
     }
   })
 
