@@ -1,6 +1,6 @@
 import { createTheme } from '@mui/material/styles'
 
-const createAuroraTheme = (mode: 'light' | 'dark' = 'dark') =>
+const createThemeConfig = (mode: 'light' | 'dark' = 'dark') =>
   createTheme({
     palette: {
       mode,
@@ -23,6 +23,25 @@ const createAuroraTheme = (mode: 'light' | 'dark' = 'dark') =>
       },
     },
     components: {
+      MuiCssBaseline: {
+        styleOverrides: (theme) => ({
+          a: { color: 'inherit', textDecoration: 'none' },
+          body: { backgroundColor: theme.palette.background.default },
+          '#root': { minHeight: '100vh', backgroundColor: theme.palette.background.default },
+          '.aurora-logo-box': {
+            width: 36,
+            height: 36,
+            backgroundColor: theme.palette.mode === 'dark' ? '#ffffff' : '#0b1220',
+            borderRadius: theme.shape.borderRadius ?? 6,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: theme.palette.mode === 'dark' ? '#0b1220' : '#ffffff',
+            fontWeight: 700,
+            fontSize: 14,
+          },
+        }),
+      },
       MuiAppBar: {
         styleOverrides: {
           root: {
@@ -111,7 +130,7 @@ const createAuroraTheme = (mode: 'light' | 'dark' = 'dark') =>
               },
             }),
 
-            // Styles for the Outlined variant (Outlined Button)
+            // Styles for Outlined variant (Outlined Button)
             ...(ownerState.variant === 'outlined' && ownerState.color === 'primary' && {
               borderColor: mode === 'dark' ? '#818CF8' : '#4F46E5',
               color: mode === 'dark' ? '#818CF8' : '#4F46E5',
@@ -127,4 +146,4 @@ const createAuroraTheme = (mode: 'light' | 'dark' = 'dark') =>
     }
   })
 
-export default createAuroraTheme
+export default createThemeConfig
