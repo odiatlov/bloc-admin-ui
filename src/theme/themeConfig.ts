@@ -114,6 +114,27 @@ const createThemeConfig = (mode: 'light' | 'dark' = 'dark') =>
           }
         }
       },
+      MuiSwitch: {
+        styleOverrides: {
+          switchBase: {
+            color: mode === 'dark' ? '#cbd5e1' : '#ffffff',
+            '&.Mui-checked': {
+              color: '#ffffff',
+              '& + .MuiSwitch-track': {
+                backgroundColor: mode === 'dark' ? '#6366F1' : '#4F46E5',
+                opacity: 1,
+              },
+            },
+          },
+          track: {
+            backgroundColor: mode === 'dark' ? 'rgba(203,213,225,0.32)' : 'rgba(11,18,32,0.38)',
+            opacity: 1,
+          },
+          thumb: {
+            boxShadow: mode === 'dark' ? '0 1px 3px rgba(0,0,0,0.5)' : '0 1px 3px rgba(11,18,32,0.28)',
+          },
+        },
+      },
       MuiButton: {
         styleOverrides: {
           root: ({ ownerState }) => ({

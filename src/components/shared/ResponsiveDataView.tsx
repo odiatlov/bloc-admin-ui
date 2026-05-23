@@ -26,14 +26,30 @@ type ResponsiveDataViewProps<T> = {
 }
 
 const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900, getRowId, rows }: ResponsiveDataViewProps<T>) => (
-  <>
-    <TableContainer
-      component={Paper}
-      sx={{
+  <Box
+    sx={{
+      containerType: 'inline-size',
+      '.ResponsiveDataView-table': {
         display: 'none',
-        [`@media (min-width:${desktopTableMinWidth}px)`]: {
+      },
+      '.ResponsiveDataView-cards': {
+        display: 'grid',
+      },
+      [`@container (min-width: ${desktopTableMinWidth}px)`]: {
+        '.ResponsiveDataView-table': {
           display: 'block',
         },
+        '.ResponsiveDataView-cards': {
+          display: 'none',
+        },
+      },
+    }}
+  >
+    <TableContainer
+      className="ResponsiveDataView-table"
+      component={Paper}
+      sx={{
+        overflowX: 'hidden',
       }}
     >
       <Table size="small" aria-label={ariaLabel}>
@@ -57,12 +73,9 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
     </TableContainer>
 
     <Box
+      className="ResponsiveDataView-cards"
       sx={{
-        display: 'grid',
         gap: 1.5,
-        [`@media (min-width:${desktopTableMinWidth}px)`]: {
-          display: 'none',
-        },
       }}
     >
       {rows.map((row) => (
@@ -80,7 +93,7 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
         </Card>
       ))}
     </Box>
-  </>
+  </Box>
 )
 
 export default ResponsiveDataView
