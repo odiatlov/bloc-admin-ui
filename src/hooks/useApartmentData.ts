@@ -36,10 +36,10 @@ import {
 import { RoleContext } from '../contexts/RoleContext'
 import { filterApartmentsForAccount, filterBlocksForAccount } from '../application/accessScope'
 import { calculateWaterBalance, generateMonthlyMaintenance } from '../utils/maintenanceEngine'
-import { formatCurrency, formatMonth, formatNumber, formatPercent } from '../utils/formatters'
+import { formatCurrency, formatFriendlyDateTime, formatMonth, formatNumber, formatPercent } from '../utils/formatters'
 import type { AuthRole, MockAccount } from '../types/apartment'
 
-export { formatCurrency, formatMonth, formatNumber, formatPercent }
+export { formatCurrency, formatFriendlyDateTime, formatMonth, formatNumber, formatPercent }
 
 export const getBlockLabel = (blockId: string) => blocks.find((block) => block.id === blockId)?.name ?? blockId
 

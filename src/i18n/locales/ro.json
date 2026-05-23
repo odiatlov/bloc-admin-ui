@@ -8,8 +8,10 @@
     "blockValue": "Bloc {{block}}",
     "cancel": "Anulează",
     "close": "Închide",
+    "at": "la",
     "notAvailable": "indisponibil",
-    "save": "Salvează"
+    "save": "Salvează",
+    "today": "Astăzi"
   },
   "layout": {
     "topbar": {
@@ -154,8 +156,12 @@
     "resident": {
       "title": "Panoul locatarului",
       "quickActions": "Acțiuni rapide",
+      "myApartments": "Apartamentele mele",
+      "adminContact": "{{admin}} · {{phone}}",
+      "primaryResidence": "reședință principală",
       "surfaceSummary": "{{usable}} mp utili · {{total}} mp total",
       "currentDue": "Suma curentă datorată",
+      "currentDueSubtitle": "Scadență: 31 mai 2026",
       "pay": "Plătește",
       "lastSubmittedIndex": "Ultimul index trimis",
       "indexValue": "Index: {{value}}",
@@ -206,6 +212,12 @@
   },
   "residents": {
     "apartmentLabel": "Apartament {{apartment}}, etaj {{floor}}",
+    "ownership": {
+      "owner": "Proprietar",
+      "tenant": "Chiriaș",
+      "co_owner": "Coproprietar",
+      "family_member": "Membru al familiei"
+    },
     "family": {
       "members": "Locatari",
       "residentCount": "{{count}} locatari"
@@ -462,7 +474,13 @@
       "title": "Previzualizare raport",
       "invoices": "Facturi",
       "revenue": "Venit",
-      "waterUsage": "Consum apă"
+      "waterUsage": "Consum apă",
+      "surfaceTotal": "Suprafață utilă",
+      "boilerTax": "Taxe centrale",
+      "units": {
+        "surface": "mp",
+        "water": "mc"
+      }
     }
   },
   "settings": {

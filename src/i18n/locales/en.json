@@ -8,8 +8,10 @@
     "blockValue": "Block {{block}}",
     "cancel": "Cancel",
     "close": "Close",
+    "at": "at",
     "notAvailable": "Not available",
-    "save": "Save"
+    "save": "Save",
+    "today": "Today"
   },
   "auth": {
     "logout": {
@@ -134,6 +136,7 @@
       "primaryResidence": "primary residence",
       "surfaceSummary": "{{usable}} sqm usable · {{total}} sqm total",
       "currentDue": "Current amount due",
+      "currentDueSubtitle": "Due date: May 31, 2026",
       "pay": "Pay",
       "lastSubmittedIndex": "Last submitted index",
       "indexValue": "Index: {{value}}",
@@ -472,7 +475,11 @@
       "waterUsage": "Water usage"
       ,
       "surfaceTotal": "Usable surface",
-      "boilerTax": "Boiler fees"
+      "boilerTax": "Boiler fees",
+      "units": {
+        "surface": "m²",
+        "water": "m³"
+      }
     }
   },
   "settings": {

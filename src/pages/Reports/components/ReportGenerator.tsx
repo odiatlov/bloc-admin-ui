@@ -15,74 +15,65 @@ import { formatCurrency, formatMonth, formatNumber, useReports } from '../../../
 const ReportGenerator: React.FC = () => {
   const { t } = useTranslation()
   const { block, blocks, month, months, preview, setBlock, setMonth } = useReports()
+  const metrics = [
+    { key: 'invoices', label: t('reports.preview.invoices'), value: preview.invoiceCount },
+    { key: 'revenue', label: t('reports.preview.revenue'), value: formatCurrency(preview.revenue) },
+    { key: 'waterUsage', label: t('reports.preview.waterUsage'), value: `${formatNumber(preview.waterUsage)} ${t('reports.preview.units.water')}` },
+    { key: 'surfaceTotal', label: t('reports.preview.surfaceTotal'), value: `${formatNumber(preview.surfaceTotal)} ${t('reports.preview.units.surface')}` },
+    { key: 'boilerTax', label: t('reports.preview.boilerTax'), value: formatCurrency(preview.boilerTax) },
+  ]
 
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
-      <Paper sx={{ p: 2, display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
-        <FormControl size="small" sx={{ minWidth: 160 }}>
-          <InputLabel>{t('reports.filters.month')}</InputLabel>
-          <Select label={t('reports.filters.month')} value={month} onChange={(event: SelectChangeEvent) => setMonth(event.target.value)}>
-            {months.map((item) => (
-              <MenuItem key={item} value={item}>
-                {formatMonth(item)}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl size="small" sx={{ minWidth: 160 }}>
-          <InputLabel>{t('residents.filters.block')}</InputLabel>
-          <Select label={t('residents.filters.block')} value={block} onChange={(event: SelectChangeEvent) => setBlock(event.target.value)}>
-            <MenuItem value="all">{t('common.all')}</MenuItem>
-            {blocks.map((item) => (
-              <MenuItem key={item.id} value={item.id}>
-                {t('common.blockValue', { block: item.name })}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <Button startIcon={<PreviewIcon />} variant="outlined">
-          {t('reports.actions.preview')}
-        </Button>
-        <Button startIcon={<FileDownloadIcon />} variant="contained">
-          {t('reports.actions.export')}
-        </Button>
+      <Paper sx={{ p: 2 }}>
+        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
+          <FormControl size="small" sx={{ minWidth: 160 }}>
+            <InputLabel>{t('reports.filters.month')}</InputLabel>
+            <Select label={t('reports.filters.month')} value={month} onChange={(event: SelectChangeEvent) => setMonth(event.target.value)}>
+              {months.map((item) => (
+                <MenuItem key={item} value={item}>
+                  {formatMonth(item)}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl size="small" sx={{ minWidth: 160 }}>
+            <InputLabel>{t('residents.filters.block')}</InputLabel>
+            <Select label={t('residents.filters.block')} value={block} onChange={(event: SelectChangeEvent) => setBlock(event.target.value)}>
+              <MenuItem value="all">{t('common.all')}</MenuItem>
+              {blocks.map((item) => (
+                <MenuItem key={item.id} value={item.id}>
+                  {t('common.blockValue', { block: item.name })}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
+            <Button startIcon={<PreviewIcon />} variant="outlined">
+              {t('reports.actions.preview')}
+            </Button>
+            <Button startIcon={<FileDownloadIcon />} variant="contained">
+              {t('reports.actions.export')}
+            </Button>
+          </Box>
+        </Box>
       </Paper>
 
       <Paper sx={{ p: 2 }}>
         <Typography variant="h6" gutterBottom>
           {t('reports.preview.title')}
         </Typography>
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(5, minmax(0, 1fr))' }, gap: 2 }}>
-          <Paper variant="outlined" sx={{ p: 2 }}>
-            <Typography variant="body2" color="text.secondary">
-              {t('reports.preview.invoices')}
-            </Typography>
-            <Typography variant="h5">{preview.invoiceCount}</Typography>
-          </Paper>
-          <Paper variant="outlined" sx={{ p: 2 }}>
-            <Typography variant="body2" color="text.secondary">
-              {t('reports.preview.revenue')}
-            </Typography>
-            <Typography variant="h5">{formatCurrency(preview.revenue)}</Typography>
-          </Paper>
-          <Paper variant="outlined" sx={{ p: 2 }}>
-            <Typography variant="body2" color="text.secondary">
-              {t('reports.preview.waterUsage')}
-            </Typography>
-            <Typography variant="h5">{formatNumber(preview.waterUsage)}</Typography>
-          </Paper>
-          <Paper variant="outlined" sx={{ p: 2 }}>
-            <Typography variant="body2" color="text.secondary">
-              {t('reports.preview.surfaceTotal')}
-            </Typography>
-            <Typography variant="h5">{formatNumber(preview.surfaceTotal)}</Typography>
-          </Paper>
-          <Paper variant="outlined" sx={{ p: 2 }}>
-            <Typography variant="body2" color="text.secondary">
-              {t('reports.preview.boilerTax')}
-            </Typography>
-            <Typography variant="h5">{formatCurrency(preview.boilerTax)}</Typography>
-          </Paper>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gridAutoRows: '1fr', gap: 2 }}>
+          {metrics.map((metric) => (
+            <Paper key={metric.key} variant="outlined" sx={{ p: 2, minHeight: 84, display: 'grid', alignContent: 'start', gap: 0.75 }}>
+              <Typography variant="body2" color="text.secondary">
+                {metric.label}
+              </Typography>
+              <Typography variant="h5" sx={{ overflowWrap: 'anywhere', lineHeight: 1.2 }}>
+                {metric.value}
+              </Typography>
+            </Paper>
+          ))}
         </Box>
       </Paper>
     </Box>
