@@ -7,7 +7,7 @@ import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
-import { formatApartment, useCensorReviews } from '../../../hooks/useApartmentData'
+import { formatApartment, formatFriendlyDateTime, useCensorReviews } from '../../../hooks/useApartmentData'
 
 type CensorMetricCardProps = {
   label: string
@@ -32,12 +32,13 @@ const CensorMetricCard: React.FC<CensorMetricCardProps> = ({ detail, label, valu
 const CensorDashboard: React.FC = () => {
   const { t } = useTranslation()
   const { anomalyReviews, invoiceReviews, pendingCount, reviewItems } = useCensorReviews()
+  const formatReviewDate = (value: string) => formatFriendlyDateTime(value, { atLabel: t('common.at'), todayLabel: t('common.today') })
 
   const columns: DataColumn<(typeof reviewItems)[number]>[] = [
     { key: 'id', label: t('censor.columns.reviewItem'), render: (review) => review.id },
     { key: 'type', label: t('censor.columns.type'), render: (review) => t(`censor.type.${review.targetType}`) },
     { key: 'state', label: t('censor.columns.reviewState'), render: (review) => <StatusChip status={review.state} label={t(`status.review.${review.state}`)} /> },
-    { key: 'requestedAt', label: t('censor.columns.requestedAt'), render: (review) => new Date(review.requestedAt).toLocaleString() },
+    { key: 'requestedAt', label: t('censor.columns.requestedAt'), render: (review) => formatReviewDate(review.requestedAt) },
   ]
 
   return (

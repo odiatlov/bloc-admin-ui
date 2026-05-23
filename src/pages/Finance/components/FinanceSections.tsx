@@ -20,7 +20,7 @@ import PaidIcon from '@mui/icons-material/Paid'
 import { useTranslation } from 'react-i18next'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
-import { formatCurrency, formatMonth, formatNumber, useFinance } from '../../../hooks/useApartmentData'
+import { formatCurrency, formatFriendlyDateTime, formatMonth, formatNumber, useFinance } from '../../../hooks/useApartmentData'
 import type { PaymentMethod } from '../../../mocks/apartmentData'
 
 const FinanceSections: React.FC = () => {
@@ -41,6 +41,7 @@ const FinanceSections: React.FC = () => {
   const [tab, setTab] = React.useState(0)
   const [dialogInvoiceId, setDialogInvoiceId] = React.useState<string | null>(null)
   const selectedInvoice = invoices.find((invoice) => invoice.id === dialogInvoiceId)
+  const formatGeneratedDate = (value: string) => formatFriendlyDateTime(value, { atLabel: t('common.at'), todayLabel: t('common.today') })
 
   const invoiceColumns: DataColumn<(typeof invoices)[number]>[] = [
     { key: 'id', label: t('finance.columns.invoice'), render: (invoice) => invoice.id },
@@ -181,7 +182,7 @@ const FinanceSections: React.FC = () => {
                 <Box>
                   <Typography variant="h6">{t('finance.maintenance.blockMonth', { block: run.blockId.replace('block-', '').toUpperCase(), month: formatMonth(run.month) })}</Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {t('finance.maintenance.generatedAt', { generatedAt: run.generatedAt })}
+                    {t('finance.maintenance.generatedAt', { generatedAt: formatGeneratedDate(run.generatedAt) })}
                   </Typography>
                 </Box>
                 <Chip color={run.status === 'published' ? 'success' : 'warning'} label={t(`finance.maintenance.status.${run.status}`)} />

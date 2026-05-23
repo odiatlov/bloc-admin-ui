@@ -17,7 +17,7 @@ import { formatCurrency, formatMonth, formatNumber, getBlockLabel, useResidentPo
 const ResidentDashboard: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { apartmentsByBlock, currentBalance, lastPayment, resident, residentReadings } = useResidentPortal()
+  const { apartmentsByBlock, currentBalance, resident, residentReadings } = useResidentPortal()
   const lastIndex = residentReadings.length ? residentReadings[0] : null
   const renderMeter = (meter: WaterReadingRow['meters']['cold']) =>
     meter ? t('consumption.columns.meterValue', { previous: formatNumber(meter.previousValue), current: formatNumber(meter.currentValue), usage: formatNumber(meter.usageValue) }) : t('common.notAvailable')
@@ -57,6 +57,9 @@ const ResidentDashboard: React.FC = () => {
             {t('dashboard.resident.currentDue')}
           </Typography>
           <Typography variant="h4">{formatCurrency(currentBalance)}</Typography>
+          <Typography variant="caption" color="text.secondary">
+            {t('dashboard.resident.currentDueSubtitle')}
+          </Typography>
         </Paper>
 
         <Paper sx={{ p: 2, height: '100%', display: 'grid', alignContent: 'start', gap: 1.25 }}>
@@ -65,7 +68,7 @@ const ResidentDashboard: React.FC = () => {
           </Typography>
             {lastIndex ? (
               <Box>
-                <Typography>{t('dashboard.resident.indexValue', { value: formatNumber(lastIndex.usageValue) })}</Typography>
+                <Typography variant="h5">{t('dashboard.resident.indexValue', { value: formatNumber(lastIndex.usageValue) })}</Typography>
                 <Typography variant="caption" color="text.secondary">
                   {formatMonth(lastIndex.month)} - {t('consumption.waterType.cold')}: {renderMeter(lastIndex.meters.cold)} - {t('consumption.waterType.hot')}: {renderMeter(lastIndex.meters.hot)}
                 </Typography>
@@ -79,11 +82,6 @@ const ResidentDashboard: React.FC = () => {
           <Typography variant="body2" color="text.secondary">
             {t('dashboard.resident.recentAnnouncements')}
           </Typography>
-            {lastPayment && (
-              <Typography variant="body2" color="text.secondary">
-                {t('dashboard.resident.lastPayment', { amount: formatCurrency(lastPayment.amount) })}
-              </Typography>
-            )}
             <List>
               {announcements.length ? (
                 announcements.map((item) => (
@@ -103,7 +101,7 @@ const ResidentDashboard: React.FC = () => {
         </Paper>
       </Box>
 
-      <Paper sx={{ p: 2 }}>
+      <Paper sx={{ p: 2, mt: 1 }}>
         <Typography variant="h6">{t('dashboard.resident.myApartments')}</Typography>
             <Box sx={{ display: 'grid', gap: 1.25, mt: 1.5 }}>
               {Object.entries(apartmentsByBlock).map(([blockId, apartments]) => {
@@ -112,7 +110,13 @@ const ResidentDashboard: React.FC = () => {
                   <Box key={blockId} sx={{ display: 'grid', gap: 1 }}>
                     <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
                       <Typography>{t('common.blockValue', { block: getBlockLabel(blockId) })}</Typography>
-                      {activeAdmin && <Chip size="small" label={t('dashboard.resident.adminContact', { admin: activeAdmin.name, phone: activeAdmin.phone })} />}
+                      {activeAdmin && (
+                        <Chip
+                          size="small"
+                          label={t('dashboard.resident.adminContact', { admin: activeAdmin.name, phone: activeAdmin.phone })}
+                          sx={{ bgcolor: 'rgba(148, 163, 184, 0.1)', color: 'text.secondary', opacity: 0.82 }}
+                        />
+                      )}
                     </Box>
                     <Box sx={{ display: 'grid', gap: 1, gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' } }}>
                       {apartments.map((apartment) => (
