@@ -51,24 +51,24 @@ const ResidentDashboard: React.FC = () => {
         </Paper>
       </Box>
 
-      <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' }, gridAutoRows: '1fr' }}>
-        <Paper sx={{ p: 2, height: '100%', display: 'grid', alignContent: 'start', gap: 1.25 }}>
+      <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' }, alignItems: 'start' }}>
+        <Paper sx={{ p: 2, display: 'grid', alignContent: 'start', gap: 0.75 }}>
           <Typography variant="body2" color="text.secondary">
             {t('dashboard.resident.currentDue')}
           </Typography>
-          <Typography variant="h4">{formatCurrency(currentBalance)}</Typography>
+          <Typography variant="h4" sx={{ lineHeight: 1.15 }}>{formatCurrency(currentBalance)}</Typography>
           <Typography variant="caption" color="text.secondary">
             {t('dashboard.resident.currentDueSubtitle')}
           </Typography>
         </Paper>
 
-        <Paper sx={{ p: 2, height: '100%', display: 'grid', alignContent: 'start', gap: 1.25 }}>
+        <Paper sx={{ p: 2, display: 'grid', alignContent: 'start', gap: 0.75 }}>
           <Typography variant="body2" color="text.secondary">
             {t('dashboard.resident.lastSubmittedIndex')}
           </Typography>
             {lastIndex ? (
-              <Box>
-                <Typography variant="h5">{t('dashboard.resident.indexValue', { value: formatNumber(lastIndex.usageValue) })}</Typography>
+              <Box sx={{ display: 'grid', gap: 0.5 }}>
+                <Typography variant="h5" sx={{ lineHeight: 1.2 }}>{t('dashboard.resident.indexValue', { value: formatNumber(lastIndex.usageValue) })}</Typography>
                 <Typography variant="caption" color="text.secondary">
                   {formatMonth(lastIndex.month)} - {t('consumption.waterType.cold')}: {renderMeter(lastIndex.meters.cold)} - {t('consumption.waterType.hot')}: {renderMeter(lastIndex.meters.hot)}
                 </Typography>
@@ -78,7 +78,7 @@ const ResidentDashboard: React.FC = () => {
             )}
         </Paper>
 
-        <Paper sx={{ p: 2, height: '100%' }}>
+        <Paper sx={{ p: 2 }}>
           <Typography variant="body2" color="text.secondary">
             {t('dashboard.resident.recentAnnouncements')}
           </Typography>

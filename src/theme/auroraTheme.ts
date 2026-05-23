@@ -5,14 +5,14 @@ const createAuroraTheme = (mode: 'light' | 'dark' = 'dark') =>
     palette: {
       mode,
       primary: {
-        main: '#8b5cf6',
+        main: '#818CF8',
         contrastText: '#ffffff',
       },
       secondary: {
         main: '#06b6d4',
         contrastText: '#ffffff',
       },
-      background: mode === 'dark' ? { default: '#0b1220', paper: '#0f1724' } : { default: '#f7fbff', paper: '#ffffff' },
+      background: mode === 'dark' ? { default: '#0b1220', paper: '#0f1724' } : { default: '#f0f2f5', paper: '#ffffff' },
       text: mode === 'dark' ? { primary: '#e6eef6', secondary: 'rgba(230,238,246,0.7)' } : { primary: '#0b1220', secondary: 'rgba(11,18,32,0.7)' }
     },
     typography: {
@@ -25,10 +25,10 @@ const createAuroraTheme = (mode: 'light' | 'dark' = 'dark') =>
       MuiAppBar: {
         styleOverrides: {
           root: {
-            backgroundColor: mode === 'dark' ? 'transparent' : '#fff',
+            backgroundColor: mode === 'dark' ? 'transparent' : 'rgba(255,255,255,0.74)',
             boxShadow: 'none',
-            backdropFilter: 'blur(6px)',
-            borderBottom: mode === 'dark' ? '1px solid rgba(255,255,255,0.04)' : '1px solid rgba(11,18,32,0.04)',
+            backdropFilter: 'blur(10px)',
+            borderBottom: mode === 'dark' ? '1px solid rgba(255,255,255,0.04)' : '1px solid rgba(11,18,32,0.08)',
             color: mode === 'dark' ? '#e6eef6' : '#0b1220'
           }
         }

@@ -3,6 +3,7 @@ import type { Theme } from '@mui/material/styles'
 const globalStyles = (theme: Theme) => ({
   a: { color: 'inherit', textDecoration: 'none' },
   body: { backgroundColor: theme.palette.background.default },
+  '#root': { minHeight: '100vh', backgroundColor: theme.palette.background.default },
   '.aurora-logo-box': {
     width: 36,
     height: 36,
