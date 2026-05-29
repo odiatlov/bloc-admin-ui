@@ -100,38 +100,12 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
         rows={visibleReadings}
       />
 
-      {mode !== 'resident' && (
+      {mode !== 'resident' && visibleReadings.length > 0 && (
         <Box sx={{ display: 'grid', gap: 1 }}>
           <Typography variant="h6">{t('consumption.sections.anomalies')}</Typography>
-          <ResponsiveDataView
-            ariaLabel={t('consumption.sections.anomalies')}
-            columns={summaryColumns}
-            emptyState={(
-              <EmptyState
-                actionLabel={dedicatedEmptyStateActionLabel}
-                headline={t('emptyState.headline', { information: t('emptyState.information.consumption') })}
-                helperText={t('emptyState.helper.dedicated', { information: t('emptyState.information.consumption') })}
-                {...dedicatedEmptyStateAction}
-              />
-            )}
-            getRowId={(summary) => `${summary.apartment.id}-${summary.month}`}
-            rows={summaries}
-          />
+          <ResponsiveDataView ariaLabel={t('consumption.sections.anomalies')} columns={summaryColumns} getRowId={(summary) => `${summary.apartment.id}-${summary.month}`} rows={summaries} />
           <Typography variant="h6">{t('consumption.sections.waterBalance')}</Typography>
-          <ResponsiveDataView
-            ariaLabel={t('consumption.sections.waterBalance')}
-            columns={waterBalanceColumns}
-            emptyState={(
-              <EmptyState
-                actionLabel={dedicatedEmptyStateActionLabel}
-                headline={t('emptyState.headline', { information: t('emptyState.information.consumption') })}
-                helperText={t('emptyState.helper.dedicated', { information: t('emptyState.information.consumption') })}
-                {...dedicatedEmptyStateAction}
-              />
-            )}
-            getRowId={(balance) => `${balance.block.id}-${balance.month}`}
-            rows={waterBalances}
-          />
+          <ResponsiveDataView ariaLabel={t('consumption.sections.waterBalance')} columns={waterBalanceColumns} getRowId={(balance) => `${balance.block.id}-${balance.month}`} rows={waterBalances} />
         </Box>
       )}
 

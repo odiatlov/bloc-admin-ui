@@ -41,10 +41,10 @@ const ResidentBills: React.FC = () => {
         columns={columns}
         emptyState={(
           <EmptyState
-            actionLabel={t('emptyState.action', { information: t('emptyState.information.invoices') })}
-            actionTo="/admin/settings"
+            actionLabel={t('consumption.actions.submitIndex')}
+            actionTo="/admin/consumption"
             headline={t('emptyState.headline', { information: t('emptyState.information.invoices') })}
-            helperText={t('emptyState.helper.settings', { information: t('emptyState.information.invoices') })}
+            helperText={t('emptyState.helper.residentIndexOnly')}
           />
         )}
         getRowId={(invoice) => invoice.id}

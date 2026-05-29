@@ -13,6 +13,7 @@ import FactCheckIcon from '@mui/icons-material/FactCheck'
 import RuleIcon from '@mui/icons-material/Rule'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import { useTranslation } from 'react-i18next'
+import EmptyState from '../../../components/shared/EmptyState'
 import InvoiceBreakdownDrawer from '../../../components/shared/InvoiceBreakdownDrawer'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
@@ -137,10 +138,70 @@ const CensorReviewWorkspace: React.FC = () => {
         </Tabs>
       </Paper>
 
-      {tab === 0 && <ResponsiveDataView ariaLabel={t('censor.tabs.invoices')} columns={invoiceColumns} getRowId={({ review }) => review.id} rows={invoiceReviews} />}
-      {tab === 1 && <ResponsiveDataView ariaLabel={t('censor.tabs.maintenance')} columns={maintenanceColumns} getRowId={({ review }) => review.id} rows={maintenanceReviews} />}
-      {tab === 2 && <ResponsiveDataView ariaLabel={t('censor.tabs.anomalies')} columns={anomalyColumns} getRowId={({ review }) => review.id} rows={anomalyReviews} />}
-      {tab === 3 && <ResponsiveDataView ariaLabel={t('censor.tabs.history')} columns={historyColumns} getRowId={(entry) => entry.id} rows={historyRows} />}
+      {tab === 0 && (
+        <ResponsiveDataView
+          ariaLabel={t('censor.tabs.invoices')}
+          columns={invoiceColumns}
+          emptyState={(
+            <EmptyState
+              actionLabel={t('censor.actions.viewAnomalies')}
+              actionTo="/admin/consumption"
+              headline={t('emptyState.headline', { information: t('emptyState.information.reviews') })}
+              helperText={t('emptyState.helper.reviews')}
+            />
+          )}
+          getRowId={({ review }) => review.id}
+          rows={invoiceReviews}
+        />
+      )}
+      {tab === 1 && (
+        <ResponsiveDataView
+          ariaLabel={t('censor.tabs.maintenance')}
+          columns={maintenanceColumns}
+          emptyState={(
+            <EmptyState
+              actionLabel={t('censor.actions.viewAnomalies')}
+              actionTo="/admin/consumption"
+              headline={t('emptyState.headline', { information: t('emptyState.information.reviews') })}
+              helperText={t('emptyState.helper.reviews')}
+            />
+          )}
+          getRowId={({ review }) => review.id}
+          rows={maintenanceReviews}
+        />
+      )}
+      {tab === 2 && (
+        <ResponsiveDataView
+          ariaLabel={t('censor.tabs.anomalies')}
+          columns={anomalyColumns}
+          emptyState={(
+            <EmptyState
+              actionLabel={t('censor.actions.openQueue')}
+              actionTo="/admin/finance"
+              headline={t('emptyState.headline', { information: t('emptyState.information.reviews') })}
+              helperText={t('emptyState.helper.reviews')}
+            />
+          )}
+          getRowId={({ review }) => review.id}
+          rows={anomalyReviews}
+        />
+      )}
+      {tab === 3 && (
+        <ResponsiveDataView
+          ariaLabel={t('censor.tabs.history')}
+          columns={historyColumns}
+          emptyState={(
+            <EmptyState
+              actionLabel={t('censor.actions.openQueue')}
+              actionTo="/admin/finance"
+              headline={t('emptyState.headline', { information: t('emptyState.information.reviews') })}
+              helperText={t('emptyState.helper.reviews')}
+            />
+          )}
+          getRowId={(entry) => entry.id}
+          rows={historyRows}
+        />
+      )}
 
       <InvoiceBreakdownDrawer invoice={selectedInvoice} onClose={() => setInvoiceId(null)} formatCurrency={formatCurrency} />
 

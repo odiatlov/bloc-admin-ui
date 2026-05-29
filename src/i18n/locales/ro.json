@@ -19,7 +19,9 @@
     "helper": {
       "settings": "Mergeți la Setări pentru a adăuga {{information}}, iar acestea vor apărea aici automat.",
       "dedicated": "Folosiți fluxul dedicat pentru a adăuga {{information}} și pentru a menține această vizualizare actualizată.",
-      "finance": "Adăugați {{information}} din fluxul financiar, iar acestea vor apărea aici automat."
+      "finance": "Adăugați {{information}} din fluxul financiar, iar acestea vor apărea aici automat.",
+      "residentIndexOnly": "Facturile sunt generate de administrație. Puteți trimite un index de apă atunci când este necesar.",
+      "reviews": "Elementele de revizie vor apărea aici după ce administrația trimite înregistrări pentru validare."
     },
     "information": {
       "blocks": "blocuri",
@@ -28,7 +30,8 @@
       "consumption": "citiri de consum",
       "waterIndex": "indexuri de apă",
       "payments": "plăți",
-      "cashEntries": "intrări numerar"
+      "cashEntries": "intrări numerar",
+      "reviews": "revizii"
     }
   },
   "layout": {

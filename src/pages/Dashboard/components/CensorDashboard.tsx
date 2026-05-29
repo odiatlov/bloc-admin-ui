@@ -5,6 +5,7 @@ import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import EmptyState from '../../../components/shared/EmptyState'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
 import { formatApartment, formatFriendlyDateTime, useCensorReviews } from '../../../hooks/useApartmentData'
@@ -80,7 +81,20 @@ const CensorDashboard: React.FC = () => {
         />
       </Box>
 
-      <ResponsiveDataView ariaLabel={t('censor.tabs.history')} columns={columns} getRowId={(review) => review.id} rows={reviewItems} />
+      <ResponsiveDataView
+        ariaLabel={t('censor.tabs.history')}
+        columns={columns}
+        emptyState={(
+          <EmptyState
+            actionLabel={t('censor.actions.openQueue')}
+            actionTo="/admin/finance"
+            headline={t('emptyState.headline', { information: t('emptyState.information.reviews') })}
+            helperText={t('emptyState.helper.reviews')}
+          />
+        )}
+        getRowId={(review) => review.id}
+        rows={reviewItems}
+      />
     </Box>
   )
 }

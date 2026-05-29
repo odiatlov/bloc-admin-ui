@@ -438,9 +438,10 @@ export const useFinance = () => {
     .reduce((sum, payment) => sum + payment.amount, 0)
   const scopedBlocks = filterBlocksForAccount(blocks, toScope(account, role), buildingAdminAssignments, residentApartments, apartments)
   const maintenanceRuns = scopedBlocks.map((block) => getMaintenanceRun(block.id, reportMonths[0]))
+  const isEmptyDataAccount = account.dataMode === 'mock-empty-ui' || account.dataMode === 'backend-ready-empty' || account.dataMode === 'mock-configured-block'
 
   return {
-    cashAwaitingVerification: cashEntries.filter((entry) => entry.status === 'unverified').length,
+    cashAwaitingVerification: (isEmptyDataAccount ? enrichedCashEntries : cashEntries).filter((entry) => entry.status === 'unverified').length,
     cashEntries: enrichedCashEntries,
     invoices: enrichedInvoices,
     monthlyRevenue,
@@ -543,6 +544,8 @@ export const useReports = () => {
 export const useCensorReviews = () => {
   const { account, role } = React.useContext(RoleContext)
   const [reviewItems, setReviewItems] = React.useState<CensorReview[]>(initialCensorReviews)
+  const isEmptyDataCensor = role === 'Censor' && (account.dataMode === 'mock-empty-ui' || account.dataMode === 'backend-ready-empty')
+  const scopedReviewItems: CensorReview[] = isEmptyDataCensor ? [] : reviewItems
   const scopedApartments = React.useMemo(() => filterApartmentsForAccount(apartments, toScope(account, role), buildingAdminAssignments, residentApartments), [account, role])
   const scopedBlocks = React.useMemo(() => filterBlocksForAccount(blocks, toScope(account, role), buildingAdminAssignments, residentApartments, apartments), [account, role])
   const scopedApartmentIds = React.useMemo(() => new Set(scopedApartments.map((apartment) => apartment.id)), [scopedApartments])
@@ -585,17 +588,17 @@ export const useCensorReviews = () => {
     )
   }
 
-  const invoiceReviews = reviewItems
+  const invoiceReviews = scopedReviewItems
     .filter((review) => review.targetType === 'invoice')
     .map((review) => ({ review, invoice: enrichedInvoices.find((invoice) => invoice.id === review.targetId) }))
     .filter((item): item is { review: CensorReview; invoice: (typeof enrichedInvoices)[number] } => Boolean(item.invoice))
 
-  const maintenanceReviews = reviewItems
+  const maintenanceReviews = scopedReviewItems
     .filter((review) => review.targetType === 'maintenance')
     .map((review) => ({ review, run: maintenanceRuns.find((run) => run.id === review.targetId) }))
     .filter((item): item is { review: CensorReview; run: (typeof maintenanceRuns)[number] } => Boolean(item.run))
 
-  const anomalyReviews = reviewItems
+  const anomalyReviews = scopedReviewItems
     .filter((review) => review.targetType === 'anomaly')
     .map((review) => ({ review, anomaly: anomalySummaries.find((summary) => summary.id === review.targetId) }))
     .filter((item): item is { review: CensorReview; anomaly: (typeof anomalySummaries)[number] } => Boolean(item.anomaly))
@@ -604,9 +607,9 @@ export const useCensorReviews = () => {
     anomalyReviews,
     invoiceReviews,
     maintenanceReviews,
-    pendingCount: reviewItems.filter((review) => review.state === 'pending').length,
-    rejectedCount: reviewItems.filter((review) => review.state === 'rejected' || review.state === 'needs_changes').length,
-    reviewItems,
+    pendingCount: scopedReviewItems.filter((review) => review.state === 'pending').length,
+    rejectedCount: scopedReviewItems.filter((review) => review.state === 'rejected' || review.state === 'needs_changes').length,
+    reviewItems: scopedReviewItems,
     setReviewState,
   }
 }
