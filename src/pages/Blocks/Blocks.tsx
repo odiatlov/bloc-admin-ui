@@ -6,6 +6,7 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import EmptyState from '../../components/shared/EmptyState'
 import PageHeader from '../../components/shared/PageHeader'
 import ResponsiveDataView, { type DataColumn } from '../../components/shared/ResponsiveDataView'
 import { formatCurrency, useBlocksOverview } from '../../hooks/useApartmentData'
@@ -60,6 +61,14 @@ const Blocks: React.FC = () => {
           ariaLabel={t('pages.blocks.title')}
           columns={columns}
           desktopTableMinWidth={1200}
+          emptyState={(
+            <EmptyState
+              actionLabel={t('emptyState.action', { information: t('emptyState.information.blocks') })}
+              actionTo="/admin/settings"
+              headline={t('emptyState.headline', { information: t('emptyState.information.blocks') })}
+              helperText={t('emptyState.helper.settings', { information: t('emptyState.information.blocks') })}
+            />
+          )}
           getRowId={(overview) => overview.block.id}
           rows={blockOverviews}
         />

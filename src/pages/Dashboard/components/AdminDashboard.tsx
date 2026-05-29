@@ -14,8 +14,9 @@ import TaskAltIcon from '@mui/icons-material/TaskAlt'
 import { useNavigate } from 'react-router-dom'
 import ActivityFeed from './AdminActivityFeed'
 import AlertsPanel from './AdminAlertsPanel'
+import { RoleContext } from '../../../contexts/RoleContext'
 import { apartments, blocks, residents } from '../../../mocks/apartmentData'
-import { formatCurrency, useFinance } from '../../../hooks/useApartmentData'
+import { formatCurrency, useBlocksOverview, useFinance } from '../../../hooks/useApartmentData'
 
 type KpiCardProps = {
   label: string
@@ -69,7 +70,16 @@ const PropertyStat: React.FC<PropertyStatProps> = ({ label, value }) => (
 const AdminDashboard: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const { account } = React.useContext(RoleContext)
   const { cashAwaitingVerification, monthlyRevenue, unpaidInvoices } = useFinance()
+  const { blockOverviews } = useBlocksOverview()
+  const usesScopedDashboardStats = Boolean(account.dataMode && account.dataMode !== 'mock-populated')
+  const populatedBlocks = blocks.filter((block) => block.id !== 'block-new-setup')
+  const populatedApartments = apartments.filter((apartment) => apartment.blockId !== 'block-new-setup')
+  const populatedResidents = residents.filter((resident) => resident.id !== 'R-NEW-BLOCK')
+  const blockCount = usesScopedDashboardStats ? blockOverviews.length : populatedBlocks.length
+  const apartmentCount = usesScopedDashboardStats ? blockOverviews.reduce((sum, overview) => sum + overview.apartmentCount, 0) : populatedApartments.length
+  const residentCount = usesScopedDashboardStats ? blockOverviews.reduce((sum, overview) => sum + overview.residentCount, 0) : populatedResidents.length
 
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
@@ -117,9 +127,9 @@ const AdminDashboard: React.FC = () => {
         />
         <KpiCard label={t('dashboard.admin.overview.propertyStats')}>
           <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 1 }}>
-            <PropertyStat label={t('dashboard.admin.overview.blocks')} value={blocks.length} />
-            <PropertyStat label={t('dashboard.admin.overview.apartments')} value={apartments.length} />
-            <PropertyStat label={t('dashboard.admin.overview.residents')} value={residents.length} />
+            <PropertyStat label={t('dashboard.admin.overview.blocks')} value={blockCount} />
+            <PropertyStat label={t('dashboard.admin.overview.apartments')} value={apartmentCount} />
+            <PropertyStat label={t('dashboard.admin.overview.residents')} value={residentCount} />
           </Box>
         </KpiCard>
       </Box>

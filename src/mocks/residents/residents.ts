@@ -7,6 +7,7 @@ export const residents: Resident[] = [
   { id: 'R-1004', name: 'Maria Ionescu', status: 'active', email: 'maria.ionescu@example.com', phone: '0740 100 004' },
   { id: 'R-1005', name: 'Elena Marinescu', status: 'active', email: 'elena.marinescu@example.com', phone: '0740 100 005' },
   { id: 'R-1006', name: 'Victor Stan', status: 'inactive', email: 'victor.stan@example.com', phone: '0740 100 006' },
+  { id: 'R-NEW-BLOCK', name: 'Resident Censor New Block', status: 'active', email: 'resident.censor.new.block@example.com', phone: '0740 000 010' },
 ]
 
 export const residentApartments: ResidentApartment[] = [
@@ -17,4 +18,5 @@ export const residentApartments: ResidentApartment[] = [
   { id: 'RA-1004-A18', residentId: 'R-1004', apartmentId: 'apt-a-18', ownershipType: 'tenant', ownershipStartDate: '2025-09-01', ownershipEndDate: '2026-08-31', isPrimaryResidence: true },
   { id: 'RA-1005-B41', residentId: 'R-1005', apartmentId: 'apt-b-41', ownershipType: 'owner', ownershipStartDate: '2017-11-20', isPrimaryResidence: true },
   { id: 'RA-1006-C72', residentId: 'R-1006', apartmentId: 'apt-c-72', ownershipType: 'owner', ownershipStartDate: '2018-05-14', isPrimaryResidence: false },
+  { id: 'RA-NEW-BLOCK-1', residentId: 'R-NEW-BLOCK', apartmentId: 'apt-new-setup-1', ownershipType: 'owner', ownershipStartDate: '2026-05-01', isPrimaryResidence: true },
 ]

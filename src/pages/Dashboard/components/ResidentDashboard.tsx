@@ -17,7 +17,7 @@ import { formatCurrency, formatMonth, formatNumber, getBlockLabel, useResidentPo
 const ResidentDashboard: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { apartmentsByBlock, currentBalance, resident, residentReadings } = useResidentPortal()
+  const { apartmentsByBlock, currentBalance, resident, residentInvoices, residentReadings } = useResidentPortal()
   const lastIndex = residentReadings.length ? residentReadings[0] : null
   const renderMeter = (meter: WaterReadingRow['meters']['cold']) =>
     meter ? t('consumption.columns.meterValue', { previous: formatNumber(meter.previousValue), current: formatNumber(meter.currentValue), usage: formatNumber(meter.usageValue) }) : t('common.notAvailable')
@@ -42,9 +42,11 @@ const ResidentDashboard: React.FC = () => {
           {t('dashboard.resident.quickActions')}
         </Typography>
         <Paper sx={{ p: 1.5, width: '100%', boxSizing: 'border-box', display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
-          <Button startIcon={<PaymentIcon />} variant="contained" onClick={() => navigate('/admin/finance')}>
-            {t('dashboard.resident.pay')}
-          </Button>
+          {residentInvoices.length > 0 && (
+            <Button startIcon={<PaymentIcon />} variant="contained" onClick={() => navigate('/admin/finance')}>
+              {t('dashboard.resident.pay')}
+            </Button>
+          )}
           <Button startIcon={<OpacityIcon />} variant="outlined" onClick={() => navigate('/admin/consumption')}>
             {t('consumption.actions.submitIndex')}
           </Button>

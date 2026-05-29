@@ -112,6 +112,7 @@ export type MockAccount = {
   defaultRole: AuthRole
   residentId?: string
   adminId?: string
+  dataMode?: 'mock-populated' | 'mock-empty-ui' | 'backend-ready-empty' | 'mock-configured-block'
   supportTeam?: string
   token: string
 }

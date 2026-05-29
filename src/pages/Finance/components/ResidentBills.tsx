@@ -2,6 +2,7 @@ import React from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import { useTranslation } from 'react-i18next'
+import EmptyState from '../../../components/shared/EmptyState'
 import InvoiceBreakdownDrawer from '../../../components/shared/InvoiceBreakdownDrawer'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
@@ -35,7 +36,20 @@ const ResidentBills: React.FC = () => {
 
   return (
     <>
-      <ResponsiveDataView ariaLabel={t('sidebar.myBills')} columns={columns} getRowId={(invoice) => invoice.id} rows={residentInvoices} />
+      <ResponsiveDataView
+        ariaLabel={t('sidebar.myBills')}
+        columns={columns}
+        emptyState={(
+          <EmptyState
+            actionLabel={t('consumption.actions.submitIndex')}
+            actionTo="/admin/consumption"
+            headline={t('emptyState.headline', { information: t('emptyState.information.invoices') })}
+            helperText={t('emptyState.helper.residentIndexOnly')}
+          />
+        )}
+        getRowId={(invoice) => invoice.id}
+        rows={residentInvoices}
+      />
       <InvoiceBreakdownDrawer invoice={selectedInvoice ?? null} onClose={() => setInvoiceId(null)} formatCurrency={formatCurrency} />
     </>
   )

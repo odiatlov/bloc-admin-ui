@@ -13,6 +13,7 @@ import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
+import EmptyState from '../../../components/shared/EmptyState'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
 import { formatApartment, formatMonth, formatNumber, useConsumption, useResidentPortal, type WaterReadingRow } from '../../../hooks/useApartmentData'
@@ -29,6 +30,10 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
   const [selectedApartmentId, setSelectedApartmentId] = React.useState(apartments[0]?.id ?? '')
   const visibleReadings = mode === 'resident' ? residentReadings : readings
   const canEditReadings = mode !== 'censor'
+  const dedicatedEmptyStateAction = canEditReadings ? { onAction: () => setSubmitOpen(true) } : { actionTo: '/admin/finance' }
+  const dedicatedEmptyStateActionLabel = canEditReadings
+    ? mode === 'resident' ? t('consumption.actions.submitIndex') : t('consumption.actions.addReading')
+    : t('censor.actions.openQueue')
   const renderMeter = (meter: WaterReadingRow['meters']['cold']) =>
     meter ? t('consumption.columns.meterValue', { previous: formatNumber(meter.previousValue), current: formatNumber(meter.currentValue), usage: formatNumber(meter.usageValue) }) : t('common.notAvailable')
 
@@ -80,9 +85,22 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
         )}
       </Paper>
 
-      <ResponsiveDataView ariaLabel={t('consumption.sections.readings')} columns={readingColumns} getRowId={(reading) => reading.id} rows={visibleReadings} />
+      <ResponsiveDataView
+        ariaLabel={t('consumption.sections.readings')}
+        columns={readingColumns}
+        emptyState={(
+          <EmptyState
+            actionLabel={dedicatedEmptyStateActionLabel}
+            headline={t('emptyState.headline', { information: t(mode === 'resident' ? 'emptyState.information.waterIndex' : 'emptyState.information.consumption') })}
+            helperText={t('emptyState.helper.dedicated', { information: t(mode === 'resident' ? 'emptyState.information.waterIndex' : 'emptyState.information.consumption') })}
+            {...dedicatedEmptyStateAction}
+          />
+        )}
+        getRowId={(reading) => reading.id}
+        rows={visibleReadings}
+      />
 
-      {mode !== 'resident' && (
+      {mode !== 'resident' && visibleReadings.length > 0 && (
         <Box sx={{ display: 'grid', gap: 1 }}>
           <Typography variant="h6">{t('consumption.sections.anomalies')}</Typography>
           <ResponsiveDataView ariaLabel={t('consumption.sections.anomalies')} columns={summaryColumns} getRowId={(summary) => `${summary.apartment.id}-${summary.month}`} rows={summaries} />
