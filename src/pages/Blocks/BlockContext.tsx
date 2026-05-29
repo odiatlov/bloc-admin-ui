@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import EmptyState from '../../components/shared/EmptyState'
 import PageHeader from '../../components/shared/PageHeader'
 import ResponsiveDataView, { type DataColumn } from '../../components/shared/ResponsiveDataView'
 import { translateHeatingType } from '../../domain/displayLabels'
@@ -96,20 +97,85 @@ const BlockContext: React.FC = () => {
         </Box>
 
         {(section === 'overview' || section === 'apartments' || section === 'consumption') && (
-          <ResponsiveDataView ariaLabel={t('sidebar.apartments')} columns={apartmentColumns} getRowId={(apartment) => apartment.id} rows={blockApartments} />
+          <ResponsiveDataView
+            ariaLabel={t('sidebar.apartments')}
+            columns={apartmentColumns}
+            emptyState={(
+              <EmptyState
+                actionLabel={t('emptyState.action', { information: t('emptyState.information.residents') })}
+                actionTo="/admin/settings"
+                headline={t('emptyState.headline', { information: t('emptyState.information.residents') })}
+                helperText={t('emptyState.helper.settings', { information: t('emptyState.information.residents') })}
+              />
+            )}
+            getRowId={(apartment) => apartment.id}
+            rows={blockApartments}
+          />
         )}
 
         {section === 'staircases' && (
-          <ResponsiveDataView ariaLabel={t('sidebar.staircases')} columns={staircaseColumns} getRowId={(row) => row.staircase.id} rows={staircaseTotals} />
+          <ResponsiveDataView
+            ariaLabel={t('sidebar.staircases')}
+            columns={staircaseColumns}
+            emptyState={(
+              <EmptyState
+                actionLabel={t('emptyState.action', { information: t('emptyState.information.blocks') })}
+                actionTo="/admin/settings"
+                headline={t('emptyState.headline', { information: t('emptyState.information.blocks') })}
+                helperText={t('emptyState.helper.settings', { information: t('emptyState.information.blocks') })}
+              />
+            )}
+            getRowId={(row) => row.staircase.id}
+            rows={staircaseTotals}
+          />
         )}
 
         {section === 'finance' && (
           <Box sx={{ display: 'grid', gap: 2 }}>
             {block.hasStaircases && (
-              <ResponsiveDataView ariaLabel={t('blocks.monthlyStaircasePayments')} columns={staircaseColumns} getRowId={(row) => row.staircase.id} rows={staircaseTotals} />
+              <ResponsiveDataView
+                ariaLabel={t('blocks.monthlyStaircasePayments')}
+                columns={staircaseColumns}
+                emptyState={(
+                  <EmptyState
+                    actionLabel={t('emptyState.action', { information: t('emptyState.information.blocks') })}
+                    actionTo="/admin/settings"
+                    headline={t('emptyState.headline', { information: t('emptyState.information.blocks') })}
+                    helperText={t('emptyState.helper.settings', { information: t('emptyState.information.blocks') })}
+                  />
+                )}
+                getRowId={(row) => row.staircase.id}
+                rows={staircaseTotals}
+              />
             )}
-            <ResponsiveDataView ariaLabel={t('finance.tabs.invoices')} columns={invoiceColumns} getRowId={(invoice) => invoice.id} rows={blockInvoices} />
-            <ResponsiveDataView ariaLabel={t('finance.tabs.payments')} columns={paymentColumns} getRowId={(payment) => payment.id} rows={blockPayments} />
+            <ResponsiveDataView
+              ariaLabel={t('finance.tabs.invoices')}
+              columns={invoiceColumns}
+              emptyState={(
+                <EmptyState
+                  actionLabel={t('emptyState.action', { information: t('emptyState.information.invoices') })}
+                  actionTo="/admin/settings"
+                  headline={t('emptyState.headline', { information: t('emptyState.information.invoices') })}
+                  helperText={t('emptyState.helper.settings', { information: t('emptyState.information.invoices') })}
+                />
+              )}
+              getRowId={(invoice) => invoice.id}
+              rows={blockInvoices}
+            />
+            <ResponsiveDataView
+              ariaLabel={t('finance.tabs.payments')}
+              columns={paymentColumns}
+              emptyState={(
+                <EmptyState
+                  actionLabel={t('emptyState.action', { information: t('emptyState.information.payments') })}
+                  actionTo="/admin/finance"
+                  headline={t('emptyState.headline', { information: t('emptyState.information.payments') })}
+                  helperText={t('emptyState.helper.finance', { information: t('emptyState.information.payments') })}
+                />
+              )}
+              getRowId={(payment) => payment.id}
+              rows={blockPayments}
+            />
           </Box>
         )}
       </Box>

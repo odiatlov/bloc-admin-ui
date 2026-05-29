@@ -15,6 +15,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 import PaymentIcon from '@mui/icons-material/Payment'
 import { useTranslation } from 'react-i18next'
+import EmptyState from '../../../components/shared/EmptyState'
 import InvoiceBreakdownDrawer from '../../../components/shared/InvoiceBreakdownDrawer'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
@@ -39,6 +40,7 @@ const ResidentsOverview: React.FC = () => {
   const [detailTab, setDetailTab] = React.useState(0)
   const [selectedInvoiceId, setSelectedInvoiceId] = React.useState<string | null>(null)
   const selectedInvoice = selectedInvoices.find((invoice) => invoice.id === selectedInvoiceId) ?? null
+  const apartmentGroups = Object.entries(groupedApartments)
 
   const invoiceColumns: DataColumn<(typeof selectedInvoices)[number]>[] = [
     { key: 'id', label: t('finance.columns.invoice'), render: (invoice) => invoice.id },
@@ -103,7 +105,14 @@ const ResidentsOverview: React.FC = () => {
       </Paper>
 
       <Box sx={{ display: 'grid', gap: 2 }}>
-        {Object.entries(groupedApartments).map(([block, group]) => (
+        {apartmentGroups.length === 0 ? (
+          <EmptyState
+            actionLabel={t('emptyState.action', { information: t('emptyState.information.residents') })}
+            actionTo="/admin/settings"
+            headline={t('emptyState.headline', { information: t('emptyState.information.residents') })}
+            helperText={t('emptyState.helper.settings', { information: t('emptyState.information.residents') })}
+          />
+        ) : apartmentGroups.map(([block, group]) => (
           <Paper key={block} sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>
               {t('common.blockValue', { block: getBlockLabel(block) })}
@@ -171,9 +180,54 @@ const ResidentsOverview: React.FC = () => {
               <Tab label={t('residents.detail.payments')} />
               <Tab label={t('residents.detail.consumption')} />
             </Tabs>
-            {detailTab === 0 && <ResponsiveDataView ariaLabel={t('residents.detail.invoices')} columns={invoiceColumns} getRowId={(invoice) => invoice.id} rows={selectedInvoices} />}
-            {detailTab === 1 && <ResponsiveDataView ariaLabel={t('residents.detail.payments')} columns={paymentColumns} getRowId={(payment) => payment.id} rows={selectedPayments} />}
-            {detailTab === 2 && <ResponsiveDataView ariaLabel={t('residents.detail.consumption')} columns={readingColumns} getRowId={(reading) => reading.id} rows={selectedReadings} />}
+            {detailTab === 0 && (
+              <ResponsiveDataView
+                ariaLabel={t('residents.detail.invoices')}
+                columns={invoiceColumns}
+                emptyState={(
+                  <EmptyState
+                    actionLabel={t('emptyState.action', { information: t('emptyState.information.invoices') })}
+                    actionTo="/admin/settings"
+                    headline={t('emptyState.headline', { information: t('emptyState.information.invoices') })}
+                    helperText={t('emptyState.helper.settings', { information: t('emptyState.information.invoices') })}
+                  />
+                )}
+                getRowId={(invoice) => invoice.id}
+                rows={selectedInvoices}
+              />
+            )}
+            {detailTab === 1 && (
+              <ResponsiveDataView
+                ariaLabel={t('residents.detail.payments')}
+                columns={paymentColumns}
+                emptyState={(
+                  <EmptyState
+                    actionLabel={t('emptyState.action', { information: t('emptyState.information.payments') })}
+                    actionTo="/admin/finance"
+                    headline={t('emptyState.headline', { information: t('emptyState.information.payments') })}
+                    helperText={t('emptyState.helper.finance', { information: t('emptyState.information.payments') })}
+                  />
+                )}
+                getRowId={(payment) => payment.id}
+                rows={selectedPayments}
+              />
+            )}
+            {detailTab === 2 && (
+              <ResponsiveDataView
+                ariaLabel={t('residents.detail.consumption')}
+                columns={readingColumns}
+                emptyState={(
+                  <EmptyState
+                    actionLabel={t('consumption.actions.addReading')}
+                    actionTo="/admin/consumption"
+                    headline={t('emptyState.headline', { information: t('emptyState.information.consumption') })}
+                    helperText={t('emptyState.helper.dedicated', { information: t('emptyState.information.consumption') })}
+                  />
+                )}
+                getRowId={(reading) => reading.id}
+                rows={selectedReadings}
+              />
+            )}
           </Box>
         )}
       </Drawer>

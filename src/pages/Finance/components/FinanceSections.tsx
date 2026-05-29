@@ -18,6 +18,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import LocalAtmIcon from '@mui/icons-material/LocalAtm'
 import PaidIcon from '@mui/icons-material/Paid'
 import { useTranslation } from 'react-i18next'
+import EmptyState from '../../../components/shared/EmptyState'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
 import { formatCurrency, formatFriendlyDateTime, formatMonth, formatNumber, useFinance } from '../../../hooks/useApartmentData'
@@ -148,7 +149,20 @@ const FinanceSections: React.FC = () => {
           <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
             <Button variant="outlined">{t('finance.actions.bulkActions')}</Button>
           </Box>
-          <ResponsiveDataView ariaLabel={t('finance.tabs.invoices')} columns={invoiceColumns} getRowId={(invoice) => invoice.id} rows={invoices} />
+          <ResponsiveDataView
+            ariaLabel={t('finance.tabs.invoices')}
+            columns={invoiceColumns}
+            emptyState={(
+              <EmptyState
+                actionLabel={t('emptyState.action', { information: t('emptyState.information.invoices') })}
+                actionTo="/admin/settings"
+                headline={t('emptyState.headline', { information: t('emptyState.information.invoices') })}
+                helperText={t('emptyState.helper.settings', { information: t('emptyState.information.invoices') })}
+              />
+            )}
+            getRowId={(invoice) => invoice.id}
+            rows={invoices}
+          />
         </Box>
       )}
 
@@ -166,17 +180,50 @@ const FinanceSections: React.FC = () => {
               <MenuItem value="bank">{t('finance.method.bank')}</MenuItem>
             </Select>
           </FormControl>
-          <ResponsiveDataView ariaLabel={t('finance.tabs.payments')} columns={paymentColumns} getRowId={(payment) => payment.id} rows={payments} />
+          <ResponsiveDataView
+            ariaLabel={t('finance.tabs.payments')}
+            columns={paymentColumns}
+            emptyState={(
+              <EmptyState
+                actionLabel={t('emptyState.action', { information: t('emptyState.information.payments') })}
+                actionTo="/admin/finance"
+                headline={t('emptyState.headline', { information: t('emptyState.information.payments') })}
+                helperText={t('emptyState.helper.finance', { information: t('emptyState.information.payments') })}
+              />
+            )}
+            getRowId={(payment) => payment.id}
+            rows={payments}
+          />
         </Box>
       )}
 
       {tab === 2 && (
-        <ResponsiveDataView ariaLabel={t('finance.tabs.cashRegister')} columns={cashColumns} getRowId={(entry) => entry.id} rows={cashEntries} />
+        <ResponsiveDataView
+          ariaLabel={t('finance.tabs.cashRegister')}
+          columns={cashColumns}
+          emptyState={(
+            <EmptyState
+              actionLabel={t('finance.actions.registerCash')}
+              actionTo="/admin/finance"
+              headline={t('emptyState.headline', { information: t('emptyState.information.cashEntries') })}
+              helperText={t('emptyState.helper.finance', { information: t('emptyState.information.cashEntries') })}
+            />
+          )}
+          getRowId={(entry) => entry.id}
+          rows={cashEntries}
+        />
       )}
 
       {tab === 3 && (
         <Box sx={{ display: 'grid', gap: 2 }}>
-          {maintenanceRuns.map((run) => (
+          {maintenanceRuns.length === 0 ? (
+            <EmptyState
+              actionLabel={t('emptyState.action', { information: t('emptyState.information.invoices') })}
+              actionTo="/admin/settings"
+              headline={t('emptyState.headline', { information: t('emptyState.information.invoices') })}
+              helperText={t('emptyState.helper.settings', { information: t('emptyState.information.invoices') })}
+            />
+          ) : maintenanceRuns.map((run) => (
             <Paper key={run.id} sx={{ p: 2, display: 'grid', gap: 1.5 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, flexWrap: 'wrap' }}>
                 <Box>

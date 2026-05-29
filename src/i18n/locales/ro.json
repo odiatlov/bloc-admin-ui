@@ -13,6 +13,24 @@
     "save": "Salvează",
     "today": "Astăzi"
   },
+  "emptyState": {
+    "headline": "Nu există {{information}} de afișat încă",
+    "action": "Adaugă {{information}}",
+    "helper": {
+      "settings": "Mergeți la Setări pentru a adăuga {{information}}, iar acestea vor apărea aici automat.",
+      "dedicated": "Folosiți fluxul dedicat pentru a adăuga {{information}} și pentru a menține această vizualizare actualizată.",
+      "finance": "Adăugați {{information}} din fluxul financiar, iar acestea vor apărea aici automat."
+    },
+    "information": {
+      "blocks": "blocuri",
+      "residents": "locatari",
+      "invoices": "facturi",
+      "consumption": "citiri de consum",
+      "waterIndex": "indexuri de apă",
+      "payments": "plăți",
+      "cashEntries": "intrări numerar"
+    }
+  },
   "layout": {
     "topbar": {
       "role": {

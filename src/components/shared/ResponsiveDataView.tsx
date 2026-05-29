@@ -21,79 +21,84 @@ type ResponsiveDataViewProps<T> = {
   ariaLabel: string
   columns: DataColumn<T>[]
   desktopTableMinWidth?: number
+  emptyState?: React.ReactNode
   getRowId: (row: T) => string
   rows: T[]
 }
 
-const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900, getRowId, rows }: ResponsiveDataViewProps<T>) => (
-  <Box
-    sx={{
-      containerType: 'inline-size',
-      '.ResponsiveDataView-table': {
-        display: 'none',
-      },
-      '.ResponsiveDataView-cards': {
-        display: 'grid',
-      },
-      [`@container (min-width: ${desktopTableMinWidth}px)`]: {
+const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900, emptyState, getRowId, rows }: ResponsiveDataViewProps<T>) => {
+  if (rows.length === 0 && emptyState) return <>{emptyState}</>
+
+  return (
+    <Box
+      sx={{
+        containerType: 'inline-size',
         '.ResponsiveDataView-table': {
-          display: 'block',
-        },
-        '.ResponsiveDataView-cards': {
           display: 'none',
         },
-      },
-    }}
-  >
-    <TableContainer
-      className="ResponsiveDataView-table"
-      component={Paper}
-      sx={{
-        overflowX: 'hidden',
+        '.ResponsiveDataView-cards': {
+          display: 'grid',
+        },
+        [`@container (min-width: ${desktopTableMinWidth}px)`]: {
+          '.ResponsiveDataView-table': {
+            display: 'block',
+          },
+          '.ResponsiveDataView-cards': {
+            display: 'none',
+          },
+        },
       }}
     >
-      <Table size="small" aria-label={ariaLabel}>
-        <TableHead>
-          <TableRow>
-            {columns.map((column) => (
-              <TableCell key={column.key}>{column.label}</TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={getRowId(row)} hover>
+      <TableContainer
+        className="ResponsiveDataView-table"
+        component={Paper}
+        sx={{
+          overflowX: 'hidden',
+        }}
+      >
+        <Table size="small" aria-label={ariaLabel}>
+          <TableHead>
+            <TableRow>
               {columns.map((column) => (
-                <TableCell key={column.key}>{column.render(row)}</TableCell>
+                <TableCell key={column.key}>{column.label}</TableCell>
               ))}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-
-    <Box
-      className="ResponsiveDataView-cards"
-      sx={{
-        gap: 1.5,
-      }}
-    >
-      {rows.map((row) => (
-        <Card key={getRowId(row)}>
-          <CardContent sx={{ display: 'grid', gap: 1 }}>
-            {columns.map((column) => (
-              <Box key={column.key}>
-                <Typography variant="caption" color="text.secondary">
-                  {column.label}
-                </Typography>
-                <Box>{column.render(row)}</Box>
-              </Box>
+          </TableHead>
+          <TableBody>
+            {rows.map((row) => (
+              <TableRow key={getRowId(row)} hover>
+                {columns.map((column) => (
+                  <TableCell key={column.key}>{column.render(row)}</TableCell>
+                ))}
+              </TableRow>
             ))}
-          </CardContent>
-        </Card>
-      ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <Box
+        className="ResponsiveDataView-cards"
+        sx={{
+          gap: 1.5,
+        }}
+      >
+        {rows.map((row) => (
+          <Card key={getRowId(row)}>
+            <CardContent sx={{ display: 'grid', gap: 1 }}>
+              {columns.map((column) => (
+                <Box key={column.key}>
+                  <Typography variant="caption" color="text.secondary">
+                    {column.label}
+                  </Typography>
+                  <Box>{column.render(row)}</Box>
+                </Box>
+              ))}
+            </CardContent>
+          </Card>
+        ))}
+      </Box>
     </Box>
-  </Box>
-)
+  )
+}
 
 export default ResponsiveDataView
