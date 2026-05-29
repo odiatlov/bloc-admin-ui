@@ -6,4 +6,5 @@ export const families: Family[] = [
   { id: 'FAM-B-41', apartmentId: 'apt-b-41', name: 'Marinescu', declaredPersons: 1 },
   { id: 'FAM-C-72', apartmentId: 'apt-c-72', name: 'Stan', declaredPersons: 0 },
   { id: 'FAM-NEW-BLOCK', apartmentId: 'apt-new-setup-1', name: 'New Setup', declaredPersons: 1 },
+  { id: 'FAM-NEW-BLOCK-EMPTY', apartmentId: 'apt-new-setup-3', name: 'Empty Unit', declaredPersons: 0 },
 ]

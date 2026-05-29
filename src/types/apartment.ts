@@ -1,5 +1,7 @@
 export type ResidentStatus = 'active' | 'inactive'
+export type ResidentAccountStatus = 'no_account' | 'invited' | 'active'
 export type ResidentRole = 'owner' | 'tenant' | 'co_owner' | 'family_member'
+export type ApartmentSetupStatus = 'configured' | 'unconfigured'
 export type FinancialStatus = 'current' | 'due' | 'overdue'
 export type InvoiceStatus = 'paid' | 'unpaid' | 'overdue'
 export type PaymentMethod = 'cash' | 'bank'
@@ -48,7 +50,8 @@ export type Apartment = {
   floor: number
   number: string
   familyName: string
-  primaryOwnerId: string
+  primaryOwnerId?: string
+  setupStatus?: ApartmentSetupStatus
   usableSurface: number
   totalSurface: number
   heatedSurface: number
@@ -70,7 +73,8 @@ export type Resident = {
   id: string
   name: string
   status: ResidentStatus
-  email: string
+  accountStatus: ResidentAccountStatus
+  email?: string
   phone?: string
 }
 

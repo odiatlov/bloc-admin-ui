@@ -112,6 +112,15 @@
       "due": "Scadentă",
       "overdue": "Restanță"
     },
+    "residentAccount": {
+      "no_account": "Fără cont",
+      "invited": "Invitat",
+      "active": "Cont activ"
+    },
+    "apartmentSetup": {
+      "configured": "Configurat",
+      "unconfigured": "Neconfigurat"
+    },
     "anomaly": {
       "normal": "Normal",
       "warning": "Atenție",
@@ -233,6 +242,27 @@
   },
   "residents": {
     "apartmentLabel": "Apartament {{apartment}}, etaj {{floor}}",
+    "apartment": {
+      "empty": "Apartament gol",
+      "noResidentsAssigned": "Nu sunt locatari alocați",
+      "number": "Apartament {{number}}",
+      "unassigned": "Fără apartament alocat"
+    },
+    "fields": {
+      "accountStatus": "Status cont",
+      "apartmentOptional": "Alocare apartament (opțional)",
+      "emailOptional": "Email (opțional)",
+      "name": "Nume",
+      "phoneOptional": "Telefon (opțional)"
+    },
+    "resident": {
+      "noEmail": "Fără email"
+    },
+    "summary": {
+      "emptyApartments": "{{count}} apartamente goale",
+      "noAccountResidents": "{{count}} locatari fără cont",
+      "unconfiguredApartments": "{{count}} apartamente neconfigurate"
+    },
     "ownership": {
       "owner": "Proprietar",
       "tenant": "Chiriaș",
@@ -248,10 +278,17 @@
       "financialStatus": "Status financiar"
     },
     "actions": {
+      "addResident": "Adaugă locatar",
+      "assign": "Alocă",
+      "assignResident": "Alocă locatar",
       "openDetails": "Deschide detalii",
       "backToList": "Înapoi",
       "sendReminder": "Trimite atenționare",
-      "registerPayment": "Înregistrează plata"
+      "registerPayment": "Înregistrează plata",
+      "unassign": "Dezalocă"
+    },
+    "dialog": {
+      "addTitle": "Adaugă locatar"
     },
     "detail": {
       "invoices": "Istoric facturi",
@@ -348,7 +385,11 @@
     },
     "columns": {
       "floor": "Etaj",
-      "staircase": "Scară"
+      "staircase": "Scară",
+      "usableSurface": "Suprafață utilă",
+      "totalSurface": "Suprafață totală",
+      "heatedSurface": "Suprafață încălzită",
+      "heatingType": "Încălzire"
     },
     "metrics": {
       "bank": "Bancă",
@@ -541,6 +582,18 @@
     "actions": {
       "addBlock": "Adaugă bloc",
       "editBlock": "Editează bloc"
+    },
+    "apartmentsSetup": {
+      "addApartment": "Adaugă apartament",
+      "apartmentOption": "Apartament {{number}}, etaj {{floor}}",
+      "description": "Adaugă și configurează apartamentele pentru blocul și scara selectate.",
+      "familyName": "Nume familie",
+      "indivisibleShare": "Cotă indiviză",
+      "noApartments": "Nu există apartamente pentru blocul și scara selectate.",
+      "number": "Număr apartament",
+      "selectedApartment": "Apartament",
+      "setupStatus": "Status configurare",
+      "title": "Configurare apartamente"
     },
     "costs": {
       "gas": "Gaz",

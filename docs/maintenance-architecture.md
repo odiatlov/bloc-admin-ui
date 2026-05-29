@@ -18,6 +18,8 @@ Apartments include the Romanian association fields needed for realistic allocati
 
 Residents no longer belong to a single apartment directly. `ResidentApartment` is the junction model and stores ownership type (`owner`, `tenant`, `co_owner`, `family_member`), start/end dates, and the primary residence flag. This supports one resident owning or renting apartments across buildings with different administrators.
 
+Apartments and residents are separate setup records. An apartment can be created before any resident is assigned, can remain empty, and can be marked as unconfigured while required administrative details are still missing. Residents can be created manually with name, optional email, optional phone, optional apartment assignment, and account status (`no_account`, `invited`, `active`). A resident without email or without an authenticated user account is valid, because not every resident will log in to the platform.
+
 Administrator assignment is modeled with `BuildingAdminAssignment`. Each record stores the building, admin, active dates, audit fields (`createdBy`, `updatedBy`), and the assignment reason. The current active admin is derived from active assignment history rather than hardcoded in page logic.
 
 Monthly generated data is separated from static setup:
@@ -58,16 +60,16 @@ Recommended resource endpoints for a backend migration:
 - `GET /auth/mock-accounts`, `POST /auth/login`, `POST /auth/logout`
 - `GET /buildings`, `GET /buildings/:id`, `GET /buildings/:id/admin-assignments`
 - `POST /buildings/:id/admin-assignments`, `PATCH /admin-assignments/:id/end`
-- `GET /apartments`, `GET /apartments/:id`, `PATCH /apartments/:id/surfaces`
-- `GET /residents/:id/apartments`, `POST /resident-apartments`, `PATCH /resident-apartments/:id`
+- `GET /apartments`, `POST /apartments`, `GET /apartments/:id`, `PATCH /apartments/:id`
+- `GET /residents`, `POST /residents`, `GET /residents/:id/apartments`, `POST /resident-apartments`, `PATCH /resident-apartments/:id`
 - `POST /maintenance-runs`, `GET /maintenance-runs/:id`
 - `GET /reports/monthly?month=YYYY-MM&buildingId=...`
 
 ## Database Schema Suggestions
 
 - `buildings(id, name, address, heating_type, created_at, updated_at)`
-- `apartments(id, building_id, staircase_id, floor, number, usable_surface, total_surface, heated_surface, balcony_surface, indivisible_share, heating_type, boiler_tax_enabled, boiler_tax_percentage)`
-- `residents(id, name, email, phone, status)`
+- `apartments(id, building_id, staircase_id, floor, number, family_name, primary_owner_id, setup_status, usable_surface, total_surface, heated_surface, balcony_surface, indivisible_share, heating_type, boiler_tax_enabled, boiler_tax_percentage)`
+- `residents(id, name, email, phone, status, account_status, user_account_id)`
 - `resident_apartments(id, resident_id, apartment_id, ownership_type, ownership_start_date, ownership_end_date, is_primary_residence)`
 - `administrators(id, name, email, phone, role)`
 - `building_admin_assignments(id, building_id, admin_id, start_date, end_date, is_active, assignment_reason, created_by, updated_by)`
