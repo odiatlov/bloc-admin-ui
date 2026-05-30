@@ -25,6 +25,7 @@
     },
     "information": {
       "blocks": "blocuri",
+      "apartments": "apartamente",
       "residents": "locatari",
       "invoices": "facturi",
       "consumption": "citiri de consum",
@@ -219,6 +220,10 @@
       "title": "Blocuri",
       "description": "Căutați, verificați și deschideți blocurile administrate."
     },
+    "apartments": {
+      "title": "Apartamente",
+      "description": "Vedeți, adăugați, editați, alocați locatari și finalizați configurarea apartamentelor."
+    },
     "finance": {
       "title": "Finanțe",
       "description": "Gestionați facturi, plăți, reconciliere numerar și solduri."
@@ -294,6 +299,34 @@
       "invoices": "Istoric facturi",
       "payments": "Istoric plăți",
       "consumption": "Istoric consum"
+    }
+  },
+  "apartments": {
+    "actions": {
+      "edit": "Editează"
+    },
+    "filters": {
+      "setupStatus": "Status configurare"
+    },
+    "sections": {
+      "residents": "Locatari alocați"
+    },
+    "summary": {
+      "total": "{{count}} apartamente"
+    },
+    "tabs": {
+      "details": "Detalii apartament",
+      "residents": "Locatari ({{count}})"
+    },
+    "setup": {
+      "addApartment": "Adaugă apartament",
+      "description": "Adaugă și configurează apartamentele pentru blocul și scara selectate.",
+      "familyName": "Nume familie",
+      "indivisibleShare": "Cotă indiviză",
+      "noApartments": "Nu există apartamente pentru blocul și scara selectate.",
+      "number": "Număr apartament",
+      "setupStatus": "Status configurare",
+      "title": "Configurare apartamente"
     }
   },
   "finance": {

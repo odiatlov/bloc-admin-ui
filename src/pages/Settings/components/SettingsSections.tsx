@@ -26,15 +26,11 @@ import {
   residentApartments,
   staircases,
   utilityMonthlyInputs,
-  type Apartment,
-  type ApartmentSetupStatus,
   type AllocationType,
   type CostScopeLevel,
   type CustomCostConfiguration,
-  type HeatingType,
   type UtilityCategory,
 } from '../../../mocks/apartmentData'
-import { translateApartmentSetupStatus, translateHeatingType } from '../../../domain/displayLabels'
 
 type SettingsSectionsProps = {
   mode: 'admin' | 'resident'
@@ -42,8 +38,6 @@ type SettingsSectionsProps = {
 
 const utilityCategories: UtilityCategory[] = ['gas', 'electricity', 'garbage', 'water', 'heating']
 const allocationTypes: AllocationType[] = ['per_person', 'per_apartment', 'by_surface', 'by_heating_area', 'individual_meter', 'equal_split', 'custom']
-const apartmentSetupStatuses: ApartmentSetupStatus[] = ['configured', 'unconfigured']
-const heatingTypes: HeatingType[] = ['central', 'individual', 'gas_boiler', 'district']
 
 const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
   const { t } = useTranslation()
@@ -54,8 +48,6 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
   )
   const [selectedBlockId, setSelectedBlockId] = React.useState(scopedBlocks[0]?.id ?? '')
   const [selectedStaircaseId, setSelectedStaircaseId] = React.useState('all')
-  const [selectedApartmentId, setSelectedApartmentId] = React.useState('')
-  const [apartmentRecords, setApartmentRecords] = React.useState<Apartment[]>(apartments)
   const [blockDeadline, setBlockDeadline] = React.useState('2026-05-15')
   const [staircaseDeadlines, setStaircaseDeadlines] = React.useState<Record<string, string>>({})
   const [customCosts, setCustomCosts] = React.useState<CustomCostConfiguration[]>(customCostConfigurations)
@@ -63,54 +55,20 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
     if (!scopedBlocks.some((block) => block.id === selectedBlockId)) {
       setSelectedBlockId(scopedBlocks[0]?.id ?? '')
       setSelectedStaircaseId('all')
-      setSelectedApartmentId('')
     }
   }, [scopedBlocks, selectedBlockId])
 
   const selectedBlock = scopedBlocks.find((block) => block.id === selectedBlockId) ?? scopedBlocks[0]
   const selectedBlockStaircases = staircases.filter((staircase) => staircase.blockId === selectedBlock?.id)
-  const selectedApartments = apartmentRecords.filter((apartment) => (
-    apartment.blockId === selectedBlock?.id
-    && (selectedStaircaseId === 'all' || apartment.staircaseId === selectedStaircaseId)
-  ))
-  const selectedApartment = selectedApartments.find((apartment) => apartment.id === selectedApartmentId) ?? selectedApartments[0]
   const selectedCustomCosts = customCosts.filter((cost) => cost.blockId === selectedBlock?.id)
 
   const handleBlockChange = (event: SelectChangeEvent) => {
     setSelectedBlockId(event.target.value)
     setSelectedStaircaseId('all')
-    setSelectedApartmentId('')
   }
 
   const handleStaircaseChange = (event: SelectChangeEvent) => {
     setSelectedStaircaseId(event.target.value)
-    setSelectedApartmentId('')
-  }
-
-  const updateApartment = (id: string, updates: Partial<Apartment>) => {
-    setApartmentRecords((records) => records.map((apartment) => (apartment.id === id ? { ...apartment, ...updates } : apartment)))
-  }
-
-  const addApartment = () => {
-    const nextApartment: Apartment = {
-      id: `apt-draft-${Date.now()}`,
-      blockId: selectedBlock?.id ?? scopedBlocks[0]?.id ?? '',
-      staircaseId: selectedBlock?.hasStaircases && selectedStaircaseId !== 'all' ? selectedStaircaseId : undefined,
-      floor: 0,
-      number: String(selectedApartments.length + 1),
-      familyName: '',
-      setupStatus: 'unconfigured',
-      usableSurface: 0,
-      totalSurface: 0,
-      heatedSurface: 0,
-      indivisibleShare: 0,
-      heatingType: selectedBlock?.heatingType ?? 'central',
-      boilerTaxEnabled: false,
-      boilerTaxPercentage: 20,
-    }
-
-    setApartmentRecords((records) => [nextApartment, ...records])
-    setSelectedApartmentId(nextApartment.id)
   }
 
   const updateCustomCost = (id: string, updates: Partial<CustomCostConfiguration>) => {
@@ -191,16 +149,6 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
               ))}
             </Select>
           </FormControl>
-          <FormControl size="small" disabled={selectedApartments.length === 0}>
-            <InputLabel>{t('settings.apartmentsSetup.selectedApartment')}</InputLabel>
-            <Select label={t('settings.apartmentsSetup.selectedApartment')} value={selectedApartment?.id ?? ''} onChange={(event: SelectChangeEvent) => setSelectedApartmentId(event.target.value)}>
-              {selectedApartments.map((apartment) => (
-                <MenuItem key={apartment.id} value={apartment.id}>
-                  {t('settings.apartmentsSetup.apartmentOption', { number: apartment.number, floor: apartment.floor })}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
             <TextField size="small" label={t('settings.fields.blockName')} defaultValue={selectedBlock?.name} sx={{ minWidth: { xs: '100%', sm: 180 } }} />
             <Button startIcon={<EditIcon />} variant="contained">
@@ -208,126 +156,6 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
             </Button>
           </Box>
         </Box>
-      </Paper>
-
-      <Paper sx={{ p: 2, display: 'grid', gap: 2 }}>
-        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
-          <Box>
-            <Typography variant="h6">{t('settings.apartmentsSetup.title')}</Typography>
-            <Typography variant="body2" color="text.secondary">
-              {t('settings.apartmentsSetup.description')}
-            </Typography>
-          </Box>
-          <Button startIcon={<AddIcon />} variant="outlined" onClick={addApartment}>
-            {t('settings.apartmentsSetup.addApartment')}
-          </Button>
-        </Box>
-
-        {selectedApartment ? (
-          <Box sx={{ display: 'grid', gap: 1.5 }}>
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' }, gap: 1.5 }}>
-              <TextField
-                size="small"
-                label={t('settings.apartmentsSetup.number')}
-                value={selectedApartment.number}
-                onChange={(event) => updateApartment(selectedApartment.id, { number: event.target.value })}
-              />
-              <TextField
-                size="small"
-                label={t('blocks.columns.floor')}
-                type="number"
-                value={selectedApartment.floor}
-                onChange={(event) => updateApartment(selectedApartment.id, { floor: Number(event.target.value) })}
-              />
-              <TextField
-                size="small"
-                label={t('settings.apartmentsSetup.familyName')}
-                value={selectedApartment.familyName}
-                onChange={(event) => updateApartment(selectedApartment.id, { familyName: event.target.value })}
-              />
-              <FormControl size="small">
-                <InputLabel>{t('settings.apartmentsSetup.setupStatus')}</InputLabel>
-                <Select
-                  label={t('settings.apartmentsSetup.setupStatus')}
-                  value={selectedApartment.setupStatus ?? 'configured'}
-                  onChange={(event: SelectChangeEvent) => updateApartment(selectedApartment.id, { setupStatus: event.target.value as ApartmentSetupStatus })}
-                >
-                  {apartmentSetupStatuses.map((status) => (
-                    <MenuItem key={status} value={status}>
-                      {translateApartmentSetupStatus(t, status)}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl size="small">
-                <InputLabel>{t('blocks.columns.heatingType')}</InputLabel>
-                <Select
-                  label={t('blocks.columns.heatingType')}
-                  value={selectedApartment.heatingType}
-                  onChange={(event: SelectChangeEvent) => updateApartment(selectedApartment.id, { heatingType: event.target.value as HeatingType })}
-                >
-                  {heatingTypes.map((heatingType) => (
-                    <MenuItem key={heatingType} value={heatingType}>
-                      {translateHeatingType(t, heatingType)}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl size="small" disabled={!selectedBlock?.hasStaircases}>
-                <InputLabel>{t('blocks.columns.staircase')}</InputLabel>
-                <Select
-                  label={t('blocks.columns.staircase')}
-                  value={selectedApartment.staircaseId ?? ''}
-                  onChange={(event: SelectChangeEvent) => updateApartment(selectedApartment.id, { staircaseId: event.target.value || undefined })}
-                >
-                  <MenuItem value="">{t('common.notAvailable')}</MenuItem>
-                  {selectedBlockStaircases.map((staircase) => (
-                    <MenuItem key={staircase.id} value={staircase.id}>
-                      {t('settings.fields.staircaseName', { staircase: staircase.name })}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
-
-            <Divider />
-
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', lg: 'repeat(4, minmax(0, 1fr))' }, gap: 1.5 }}>
-              <TextField
-                size="small"
-                label={t('blocks.columns.usableSurface')}
-                type="number"
-                value={selectedApartment.usableSurface}
-                onChange={(event) => updateApartment(selectedApartment.id, { usableSurface: Number(event.target.value) })}
-              />
-              <TextField
-                size="small"
-                label={t('blocks.columns.totalSurface')}
-                type="number"
-                value={selectedApartment.totalSurface}
-                onChange={(event) => updateApartment(selectedApartment.id, { totalSurface: Number(event.target.value) })}
-              />
-              <TextField
-                size="small"
-                label={t('blocks.columns.heatedSurface')}
-                type="number"
-                value={selectedApartment.heatedSurface}
-                onChange={(event) => updateApartment(selectedApartment.id, { heatedSurface: Number(event.target.value) })}
-              />
-              <TextField
-                size="small"
-                label={t('settings.apartmentsSetup.indivisibleShare')}
-                type="number"
-                value={selectedApartment.indivisibleShare}
-                onChange={(event) => updateApartment(selectedApartment.id, { indivisibleShare: Number(event.target.value) })}
-              />
-            </Box>
-          </Box>
-        ) : (
-          <Typography variant="body2" color="text.secondary">
-            {t('settings.apartmentsSetup.noApartments')}
-          </Typography>
-        )}
       </Paper>
 
       <Paper sx={{ p: 2, display: 'grid', gap: 2 }}>

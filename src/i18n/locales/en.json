@@ -25,6 +25,7 @@
     },
     "information": {
       "blocks": "blocks",
+      "apartments": "apartments",
       "residents": "residents",
       "invoices": "invoices",
       "consumption": "consumption",
@@ -194,6 +195,10 @@
       "title": "Blocks",
       "description": "Search, review, and open the blocks managed by the administrator."
     },
+    "apartments": {
+      "title": "Apartments",
+      "description": "View, add, edit, assign residents, and complete apartment setup."
+    },
     "finance": {
       "title": "Finance",
       "description": "Manage invoices, payments, cash reconciliation, and balances."
@@ -269,6 +274,34 @@
       "invoices": "Invoice history",
       "payments": "Payment history",
       "consumption": "Consumption history"
+    }
+  },
+  "apartments": {
+    "actions": {
+      "edit": "Edit"
+    },
+    "filters": {
+      "setupStatus": "Setup status"
+    },
+    "sections": {
+      "residents": "Assigned residents"
+    },
+    "summary": {
+      "total": "{{count}} apartments"
+    },
+    "tabs": {
+      "details": "Apartment Details",
+      "residents": "Residents ({{count}})"
+    },
+    "setup": {
+      "addApartment": "Add apartment",
+      "description": "Add and configure apartments for the selected block and staircase.",
+      "familyName": "Family name",
+      "indivisibleShare": "Indivisible share",
+      "noApartments": "No apartments match the selected block and staircase.",
+      "number": "Apartment number",
+      "setupStatus": "Setup status",
+      "title": "Apartments setup"
     }
   },
   "finance": {
