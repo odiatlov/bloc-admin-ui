@@ -25,6 +25,7 @@
     },
     "information": {
       "blocks": "blocks",
+      "apartments": "apartments",
       "residents": "residents",
       "invoices": "invoices",
       "consumption": "consumption",
@@ -86,6 +87,15 @@
       "current": "Current",
       "due": "Due",
       "overdue": "Overdue"
+    },
+    "residentAccount": {
+      "no_account": "No account",
+      "invited": "Invited",
+      "active": "Active account"
+    },
+    "apartmentSetup": {
+      "configured": "Configured",
+      "unconfigured": "Unconfigured"
     },
     "anomaly": {
       "normal": "Normal",
@@ -185,6 +195,10 @@
       "title": "Blocks",
       "description": "Search, review, and open the blocks managed by the administrator."
     },
+    "apartments": {
+      "title": "Apartments",
+      "description": "View, add, edit, assign residents, and complete apartment setup."
+    },
     "finance": {
       "title": "Finance",
       "description": "Manage invoices, payments, cash reconciliation, and balances."
@@ -208,6 +222,27 @@
   },
   "residents": {
     "apartmentLabel": "Apartment {{apartment}}, floor {{floor}}",
+    "apartment": {
+      "empty": "Empty apartment",
+      "noResidentsAssigned": "No residents assigned",
+      "number": "Apartment {{number}}",
+      "unassigned": "No apartment assigned"
+    },
+    "fields": {
+      "accountStatus": "Account status",
+      "apartmentOptional": "Apartment assignment (optional)",
+      "emailOptional": "Email (optional)",
+      "name": "Name",
+      "phoneOptional": "Phone (optional)"
+    },
+    "resident": {
+      "noEmail": "No email"
+    },
+    "summary": {
+      "emptyApartments": "{{count}} empty apartments",
+      "noAccountResidents": "{{count}} residents without accounts",
+      "unconfiguredApartments": "{{count}} unconfigured apartments"
+    },
     "ownership": {
       "owner": "Owner",
       "tenant": "Tenant",
@@ -223,15 +258,50 @@
       "financialStatus": "Financial status"
     },
     "actions": {
+      "addResident": "Add resident",
+      "assign": "Assign",
+      "assignResident": "Assign resident",
       "openDetails": "Open details",
       "backToList": "Back",
       "sendReminder": "Send reminder",
-      "registerPayment": "Register payment"
+      "registerPayment": "Register payment",
+      "unassign": "Unassign"
+    },
+    "dialog": {
+      "addTitle": "Add resident"
     },
     "detail": {
       "invoices": "Invoice history",
       "payments": "Payment history",
       "consumption": "Consumption history"
+    }
+  },
+  "apartments": {
+    "actions": {
+      "edit": "Edit"
+    },
+    "filters": {
+      "setupStatus": "Setup status"
+    },
+    "sections": {
+      "residents": "Assigned residents"
+    },
+    "summary": {
+      "total": "{{count}} apartments"
+    },
+    "tabs": {
+      "details": "Apartment Details",
+      "residents": "Residents ({{count}})"
+    },
+    "setup": {
+      "addApartment": "Add apartment",
+      "description": "Add and configure apartments for the selected block and staircase.",
+      "familyName": "Family name",
+      "indivisibleShare": "Indivisible share",
+      "noApartments": "No apartments match the selected block and staircase.",
+      "number": "Apartment number",
+      "setupStatus": "Setup status",
+      "title": "Apartments setup"
     }
   },
   "finance": {
@@ -540,6 +610,18 @@
     "actions": {
       "addBlock": "Add block",
       "editBlock": "Edit block"
+    },
+    "apartmentsSetup": {
+      "addApartment": "Add apartment",
+      "apartmentOption": "Apartment {{number}}, floor {{floor}}",
+      "description": "Add and configure apartments for the selected block and staircase.",
+      "familyName": "Family name",
+      "indivisibleShare": "Indivisible share",
+      "noApartments": "No apartments match the selected block and staircase.",
+      "number": "Apartment number",
+      "selectedApartment": "Apartment",
+      "setupStatus": "Setup status",
+      "title": "Apartments setup"
     },
     "costs": {
       "gas": "Gas",

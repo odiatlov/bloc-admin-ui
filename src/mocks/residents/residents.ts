@@ -1,13 +1,14 @@
 import type { Resident, ResidentApartment } from '../../types/apartment'
 
 export const residents: Resident[] = [
-  { id: 'R-1001', name: 'Ana Popescu', status: 'active', email: 'ana.popescu@example.com', phone: '0740 100 001' },
-  { id: 'R-1002', name: 'Ion Popescu', status: 'active', email: 'ion.popescu@example.com', phone: '0740 100 002' },
-  { id: 'R-1003', name: 'Mihai Ionescu', status: 'active', email: 'mihai.ionescu@example.com', phone: '0740 100 003' },
-  { id: 'R-1004', name: 'Maria Ionescu', status: 'active', email: 'maria.ionescu@example.com', phone: '0740 100 004' },
-  { id: 'R-1005', name: 'Elena Marinescu', status: 'active', email: 'elena.marinescu@example.com', phone: '0740 100 005' },
-  { id: 'R-1006', name: 'Victor Stan', status: 'inactive', email: 'victor.stan@example.com', phone: '0740 100 006' },
-  { id: 'R-NEW-BLOCK', name: 'Resident Censor New Block', status: 'active', email: 'resident.censor.new.block@example.com', phone: '0740 000 010' },
+  { id: 'R-1001', name: 'Ana Popescu', status: 'active', accountStatus: 'active', email: 'ana.popescu@example.com', phone: '0740 100 001' },
+  { id: 'R-1002', name: 'Ion Popescu', status: 'active', accountStatus: 'no_account', phone: '0740 100 002' },
+  { id: 'R-1003', name: 'Mihai Ionescu', status: 'active', accountStatus: 'invited', email: 'mihai.ionescu@example.com', phone: '0740 100 003' },
+  { id: 'R-1004', name: 'Maria Ionescu', status: 'active', accountStatus: 'no_account', phone: '0740 100 004' },
+  { id: 'R-1005', name: 'Elena Marinescu', status: 'active', accountStatus: 'active', email: 'elena.marinescu@example.com', phone: '0740 100 005' },
+  { id: 'R-1006', name: 'Victor Stan', status: 'inactive', accountStatus: 'no_account', email: 'victor.stan@example.com', phone: '0740 100 006' },
+  { id: 'R-NEW-BLOCK', name: 'Resident Censor New Block', status: 'active', accountStatus: 'active', email: 'resident.censor.new.block@example.com', phone: '0740 000 010' },
+  { id: 'R-UNASSIGNED-1', name: 'Andrei Dima', status: 'active', accountStatus: 'no_account', phone: '0740 100 007' },
 ]
 
 export const residentApartments: ResidentApartment[] = [

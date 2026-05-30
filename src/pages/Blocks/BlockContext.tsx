@@ -4,13 +4,15 @@ import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import { Navigate, useNavigate, useParams } from 'react-router-dom'
+import ApartmentIcon from '@mui/icons-material/Apartment'
+import { Link as RouterLink, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import EmptyState from '../../components/shared/EmptyState'
 import PageHeader from '../../components/shared/PageHeader'
 import ResponsiveDataView, { type DataColumn } from '../../components/shared/ResponsiveDataView'
 import { translateHeatingType } from '../../domain/displayLabels'
 import { formatCurrency, formatNumber, useBlockContext } from '../../hooks/useApartmentData'
+import ApartmentManagement from '../Apartments/components/ApartmentManagement'
 
 const BlockContext: React.FC = () => {
   const { t } = useTranslation()
@@ -70,9 +72,16 @@ const BlockContext: React.FC = () => {
         title={t('blocks.title', { block: block.name })}
         description={t('blocks.description')}
         actions={(
-          <Button startIcon={<ArrowBackIcon />} variant="outlined" onClick={() => navigate('/admin/blocks')}>
-            {t('blocks.actions.backToList')}
-          </Button>
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            {section !== 'apartments' && (
+              <Button startIcon={<ApartmentIcon />} variant="contained" component={RouterLink} to={`/admin/blocks/${block.id}/apartments`}>
+                {t('sidebar.apartments')}
+              </Button>
+            )}
+            <Button startIcon={<ArrowBackIcon />} variant="outlined" onClick={() => navigate('/admin/blocks')}>
+              {t('blocks.actions.backToList')}
+            </Button>
+          </Box>
         )}
       />
 
@@ -96,16 +105,20 @@ const BlockContext: React.FC = () => {
           </Paper>
         </Box>
 
-        {(section === 'overview' || section === 'apartments' || section === 'consumption') && (
+        {section === 'apartments' && (
+          <ApartmentManagement hideScopeFilters initialBlockId={block.id} />
+        )}
+
+        {(section === 'overview' || section === 'consumption') && (
           <ResponsiveDataView
             ariaLabel={t('sidebar.apartments')}
             columns={apartmentColumns}
             emptyState={(
               <EmptyState
-                actionLabel={t('emptyState.action', { information: t('emptyState.information.residents') })}
-                actionTo="/admin/settings"
-                headline={t('emptyState.headline', { information: t('emptyState.information.residents') })}
-                helperText={t('emptyState.helper.settings', { information: t('emptyState.information.residents') })}
+                actionLabel={t('emptyState.action', { information: t('emptyState.information.apartments') })}
+                actionTo={`/admin/apartments?blockId=${block.id}`}
+                headline={t('emptyState.headline', { information: t('emptyState.information.apartments') })}
+                helperText={t('emptyState.helper.dedicated', { information: t('emptyState.information.apartments') })}
               />
             )}
             getRowId={(apartment) => apartment.id}

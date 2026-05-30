@@ -25,6 +25,7 @@
     },
     "information": {
       "blocks": "blocuri",
+      "apartments": "apartamente",
       "residents": "locatari",
       "invoices": "facturi",
       "consumption": "citiri de consum",
@@ -111,6 +112,15 @@
       "current": "La zi",
       "due": "Scadentă",
       "overdue": "Restanță"
+    },
+    "residentAccount": {
+      "no_account": "Fără cont",
+      "invited": "Invitat",
+      "active": "Cont activ"
+    },
+    "apartmentSetup": {
+      "configured": "Configurat",
+      "unconfigured": "Neconfigurat"
     },
     "anomaly": {
       "normal": "Normal",
@@ -210,6 +220,10 @@
       "title": "Blocuri",
       "description": "Căutați, verificați și deschideți blocurile administrate."
     },
+    "apartments": {
+      "title": "Apartamente",
+      "description": "Vedeți, adăugați, editați, alocați locatari și finalizați configurarea apartamentelor."
+    },
     "finance": {
       "title": "Finanțe",
       "description": "Gestionați facturi, plăți, reconciliere numerar și solduri."
@@ -233,6 +247,27 @@
   },
   "residents": {
     "apartmentLabel": "Apartament {{apartment}}, etaj {{floor}}",
+    "apartment": {
+      "empty": "Apartament gol",
+      "noResidentsAssigned": "Nu sunt locatari alocați",
+      "number": "Apartament {{number}}",
+      "unassigned": "Fără apartament alocat"
+    },
+    "fields": {
+      "accountStatus": "Status cont",
+      "apartmentOptional": "Alocare apartament (opțional)",
+      "emailOptional": "Email (opțional)",
+      "name": "Nume",
+      "phoneOptional": "Telefon (opțional)"
+    },
+    "resident": {
+      "noEmail": "Fără email"
+    },
+    "summary": {
+      "emptyApartments": "{{count}} apartamente goale",
+      "noAccountResidents": "{{count}} locatari fără cont",
+      "unconfiguredApartments": "{{count}} apartamente neconfigurate"
+    },
     "ownership": {
       "owner": "Proprietar",
       "tenant": "Chiriaș",
@@ -248,15 +283,50 @@
       "financialStatus": "Status financiar"
     },
     "actions": {
+      "addResident": "Adaugă locatar",
+      "assign": "Alocă",
+      "assignResident": "Alocă locatar",
       "openDetails": "Deschide detalii",
       "backToList": "Înapoi",
       "sendReminder": "Trimite atenționare",
-      "registerPayment": "Înregistrează plata"
+      "registerPayment": "Înregistrează plata",
+      "unassign": "Dezalocă"
+    },
+    "dialog": {
+      "addTitle": "Adaugă locatar"
     },
     "detail": {
       "invoices": "Istoric facturi",
       "payments": "Istoric plăți",
       "consumption": "Istoric consum"
+    }
+  },
+  "apartments": {
+    "actions": {
+      "edit": "Editează"
+    },
+    "filters": {
+      "setupStatus": "Status configurare"
+    },
+    "sections": {
+      "residents": "Locatari alocați"
+    },
+    "summary": {
+      "total": "{{count}} apartamente"
+    },
+    "tabs": {
+      "details": "Detalii apartament",
+      "residents": "Locatari ({{count}})"
+    },
+    "setup": {
+      "addApartment": "Adaugă apartament",
+      "description": "Adaugă și configurează apartamentele pentru blocul și scara selectate.",
+      "familyName": "Nume familie",
+      "indivisibleShare": "Cotă indiviză",
+      "noApartments": "Nu există apartamente pentru blocul și scara selectate.",
+      "number": "Număr apartament",
+      "setupStatus": "Status configurare",
+      "title": "Configurare apartamente"
     }
   },
   "finance": {
@@ -348,7 +418,11 @@
     },
     "columns": {
       "floor": "Etaj",
-      "staircase": "Scară"
+      "staircase": "Scară",
+      "usableSurface": "Suprafață utilă",
+      "totalSurface": "Suprafață totală",
+      "heatedSurface": "Suprafață încălzită",
+      "heatingType": "Încălzire"
     },
     "metrics": {
       "bank": "Bancă",
@@ -541,6 +615,18 @@
     "actions": {
       "addBlock": "Adaugă bloc",
       "editBlock": "Editează bloc"
+    },
+    "apartmentsSetup": {
+      "addApartment": "Adaugă apartament",
+      "apartmentOption": "Apartament {{number}}, etaj {{floor}}",
+      "description": "Adaugă și configurează apartamentele pentru blocul și scara selectate.",
+      "familyName": "Nume familie",
+      "indivisibleShare": "Cotă indiviză",
+      "noApartments": "Nu există apartamente pentru blocul și scara selectate.",
+      "number": "Număr apartament",
+      "selectedApartment": "Apartament",
+      "setupStatus": "Status configurare",
+      "title": "Configurare apartamente"
     },
     "costs": {
       "gas": "Gaz",

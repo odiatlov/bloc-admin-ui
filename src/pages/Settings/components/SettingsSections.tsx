@@ -16,9 +16,14 @@ import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
 import { useTranslation } from 'react-i18next'
 import AppDatePicker from '../../../components/shared/AppDatePicker'
+import { filterBlocksForAccount } from '../../../application/accessScope'
+import { RoleContext } from '../../../contexts/RoleContext'
 import {
+  apartments,
   blocks,
+  buildingAdminAssignments,
   customCostConfigurations,
+  residentApartments,
   staircases,
   utilityMonthlyInputs,
   type AllocationType,
@@ -36,16 +41,34 @@ const allocationTypes: AllocationType[] = ['per_person', 'per_apartment', 'by_su
 
 const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
   const { t } = useTranslation()
-  const [selectedBlockId, setSelectedBlockId] = React.useState(blocks[0]?.id ?? '')
+  const { account, role } = React.useContext(RoleContext)
+  const scopedBlocks = React.useMemo(
+    () => filterBlocksForAccount(blocks, { ...account, role }, buildingAdminAssignments, residentApartments, apartments),
+    [account, role],
+  )
+  const [selectedBlockId, setSelectedBlockId] = React.useState(scopedBlocks[0]?.id ?? '')
+  const [selectedStaircaseId, setSelectedStaircaseId] = React.useState('all')
   const [blockDeadline, setBlockDeadline] = React.useState('2026-05-15')
   const [staircaseDeadlines, setStaircaseDeadlines] = React.useState<Record<string, string>>({})
   const [customCosts, setCustomCosts] = React.useState<CustomCostConfiguration[]>(customCostConfigurations)
-  const selectedBlock = blocks.find((block) => block.id === selectedBlockId) ?? blocks[0]
+  React.useEffect(() => {
+    if (!scopedBlocks.some((block) => block.id === selectedBlockId)) {
+      setSelectedBlockId(scopedBlocks[0]?.id ?? '')
+      setSelectedStaircaseId('all')
+    }
+  }, [scopedBlocks, selectedBlockId])
+
+  const selectedBlock = scopedBlocks.find((block) => block.id === selectedBlockId) ?? scopedBlocks[0]
   const selectedBlockStaircases = staircases.filter((staircase) => staircase.blockId === selectedBlock?.id)
   const selectedCustomCosts = customCosts.filter((cost) => cost.blockId === selectedBlock?.id)
 
   const handleBlockChange = (event: SelectChangeEvent) => {
     setSelectedBlockId(event.target.value)
+    setSelectedStaircaseId('all')
+  }
+
+  const handleStaircaseChange = (event: SelectChangeEvent) => {
+    setSelectedStaircaseId(event.target.value)
   }
 
   const updateCustomCost = (id: string, updates: Partial<CustomCostConfiguration>) => {
@@ -104,13 +127,24 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
             {t('settings.actions.addBlock')}
           </Button>
         </Box>
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(220px, 320px) minmax(0, 1fr)' }, gap: 2 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' }, gap: 2 }}>
           <FormControl size="small">
             <InputLabel>{t('settings.fields.block')}</InputLabel>
             <Select label={t('settings.fields.block')} value={selectedBlockId} onChange={handleBlockChange}>
-              {blocks.map((block) => (
+              {scopedBlocks.map((block) => (
                 <MenuItem key={block.id} value={block.id}>
                   {t('common.blockValue', { block: block.name })}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl size="small" disabled={!selectedBlock?.hasStaircases}>
+            <InputLabel>{t('blocks.columns.staircase')}</InputLabel>
+            <Select label={t('blocks.columns.staircase')} value={selectedStaircaseId} onChange={handleStaircaseChange}>
+              <MenuItem value="all">{t('common.all')}</MenuItem>
+              {selectedBlockStaircases.map((staircase) => (
+                <MenuItem key={staircase.id} value={staircase.id}>
+                  {t('settings.fields.staircaseName', { staircase: staircase.name })}
                 </MenuItem>
               ))}
             </Select>

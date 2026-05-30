@@ -2,6 +2,10 @@ import React from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogTitle from '@mui/material/DialogTitle'
 import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
@@ -10,8 +14,10 @@ import Paper from '@mui/material/Paper'
 import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
+import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 import PaymentIcon from '@mui/icons-material/Payment'
 import { useTranslation } from 'react-i18next'
@@ -19,16 +25,23 @@ import EmptyState from '../../../components/shared/EmptyState'
 import InvoiceBreakdownDrawer from '../../../components/shared/InvoiceBreakdownDrawer'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
+import { translateResidentAccountStatus } from '../../../domain/displayLabels'
 import { formatCurrency, formatMonth, formatNumber, getBlockLabel, useResidents, type WaterReadingRow } from '../../../hooks/useApartmentData'
-import type { FinancialStatus } from '../../../mocks/apartmentData'
+import type { FinancialStatus, ResidentAccountStatus } from '../../../mocks/apartmentData'
+
+const accountStatusOptions: ResidentAccountStatus[] = ['no_account', 'invited', 'active']
 
 const ResidentsOverview: React.FC = () => {
   const { t } = useTranslation()
   const {
+    addResident,
+    assignResidentToApartment,
     blocks,
     blockFilter,
     financialStatusFilter,
     groupedApartments,
+    residents,
+    scopedApartments,
     selectedApartment,
     selectedInvoices,
     selectedPayments,
@@ -36,11 +49,51 @@ const ResidentsOverview: React.FC = () => {
     setBlockFilter,
     setFinancialStatusFilter,
     setSelectedApartmentId,
+    unassignResidentFromApartment,
   } = useResidents()
   const [detailTab, setDetailTab] = React.useState(0)
+  const [isAddDialogOpen, setIsAddDialogOpen] = React.useState(false)
+  const [assignResidentId, setAssignResidentId] = React.useState('')
   const [selectedInvoiceId, setSelectedInvoiceId] = React.useState<string | null>(null)
+  const [residentForm, setResidentForm] = React.useState({
+    name: '',
+    email: '',
+    phone: '',
+    apartmentId: '',
+    accountStatus: 'no_account' as ResidentAccountStatus,
+  })
   const selectedInvoice = selectedInvoices.find((invoice) => invoice.id === selectedInvoiceId) ?? null
   const apartmentGroups = Object.entries(groupedApartments)
+  const assignableResidents = selectedApartment
+    ? residents.filter((resident) => !selectedApartment.residents.some((apartmentResident) => apartmentResident.id === resident.id))
+    : []
+
+  const getApartmentOptionLabel = (apartment: (typeof scopedApartments)[number]) => {
+    const details = [
+      apartment.residentCount === 0 ? t('residents.apartment.noResidentsAssigned') : t('residents.family.residentCount', { count: apartment.residentCount }),
+    ].filter(Boolean).join(' | ')
+    return `${apartment.familyLabel || t('residents.apartment.number', { number: apartment.number })} - ${details}`
+  }
+
+  const handleAddResident = () => {
+    if (!residentForm.name.trim()) return
+
+    addResident({
+      name: residentForm.name.trim(),
+      email: residentForm.email.trim() || undefined,
+      phone: residentForm.phone.trim() || undefined,
+      apartmentId: residentForm.apartmentId || undefined,
+      accountStatus: residentForm.accountStatus,
+    })
+    setResidentForm({ name: '', email: '', phone: '', apartmentId: '', accountStatus: 'no_account' })
+    setIsAddDialogOpen(false)
+  }
+
+  const handleAssignResident = () => {
+    if (!selectedApartment || !assignResidentId) return
+    assignResidentToApartment(assignResidentId, selectedApartment.id)
+    setAssignResidentId('')
+  }
 
   const invoiceColumns: DataColumn<(typeof selectedInvoices)[number]>[] = [
     { key: 'id', label: t('finance.columns.invoice'), render: (invoice) => invoice.id },
@@ -76,7 +129,7 @@ const ResidentsOverview: React.FC = () => {
 
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
-      <Paper sx={{ p: 2, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+      <Paper sx={{ p: 2, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
         <FormControl size="small" sx={{ minWidth: 160 }}>
           <InputLabel>{t('residents.filters.block')}</InputLabel>
           <Select label={t('residents.filters.block')} value={blockFilter} onChange={(event: SelectChangeEvent) => setBlockFilter(event.target.value)}>
@@ -102,6 +155,12 @@ const ResidentsOverview: React.FC = () => {
             <MenuItem value="overdue">{t('status.financial.overdue')}</MenuItem>
           </Select>
         </FormControl>
+
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', ml: { sm: 'auto' } }}>
+          <Button startIcon={<PersonAddIcon />} variant="contained" onClick={() => setIsAddDialogOpen(true)}>
+            {t('residents.actions.addResident')}
+          </Button>
+        </Box>
       </Paper>
 
       <Box sx={{ display: 'grid', gap: 2 }}>
@@ -121,9 +180,9 @@ const ResidentsOverview: React.FC = () => {
               {group.map((apartment) => (
                 <Paper key={apartment.id} variant="outlined" sx={{ p: 1.5, display: 'flex', gap: 2, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
                   <Box>
-                    <Typography sx={{ fontWeight: 700 }}>{apartment.familyLabel}</Typography>
+                    <Typography sx={{ fontWeight: 700 }}>{apartment.familyLabel || t('residents.apartment.number', { number: apartment.number })}</Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {t('residents.family.residentCount', { count: apartment.residentCount })}
+                      {apartment.residentCount === 0 ? t('residents.apartment.empty') : t('residents.family.residentCount', { count: apartment.residentCount })}
                     </Typography>
                   </Box>
                   <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -148,9 +207,9 @@ const ResidentsOverview: React.FC = () => {
                 {t('residents.actions.backToList')}
               </Button>
               <Box>
-                <Typography variant="h5">{selectedApartment.familyLabel}</Typography>
+                <Typography variant="h5">{selectedApartment.familyLabel || t('residents.apartment.number', { number: selectedApartment.number })}</Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {t('residents.family.residentCount', { count: selectedApartment.residentCount })}
+                  {selectedApartment.residentCount === 0 ? t('residents.apartment.empty') : t('residents.family.residentCount', { count: selectedApartment.residentCount })}
                 </Typography>
               </Box>
             </Box>
@@ -158,12 +217,43 @@ const ResidentsOverview: React.FC = () => {
               <Typography variant="subtitle2" gutterBottom>
                 {t('residents.family.members')}
               </Typography>
-              <Box sx={{ display: 'grid', gap: 0.5 }}>
-                {selectedApartment.residents.map((resident) => (
-                  <Typography key={resident.id} variant="body2">
-                    {resident.name}
+              <Box sx={{ display: 'grid', gap: 1 }}>
+                {selectedApartment.residents.length === 0 ? (
+                  <Typography variant="body2" color="text.secondary">
+                    {t('residents.apartment.noResidentsAssigned')}
                   </Typography>
+                ) : selectedApartment.residents.map((resident) => (
+                  <Box key={resident.id} sx={{ display: 'flex', gap: 1, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+                    <Box>
+                      <Typography variant="body2">{resident.name}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {resident.email || t('residents.resident.noEmail')}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+                      <StatusChip status={resident.accountStatus} label={translateResidentAccountStatus(t, resident.accountStatus)} />
+                      <Button size="small" onClick={() => unassignResidentFromApartment(resident.id, selectedApartment.id)}>
+                        {t('residents.actions.unassign')}
+                      </Button>
+                    </Box>
+                  </Box>
                 ))}
+                <Divider />
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <FormControl size="small" sx={{ minWidth: 220, flex: '1 1 220px' }}>
+                    <InputLabel>{t('residents.actions.assignResident')}</InputLabel>
+                    <Select label={t('residents.actions.assignResident')} value={assignResidentId} onChange={(event: SelectChangeEvent) => setAssignResidentId(event.target.value)}>
+                      {assignableResidents.map((resident) => (
+                        <MenuItem key={resident.id} value={resident.id}>
+                          {resident.name} - {translateResidentAccountStatus(t, resident.accountStatus)}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <Button variant="outlined" onClick={handleAssignResident} disabled={!assignResidentId}>
+                    {t('residents.actions.assign')}
+                  </Button>
+                </Box>
               </Box>
             </Paper>
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
@@ -231,6 +321,64 @@ const ResidentsOverview: React.FC = () => {
           </Box>
         )}
       </Drawer>
+      <Dialog open={isAddDialogOpen} onClose={() => setIsAddDialogOpen(false)} fullWidth maxWidth="sm">
+        <DialogTitle>{t('residents.dialog.addTitle')}</DialogTitle>
+        <DialogContent sx={{ display: 'grid', gap: 2, pt: 2 }}>
+          <TextField
+            autoFocus
+            label={t('residents.fields.name')}
+            required
+            value={residentForm.name}
+            onChange={(event) => setResidentForm((form) => ({ ...form, name: event.target.value }))}
+          />
+          <TextField
+            label={t('residents.fields.emailOptional')}
+            type="email"
+            value={residentForm.email}
+            onChange={(event) => setResidentForm((form) => ({ ...form, email: event.target.value }))}
+          />
+          <TextField
+            label={t('residents.fields.phoneOptional')}
+            value={residentForm.phone}
+            onChange={(event) => setResidentForm((form) => ({ ...form, phone: event.target.value }))}
+          />
+          <FormControl>
+            <InputLabel>{t('residents.fields.apartmentOptional')}</InputLabel>
+            <Select
+              label={t('residents.fields.apartmentOptional')}
+              value={residentForm.apartmentId}
+              onChange={(event: SelectChangeEvent) => setResidentForm((form) => ({ ...form, apartmentId: event.target.value }))}
+            >
+              <MenuItem value="">{t('residents.apartment.unassigned')}</MenuItem>
+              {scopedApartments.map((apartment) => (
+                <MenuItem key={apartment.id} value={apartment.id}>
+                  {getApartmentOptionLabel(apartment)}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl>
+            <InputLabel>{t('residents.fields.accountStatus')}</InputLabel>
+            <Select
+              label={t('residents.fields.accountStatus')}
+              value={residentForm.accountStatus}
+              onChange={(event: SelectChangeEvent) => setResidentForm((form) => ({ ...form, accountStatus: event.target.value as ResidentAccountStatus }))}
+            >
+              {accountStatusOptions.map((status) => (
+                <MenuItem key={status} value={status}>
+                  {translateResidentAccountStatus(t, status)}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsAddDialogOpen(false)}>{t('common.cancel')}</Button>
+          <Button variant="contained" onClick={handleAddResident} disabled={!residentForm.name.trim()}>
+            {t('residents.actions.addResident')}
+          </Button>
+        </DialogActions>
+      </Dialog>
       <InvoiceBreakdownDrawer invoice={selectedInvoice} onClose={() => setSelectedInvoiceId(null)} formatCurrency={formatCurrency} />
     </Box>
   )
