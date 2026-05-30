@@ -41,13 +41,14 @@ import {
 } from '../../../mocks/apartmentData'
 
 type ApartmentManagementProps = {
+  hideScopeFilters?: boolean
   initialBlockId?: string
 }
 
 const apartmentSetupStatuses: ApartmentSetupStatus[] = ['configured', 'unconfigured']
 const heatingTypes: HeatingType[] = ['central', 'individual', 'gas_boiler', 'district']
 
-const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ initialBlockId }) => {
+const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ hideScopeFilters = false, initialBlockId }) => {
   const { t } = useTranslation()
   const { account, role } = React.useContext(RoleContext)
   const scopedBlocks = React.useMemo(
@@ -222,51 +223,53 @@ const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ initialBlockI
 
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
-      <Paper sx={{ p: 2, display: 'flex', gap: 1.5, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-        <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', flexWrap: 'wrap' }}>
-          <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel>{t('settings.fields.block')}</InputLabel>
-            <Select label={t('settings.fields.block')} value={selectedBlockId} onChange={handleBlockChange}>
-              {scopedBlocks.map((block) => (
-                <MenuItem key={block.id} value={block.id}>
-                  {t('common.blockValue', { block: block.name })}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl size="small" disabled={!selectedBlock?.hasStaircases} sx={{ minWidth: 180 }}>
-            <InputLabel>{t('blocks.columns.staircase')}</InputLabel>
-            <Select label={t('blocks.columns.staircase')} value={selectedStaircaseId} onChange={handleStaircaseChange}>
-              <MenuItem value="all">{t('common.all')}</MenuItem>
-              {selectedBlockStaircases.map((staircase) => (
-                <MenuItem key={staircase.id} value={staircase.id}>
-                  {t('settings.fields.staircaseName', { staircase: staircase.name })}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel>{t('apartments.filters.setupStatus')}</InputLabel>
-            <Select
-              label={t('apartments.filters.setupStatus')}
-              value={setupStatusFilter}
-              onChange={(event: SelectChangeEvent) => setSetupStatusFilter(event.target.value as ApartmentSetupStatus | 'all')}
-            >
-              <MenuItem value="all">{t('common.all')}</MenuItem>
-              {apartmentSetupStatuses.map((status) => (
-                <MenuItem key={status} value={status}>
-                  {translateApartmentSetupStatus(t, status)}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', ml: { md: 'auto' } }}>
-          <Button startIcon={<AddIcon />} variant="contained" onClick={openAddApartmentDialog} sx={{ whiteSpace: 'nowrap' }}>
-            {t('apartments.setup.addApartment')}
-          </Button>
-        </Box>
-      </Paper>
+      {!hideScopeFilters && (
+        <Paper sx={{ p: 2, display: 'flex', gap: 1.5, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', flexWrap: 'wrap' }}>
+            <FormControl size="small" sx={{ minWidth: 180 }}>
+              <InputLabel>{t('settings.fields.block')}</InputLabel>
+              <Select label={t('settings.fields.block')} value={selectedBlockId} onChange={handleBlockChange}>
+                {scopedBlocks.map((block) => (
+                  <MenuItem key={block.id} value={block.id}>
+                    {t('common.blockValue', { block: block.name })}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl size="small" disabled={!selectedBlock?.hasStaircases} sx={{ minWidth: 180 }}>
+              <InputLabel>{t('blocks.columns.staircase')}</InputLabel>
+              <Select label={t('blocks.columns.staircase')} value={selectedStaircaseId} onChange={handleStaircaseChange}>
+                <MenuItem value="all">{t('common.all')}</MenuItem>
+                {selectedBlockStaircases.map((staircase) => (
+                  <MenuItem key={staircase.id} value={staircase.id}>
+                    {t('settings.fields.staircaseName', { staircase: staircase.name })}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl size="small" sx={{ minWidth: 180 }}>
+              <InputLabel>{t('apartments.filters.setupStatus')}</InputLabel>
+              <Select
+                label={t('apartments.filters.setupStatus')}
+                value={setupStatusFilter}
+                onChange={(event: SelectChangeEvent) => setSetupStatusFilter(event.target.value as ApartmentSetupStatus | 'all')}
+              >
+                <MenuItem value="all">{t('common.all')}</MenuItem>
+                {apartmentSetupStatuses.map((status) => (
+                  <MenuItem key={status} value={status}>
+                    {translateApartmentSetupStatus(t, status)}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', ml: { md: 'auto' } }}>
+            <Button startIcon={<AddIcon />} variant="contained" onClick={openAddApartmentDialog} sx={{ whiteSpace: 'nowrap' }}>
+              {t('apartments.setup.addApartment')}
+            </Button>
+          </Box>
+        </Paper>
+      )}
 
       <ResponsiveDataView
         ariaLabel={t('sidebar.apartments')}

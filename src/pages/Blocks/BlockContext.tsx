@@ -73,9 +73,11 @@ const BlockContext: React.FC = () => {
         description={t('blocks.description')}
         actions={(
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-            <Button startIcon={<ApartmentIcon />} variant="contained" component={RouterLink} to={`/admin/blocks/${block.id}/apartments`}>
-              {t('sidebar.apartments')}
-            </Button>
+            {section !== 'apartments' && (
+              <Button startIcon={<ApartmentIcon />} variant="contained" component={RouterLink} to={`/admin/blocks/${block.id}/apartments`}>
+                {t('sidebar.apartments')}
+              </Button>
+            )}
             <Button startIcon={<ArrowBackIcon />} variant="outlined" onClick={() => navigate('/admin/blocks')}>
               {t('blocks.actions.backToList')}
             </Button>
@@ -104,7 +106,7 @@ const BlockContext: React.FC = () => {
         </Box>
 
         {section === 'apartments' && (
-          <ApartmentManagement initialBlockId={block.id} />
+          <ApartmentManagement hideScopeFilters initialBlockId={block.id} />
         )}
 
         {(section === 'overview' || section === 'consumption') && (
