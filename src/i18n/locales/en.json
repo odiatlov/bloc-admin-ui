@@ -477,6 +477,12 @@
       "anomalies": "Anomaly detection",
       "waterBalance": "Water balance"
     },
+    "visibility": {
+      "ariaLabel": "Visible consumption sections",
+      "label": "Sections",
+      "minimumVisible": "At least one section must stay visible.",
+      "visibleCount": "{{count}} visible"
+    },
     "columns": {
       "apartment": "Apartment",
       "waterType": "Water type",
