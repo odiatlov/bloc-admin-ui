@@ -94,6 +94,7 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
         {rows.map((row) => {
           let primary: React.ReactNode = null
           let secondary: React.ReactNode = null
+          let secondaryLabel = ''
           let status: React.ReactNode = null
           let actions: React.ReactNode = null
           const metadata: EntityMetadataItem[] = []
@@ -103,9 +104,16 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
             const role = inferCardRole(column, index)
 
             if (role === 'hidden') return
-            if (role === 'primary') primary = value
-            if (role === 'secondary') secondary = value
-            if (role === 'status') status = status ? <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>{status}{value}</Box> : value
+            if (role === 'primary') {
+              primary = value
+            }
+            if (role === 'secondary') {
+              secondary = value
+              secondaryLabel = column.label
+            }
+            if (role === 'status') {
+              status = status ? <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>{status}{value}</Box> : value
+            }
             if (role === 'actions') actions = actions ? <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>{actions}{value}</Box> : value
             if (role === 'metadata') metadata.push({ key: column.key, label: column.label, value })
           })
@@ -116,6 +124,7 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
               actions={actions}
               metadata={metadata}
               secondary={secondary}
+              secondaryLabel={secondaryLabel}
               status={status}
               title={primary}
             />

@@ -53,8 +53,9 @@ export const MetadataGrid: React.FC<MetadataGridProps> = ({ items }) => {
               m: 0,
               minWidth: 0,
               color: 'text.primary',
-              fontSize: '0.875rem',
-              lineHeight: 1.45,
+              fontSize: '0.9375rem',
+              fontWeight: 500,
+              lineHeight: 1.4,
               overflowWrap: 'anywhere',
             }}
           >
@@ -70,11 +71,14 @@ type EntityListItemProps = {
   actions?: React.ReactNode
   metadata?: EntityMetadataItem[]
   secondary?: React.ReactNode
+  secondaryLabel?: string
   status?: React.ReactNode
+  statusLabel?: string
   title: React.ReactNode
+  titleLabel?: string
 }
 
-export const EntityListItem: React.FC<EntityListItemProps> = ({ actions, metadata = [], secondary, status, title }) => (
+export const EntityListItem: React.FC<EntityListItemProps> = ({ actions, metadata = [], secondary, secondaryLabel, status, statusLabel, title, titleLabel }) => (
   <Paper
     variant="outlined"
     sx={{
@@ -86,18 +90,26 @@ export const EntityListItem: React.FC<EntityListItemProps> = ({ actions, metadat
     }}
   >
     <Box sx={{ display: 'grid', gap: 0.75, minWidth: 0 }}>
-      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap', minWidth: 0 }}>
-        <Typography variant="subtitle2" sx={{ minWidth: 0, overflowWrap: 'anywhere' }}>
-          {title}
-        </Typography>
-        {status}
+      <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'start', flexWrap: 'wrap', minWidth: 0 }}>
+        <Box sx={{ minWidth: 0 }}>
+          {titleLabel && <MetadataLabel>{titleLabel}</MetadataLabel>}
+          <Typography variant="body1" sx={{ minWidth: 0, fontWeight: 600, lineHeight: 1.35, overflowWrap: 'anywhere' }}>
+            {title}
+          </Typography>
+        </Box>
+        {status && (
+          <Box sx={{ minWidth: 0 }}>
+            {statusLabel && <MetadataLabel>{statusLabel}</MetadataLabel>}
+            <Box sx={{ mt: statusLabel ? 0.25 : 0 }}>{status}</Box>
+          </Box>
+        )}
       </Box>
-      {secondary && (
-        <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.45 }}>
-          {secondary}
-        </Typography>
-      )}
-      <MetadataGrid items={metadata} />
+      <MetadataGrid
+        items={[
+          ...(secondary ? [{ key: 'secondary', label: secondaryLabel ?? '', value: secondary }] : []),
+          ...metadata,
+        ]}
+      />
     </Box>
     {actions && (
       <Box
