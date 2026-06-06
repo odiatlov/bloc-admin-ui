@@ -69,9 +69,114 @@
       "per_apartment": "{{label}} = {{amount}} deoarece costul este împărțit pe apartament.",
       "by_surface": "{{label}} = {{amount}} pentru {{basis}} mp utili din {{totalBasis}} mp.",
       "by_heating_area": "{{label}} = {{amount}} pentru {{basis}} mp încălziți din {{totalBasis}} mp.",
+      "by_cold_water_consumption": "{{label}} = {{amount}} pentru {{basis}} mc de apă rece din {{totalBasis}} mc.",
+      "by_cold_water_consumption_unit_price": "{{label}} = {{amount}} pentru {{basis}} mc înmulțiți cu tariful configurat.",
+      "by_hot_water_consumption": "{{label}} = {{amount}} pentru {{basis}} mc de apă caldă din {{totalBasis}} mc.",
+      "by_hot_water_consumption_unit_price": "{{label}} = {{amount}} pentru {{basis}} mc înmulțiți cu tariful configurat.",
+      "boiler_tax": "{{label}} = {{amount}} ca {{percentage}}% aplicat la costurile comune eligibile pentru centrala apartamentului.",
       "individual_meter": "{{label}} = {{amount}} pentru {{basis}} mc din {{totalBasis}} mc.",
       "equal_split": "{{label}} = {{amount}} prin împărțire egală între apartamente eligibile.",
       "custom": "{{label}} = {{amount}} pe baza cotei configurate manual."
+    },
+    "invoiceLines": {
+      "basis": {
+        "per_person": "Persoane declarate",
+        "per_apartment": "Apartament eligibil",
+        "by_surface": "Suprafață utilă",
+        "by_heating_area": "Suprafață încălzită",
+        "by_cold_water_consumption": "Consum de apă rece",
+        "by_hot_water_consumption": "Consum de apă caldă",
+        "individual_meter": "Consum contorizat",
+        "equal_split": "Apartament eligibil",
+        "custom": "Cotă configurată"
+      },
+      "explanation": {
+        "garbage": "Costul de salubritate este alocat după numărul de persoane configurat.",
+        "administration": "Costul serviciului de administrare este alocat pe baza apartamentelor configurate.",
+        "heating": "Costul de încălzire este alocat după suprafața încălzită configurată.",
+        "cold_water": "Apa rece consumată de apartament.",
+        "cold_water_for_hot_water": "Apa rece utilizată pentru prepararea apei calde.",
+        "hot_water": "Costul de apă caldă este alocat după consumul de apă caldă.",
+        "hot_water_preparation": "Costul opțional de preparare a apei calde este alocat după consumul de apă caldă.",
+        "staircase_electricity": "Electricitatea scării este alocată în aria configurată.",
+        "staircase_cleaning": "Curățenia scării este alocată în aria configurată.",
+        "gardening": "Costul de grădinărit este alocat pe baza cotelor personalizate configurate.",
+        "boiler_tax": "Taxa configurată pentru centrală se aplică la costurile comune eligibile."
+      },
+      "formula": {
+        "per_person": "{{expenseTotal}} × ({{basisWithUnit}} / {{totalBasisWithUnit}}) = {{amount}}",
+        "per_apartment": "{{expenseTotal}} × ({{basisWithUnit}} / {{totalBasisWithUnit}}) = {{amount}}",
+        "by_surface": "{{expenseTotal}} × ({{basisWithUnit}} / {{totalBasisWithUnit}}) = {{amount}}",
+        "by_heating_area": "{{expenseTotal}} × ({{basisWithUnit}} / {{totalBasisWithUnit}}) = {{amount}}",
+        "by_cold_water_consumption": "{{expenseTotal}} × ({{basisWithUnit}} / {{totalBasisWithUnit}}) = {{amount}}",
+        "by_cold_water_consumption_unit_price": "{{basisWithUnit}} × {{unitPriceWithUnit}} = {{amount}}",
+        "by_hot_water_consumption": "{{expenseTotal}} × ({{basisWithUnit}} / {{totalBasisWithUnit}}) = {{amount}}",
+        "by_hot_water_consumption_unit_price": "{{basisWithUnit}} × {{unitPriceWithUnit}} = {{amount}}",
+        "individual_meter": "{{expenseTotal}} × ({{basisWithUnit}} / {{totalBasisWithUnit}}) = {{amount}}",
+        "equal_split": "{{expenseTotal}} × ({{basisWithUnit}} / {{totalBasisWithUnit}}) = {{amount}}",
+        "custom": "{{expenseTotal}} × ({{basisWithUnit}} / {{totalBasisWithUnit}}) = {{amount}}",
+        "boiler_tax": "{{taxableAmount}} × {{percentage}}% = {{amount}}"
+      },
+      "inputs": {
+        "allocationPercentage": "Procent de alocare",
+        "coldWaterTariff": "Tarif apă rece",
+        "coldWaterForHotWaterUnitPrice": "Preț unitar apă rece pt. apă caldă",
+        "expenseTotal": "Total cheltuială",
+        "hotWaterPreparationTariff": "Tarif preparare apă caldă",
+        "hotWaterTariff": "Tarif apă caldă",
+        "percentage": "Procent",
+        "taxableAmount": "Costuri comune eligibile",
+        "unitPrice": "Tarif",
+        "per_person": {
+          "basis": "Persoane apartament",
+          "totalBasis": "Total persoane"
+        },
+        "per_apartment": {
+          "basis": "Apartament",
+          "totalBasis": "Total apartamente"
+        },
+        "by_surface": {
+          "basis": "Suprafață utilă apartament",
+          "totalBasis": "Suprafață utilă totală"
+        },
+        "by_heating_area": {
+          "basis": "Suprafață încălzită apartament",
+          "totalBasis": "Suprafață încălzită totală"
+        },
+        "by_cold_water_consumption": {
+          "basis": "Consum apă rece",
+          "totalBasis": "Consum total apă rece"
+        },
+        "by_hot_water_consumption": {
+          "basis": "Consum apă caldă",
+          "totalBasis": "Consum total apă caldă"
+        },
+        "individual_meter": {
+          "basis": "Consum contorizat",
+          "totalBasis": "Consum contorizat total"
+        },
+        "equal_split": {
+          "basis": "Apartament",
+          "totalBasis": "Total apartamente"
+        },
+        "custom": {
+          "basis": "Cotă personalizată",
+          "totalBasis": "Total cote personalizate"
+        }
+      },
+      "units": {
+        "per_person": "persoane",
+        "per_apartment": "apartamente",
+        "by_surface": "mp",
+        "by_heating_area": "mp",
+        "by_cold_water_consumption": "mc",
+        "by_hot_water_consumption": "mc",
+        "individual_meter": "mc",
+        "equal_split": "apartamente",
+        "custom": "cotă",
+        "perCubicMeter": "/mc",
+        "percent": "%"
+      }
     }
   },
   "heatingType": {
@@ -398,10 +503,14 @@
       "garbage": "Salubritate",
       "heating": "Încălzire",
       "coldWater": "Apă rece",
+      "coldWaterForHotWater": "Apă rece pt. apă caldă",
+      "hotWater": "Apă caldă",
+      "hotWaterPreparation": "Preparare apă caldă",
       "staircaseElectricity": "Electricitate scara",
       "surfaceRepairs": "Reparatii pe suprafata",
       "staircaseCleaning": "Curățenie scara",
-      "gardening": "Grădinărit"
+      "gardening": "Grădinărit",
+      "boilerTax": "Taxă centrală 20%"
     },
     "debts": {
       "previousBalance": "Sold restant anterior"
@@ -455,6 +564,9 @@
         "basis": "Baza",
         "method": "Alocare",
         "methodTooltip": "Calculat folosind {{method}}",
+        "formula": "Formula",
+        "inputs": "Date folosite",
+        "result": "Rezultat final",
         "title": "Defalcare costuri"
       },
       "description": "Vedeți facturile, statusul plăților și detalii descărcabile.",
@@ -665,6 +777,8 @@
       "per_apartment": "Pe apartament",
       "by_surface": "După suprafață utilă",
       "by_heating_area": "După suprafața încălzită",
+      "by_cold_water_consumption": "După consumul de apă rece",
+      "by_hot_water_consumption": "După consumul de apă caldă",
       "individual_meter": "Contor individual",
       "equal_split": "Împărțire egală",
       "custom": "Cote personalizate"

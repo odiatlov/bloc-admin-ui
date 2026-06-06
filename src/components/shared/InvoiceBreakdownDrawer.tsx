@@ -14,7 +14,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import { useTranslation } from 'react-i18next'
-import type { ApartmentMaintenanceTotal } from '../../types/apartment'
+import type { ApartmentMaintenanceTotal, InvoiceCalculationInput, InvoiceLine } from '../../types/apartment'
 import { formatMonth, formatNumber } from '../../utils/formatters'
 
 type InvoiceWithBreakdown = {
@@ -32,6 +32,8 @@ type InvoiceBreakdownDrawerProps = {
   formatCurrency: (value: number) => string
 }
 
+const getLineKey = (line: InvoiceLine) => `${line.expenseId}-${line.categoryId}`
+
 const InvoiceBreakdownDrawer: React.FC<InvoiceBreakdownDrawerProps> = ({ formatCurrency, invoice, onClose }) => {
   const { t } = useTranslation()
   const maintenanceTotal = invoice?.maintenanceTotal
@@ -39,6 +41,105 @@ const InvoiceBreakdownDrawer: React.FC<InvoiceBreakdownDrawerProps> = ({ formatC
   const debtTotal = maintenanceTotal?.debts.reduce((total, debt) => total + debt.principal, 0) ?? 0
   const penaltyTotal = maintenanceTotal?.penalties.reduce((total, penalty) => total + penalty.amount, 0) ?? 0
   const balance = invoice ? Math.max(invoice.totalAmount - invoice.paidAmount, 0) : 0
+  const appendUnit = (value: string, unitKey?: string) => {
+    if (!unitKey) return value
+    const unit = t(unitKey)
+    return unit.startsWith('/') ? `${value}${unit}` : `${value} ${unit}`
+  }
+  const formatInputValue = (input: InvoiceCalculationInput) => {
+    if (typeof input.value === 'number' && input.valueType === 'currency') return appendUnit(formatCurrency(input.value), input.unitKey)
+    if (typeof input.value === 'number') return appendUnit(formatNumber(input.value), input.unitKey)
+    return input.value
+  }
+  const formatLineFormula = (line: InvoiceLine) =>
+    t(line.formulaKey, {
+      amount: formatCurrency(line.amount),
+      allocationPercentage: typeof line.values.allocationPercentage === 'number' ? formatNumber(line.values.allocationPercentage) : line.values.allocationPercentage,
+      basis: formatNumber(line.basis),
+      basisWithUnit: `${formatNumber(line.basis)}${line.allocationBasis.unitKey ? ` ${t(line.allocationBasis.unitKey)}` : ''}`,
+      expenseTotal: typeof line.values.expenseTotal === 'number' ? formatCurrency(line.values.expenseTotal) : line.values.expenseTotal,
+      percentage: typeof line.values.percentage === 'number' ? formatNumber(line.values.percentage) : line.values.percentage,
+      taxableAmount: typeof line.values.taxableAmount === 'number' ? formatCurrency(line.values.taxableAmount) : line.values.taxableAmount,
+      totalBasis: formatNumber(line.totalBasis),
+      totalBasisWithUnit: `${formatNumber(line.totalBasis)}${line.allocationBasis.unitKey ? ` ${t(line.allocationBasis.unitKey)}` : ''}`,
+      unitPrice: typeof line.values.unitPrice === 'number' ? formatCurrency(line.values.unitPrice) : line.values.unitPrice,
+      unitPriceWithUnit: typeof line.values.unitPrice === 'number'
+        ? appendUnit(formatCurrency(line.values.unitPrice), 'maintenance.invoiceLines.units.perCubicMeter')
+        : line.values.unitPrice,
+    })
+  const formatAllocationBasis = (line: InvoiceLine) => {
+    const unit = line.allocationBasis.unitKey ? ` ${t(line.allocationBasis.unitKey)}` : ''
+    const value = `${formatNumber(line.allocationBasis.value)}${unit}`
+
+    if (line.allocationBasis.totalValue === line.allocationBasis.value) return value
+
+    return `${value} / ${formatNumber(line.allocationBasis.totalValue)}${unit}`
+  }
+  const renderInvoiceLine = (line: InvoiceLine, depth = 0, defaultExpanded = false) => (
+    <Accordion key={getLineKey(line)} defaultExpanded={defaultExpanded} disableGutters={depth > 0} sx={depth > 0 ? { boxShadow: 'none', borderLeft: 2, borderColor: 'divider' } : undefined}>
+      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, width: '100%', pr: 1, pl: depth }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 0 }}>
+            <Typography sx={{ fontWeight: 700 }}>{t(line.labelKey)}</Typography>
+            <Tooltip title={t('resident.bills.breakdown.methodTooltip', { method: t(`settings.allocation.${line.allocationType}`) })}>
+              <InfoOutlinedIcon fontSize="small" color="action" />
+            </Tooltip>
+          </Box>
+          <Typography sx={{ fontWeight: 700, whiteSpace: 'nowrap' }}>{formatCurrency(line.amount)}</Typography>
+        </Box>
+      </AccordionSummary>
+      <AccordionDetails sx={{ display: 'grid', gap: 1.25, pl: 2 + depth }}>
+        <Typography variant="body2" color="text.secondary">
+          {t(line.explanationKey, {
+            label: t(line.labelKey),
+            amount: formatCurrency(line.amount),
+            basis: formatNumber(line.basis),
+            totalBasis: formatNumber(line.totalBasis),
+            unitPrice: typeof line.values.unitPrice === 'number' ? formatCurrency(line.values.unitPrice) : line.values.unitPrice,
+          })}
+        </Typography>
+        <Box sx={{ display: 'grid', gap: 0.75 }}>
+          <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase' }} color="text.secondary">
+            {t('resident.bills.breakdown.formula')}
+          </Typography>
+          <Typography variant="body2">{formatLineFormula(line)}</Typography>
+        </Box>
+        <Box sx={{ display: 'grid', gap: 0.75 }}>
+          <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase' }} color="text.secondary">
+            {t('resident.bills.breakdown.inputs')}
+          </Typography>
+          {line.calculationInputs.map((input) => (
+            <Box key={`${line.expenseId}-${input.labelKey}`} sx={{ display: 'flex', justifyContent: 'space-between', gap: 1 }}>
+              <Typography variant="body2" color="text.secondary">{t(input.labelKey)}</Typography>
+              <Typography variant="body2">{formatInputValue(input)}</Typography>
+            </Box>
+          ))}
+        </Box>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          <Typography variant="caption" color="text.secondary">
+            {t('resident.bills.breakdown.method')}: {t(`settings.allocation.${line.allocationType}`)}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {t('resident.bills.breakdown.basis')}: {t(line.allocationBasis.labelKey)} - {formatAllocationBasis(line)}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {t('resident.bills.breakdown.result')}: {formatCurrency(line.amount)}
+          </Typography>
+        </Box>
+        {line.adjustments?.map((adjustment) => (
+          <Box key={adjustment.id} sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, color: adjustment.amount < 0 ? 'success.main' : 'warning.main' }}>
+            <Typography variant="body2">{t(adjustment.labelKey)}</Typography>
+            <Typography variant="body2">{formatCurrency(adjustment.amount)}</Typography>
+          </Box>
+        ))}
+        {line.children?.length ? (
+          <Box sx={{ display: 'grid', gap: 1 }}>
+            {line.children.map((child) => renderInvoiceLine(child, depth + 1))}
+          </Box>
+        ) : null}
+      </AccordionDetails>
+    </Accordion>
+  )
 
   return (
     <Drawer anchor="right" open={Boolean(invoice)} onClose={onClose} slotProps={{ paper: { sx: { width: { xs: '100%', sm: 560 }, p: 2 } } }}>
@@ -111,40 +212,7 @@ const InvoiceBreakdownDrawer: React.FC<InvoiceBreakdownDrawerProps> = ({ formatC
 
           <Box sx={{ display: 'grid', gap: 1 }}>
             <Typography variant="h6">{t('resident.bills.breakdown.title')}</Typography>
-            {maintenanceTotal?.lines.map((line, index) => (
-              <Accordion key={line.expenseId} defaultExpanded={index === 0}>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, width: '100%', pr: 1 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                      <Typography sx={{ fontWeight: 700 }}>{t(line.labelKey)}</Typography>
-                      <Tooltip title={t('resident.bills.breakdown.methodTooltip', { method: t(`settings.allocation.${line.allocationType}`) })}>
-                        <InfoOutlinedIcon fontSize="small" color="action" />
-                      </Tooltip>
-                    </Box>
-                    <Typography sx={{ fontWeight: 700 }}>{formatCurrency(line.amount)}</Typography>
-                  </Box>
-                </AccordionSummary>
-                <AccordionDetails sx={{ display: 'grid', gap: 1 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    {t(line.textKey, {
-                      label: t(line.labelKey),
-                      amount: formatCurrency(line.amount),
-                      basis: formatNumber(line.basis),
-                      totalBasis: formatNumber(line.totalBasis),
-                      percentage: typeof line.values.percentage === 'number' ? formatNumber(line.values.percentage) : line.values.percentage,
-                    })}
-                  </Typography>
-                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                    <Typography variant="caption" color="text.secondary">
-                      {t('resident.bills.breakdown.method')}: {t(`settings.allocation.${line.allocationType}`)}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {t('resident.bills.breakdown.basis')}: {formatNumber(line.basis)} / {formatNumber(line.totalBasis)}
-                    </Typography>
-                  </Box>
-                </AccordionDetails>
-              </Accordion>
-            ))}
+            {maintenanceTotal?.lines.map((line, index) => renderInvoiceLine(line, 0, index === 0))}
           </Box>
 
           {(maintenanceTotal?.debts.length || maintenanceTotal?.penalties.length) ? (

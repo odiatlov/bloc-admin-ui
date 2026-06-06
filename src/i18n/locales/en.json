@@ -373,6 +373,9 @@
       "garbage": "Garbage collection",
       "heating": "Heating",
       "coldWater": "Cold water",
+      "coldWaterForHotWater": "Cold water for hot water",
+      "hotWater": "Hot water",
+      "hotWaterPreparation": "Hot water preparation",
       "staircaseElectricity": "Staircase electricity",
       "surfaceRepairs": "Surface repairs",
       "staircaseCleaning": "Staircase cleaning",
@@ -401,10 +404,114 @@
       "per_apartment": "{{label}} = {{amount}} because the cost is split per apartment.",
       "by_surface": "{{label}} = {{amount}} from {{basis}} sqm usable surface out of {{totalBasis}} sqm.",
       "by_heating_area": "{{label}} = {{amount}} from {{basis}} sqm heating area out of {{totalBasis}} sqm.",
+      "by_cold_water_consumption": "{{label}} = {{amount}} from {{basis}} cubic meters of cold water out of {{totalBasis}} cubic meters.",
+      "by_cold_water_consumption_unit_price": "{{label}} = {{amount}} from {{basis}} cubic meters multiplied by the configured tariff.",
+      "by_hot_water_consumption": "{{label}} = {{amount}} from {{basis}} cubic meters of hot water out of {{totalBasis}} cubic meters.",
+      "by_hot_water_consumption_unit_price": "{{label}} = {{amount}} from {{basis}} cubic meters multiplied by the configured tariff.",
       "boiler_tax": "{{label}} = {{amount}} as {{percentage}}% applied to eligible shared costs for the apartment boiler.",
       "individual_meter": "{{label}} = {{amount}} from {{basis}} cubic meters out of {{totalBasis}} cubic meters.",
       "equal_split": "{{label}} = {{amount}} through equal split among eligible apartments.",
       "custom": "{{label}} = {{amount}} using the configured custom share."
+    },
+    "invoiceLines": {
+      "basis": {
+        "per_person": "Declared persons",
+        "per_apartment": "Eligible apartment",
+        "by_surface": "Usable surface",
+        "by_heating_area": "Heated surface",
+        "by_cold_water_consumption": "Cold water consumption",
+        "by_hot_water_consumption": "Hot water consumption",
+        "individual_meter": "Metered consumption",
+        "equal_split": "Eligible apartment",
+        "custom": "Configured share"
+      },
+      "explanation": {
+        "garbage": "Shared sanitation cost allocated using the configured resident count.",
+        "administration": "Administration service cost allocated using the configured apartment basis.",
+        "heating": "Heating cost allocated using the configured heated-surface basis.",
+        "cold_water": "Cold water consumed by the apartment.",
+        "cold_water_for_hot_water": "Cold water used to prepare hot water.",
+        "hot_water": "Hot water cost allocated by hot water consumption.",
+        "hot_water_preparation": "Optional hot water preparation cost allocated by hot water consumption.",
+        "staircase_electricity": "Staircase electricity allocated within the configured scope.",
+        "staircase_cleaning": "Staircase cleaning allocated within the configured scope.",
+        "gardening": "Gardening cost allocated using the configured custom shares.",
+        "boiler_tax": "Configured boiler fee applied to eligible shared costs."
+      },
+      "formula": {
+        "per_person": "{{expenseTotal}} × ({{basisWithUnit}} / {{totalBasisWithUnit}}) = {{amount}}",
+        "per_apartment": "{{expenseTotal}} × ({{basisWithUnit}} / {{totalBasisWithUnit}}) = {{amount}}",
+        "by_surface": "{{expenseTotal}} × ({{basisWithUnit}} / {{totalBasisWithUnit}}) = {{amount}}",
+        "by_heating_area": "{{expenseTotal}} × ({{basisWithUnit}} / {{totalBasisWithUnit}}) = {{amount}}",
+        "by_cold_water_consumption": "{{expenseTotal}} × ({{basisWithUnit}} / {{totalBasisWithUnit}}) = {{amount}}",
+        "by_cold_water_consumption_unit_price": "{{basisWithUnit}} × {{unitPriceWithUnit}} = {{amount}}",
+        "by_hot_water_consumption": "{{expenseTotal}} × ({{basisWithUnit}} / {{totalBasisWithUnit}}) = {{amount}}",
+        "by_hot_water_consumption_unit_price": "{{basisWithUnit}} × {{unitPriceWithUnit}} = {{amount}}",
+        "individual_meter": "{{expenseTotal}} × ({{basisWithUnit}} / {{totalBasisWithUnit}}) = {{amount}}",
+        "equal_split": "{{expenseTotal}} × ({{basisWithUnit}} / {{totalBasisWithUnit}}) = {{amount}}",
+        "custom": "{{expenseTotal}} × ({{basisWithUnit}} / {{totalBasisWithUnit}}) = {{amount}}",
+        "boiler_tax": "{{taxableAmount}} × {{percentage}}% = {{amount}}"
+      },
+      "inputs": {
+        "allocationPercentage": "Allocation percentage",
+        "coldWaterTariff": "Cold water tariff",
+        "coldWaterForHotWaterUnitPrice": "Cold water for hot water unit price",
+        "expenseTotal": "Expense total",
+        "hotWaterPreparationTariff": "Hot water preparation tariff",
+        "hotWaterTariff": "Hot water tariff",
+        "percentage": "Percentage",
+        "taxableAmount": "Eligible shared costs",
+        "unitPrice": "Tariff",
+        "per_person": {
+          "basis": "Apartment persons",
+          "totalBasis": "Total persons"
+        },
+        "per_apartment": {
+          "basis": "Apartment count",
+          "totalBasis": "Total apartments"
+        },
+        "by_surface": {
+          "basis": "Apartment usable surface",
+          "totalBasis": "Total usable surface"
+        },
+        "by_heating_area": {
+          "basis": "Apartment heated surface",
+          "totalBasis": "Total heated surface"
+        },
+        "by_cold_water_consumption": {
+          "basis": "Cold water consumption",
+          "totalBasis": "Total cold water consumption"
+        },
+        "by_hot_water_consumption": {
+          "basis": "Hot water consumption",
+          "totalBasis": "Total hot water consumption"
+        },
+        "individual_meter": {
+          "basis": "Metered consumption",
+          "totalBasis": "Total metered consumption"
+        },
+        "equal_split": {
+          "basis": "Apartment count",
+          "totalBasis": "Total apartments"
+        },
+        "custom": {
+          "basis": "Custom share",
+          "totalBasis": "Total custom shares"
+        }
+      },
+      "units": {
+        "per_person": "persons",
+        "per_apartment": "apartments",
+        "by_surface": "sqm",
+        "by_heating_area": "sqm",
+        "by_cold_water_consumption": "m3",
+        "by_hot_water_consumption": "m3",
+        "individual_meter": "m3",
+        "equal_split": "apartments",
+        "custom": "share",
+        "perCubicMeter": "/m3",
+        "percent": "%"
+      }
     }
   },
   "heatingType": {
@@ -449,6 +556,9 @@
         "basis": "Basis",
         "method": "Allocation",
         "methodTooltip": "Calculated using {{method}}",
+        "formula": "Formula",
+        "inputs": "Inputs used",
+        "result": "Final result",
         "title": "Cost breakdown"
       },
       "description": "View invoices, payment status, and downloadable bill details.",
@@ -660,6 +770,8 @@
       "per_apartment": "Per apartment",
       "by_surface": "By usable surface",
       "by_heating_area": "By heating area",
+      "by_cold_water_consumption": "By cold water consumption",
+      "by_hot_water_consumption": "By hot water consumption",
       "individual_meter": "Individual meter",
       "equal_split": "Equal split",
       "custom": "Custom shares"

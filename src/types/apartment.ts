@@ -17,6 +17,8 @@ export type AllocationType =
   | 'per_apartment'
   | 'by_surface'
   | 'by_heating_area'
+  | 'by_cold_water_consumption'
+  | 'by_hot_water_consumption'
   | 'individual_meter'
   | 'equal_split'
   | 'custom'
@@ -197,6 +199,9 @@ export type MonthlyExpense = {
   amount: number
   ruleId: string
   source: ExpenseKind
+  explanationKey?: string
+  formulaKey?: string
+  unitPrice?: number
 }
 
 export type CustomCostConfiguration = {
@@ -263,7 +268,28 @@ export type MainMeterReading = {
   currentValue: number
 }
 
-export type AllocationExplanation = {
+export type InvoiceCalculationInput = {
+  labelKey: string
+  value: number | string
+  unitKey?: string
+  valueType?: 'currency' | 'number'
+}
+
+export type InvoiceAllocationBasis = {
+  labelKey: string
+  value: number
+  totalValue: number
+  unitKey?: string
+}
+
+export type InvoiceLineAdjustment = {
+  id: string
+  labelKey: string
+  amount: number
+  explanationKey?: string
+}
+
+export type InvoiceLine = {
   expenseId: string
   categoryId: string
   labelKey: string
@@ -272,8 +298,16 @@ export type AllocationExplanation = {
   basis: number
   totalBasis: number
   textKey: string
+  explanationKey: string
+  formulaKey: string
+  calculationInputs: InvoiceCalculationInput[]
+  allocationBasis: InvoiceAllocationBasis
+  children?: InvoiceLine[]
+  adjustments?: InvoiceLineAdjustment[]
   values: Record<string, string | number>
 }
+
+export type AllocationExplanation = InvoiceLine
 
 export type ApartmentMaintenanceTotal = {
   apartmentId: string
