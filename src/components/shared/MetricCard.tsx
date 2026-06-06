@@ -40,38 +40,40 @@ const MetricCard: React.FC<MetricCardProps> = ({ badge, children, icon, label, s
           {label}
         </Typography>
       </Box>
-      <Box sx={{ minWidth: 0, display: 'flex', alignItems: 'center', gap: 1 }}>
-        {icon && (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flex: '0 0 auto',
-              '& .MuiSvgIcon-root': {
-                fontSize: { xs: '2rem', sm: '2.375rem' },
-              },
-            }}
-          >
-            {icon}
-          </Box>
-        )}
-        {value !== undefined && value !== null && (
-          <Typography
-            variant="h4"
-            sx={{
-              fontSize: { xs: '1.25rem', sm: '1.5rem', lg: '1.875rem' },
-              fontWeight: 700,
-              lineHeight: 1.12,
-              minWidth: 0,
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {value}
-          </Typography>
-        )}
+      <Box sx={{ minWidth: 0, display: 'grid', gap: secondary || children ? 0.75 : 0 }}>
+        <Box sx={{ minWidth: 0, display: 'flex', alignItems: 'center', gap: 1 }}>
+          {icon && (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flex: '0 0 auto',
+                '& .MuiSvgIcon-root': {
+                  fontSize: { xs: '2rem', sm: '2.375rem' },
+                },
+              }}
+            >
+              {icon}
+            </Box>
+          )}
+          {value !== undefined && value !== null && (
+            <Typography
+              variant="h4"
+              sx={{
+                fontSize: { xs: '1.25rem', sm: '1.5rem', lg: '1.875rem' },
+                fontWeight: 700,
+                lineHeight: 1.12,
+                minWidth: 0,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {value}
+            </Typography>
+          )}
+        </Box>
         {secondary && (
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: children ? 1.25 : 0, mt: value ? 0.75 : 0 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: children ? 1.25 : 0 }}>
             {secondary}
           </Typography>
         )}
