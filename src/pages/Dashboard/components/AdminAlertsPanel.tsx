@@ -1,10 +1,10 @@
 import React from 'react'
-import Paper from '@mui/material/Paper'
-import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import { useTranslation } from 'react-i18next'
 import { useConsumption, useFinance } from '../../../hooks/useApartmentData'
+import { ContentCard } from './DashboardSystem'
 
 const AdminAlertsPanel: React.FC = () => {
   const { t } = useTranslation()
@@ -19,11 +19,7 @@ const AdminAlertsPanel: React.FC = () => {
   ]
 
   return (
-    <Paper sx={{ p: 2.25, height: '100%', border: '1px solid', borderColor: 'warning.main', borderLeftWidth: 4 }}>
-      <Typography variant="h6" sx={{ mb: 1.5 }}>
-        {t('dashboard.admin.alerts.title')}
-      </Typography>
-
+    <ContentCard title={t('dashboard.admin.alerts.title')} accent="warning">
       <Box sx={{ display: 'grid', gap: 1.25 }}>
         {alerts.map((alert) => (
           <Box key={alert} sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
@@ -34,7 +30,7 @@ const AdminAlertsPanel: React.FC = () => {
           </Box>
         ))}
       </Box>
-    </Paper>
+    </ContentCard>
   )
 }
 

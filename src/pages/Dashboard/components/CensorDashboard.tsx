@@ -1,34 +1,15 @@
 import React from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Paper from '@mui/material/Paper'
-import Typography from '@mui/material/Typography'
+import FactCheckIcon from '@mui/icons-material/FactCheck'
+import VisibilityIcon from '@mui/icons-material/Visibility'
 import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import EmptyState from '../../../components/shared/EmptyState'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
 import { formatApartment, formatFriendlyDateTime, useCensorReviews } from '../../../hooks/useApartmentData'
-
-type CensorMetricCardProps = {
-  label: string
-  value: number
-  detail?: React.ReactNode
-}
-
-const CensorMetricCard: React.FC<CensorMetricCardProps> = ({ detail, label, value }) => (
-  <Paper sx={{ p: 2, height: '100%', display: 'grid', gridTemplateRows: 'auto 1fr auto', gap: 1.25 }}>
-    <Typography variant="body2" color="text.secondary">
-      {label}
-    </Typography>
-    <Typography variant="h5" sx={{ alignSelf: 'end' }}>
-      {value}
-    </Typography>
-    <Box sx={{ minHeight: 18 }}>
-      {detail}
-    </Box>
-  </Paper>
-)
+import { ActionBar, ContentCard, DashboardHeader, DashboardPage, StatCard, StatGrid } from './DashboardSystem'
 
 const CensorDashboard: React.FC = () => {
   const { t } = useTranslation()
@@ -43,59 +24,47 @@ const CensorDashboard: React.FC = () => {
   ]
 
   return (
-    <Box sx={{ display: 'grid', gap: 2 }}>
-      <Box>
-        <Typography variant="h4" sx={{ fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
-          {t('dashboard.censor.title')}
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          {t('dashboard.censor.description')}
-        </Typography>
-      </Box>
+    <DashboardPage>
+      <DashboardHeader title={t('dashboard.censor.title')} description={t('dashboard.censor.description')} />
 
-      <Box sx={{ display: 'grid', gap: 1 }}>
-        <Typography variant="subtitle2" color="text.secondary">
-          {t('dashboard.censor.quickActions')}
-        </Typography>
-        <Paper sx={{ p: 1.5, width: '100%', boxSizing: 'border-box', display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
-          <Button component={RouterLink} to="/admin/finance" variant="contained">
-            {t('censor.actions.openQueue')}
-          </Button>
-          <Button component={RouterLink} to="/admin/consumption" variant="outlined">
-            {t('censor.actions.viewAnomalies')}
-          </Button>
-        </Paper>
-      </Box>
+      <ActionBar title={t('dashboard.censor.quickActions')}>
+        <Button startIcon={<FactCheckIcon />} component={RouterLink} to="/admin/finance" variant="contained">
+          {t('censor.actions.openQueue')}
+        </Button>
+        <Button startIcon={<VisibilityIcon />} component={RouterLink} to="/admin/consumption" variant="outlined">
+          {t('censor.actions.viewAnomalies')}
+        </Button>
+      </ActionBar>
 
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' }, gridAutoRows: '1fr', gap: 2 }}>
-        <CensorMetricCard label={t('censor.metrics.pending')} value={pendingCount} />
-        <CensorMetricCard label={t('censor.metrics.invoiceReviews')} value={invoiceReviews.length} />
-        <CensorMetricCard
-          label={t('censor.metrics.anomalies')}
-          value={anomalyReviews.length}
-          detail={anomalyReviews[0] && (
-            <Typography variant="caption" color="text.secondary">
-              {formatApartment(anomalyReviews[0].anomaly.apartment)}
-            </Typography>
-          )}
-        />
-      </Box>
-
-      <ResponsiveDataView
-        ariaLabel={t('censor.tabs.history')}
-        columns={columns}
-        emptyState={(
-          <EmptyState
-            actionLabel={t('censor.actions.openQueue')}
-            actionTo="/admin/finance"
-            headline={t('emptyState.headline', { information: t('emptyState.information.reviews') })}
-            helperText={t('emptyState.helper.reviews')}
+      <StatGrid columns={{ xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(3, minmax(0, 1fr))' }}>
+        <StatCard label={t('censor.metrics.pending')} value={pendingCount} />
+        <StatCard label={t('censor.metrics.invoiceReviews')} value={invoiceReviews.length} />
+        <Box sx={{ gridColumn: { xs: '1 / -1', md: 'auto' } }}>
+          <StatCard
+            label={t('censor.metrics.anomalies')}
+            value={anomalyReviews.length}
+            secondary={anomalyReviews[0] ? formatApartment(anomalyReviews[0].anomaly.apartment) : undefined}
           />
-        )}
-        getRowId={(review) => review.id}
-        rows={reviewItems}
-      />
-    </Box>
+        </Box>
+      </StatGrid>
+
+      <ContentCard title={t('censor.tabs.history')}>
+        <ResponsiveDataView
+          ariaLabel={t('censor.tabs.history')}
+          columns={columns}
+          emptyState={(
+            <EmptyState
+              actionLabel={t('censor.actions.openQueue')}
+              actionTo="/admin/finance"
+              headline={t('emptyState.headline', { information: t('emptyState.information.reviews') })}
+              helperText={t('emptyState.helper.reviews')}
+            />
+          )}
+          getRowId={(review) => review.id}
+          rows={reviewItems}
+        />
+      </ContentCard>
+    </DashboardPage>
   )
 }
 

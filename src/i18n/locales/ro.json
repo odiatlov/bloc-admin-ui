@@ -148,8 +148,11 @@
       },
       "overview": {
         "residents": "Locatari",
+        "residentsShort": "Loc.",
         "apartments": "Apartamente",
+        "apartmentsShort": "Ap.",
         "blocks": "Blocuri",
+        "blocksShort": "Bl.",
         "propertyStats": "Statistici proprietăți",
         "propertyStatsDescription": "Acoperire portofoliu",
         "statsValue": "{{blocks}} Blocuri | {{apartments}} Apartamente | {{residents}} Locatari"
@@ -178,7 +181,9 @@
         "cashVerification": "Verificare numerar",
         "cashVerificationValue": "{{count}} în așteptare",
         "monthlyRevenueTrend": "+8% față de luna trecută",
+        "monthlyRevenueTrendShort": "+8%",
         "outstandingTrend": "+3 noi săptămâna aceasta",
+        "outstandingTrendShort": "+3 noi",
         "collectionStable": "Stabil",
         "cashVerificationTrend": "NEVERIFICATĂ -> VERIFICATĂ -> DEPUSĂ",
         "pendingReview": "În verificare"

@@ -1,8 +1,8 @@
 import React from 'react'
-import Paper from '@mui/material/Paper'
-import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
+import { ContentCard } from './DashboardSystem'
 
 const items = [
   { textKey: 'invoiceGenerated', timeKey: 'twoHoursAgo' },
@@ -13,11 +13,7 @@ const items = [
 const AdminActivityFeed: React.FC = () => {
   const { t } = useTranslation()
   return (
-    <Paper sx={{ p: 2.25, height: '100%' }}>
-      <Typography variant="h6" sx={{ mb: 1.5 }}>
-        {t('dashboard.admin.activity.title')}
-      </Typography>
-
+    <ContentCard title={t('dashboard.admin.activity.title')}>
       <Box sx={{ display: 'grid', gap: 1.5 }}>
         {items.map((i, idx) => (
           <Box key={idx} sx={{ display: 'grid', gridTemplateColumns: '12px minmax(0, 1fr)', gap: 1.25, alignItems: 'start' }}>
@@ -33,7 +29,7 @@ const AdminActivityFeed: React.FC = () => {
           </Box>
         ))}
       </Box>
-    </Paper>
+    </ContentCard>
   )
 }
 
