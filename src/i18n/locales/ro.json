@@ -483,6 +483,12 @@
       "anomalies": "Detecție anomalii",
       "waterBalance": "Bilanț apă"
     },
+    "visibility": {
+      "ariaLabel": "Secțiuni vizibile pentru consum",
+      "label": "Secțiuni",
+      "minimumVisible": "Cel puțin o secțiune trebuie să rămână vizibilă.",
+      "visibleCount": "{{count}} vizibile"
+    },
     "columns": {
       "apartment": "Apartament",
       "waterType": "Tip apa",
