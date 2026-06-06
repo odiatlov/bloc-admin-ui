@@ -196,6 +196,8 @@
       "pay": "Plătește",
       "lastSubmittedIndex": "Ultimul index trimis",
       "indexValue": "Index: {{value}}",
+      "coldWaterTotal": "Apă rece (total)",
+      "hotWaterTotal": "Apă caldă (total)",
       "noIndex": "Nu a fost trimis niciun index.",
       "recentAnnouncements": "Anunțuri recente",
       "noAnnouncements": "Nu există anunțuri",
