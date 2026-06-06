@@ -38,7 +38,7 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
     meter ? t('consumption.columns.meterValue', { previous: formatNumber(meter.previousValue), current: formatNumber(meter.currentValue), usage: formatNumber(meter.usageValue) }) : t('common.notAvailable')
 
   const readingColumns: DataColumn<(typeof visibleReadings)[number]>[] = [
-    { key: 'apartment', label: t('consumption.columns.apartment'), render: (reading) => formatApartment(reading.apartment) },
+    { key: 'apartment', label: t('consumption.columns.apartment'), cardRole: 'primary', render: (reading) => formatApartment(reading.apartment) },
     { key: 'month', label: t('finance.columns.month'), render: (reading) => formatMonth(reading.month) },
     { key: 'coldWater', label: t('consumption.waterType.cold'), render: (reading) => renderMeter(reading.meters.cold) },
     { key: 'hotWater', label: t('consumption.waterType.hot'), render: (reading) => renderMeter(reading.meters.hot) },
@@ -46,14 +46,14 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
   ]
 
   const summaryColumns: DataColumn<(typeof summaries)[number]>[] = [
-    { key: 'apartment', label: t('consumption.columns.apartment'), render: (summary) => formatApartment(summary.apartment) },
+    { key: 'apartment', label: t('consumption.columns.apartment'), cardRole: 'primary', render: (summary) => formatApartment(summary.apartment) },
     { key: 'month', label: t('finance.columns.month'), render: (summary) => formatMonth(summary.month) },
     { key: 'usage', label: t('consumption.columns.totalUsage'), render: (summary) => formatNumber(summary.usageValue) },
-    { key: 'anomaly', label: t('consumption.columns.anomaly'), render: (summary) => <StatusChip status={summary.anomaly} label={t(`status.anomaly.${summary.anomaly}`)} /> },
+    { key: 'anomaly', label: t('consumption.columns.anomaly'), cardRole: 'status', render: (summary) => <StatusChip status={summary.anomaly} label={t(`status.anomaly.${summary.anomaly}`)} /> },
   ]
 
   const waterBalanceColumns: DataColumn<(typeof waterBalances)[number]>[] = [
-    { key: 'block', label: t('residents.filters.block'), render: (balance) => t('common.blockValue', { block: balance.block.name }) },
+    { key: 'block', label: t('residents.filters.block'), cardRole: 'primary', render: (balance) => t('common.blockValue', { block: balance.block.name }) },
     { key: 'month', label: t('finance.columns.month'), render: (balance) => formatMonth(balance.month) },
     { key: 'main', label: t('consumption.columns.mainMeter'), render: (balance) => formatNumber(balance.mainUsage) },
     { key: 'apartments', label: t('consumption.columns.apartmentMeters'), render: (balance) => formatNumber(balance.apartmentUsage) },

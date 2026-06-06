@@ -22,6 +22,7 @@ import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 import PaymentIcon from '@mui/icons-material/Payment'
 import { useTranslation } from 'react-i18next'
 import EmptyState from '../../../components/shared/EmptyState'
+import { EntityListItem } from '../../../components/shared/EntityPresentation'
 import InvoiceBreakdownDrawer from '../../../components/shared/InvoiceBreakdownDrawer'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
@@ -96,13 +97,14 @@ const ResidentsOverview: React.FC = () => {
   }
 
   const invoiceColumns: DataColumn<(typeof selectedInvoices)[number]>[] = [
-    { key: 'id', label: t('finance.columns.invoice'), render: (invoice) => invoice.id },
+    { key: 'id', label: t('finance.columns.invoice'), cardRole: 'primary', render: (invoice) => invoice.id },
     { key: 'month', label: t('finance.columns.month'), render: (invoice) => formatMonth(invoice.month) },
     { key: 'amount', label: t('finance.columns.amount'), render: (invoice) => formatCurrency(invoice.totalAmount) },
-    { key: 'status', label: t('finance.columns.status'), render: (invoice) => <StatusChip status={invoice.status} label={t(`status.invoice.${invoice.status}`)} /> },
+    { key: 'status', label: t('finance.columns.status'), cardRole: 'status', render: (invoice) => <StatusChip status={invoice.status} label={t(`status.invoice.${invoice.status}`)} /> },
     {
       key: 'actions',
       label: t('common.actions'),
+      cardRole: 'actions',
       render: (invoice) => (
         <Button size="small" onClick={() => setSelectedInvoiceId(invoice.id)}>
           {t('resident.bills.viewDetails')}
@@ -112,16 +114,16 @@ const ResidentsOverview: React.FC = () => {
   ]
 
   const paymentColumns: DataColumn<(typeof selectedPayments)[number]>[] = [
-    { key: 'id', label: t('finance.columns.payment'), render: (payment) => payment.id },
+    { key: 'id', label: t('finance.columns.payment'), cardRole: 'primary', render: (payment) => payment.id },
     { key: 'method', label: t('finance.columns.method'), render: (payment) => t(`finance.method.${payment.method}`) },
     { key: 'amount', label: t('finance.columns.amount'), render: (payment) => formatCurrency(payment.amount) },
-    { key: 'status', label: t('finance.columns.verification'), render: (payment) => <StatusChip status={payment.verificationStatus} label={t(`status.cash.${payment.verificationStatus}`)} /> },
+    { key: 'status', label: t('finance.columns.verification'), cardRole: 'status', render: (payment) => <StatusChip status={payment.verificationStatus} label={t(`status.cash.${payment.verificationStatus}`)} /> },
   ]
 
   const renderMeter = (meter: WaterReadingRow['meters']['cold']) =>
     meter ? t('consumption.columns.meterValue', { previous: formatNumber(meter.previousValue), current: formatNumber(meter.currentValue), usage: formatNumber(meter.usageValue) }) : t('common.notAvailable')
   const readingColumns: DataColumn<(typeof selectedReadings)[number]>[] = [
-    { key: 'month', label: t('finance.columns.month'), render: (reading) => formatMonth(reading.month) },
+    { key: 'month', label: t('finance.columns.month'), cardRole: 'primary', render: (reading) => formatMonth(reading.month) },
     { key: 'coldWater', label: t('consumption.waterType.cold'), render: (reading) => renderMeter(reading.meters.cold) },
     { key: 'hotWater', label: t('consumption.waterType.hot'), render: (reading) => renderMeter(reading.meters.hot) },
     { key: 'usage', label: t('consumption.columns.totalUsage'), render: (reading) => formatNumber(reading.usageValue) },
@@ -178,21 +180,18 @@ const ResidentsOverview: React.FC = () => {
             </Typography>
             <Box sx={{ display: 'grid', gap: 1 }}>
               {group.map((apartment) => (
-                <Paper key={apartment.id} variant="outlined" sx={{ p: 1.5, display: 'flex', gap: 2, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                  <Box>
-                    <Typography sx={{ fontWeight: 700 }}>{apartment.familyLabel || t('residents.apartment.number', { number: apartment.number })}</Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {apartment.residentCount === 0 ? t('residents.apartment.empty') : t('residents.family.residentCount', { count: apartment.residentCount })}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
-                    <StatusChip status={apartment.financialStatus} label={t(`status.financial.${apartment.financialStatus}`)} />
-                    <Typography variant="body2">{formatCurrency(apartment.debtBalance)}</Typography>
+                <EntityListItem
+                  key={apartment.id}
+                  title={apartment.familyLabel || t('residents.apartment.number', { number: apartment.number })}
+                  secondary={apartment.residentCount === 0 ? t('residents.apartment.empty') : t('residents.family.residentCount', { count: apartment.residentCount })}
+                  status={<StatusChip status={apartment.financialStatus} label={t(`status.financial.${apartment.financialStatus}`)} />}
+                  metadata={[{ key: 'debtBalance', label: t('finance.columns.amount'), value: formatCurrency(apartment.debtBalance) }]}
+                  actions={(
                     <Button size="small" onClick={() => setSelectedApartmentId(apartment.id)}>
                       {t('residents.actions.openDetails')}
                     </Button>
-                  </Box>
-                </Paper>
+                  )}
+                />
               ))}
             </Box>
           </Paper>
@@ -223,20 +222,17 @@ const ResidentsOverview: React.FC = () => {
                     {t('residents.apartment.noResidentsAssigned')}
                   </Typography>
                 ) : selectedApartment.residents.map((resident) => (
-                  <Box key={resident.id} sx={{ display: 'flex', gap: 1, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                    <Box>
-                      <Typography variant="body2">{resident.name}</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {resident.email || t('residents.resident.noEmail')}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
-                      <StatusChip status={resident.accountStatus} label={translateResidentAccountStatus(t, resident.accountStatus)} />
+                  <EntityListItem
+                    key={resident.id}
+                    title={resident.name}
+                    secondary={resident.email || t('residents.resident.noEmail')}
+                    status={<StatusChip status={resident.accountStatus} label={translateResidentAccountStatus(t, resident.accountStatus)} />}
+                    actions={(
                       <Button size="small" onClick={() => unassignResidentFromApartment(resident.id, selectedApartment.id)}>
                         {t('residents.actions.unassign')}
                       </Button>
-                    </Box>
-                  </Box>
+                    )}
+                  />
                 ))}
                 <Divider />
                 <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>

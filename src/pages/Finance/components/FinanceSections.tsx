@@ -19,6 +19,7 @@ import LocalAtmIcon from '@mui/icons-material/LocalAtm'
 import PaidIcon from '@mui/icons-material/Paid'
 import { useTranslation } from 'react-i18next'
 import EmptyState from '../../../components/shared/EmptyState'
+import MetricCard from '../../../components/shared/MetricCard'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
 import { formatCurrency, formatFriendlyDateTime, formatMonth, formatNumber, useFinance } from '../../../hooks/useApartmentData'
@@ -45,19 +46,21 @@ const FinanceSections: React.FC = () => {
   const formatGeneratedDate = (value: string) => formatFriendlyDateTime(value, { atLabel: t('common.at'), todayLabel: t('common.today') })
 
   const invoiceColumns: DataColumn<(typeof invoices)[number]>[] = [
-    { key: 'id', label: t('finance.columns.invoice'), render: (invoice) => invoice.id },
-    { key: 'apartment', label: t('finance.columns.apartment'), render: (invoice) => invoice.familyLabel },
+    { key: 'id', label: t('finance.columns.invoice'), cardRole: 'primary', render: (invoice) => invoice.id },
+    { key: 'apartment', label: t('finance.columns.apartment'), cardRole: 'secondary', render: (invoice) => invoice.familyLabel },
     { key: 'residents', label: t('residents.family.members'), render: (invoice) => invoice.residents.length },
     { key: 'month', label: t('finance.columns.month'), render: (invoice) => formatMonth(invoice.month) },
     { key: 'amount', label: t('finance.columns.amount'), render: (invoice) => formatCurrency(invoice.totalAmount) },
     {
       key: 'status',
       label: t('finance.columns.status'),
+      cardRole: 'status',
       render: (invoice) => <StatusChip status={invoice.status} label={t(`status.invoice.${invoice.status}`)} />,
     },
     {
       key: 'actions',
       label: t('common.actions'),
+      cardRole: 'actions',
       render: (invoice) => (
         <Button size="small" disabled={invoice.status === 'paid'} onClick={() => setDialogInvoiceId(invoice.id)}>
           {t('finance.actions.registerCash')}
@@ -67,30 +70,33 @@ const FinanceSections: React.FC = () => {
   ]
 
   const paymentColumns: DataColumn<(typeof payments)[number]>[] = [
-    { key: 'id', label: t('finance.columns.payment'), render: (payment) => payment.id },
-    { key: 'apartment', label: t('finance.columns.apartment'), render: (payment) => payment.familyLabel },
+    { key: 'id', label: t('finance.columns.payment'), cardRole: 'primary', render: (payment) => payment.id },
+    { key: 'apartment', label: t('finance.columns.apartment'), cardRole: 'secondary', render: (payment) => payment.familyLabel },
     { key: 'method', label: t('finance.columns.method'), render: (payment) => t(`finance.method.${payment.method}`) },
     { key: 'amount', label: t('finance.columns.amount'), render: (payment) => formatCurrency(payment.amount) },
     {
       key: 'status',
       label: t('finance.columns.verification'),
+      cardRole: 'status',
       render: (payment) => <StatusChip status={payment.verificationStatus} label={t(`status.cash.${payment.verificationStatus}`)} />,
     },
   ]
 
   const cashColumns: DataColumn<(typeof cashEntries)[number]>[] = [
-    { key: 'id', label: t('finance.columns.cash'), render: (entry) => entry.id },
-    { key: 'apartment', label: t('finance.columns.apartment'), render: (entry) => entry.familyLabel },
+    { key: 'id', label: t('finance.columns.cash'), cardRole: 'primary', render: (entry) => entry.id },
+    { key: 'apartment', label: t('finance.columns.apartment'), cardRole: 'secondary', render: (entry) => entry.familyLabel },
     { key: 'amount', label: t('finance.columns.amount'), render: (entry) => formatCurrency(entry.amount) },
     {
       key: 'status',
       label: t('finance.columns.status'),
+      cardRole: 'status',
       render: (entry) => <StatusChip status={entry.status} label={t(`status.cash.${entry.status}`)} />,
     },
     { key: 'notes', label: t('finance.columns.notes'), render: (entry) => t(entry.notesKey) },
     {
       key: 'actions',
       label: t('common.actions'),
+      cardRole: 'actions',
       render: (entry) => (
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           <Button size="small" disabled={entry.status !== 'unverified'} onClick={() => setCashStatus(entry.id, 'verified')}>
@@ -112,27 +118,9 @@ const FinanceSections: React.FC = () => {
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' }, gap: 2 }}>
-        <Paper sx={{ p: 2 }}>
-          <PaidIcon color="primary" />
-          <Typography variant="body2" color="text.secondary">
-            {t('finance.metrics.monthlyRevenue')}
-          </Typography>
-          <Typography variant="h5">{formatCurrency(monthlyRevenue)}</Typography>
-        </Paper>
-        <Paper sx={{ p: 2 }}>
-          <CheckCircleIcon color="warning" />
-          <Typography variant="body2" color="text.secondary">
-            {t('finance.metrics.unpaidInvoices')}
-          </Typography>
-          <Typography variant="h5">{unpaidInvoices}</Typography>
-        </Paper>
-        <Paper sx={{ p: 2 }}>
-          <LocalAtmIcon color="error" />
-          <Typography variant="body2" color="text.secondary">
-            {t('finance.metrics.cashAwaiting')}
-          </Typography>
-          <Typography variant="h5">{cashAwaitingVerification}</Typography>
-        </Paper>
+        <MetricCard icon={<PaidIcon color="primary" />} label={t('finance.metrics.monthlyRevenue')} value={formatCurrency(monthlyRevenue)} />
+        <MetricCard icon={<CheckCircleIcon color="warning" />} label={t('finance.metrics.unpaidInvoices')} value={unpaidInvoices} />
+        <MetricCard icon={<LocalAtmIcon color="error" />} label={t('finance.metrics.cashAwaiting')} value={cashAwaitingVerification} />
       </Box>
 
       <Paper>

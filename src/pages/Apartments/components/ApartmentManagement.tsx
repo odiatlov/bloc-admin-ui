@@ -21,6 +21,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import EditIcon from '@mui/icons-material/Edit'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import { useTranslation } from 'react-i18next'
+import { EntityListItem } from '../../../components/shared/EntityPresentation'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
 import { filterBlocksForAccount } from '../../../application/accessScope'
@@ -203,16 +204,17 @@ const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ hideScopeFilt
   }
 
   const apartmentColumns: DataColumn<Apartment>[] = [
-    { key: 'number', label: t('apartments.setup.number'), render: (apartment) => t('residents.apartment.number', { number: apartment.number }) },
-    { key: 'familyName', label: t('apartments.setup.familyName'), render: (apartment) => apartment.familyName || t('common.notAvailable') },
+    { key: 'number', label: t('apartments.setup.number'), cardRole: 'primary', render: (apartment) => t('residents.apartment.number', { number: apartment.number }) },
+    { key: 'familyName', label: t('apartments.setup.familyName'), cardRole: 'secondary', render: (apartment) => apartment.familyName || t('common.notAvailable') },
     { key: 'residents', label: t('residents.family.members'), render: (apartment) => getApartmentResidents(apartment.id, residents, residentApartmentRecords).length },
     { key: 'floor', label: t('blocks.columns.floor'), render: (apartment) => apartment.floor },
     { key: 'staircase', label: t('blocks.columns.staircase'), render: (apartment) => selectedBlockStaircases.find((staircase) => staircase.id === apartment.staircaseId)?.name ?? t('common.notAvailable') },
     { key: 'usableSurface', label: t('blocks.columns.usableSurface'), render: (apartment) => formatNumber(apartment.usableSurface) },
-    { key: 'setupStatus', label: t('apartments.setup.setupStatus'), render: (apartment) => <StatusChip status={apartment.setupStatus ?? 'configured'} label={translateApartmentSetupStatus(t, apartment.setupStatus ?? 'configured')} /> },
+    { key: 'setupStatus', label: t('apartments.setup.setupStatus'), cardRole: 'status', render: (apartment) => <StatusChip status={apartment.setupStatus ?? 'configured'} label={translateApartmentSetupStatus(t, apartment.setupStatus ?? 'configured')} /> },
     {
       key: 'actions',
       label: t('common.actions'),
+      cardRole: 'actions',
       render: (apartment) => (
         <Button size="small" startIcon={<EditIcon />} onClick={() => openEditDrawer(apartment.id)}>
           {t('apartments.actions.edit')}
@@ -422,20 +424,17 @@ const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ hideScopeFilt
                     {t('residents.apartment.noResidentsAssigned')}
                   </Typography>
                 ) : selectedApartmentResidents.map((resident) => (
-                  <Paper key={resident.id} variant="outlined" sx={{ p: 1.5, display: 'flex', gap: 1, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                    <Box>
-                      <Typography variant="body2">{resident.name}</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {resident.email || t('residents.resident.noEmail')}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
-                      <StatusChip status={resident.accountStatus} label={translateResidentAccountStatus(t, resident.accountStatus)} />
+                  <EntityListItem
+                    key={resident.id}
+                    title={resident.name}
+                    secondary={resident.email || t('residents.resident.noEmail')}
+                    status={<StatusChip status={resident.accountStatus} label={translateResidentAccountStatus(t, resident.accountStatus)} />}
+                    actions={(
                       <Button size="small" onClick={() => handleUnassignResident(resident.id)}>
                         {t('residents.actions.unassign')}
                       </Button>
-                    </Box>
-                  </Paper>
+                    )}
+                  />
                 ))}
                 <Divider />
                 <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
