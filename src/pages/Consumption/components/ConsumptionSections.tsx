@@ -62,27 +62,31 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
 
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
-      <Paper sx={{ p: 2, display: 'flex', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
-        {mode !== 'resident' ? (
-          <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel>{t('residents.filters.block')}</InputLabel>
-            <Select label={t('residents.filters.block')} value={blockFilter} onChange={(event: SelectChangeEvent) => setBlockFilter(event.target.value)}>
-            <MenuItem value="all">{t('common.all')}</MenuItem>
-            {blocks.map((block) => (
-              <MenuItem key={block.id} value={block.id}>
-                {t('common.blockValue', { block: block.name })}
-              </MenuItem>
-            ))}
-          </Select>
-          </FormControl>
-        ) : (
-          <Typography variant="h6">{t('consumption.resident.history')}</Typography>
-        )}
-        {canEditReadings && (
-          <Button variant="contained" onClick={() => setSubmitOpen(true)}>
-            {mode === 'resident' ? t('consumption.actions.submitIndex') : t('consumption.actions.addReading')}
-          </Button>
-        )}
+      <Paper sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+          {mode !== 'resident' ? (
+            <FormControl size="small" sx={{ minWidth: 180 }}>
+              <InputLabel>{t('residents.filters.block')}</InputLabel>
+              <Select label={t('residents.filters.block')} value={blockFilter} onChange={(event: SelectChangeEvent) => setBlockFilter(event.target.value)}>
+                <MenuItem value="all">{t('common.all')}</MenuItem>
+                {blocks.map((block) => (
+                  <MenuItem key={block.id} value={block.id}>
+                    {t('common.blockValue', { block: block.name })}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          ) : (
+            <Typography variant="h6">{t('consumption.resident.history')}</Typography>
+          )}
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1, flexWrap: 'wrap', ml: { sm: 'auto' } }}>
+          {canEditReadings && (
+            <Button variant="contained" onClick={() => setSubmitOpen(true)}>
+              {mode === 'resident' ? t('consumption.actions.submitIndex') : t('consumption.actions.addReading')}
+            </Button>
+          )}
+        </Box>
       </Paper>
 
       <ResponsiveDataView

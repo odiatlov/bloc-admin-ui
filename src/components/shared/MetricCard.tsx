@@ -15,40 +15,21 @@ type MetricCardProps = {
 const MetricCard: React.FC<MetricCardProps> = ({ badge, children, icon, label, secondary, value }) => (
   <Paper
     sx={{
-      p: { xs: 1.5, sm: 2 },
-      minHeight: children || badge ? { xs: 112, sm: 136 } : { xs: 92, sm: 104 },
+      p: { xs: 1.25, sm: 2 },
+      minHeight: children || badge ? { xs: 112, sm: 136 } : { xs: 72, sm: 104 },
       height: '100%',
       boxSizing: 'border-box',
       maxWidth: '100%',
       overflow: 'hidden',
-      display: icon ? 'flex' : 'grid',
-      alignItems: icon ? 'flex-start' : undefined,
-      alignContent: icon ? undefined : children || badge ? 'space-between' : 'start',
-      gap: children || badge ? { xs: 1, sm: 1.25 } : 1,
+      display: 'grid',
+      alignContent: children || badge ? 'space-between' : 'start',
+      gap: children || badge ? { xs: 1, sm: 1.25 } : { xs: 0.75, sm: 1 },
     }}
   >
-    {icon && (
-      <Box
-        sx={{
-          display: 'flex',
-          alignSelf: 'stretch',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: { xs: 40, sm: 48 },
-          flex: '0 0 auto',
-          '& .MuiSvgIcon-root': {
-            fontSize: { xs: '2rem', sm: '2.375rem' },
-          },
-        }}
-      >
-        {icon}
-      </Box>
-    )}
     <Box
       sx={{
         minWidth: 0,
         maxWidth: '100%',
-        flex: icon ? '1 1 auto' : undefined,
         display: 'grid',
         alignContent: children || badge ? 'space-between' : 'start',
         gap: children || badge ? { xs: 1, sm: 1.25 } : 1,
@@ -59,9 +40,33 @@ const MetricCard: React.FC<MetricCardProps> = ({ badge, children, icon, label, s
           {label}
         </Typography>
       </Box>
-      <Box sx={{ minWidth: 0 }}>
+      <Box sx={{ minWidth: 0, display: 'flex', alignItems: 'center', gap: 1 }}>
+        {icon && (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flex: '0 0 auto',
+              '& .MuiSvgIcon-root': {
+                fontSize: { xs: '2rem', sm: '2.375rem' },
+              },
+            }}
+          >
+            {icon}
+          </Box>
+        )}
         {value !== undefined && value !== null && (
-          <Typography variant="h4" sx={{ fontSize: { xs: '1.25rem', sm: '1.875rem' }, fontWeight: 700, lineHeight: 1.12, overflowWrap: 'anywhere' }}>
+          <Typography
+            variant="h4"
+            sx={{
+              fontSize: { xs: '1.25rem', sm: '1.5rem', lg: '1.875rem' },
+              fontWeight: 700,
+              lineHeight: 1.12,
+              minWidth: 0,
+              whiteSpace: 'nowrap',
+            }}
+          >
             {value}
           </Typography>
         )}

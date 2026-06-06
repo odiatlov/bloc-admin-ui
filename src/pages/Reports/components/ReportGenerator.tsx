@@ -26,7 +26,8 @@ const ReportGenerator: React.FC = () => {
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
       <Paper sx={{ p: 2 }}>
-        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
           <FormControl size="small" sx={{ minWidth: 160 }}>
             <InputLabel>{t('reports.filters.month')}</InputLabel>
             <Select label={t('reports.filters.month')} value={month} onChange={(event: SelectChangeEvent) => setMonth(event.target.value)}>
@@ -48,7 +49,8 @@ const ReportGenerator: React.FC = () => {
               ))}
             </Select>
           </FormControl>
-          <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end', ml: { sm: 'auto' } }}>
             <Button startIcon={<PreviewIcon />} variant="outlined">
               {t('reports.actions.preview')}
             </Button>

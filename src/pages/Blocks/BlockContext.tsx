@@ -1,6 +1,8 @@
 import React from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import Paper from '@mui/material/Paper'
+import Typography from '@mui/material/Typography'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ApartmentIcon from '@mui/icons-material/Apartment'
 import { Link as RouterLink, Navigate, useNavigate, useParams } from 'react-router-dom'
@@ -70,8 +72,12 @@ const BlockContext: React.FC = () => {
       <PageHeader
         title={t('blocks.title', { block: block.name })}
         description={t('blocks.description')}
-        actions={(
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+      />
+
+      <Box sx={{ display: 'grid', gap: 2 }}>
+        <Paper sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
+          <Typography variant="h6">{t('dashboard.admin.quickActions')}</Typography>
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'flex-end', ml: { sm: 'auto' } }}>
             {section !== 'apartments' && (
               <Button startIcon={<ApartmentIcon />} variant="contained" component={RouterLink} to={`/admin/blocks/${block.id}/apartments`}>
                 {t('sidebar.apartments')}
@@ -81,10 +87,8 @@ const BlockContext: React.FC = () => {
               {t('blocks.actions.backToList')}
             </Button>
           </Box>
-        )}
-      />
+        </Paper>
 
-      <Box sx={{ display: 'grid', gap: 2 }}>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(4, minmax(0, 1fr))' }, gap: 2 }}>
           <MetricCard label={t('dashboard.admin.overview.apartments')} value={apartmentCount} />
           <MetricCard label={t('dashboard.admin.overview.residents')} value={residentCount} />

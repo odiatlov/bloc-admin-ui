@@ -265,7 +265,7 @@ const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ hideScopeFilt
               </Select>
             </FormControl>
           </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', ml: { md: 'auto' } }}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', ml: { sm: 'auto' } }}>
             <Button startIcon={<AddIcon />} variant="contained" onClick={openAddApartmentDialog} sx={{ whiteSpace: 'nowrap' }}>
               {t('apartments.setup.addApartment')}
             </Button>
