@@ -77,33 +77,29 @@ const ResidentDashboard: React.FC = () => {
             {t('dashboard.resident.lastSubmittedIndex')}
           </Typography>
           {lastIndex ? (
-            <Box sx={{ display: 'grid', gap: 1 }}>
+            <Box sx={{ display: 'grid', gap: 1.25 }}>
               <Box>
                 <Typography variant="h5" sx={{ lineHeight: 1.2 }}>{formatNumber(lastIndex.usageValue)}</Typography>
                 <Typography variant="caption" color="text.secondary">
                   {t('consumption.columns.totalUsage')} - {formatMonth(lastIndex.month)}
                 </Typography>
               </Box>
-              <Box sx={{ display: 'grid', gap: 0.75 }}>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gap: 0.5,
+                  pt: 1,
+                  borderTop: '1px solid',
+                  borderColor: 'divider',
+                }}
+              >
                 {[
                   { label: t('dashboard.resident.coldWaterTotal'), value: renderMeterTotal(lastIndex.meters.cold) },
                   { label: t('dashboard.resident.hotWaterTotal'), value: renderMeterTotal(lastIndex.meters.hot) },
                 ].map((item) => (
-                  <Box
-                    key={item.label}
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      gap: 2,
-                      alignItems: 'center',
-                      py: 0.75,
-                      borderTop: '1px solid',
-                      borderColor: 'divider',
-                    }}
-                  >
-                    <Typography variant="body2" color="text.secondary">{item.label}</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>{item.value}</Typography>
-                  </Box>
+                  <Typography key={item.label} variant="body2" color="text.secondary">
+                    {item.label}: <Box component="span" sx={{ color: 'text.primary', fontWeight: 700 }}>{item.value}</Box>
+                  </Typography>
                 ))}
               </Box>
             </Box>
@@ -129,15 +125,14 @@ const ResidentDashboard: React.FC = () => {
                       />
                     )}
                   </Box>
-                  <Box sx={{ display: 'grid', gap: 1, gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' } }}>
+                  <Box sx={{ display: 'grid', gap: 1 }}>
                     {apartments.map((apartment) => (
                       <Box key={apartment.id} sx={{ p: 1.25, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
-                        <Typography>Apt {apartment.number} - {apartment.familyName}</Typography>
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography sx={{ fontWeight: 500 }}>Apt {apartment.number} - {apartment.familyName}</Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
                           {t(`residents.ownership.${apartment.residentApartment?.ownershipType ?? 'owner'}`)}
                           {apartment.residentApartment?.isPrimaryResidence ? ` - ${t('dashboard.resident.primaryResidence')}` : ''}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
+                          {' | '}
                           {t('dashboard.resident.surfaceSummary', { usable: formatNumber(apartment.usableSurface), total: formatNumber(apartment.totalSurface) })}
                         </Typography>
                       </Box>
