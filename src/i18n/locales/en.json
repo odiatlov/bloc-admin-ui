@@ -171,6 +171,8 @@
       "pay": "Pay",
       "lastSubmittedIndex": "Last submitted index",
       "indexValue": "Index: {{value}}",
+      "coldWaterTotal": "Cold Water (Total)",
+      "hotWaterTotal": "Hot Water (Total)",
       "noIndex": "No index submitted yet.",
       "recentAnnouncements": "Recent announcements",
       "noAnnouncements": "No announcements",
