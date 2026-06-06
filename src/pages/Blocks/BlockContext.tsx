@@ -8,6 +8,7 @@ import ApartmentIcon from '@mui/icons-material/Apartment'
 import { Link as RouterLink, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import EmptyState from '../../components/shared/EmptyState'
+import MetricCard from '../../components/shared/MetricCard'
 import PageHeader from '../../components/shared/PageHeader'
 import ResponsiveDataView, { type DataColumn } from '../../components/shared/ResponsiveDataView'
 import { translateHeatingType } from '../../domain/displayLabels'
@@ -34,7 +35,7 @@ const BlockContext: React.FC = () => {
   if (section === 'staircases' && !block.hasStaircases) return <Navigate to={`/admin/blocks/${block.id}/apartments`} replace />
 
   const apartmentColumns: DataColumn<(typeof blockApartments)[number]>[] = [
-    { key: 'apartment', label: t('consumption.columns.apartment'), render: (apartment) => apartment.familyLabel },
+    { key: 'apartment', label: t('consumption.columns.apartment'), cardRole: 'primary', render: (apartment) => apartment.familyLabel },
     { key: 'residents', label: t('residents.family.members'), render: (apartment) => apartment.residentCount },
     { key: 'floor', label: t('blocks.columns.floor'), render: (apartment) => apartment.floor },
     { key: 'staircase', label: t('blocks.columns.staircase'), render: (apartment) => staircaseTotals.find((item) => item.staircase.id === apartment.staircaseId)?.staircase.name ?? t('common.notAvailable') },
@@ -45,13 +46,13 @@ const BlockContext: React.FC = () => {
   ]
 
   const invoiceColumns: DataColumn<(typeof blockInvoices)[number]>[] = [
-    { key: 'invoice', label: t('finance.columns.invoice'), render: (invoice) => invoice.id },
-    { key: 'apartment', label: t('finance.columns.apartment'), render: (invoice) => invoice.familyLabel || t('common.notAvailable') },
+    { key: 'invoice', label: t('finance.columns.invoice'), cardRole: 'primary', render: (invoice) => invoice.id },
+    { key: 'apartment', label: t('finance.columns.apartment'), cardRole: 'secondary', render: (invoice) => invoice.familyLabel || t('common.notAvailable') },
     { key: 'amount', label: t('finance.columns.amount'), render: (invoice) => formatCurrency(invoice.totalAmount) },
   ]
 
   const staircaseColumns: DataColumn<(typeof staircaseTotals)[number]>[] = [
-    { key: 'staircase', label: t('blocks.columns.staircase'), render: (row) => row.staircase.name },
+    { key: 'staircase', label: t('blocks.columns.staircase'), cardRole: 'primary', render: (row) => row.staircase.name },
     { key: 'apartments', label: t('dashboard.admin.overview.apartments'), render: (row) => row.apartmentCount },
     { key: 'invoices', label: t('blocks.metrics.totalInvoices'), render: (row) => formatCurrency(row.invoiceTotal) },
     { key: 'payments', label: t('blocks.metrics.totalPayments'), render: (row) => formatCurrency(row.paymentTotal) },
@@ -61,7 +62,7 @@ const BlockContext: React.FC = () => {
   ]
 
   const paymentColumns: DataColumn<(typeof blockPayments)[number]>[] = [
-    { key: 'payment', label: t('finance.columns.payment'), render: (payment) => payment.id },
+    { key: 'payment', label: t('finance.columns.payment'), cardRole: 'primary', render: (payment) => payment.id },
     { key: 'method', label: t('finance.columns.method'), render: (payment) => t(`finance.method.${payment.method}`) },
     { key: 'amount', label: t('finance.columns.amount'), render: (payment) => formatCurrency(payment.amount) },
   ]
@@ -71,8 +72,12 @@ const BlockContext: React.FC = () => {
       <PageHeader
         title={t('blocks.title', { block: block.name })}
         description={t('blocks.description')}
-        actions={(
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+      />
+
+      <Box sx={{ display: 'grid', gap: 2 }}>
+        <Paper sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
+          <Typography variant="h6">{t('dashboard.admin.quickActions')}</Typography>
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'flex-end', ml: { sm: 'auto' } }}>
             {section !== 'apartments' && (
               <Button startIcon={<ApartmentIcon />} variant="contained" component={RouterLink} to={`/admin/blocks/${block.id}/apartments`}>
                 {t('sidebar.apartments')}
@@ -82,27 +87,13 @@ const BlockContext: React.FC = () => {
               {t('blocks.actions.backToList')}
             </Button>
           </Box>
-        )}
-      />
+        </Paper>
 
-      <Box sx={{ display: 'grid', gap: 2 }}>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(4, minmax(0, 1fr))' }, gap: 2 }}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="body2" color="text.secondary">{t('dashboard.admin.overview.apartments')}</Typography>
-            <Typography variant="h5">{apartmentCount}</Typography>
-          </Paper>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="body2" color="text.secondary">{t('dashboard.admin.overview.residents')}</Typography>
-            <Typography variant="h5">{residentCount}</Typography>
-          </Paper>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="body2" color="text.secondary">{t('blocks.metrics.totalInvoices')}</Typography>
-            <Typography variant="h5">{formatCurrency(totalInvoices)}</Typography>
-          </Paper>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="body2" color="text.secondary">{t('blocks.metrics.totalPayments')}</Typography>
-            <Typography variant="h5">{formatCurrency(totalPayments)}</Typography>
-          </Paper>
+          <MetricCard label={t('dashboard.admin.overview.apartments')} value={apartmentCount} />
+          <MetricCard label={t('dashboard.admin.overview.residents')} value={residentCount} />
+          <MetricCard label={t('blocks.metrics.totalInvoices')} value={formatCurrency(totalInvoices)} />
+          <MetricCard label={t('blocks.metrics.totalPayments')} value={formatCurrency(totalPayments)} />
         </Box>
 
         {section === 'apartments' && (

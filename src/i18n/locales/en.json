@@ -318,6 +318,12 @@
       "cashRegister": "Cash Register",
       "maintenance": "Maintenance"
     },
+    "tabsShort": {
+      "invoices": "Inv.",
+      "payments": "Pay",
+      "cashRegister": "Cash",
+      "maintenance": "Maint."
+    },
     "columns": {
       "invoice": "Invoice",
       "payment": "Payment",
@@ -551,6 +557,12 @@
       "history": "Review history",
       "invoices": "Invoices",
       "maintenance": "Maintenance"
+    },
+    "tabsShort": {
+      "anomalies": "Anom.",
+      "history": "Hist.",
+      "invoices": "Inv.",
+      "maintenance": "Maint."
     },
     "type": {
       "anomaly": "Anomaly",

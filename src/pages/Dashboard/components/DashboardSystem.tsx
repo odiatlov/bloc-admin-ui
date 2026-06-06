@@ -2,6 +2,7 @@ import React from 'react'
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
+import MetricCard from '../../../components/shared/MetricCard'
 
 type DashboardHeaderProps = {
   title: string
@@ -71,52 +72,9 @@ type StatCardProps = {
 }
 
 export const StatCard: React.FC<StatCardProps> = ({ badge, children, label, secondary, value }) => (
-  <Paper
-    sx={{
-      p: { xs: 1.5, sm: 2 },
-      minHeight: { xs: 112, sm: 136 },
-      height: '100%',
-      boxSizing: 'border-box',
-      display: 'grid',
-      alignContent: 'space-between',
-      gap: { xs: 1, sm: 1.25 },
-    }}
-  >
-    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
-      {label}
-    </Typography>
-    <Box sx={{ minWidth: 0 }}>
-      {value !== undefined && value !== null && (
-        <Typography variant="h4" sx={{ fontSize: { xs: '1.5rem', sm: '1.875rem' }, fontWeight: 700, lineHeight: 1.12 }}>
-          {value}
-        </Typography>
-      )}
-      {secondary && (
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: children ? 1.25 : 0, mt: value ? 0.75 : 0 }}>
-          {secondary}
-        </Typography>
-      )}
-      {children}
-    </Box>
-    <Box
-      sx={{
-        minHeight: { xs: 20, sm: 24 },
-        display: 'flex',
-        alignItems: 'end',
-        minWidth: 0,
-        '& .MuiChip-root': {
-          maxWidth: '100%',
-        },
-        '& .MuiChip-label': {
-          minWidth: 0,
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-        },
-      }}
-    >
-      {badge}
-    </Box>
-  </Paper>
+  <MetricCard badge={badge} label={label} secondary={secondary} value={value}>
+    {children}
+  </MetricCard>
 )
 
 type StatGridProps = {

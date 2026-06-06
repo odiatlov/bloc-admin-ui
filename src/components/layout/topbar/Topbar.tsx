@@ -76,7 +76,7 @@ const Topbar: React.FC<Props> = ({
         ml: { xs: 0, md: `${drawerWidth}px` },
       }}
     >
-      <Toolbar sx={{ gap: { xs: 1, sm: 2 }, minWidth: 0 }}>
+      <Toolbar sx={{ gap: { xs: 1, sm: 2 }, minWidth: 0, maxWidth: '100%', overflow: 'hidden' }}>
         {isMobile && (
           <IconButton
             color="inherit"
@@ -89,7 +89,7 @@ const Topbar: React.FC<Props> = ({
           </IconButton>
         )}
 
-        <FormControl variant="standard" sx={{ minWidth: { xs: 120, sm: 160 }, flexShrink: 0 }}>
+        <FormControl variant="standard" sx={{ minWidth: 0, width: { xs: 120, sm: 160 }, flexShrink: 1 }}>
           <Select value={role} onChange={handleRoleChange} inputProps={{ 'aria-label': 'role-select' }}>
             {account.roles.map((item) => (
               <MenuItem key={item} value={item}>
@@ -105,7 +105,7 @@ const Topbar: React.FC<Props> = ({
           {themeMode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
         </IconButton>
 
-          <FormControl variant="standard" sx={{ minWidth: 72, flexShrink: 0 }}>
+          <FormControl variant="standard" sx={{ minWidth: 0, width: 72, flexShrink: 0 }}>
             <Select value={language} onChange={handleLanguageChange} inputProps={{ 'aria-label': 'language-select' }}>
               <MenuItem value="en">EN</MenuItem>
               <MenuItem value="ro">RO</MenuItem>

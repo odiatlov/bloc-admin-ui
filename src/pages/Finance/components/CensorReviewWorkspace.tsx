@@ -15,6 +15,7 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import { useTranslation } from 'react-i18next'
 import EmptyState from '../../../components/shared/EmptyState'
 import InvoiceBreakdownDrawer from '../../../components/shared/InvoiceBreakdownDrawer'
+import MetricCard from '../../../components/shared/MetricCard'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
 import { formatApartment, formatCurrency, formatFriendlyDateTime, formatMonth, formatNumber, useCensorReviews } from '../../../hooks/useApartmentData'
@@ -30,6 +31,12 @@ const CensorReviewWorkspace: React.FC = () => {
   const [invoiceId, setInvoiceId] = React.useState<string | null>(null)
   const [activeReview, setActiveReview] = React.useState<CensorReview | null>(null)
   const selectedInvoice = invoiceReviews.find((item) => item.invoice.id === invoiceId)?.invoice ?? null
+  const renderTabLabel = (fullKey: string, shortKey: string) => (
+    <>
+      <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>{t(fullKey)}</Box>
+      <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>{t(shortKey)}</Box>
+    </>
+  )
 
   const openDecision = (review: CensorReview) => setActiveReview(review)
   const applyDecision = (state: ReviewState) => {
@@ -38,15 +45,16 @@ const CensorReviewWorkspace: React.FC = () => {
   }
 
   const invoiceColumns: DataColumn<(typeof invoiceReviews)[number]>[] = [
-    { key: 'invoice', label: t('finance.columns.invoice'), render: ({ invoice }) => invoice.id },
-    { key: 'apartment', label: t('finance.columns.apartment'), render: ({ invoice }) => invoice.familyLabel },
+    { key: 'invoice', label: t('finance.columns.invoice'), cardRole: 'primary', render: ({ invoice }) => invoice.id },
+    { key: 'apartment', label: t('finance.columns.apartment'), cardRole: 'secondary', render: ({ invoice }) => invoice.familyLabel },
     { key: 'month', label: t('finance.columns.month'), render: ({ invoice }) => formatMonth(invoice.month) },
     { key: 'amount', label: t('finance.columns.amount'), render: ({ invoice }) => formatCurrency(invoice.totalAmount) },
-    { key: 'invoiceStatus', label: t('finance.columns.status'), render: ({ invoice }) => <StatusChip status={invoice.status} label={t(`status.invoice.${invoice.status}`)} /> },
-    { key: 'reviewState', label: t('censor.columns.reviewState'), render: ({ review }) => <StatusChip status={review.state} label={t(`status.review.${review.state}`)} /> },
+    { key: 'invoiceStatus', label: t('finance.columns.status'), cardRole: 'status', render: ({ invoice }) => <StatusChip status={invoice.status} label={t(`status.invoice.${invoice.status}`)} /> },
+    { key: 'reviewState', label: t('censor.columns.reviewState'), cardRole: 'status', render: ({ review }) => <StatusChip status={review.state} label={t(`status.review.${review.state}`)} /> },
     {
       key: 'actions',
       label: t('common.actions'),
+      cardRole: 'actions',
       render: ({ invoice, review }) => (
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           <Button size="small" onClick={() => setInvoiceId(invoice.id)}>
@@ -61,14 +69,15 @@ const CensorReviewWorkspace: React.FC = () => {
   ]
 
   const maintenanceColumns: DataColumn<(typeof maintenanceReviews)[number]>[] = [
-    { key: 'run', label: t('censor.columns.reviewItem'), render: ({ run }) => t('finance.maintenance.blockMonth', { block: run.blockId.replace('block-', '').toUpperCase(), month: formatMonth(run.month) }) },
+    { key: 'run', label: t('censor.columns.reviewItem'), cardRole: 'primary', render: ({ run }) => t('finance.maintenance.blockMonth', { block: run.blockId.replace('block-', '').toUpperCase(), month: formatMonth(run.month) }) },
     { key: 'generatedAt', label: t('censor.columns.generatedAt'), render: ({ run }) => formatReviewDate(run.generatedAt) },
     { key: 'apartments', label: t('censor.columns.apartments'), render: ({ run }) => run.apartmentTotals.length },
     { key: 'total', label: t('finance.columns.amount'), render: ({ run }) => formatCurrency(run.apartmentTotals.reduce((sum, total) => sum + total.total, 0)) },
-    { key: 'state', label: t('censor.columns.reviewState'), render: ({ review }) => <StatusChip status={review.state} label={t(`status.review.${review.state}`)} /> },
+    { key: 'state', label: t('censor.columns.reviewState'), cardRole: 'status', render: ({ review }) => <StatusChip status={review.state} label={t(`status.review.${review.state}`)} /> },
     {
       key: 'actions',
       label: t('common.actions'),
+      cardRole: 'actions',
       render: ({ review }) => (
         <Button size="small" onClick={() => openDecision(review)}>
           {t('censor.actions.review')}
@@ -78,14 +87,15 @@ const CensorReviewWorkspace: React.FC = () => {
   ]
 
   const anomalyColumns: DataColumn<(typeof anomalyReviews)[number]>[] = [
-    { key: 'apartment', label: t('consumption.columns.apartment'), render: ({ anomaly }) => formatApartment(anomaly.apartment) },
+    { key: 'apartment', label: t('consumption.columns.apartment'), cardRole: 'primary', render: ({ anomaly }) => formatApartment(anomaly.apartment) },
     { key: 'month', label: t('finance.columns.month'), render: ({ anomaly }) => formatMonth(anomaly.month) },
     { key: 'usage', label: t('consumption.columns.usage'), render: ({ anomaly }) => formatNumber(anomaly.usageValue) },
-    { key: 'anomaly', label: t('consumption.columns.anomaly'), render: ({ anomaly }) => <StatusChip status={anomaly.anomaly} label={t(`status.anomaly.${anomaly.anomaly}`)} /> },
-    { key: 'state', label: t('censor.columns.reviewState'), render: ({ review }) => <StatusChip status={review.state} label={t(`status.review.${review.state}`)} /> },
+    { key: 'anomaly', label: t('consumption.columns.anomaly'), cardRole: 'status', render: ({ anomaly }) => <StatusChip status={anomaly.anomaly} label={t(`status.anomaly.${anomaly.anomaly}`)} /> },
+    { key: 'state', label: t('censor.columns.reviewState'), cardRole: 'status', render: ({ review }) => <StatusChip status={review.state} label={t(`status.review.${review.state}`)} /> },
     {
       key: 'actions',
       label: t('common.actions'),
+      cardRole: 'actions',
       render: ({ review }) => (
         <Button size="small" onClick={() => openDecision(review)}>
           {t('censor.actions.review')}
@@ -95,10 +105,10 @@ const CensorReviewWorkspace: React.FC = () => {
   ]
 
   const historyColumns: DataColumn<CensorReview['history'][number] & { reviewId: string }>[] = [
-    { key: 'review', label: t('censor.columns.reviewItem'), render: (entry) => entry.reviewId },
+    { key: 'review', label: t('censor.columns.reviewItem'), cardRole: 'primary', render: (entry) => entry.reviewId },
     { key: 'at', label: t('censor.columns.reviewedAt'), render: (entry) => formatReviewDate(entry.at) },
     { key: 'actor', label: t('censor.columns.actor'), render: (entry) => entry.actor },
-    { key: 'state', label: t('censor.columns.reviewState'), render: (entry) => <StatusChip status={entry.state} label={t(`status.review.${entry.state}`)} /> },
+    { key: 'state', label: t('censor.columns.reviewState'), cardRole: 'status', render: (entry) => <StatusChip status={entry.state} label={t(`status.review.${entry.state}`)} /> },
     { key: 'note', label: t('finance.columns.notes'), render: (entry) => t(entry.noteKey) },
   ]
   const historyRows = reviewItems.flatMap((review) => review.history.map((entry) => ({ ...entry, reviewId: review.id })))
@@ -106,35 +116,17 @@ const CensorReviewWorkspace: React.FC = () => {
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' }, gap: 2 }}>
-        <Paper sx={{ p: 2 }}>
-          <FactCheckIcon color="primary" />
-          <Typography variant="body2" color="text.secondary">
-            {t('censor.metrics.pending')}
-          </Typography>
-          <Typography variant="h5">{pendingCount}</Typography>
-        </Paper>
-        <Paper sx={{ p: 2 }}>
-          <WarningAmberIcon color="warning" />
-          <Typography variant="body2" color="text.secondary">
-            {t('censor.metrics.anomalies')}
-          </Typography>
-          <Typography variant="h5">{anomalyReviews.length}</Typography>
-        </Paper>
-        <Paper sx={{ p: 2 }}>
-          <RuleIcon color="error" />
-          <Typography variant="body2" color="text.secondary">
-            {t('censor.metrics.needsAttention')}
-          </Typography>
-          <Typography variant="h5">{rejectedCount}</Typography>
-        </Paper>
+        <MetricCard icon={<FactCheckIcon color="primary" />} label={t('censor.metrics.pending')} value={pendingCount} />
+        <MetricCard icon={<WarningAmberIcon color="warning" />} label={t('censor.metrics.anomalies')} value={anomalyReviews.length} />
+        <MetricCard icon={<RuleIcon color="error" />} label={t('censor.metrics.needsAttention')} value={rejectedCount} />
       </Box>
 
-      <Paper>
-        <Tabs value={tab} onChange={(_, nextTab: number) => setTab(nextTab)} variant="scrollable" scrollButtons="auto">
-          <Tab label={t('censor.tabs.invoices')} />
-          <Tab label={t('censor.tabs.maintenance')} />
-          <Tab label={t('censor.tabs.anomalies')} />
-          <Tab label={t('censor.tabs.history')} />
+      <Paper sx={{ maxWidth: '100%', overflow: 'hidden' }}>
+        <Tabs value={tab} onChange={(_, nextTab: number) => setTab(nextTab)} variant="fullWidth">
+          <Tab label={renderTabLabel('censor.tabs.invoices', 'censor.tabsShort.invoices')} sx={{ minWidth: 0 }} />
+          <Tab label={renderTabLabel('censor.tabs.maintenance', 'censor.tabsShort.maintenance')} sx={{ minWidth: 0 }} />
+          <Tab label={renderTabLabel('censor.tabs.anomalies', 'censor.tabsShort.anomalies')} sx={{ minWidth: 0 }} />
+          <Tab label={renderTabLabel('censor.tabs.history', 'censor.tabsShort.history')} sx={{ minWidth: 0 }} />
         </Tabs>
       </Paper>
 

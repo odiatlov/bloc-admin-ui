@@ -1,5 +1,5 @@
 import React from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import CssBaseline from '@mui/material/CssBaseline'
 import Toolbar from '@mui/material/Toolbar'
@@ -17,8 +17,15 @@ type AdminLayoutProps = {
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ toggleTheme, themeMode }) => {
   const theme = useTheme()
+  const location = useLocation()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const [mobileOpen, setMobileOpen] = React.useState(false)
+  const mainRef = React.useRef<HTMLElement | null>(null)
+
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+    mainRef.current?.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+  }, [location.pathname])
 
   const handleDrawerToggle = () => {
     setMobileOpen((open) => !open)
@@ -29,7 +36,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ toggleTheme, themeMode }) => 
   }
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', width: '100%', maxWidth: '100%', overflowX: 'hidden' }}>
       <CssBaseline />
       <Topbar
         drawerWidth={drawerWidth}
@@ -43,8 +50,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ toggleTheme, themeMode }) => 
 
       <Box
         component="main"
+        ref={mainRef}
         sx={{
           flexGrow: 1,
+          minWidth: 0,
+          maxWidth: '100%',
+          overflowX: 'hidden',
           p: { xs: 2, sm: 3 },
           width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` },
           transition: (theme) => theme.transitions.create(['width', 'margin'], { easing: theme.transitions.easing.sharp, duration: theme.transitions.duration.leavingScreen }),
