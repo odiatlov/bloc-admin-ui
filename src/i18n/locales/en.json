@@ -123,8 +123,11 @@
       },
       "overview": {
         "residents": "Residents",
+        "residentsShort": "Res.",
         "apartments": "Apartments",
+        "apartmentsShort": "Apts.",
         "blocks": "Blocks",
+        "blocksShort": "Bl.",
         "propertyStats": "Property Stats",
         "propertyStatsDescription": "Portfolio coverage",
         "statsValue": "{{blocks}} Blocks | {{apartments}} Apartments | {{residents}} Residents"
@@ -153,7 +156,9 @@
         "cashVerification": "Cash Verification",
         "cashVerificationValue": "{{count}} pending",
         "monthlyRevenueTrend": "+8% vs last month",
+        "monthlyRevenueTrendShort": "+8%",
         "outstandingTrend": "+3 new this week",
+        "outstandingTrendShort": "+3 new",
         "collectionStable": "Stable",
         "cashVerificationTrend": "UNVERIFIED -> VERIFIED -> DEPOSITED",
         "pendingReview": "Pending review"

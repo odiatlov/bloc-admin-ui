@@ -7,12 +7,12 @@ import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import Divider from '@mui/material/Divider'
-import Paper from '@mui/material/Paper'
 import PaymentIcon from '@mui/icons-material/Payment'
 import OpacityIcon from '@mui/icons-material/Opacity'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { formatCurrency, formatMonth, formatNumber, getBlockLabel, useResidentPortal, type WaterReadingRow } from '../../../hooks/useApartmentData'
+import { ActionBar, ContentCard, DashboardHeader, DashboardPage, StatCard, StatGrid } from './DashboardSystem'
 
 const ResidentDashboard: React.FC = () => {
   const { t } = useTranslation()
@@ -27,59 +27,41 @@ const ResidentDashboard: React.FC = () => {
   ]
 
   return (
-    <Box sx={{ display: 'grid', gap: 2 }}>
-      <Box>
-        <Typography variant="h4" sx={{ fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
-          {t('dashboard.resident.title')}
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          {resident.name}
-        </Typography>
-      </Box>
+    <DashboardPage>
+      <DashboardHeader title={t('dashboard.resident.title')} context={resident.name} />
 
-      <Paper sx={{ p: 1.5, width: '100%', boxSizing: 'border-box', display: 'grid', gap: 1 }}>
-        <Typography variant="subtitle2" color="text.secondary">
-          {t('dashboard.resident.quickActions')}
-        </Typography>
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
-          {residentInvoices.length > 0 && (
-            <Button startIcon={<PaymentIcon />} variant="contained" onClick={() => navigate('/admin/finance')}>
-              {t('dashboard.resident.pay')}
-            </Button>
-          )}
-          <Button startIcon={<OpacityIcon />} variant="outlined" onClick={() => navigate('/admin/consumption')}>
-            {t('consumption.actions.submitIndex')}
+      <ActionBar title={t('dashboard.resident.quickActions')}>
+        {residentInvoices.length > 0 && (
+          <Button startIcon={<PaymentIcon />} variant="contained" onClick={() => navigate('/admin/finance')}>
+            {t('dashboard.resident.pay')}
           </Button>
-        </Box>
-      </Paper>
+        )}
+        <Button startIcon={<OpacityIcon />} variant="outlined" onClick={() => navigate('/admin/consumption')}>
+          {t('consumption.actions.submitIndex')}
+        </Button>
+      </ActionBar>
 
-      <Box
-        sx={{
-          display: 'grid',
-          gap: 2,
-          gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' },
-          gridTemplateRows: { md: 'repeat(2, minmax(0, 1fr))' },
-          alignItems: 'stretch',
-        }}
-      >
-        <Paper sx={{ p: 2, display: 'grid', alignContent: 'start', gap: 0.75, height: '100%', boxSizing: 'border-box' }}>
-          <Typography variant="body2" color="text.secondary">
-            {t('dashboard.resident.currentDue')}
-          </Typography>
-          <Typography variant="h4" sx={{ lineHeight: 1.15 }}>{formatCurrency(currentBalance)}</Typography>
-          <Typography variant="caption" color="text.secondary">
-            {t('dashboard.resident.currentDueSubtitle')}
-          </Typography>
-        </Paper>
+      <StatGrid columns={{ xs: 'repeat(2, minmax(0, 1fr))' }}>
+        <StatCard
+          label={t('dashboard.resident.currentDue')}
+          value={formatCurrency(currentBalance)}
+          secondary={t('dashboard.resident.currentDueSubtitle')}
+        />
 
-        <Paper sx={{ p: 2, display: 'grid', alignContent: 'start', gap: 1.25, height: '100%', boxSizing: 'border-box' }}>
-          <Typography variant="body2" color="text.secondary">
-            {t('dashboard.resident.lastSubmittedIndex')}
-          </Typography>
+        <StatCard label={t('dashboard.resident.lastSubmittedIndex')}>
           {lastIndex ? (
-            <Box sx={{ display: 'grid', gap: 1.25 }}>
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', sm: 'minmax(0, 1fr) minmax(180px, 0.9fr)' },
+                gap: 2,
+                alignItems: 'start',
+              }}
+            >
               <Box>
-                <Typography variant="h5" sx={{ lineHeight: 1.2 }}>{formatNumber(lastIndex.usageValue)}</Typography>
+                <Typography variant="h4" sx={{ fontSize: { xs: '1.5rem', sm: '1.875rem' }, fontWeight: 700, lineHeight: 1.12 }}>
+                  {formatNumber(lastIndex.usageValue)}
+                </Typography>
                 <Typography variant="caption" color="text.secondary">
                   {t('consumption.columns.totalUsage')} - {formatMonth(lastIndex.month)}
                 </Typography>
@@ -88,8 +70,10 @@ const ResidentDashboard: React.FC = () => {
                 sx={{
                   display: 'grid',
                   gap: 0.5,
-                  pt: 1,
-                  borderTop: '1px solid',
+                  pl: { sm: 2 },
+                  pt: { xs: 1, sm: 0 },
+                  borderLeft: { sm: '1px solid' },
+                  borderTop: { xs: '1px solid', sm: 'none' },
                   borderColor: 'divider',
                 }}
               >
@@ -106,10 +90,18 @@ const ResidentDashboard: React.FC = () => {
           ) : (
             <Typography color="text.secondary">{t('dashboard.resident.noIndex')}</Typography>
           )}
-        </Paper>
+        </StatCard>
+      </StatGrid>
 
-        <Paper sx={{ p: 2, height: '100%', boxSizing: 'border-box' }}>
-          <Typography variant="h6">{t('dashboard.resident.myApartments')}</Typography>
+      <Box
+        sx={{
+          display: 'grid',
+          gap: 2,
+          gridTemplateColumns: { xs: '1fr', lg: 'repeat(2, minmax(0, 1fr))' },
+          alignItems: 'stretch',
+        }}
+      >
+        <ContentCard title={t('dashboard.resident.myApartments')}>
           <Box sx={{ display: 'grid', gap: 1.25, mt: 1.5 }}>
             {Object.entries(apartmentsByBlock).map(([blockId, apartments]) => {
               const activeAdmin = apartments[0]?.activeAdmin
@@ -121,7 +113,17 @@ const ResidentDashboard: React.FC = () => {
                       <Chip
                         size="small"
                         label={t('dashboard.resident.adminContact', { admin: activeAdmin.name, phone: activeAdmin.phone })}
-                        sx={{ bgcolor: 'rgba(148, 163, 184, 0.1)', color: 'text.secondary', opacity: 0.82 }}
+                        sx={{
+                          maxWidth: '100%',
+                          bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.18)' : 'rgba(79, 70, 229, 0.08)',
+                          border: '1px solid',
+                          borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.32)' : 'rgba(79, 70, 229, 0.18)',
+                          color: 'text.primary',
+                          '& .MuiChip-label': {
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          },
+                        }}
                       />
                     )}
                   </Box>
@@ -142,12 +144,9 @@ const ResidentDashboard: React.FC = () => {
               )
             })}
           </Box>
-        </Paper>
+        </ContentCard>
 
-        <Paper sx={{ p: 2, height: '100%', boxSizing: 'border-box' }}>
-          <Typography variant="body2" color="text.secondary">
-            {t('dashboard.resident.recentAnnouncements')}
-          </Typography>
+        <ContentCard title={t('dashboard.resident.recentAnnouncements')}>
           <List>
             {announcements.length ? (
               announcements.map((item) => (
@@ -164,9 +163,9 @@ const ResidentDashboard: React.FC = () => {
               </ListItem>
             )}
           </List>
-        </Paper>
+        </ContentCard>
       </Box>
-    </Box>
+    </DashboardPage>
   )
 }
 
