@@ -31,6 +31,12 @@ const CensorReviewWorkspace: React.FC = () => {
   const [invoiceId, setInvoiceId] = React.useState<string | null>(null)
   const [activeReview, setActiveReview] = React.useState<CensorReview | null>(null)
   const selectedInvoice = invoiceReviews.find((item) => item.invoice.id === invoiceId)?.invoice ?? null
+  const renderTabLabel = (fullKey: string, shortKey: string) => (
+    <>
+      <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>{t(fullKey)}</Box>
+      <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>{t(shortKey)}</Box>
+    </>
+  )
 
   const openDecision = (review: CensorReview) => setActiveReview(review)
   const applyDecision = (state: ReviewState) => {
@@ -115,12 +121,12 @@ const CensorReviewWorkspace: React.FC = () => {
         <MetricCard icon={<RuleIcon color="error" />} label={t('censor.metrics.needsAttention')} value={rejectedCount} />
       </Box>
 
-      <Paper>
-        <Tabs value={tab} onChange={(_, nextTab: number) => setTab(nextTab)} variant="scrollable" scrollButtons="auto">
-          <Tab label={t('censor.tabs.invoices')} />
-          <Tab label={t('censor.tabs.maintenance')} />
-          <Tab label={t('censor.tabs.anomalies')} />
-          <Tab label={t('censor.tabs.history')} />
+      <Paper sx={{ maxWidth: '100%', overflow: 'hidden' }}>
+        <Tabs value={tab} onChange={(_, nextTab: number) => setTab(nextTab)} variant="fullWidth">
+          <Tab label={renderTabLabel('censor.tabs.invoices', 'censor.tabsShort.invoices')} sx={{ minWidth: 0 }} />
+          <Tab label={renderTabLabel('censor.tabs.maintenance', 'censor.tabsShort.maintenance')} sx={{ minWidth: 0 }} />
+          <Tab label={renderTabLabel('censor.tabs.anomalies', 'censor.tabsShort.anomalies')} sx={{ minWidth: 0 }} />
+          <Tab label={renderTabLabel('censor.tabs.history', 'censor.tabsShort.history')} sx={{ minWidth: 0 }} />
         </Tabs>
       </Paper>
 

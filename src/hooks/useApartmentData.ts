@@ -414,11 +414,12 @@ export const useResidents = () => {
     }
 
     setResidentRecords((items) => [nextResident, ...items])
-    if (input.apartmentId) {
+    const apartmentId = input.apartmentId
+    if (apartmentId) {
       setResidentApartmentRecords((links) => [{
-        id: `RA-${nextResident.id}-${input.apartmentId}`,
+        id: `RA-${nextResident.id}-${apartmentId}`,
         residentId: nextResident.id,
-        apartmentId: input.apartmentId,
+        apartmentId,
         ownershipType: 'tenant',
         ownershipStartDate: today.toISOString().slice(0, 10),
         isPrimaryResidence: true,

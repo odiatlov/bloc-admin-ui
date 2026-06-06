@@ -44,6 +44,12 @@ const FinanceSections: React.FC = () => {
   const [dialogInvoiceId, setDialogInvoiceId] = React.useState<string | null>(null)
   const selectedInvoice = invoices.find((invoice) => invoice.id === dialogInvoiceId)
   const formatGeneratedDate = (value: string) => formatFriendlyDateTime(value, { atLabel: t('common.at'), todayLabel: t('common.today') })
+  const renderTabLabel = (fullKey: string, shortKey: string) => (
+    <>
+      <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>{t(fullKey)}</Box>
+      <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>{t(shortKey)}</Box>
+    </>
+  )
 
   const invoiceColumns: DataColumn<(typeof invoices)[number]>[] = [
     { key: 'id', label: t('finance.columns.invoice'), cardRole: 'primary', render: (invoice) => invoice.id },
@@ -123,12 +129,12 @@ const FinanceSections: React.FC = () => {
         <MetricCard icon={<LocalAtmIcon color="error" />} label={t('finance.metrics.cashAwaiting')} value={cashAwaitingVerification} />
       </Box>
 
-      <Paper>
-        <Tabs value={tab} onChange={(_, nextTab: number) => setTab(nextTab)} variant="scrollable" scrollButtons="auto">
-          <Tab label={t('finance.tabs.invoices')} />
-          <Tab label={t('finance.tabs.payments')} />
-          <Tab label={t('finance.tabs.cashRegister')} />
-          <Tab label={t('finance.tabs.maintenance')} />
+      <Paper sx={{ maxWidth: '100%', overflow: 'hidden' }}>
+        <Tabs value={tab} onChange={(_, nextTab: number) => setTab(nextTab)} variant="fullWidth">
+          <Tab label={renderTabLabel('finance.tabs.invoices', 'finance.tabsShort.invoices')} sx={{ minWidth: 0 }} />
+          <Tab label={renderTabLabel('finance.tabs.payments', 'finance.tabsShort.payments')} sx={{ minWidth: 0 }} />
+          <Tab label={renderTabLabel('finance.tabs.cashRegister', 'finance.tabsShort.cashRegister')} sx={{ minWidth: 0 }} />
+          <Tab label={renderTabLabel('finance.tabs.maintenance', 'finance.tabsShort.maintenance')} sx={{ minWidth: 0 }} />
         </Tabs>
       </Paper>
 

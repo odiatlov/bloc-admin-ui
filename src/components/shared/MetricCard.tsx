@@ -19,6 +19,8 @@ const MetricCard: React.FC<MetricCardProps> = ({ badge, children, icon, label, s
       minHeight: children || badge ? { xs: 112, sm: 136 } : { xs: 92, sm: 104 },
       height: '100%',
       boxSizing: 'border-box',
+      maxWidth: '100%',
+      overflow: 'hidden',
       display: icon ? 'flex' : 'grid',
       alignItems: icon ? 'flex-start' : undefined,
       alignContent: icon ? undefined : children || badge ? 'space-between' : 'start',
@@ -45,6 +47,7 @@ const MetricCard: React.FC<MetricCardProps> = ({ badge, children, icon, label, s
     <Box
       sx={{
         minWidth: 0,
+        maxWidth: '100%',
         flex: icon ? '1 1 auto' : undefined,
         display: 'grid',
         alignContent: children || badge ? 'space-between' : 'start',
@@ -52,13 +55,13 @@ const MetricCard: React.FC<MetricCardProps> = ({ badge, children, icon, label, s
       }}
     >
       <Box sx={{ minWidth: 0 }}>
-        <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, fontWeight: 600, lineHeight: 1.25, overflowWrap: 'anywhere' }}>
           {label}
         </Typography>
       </Box>
       <Box sx={{ minWidth: 0 }}>
         {value !== undefined && value !== null && (
-          <Typography variant="h4" sx={{ fontSize: { xs: '1.5rem', sm: '1.875rem' }, fontWeight: 700, lineHeight: 1.12 }}>
+          <Typography variant="h4" sx={{ fontSize: { xs: '1.25rem', sm: '1.875rem' }, fontWeight: 700, lineHeight: 1.12, overflowWrap: 'anywhere' }}>
             {value}
           </Typography>
         )}

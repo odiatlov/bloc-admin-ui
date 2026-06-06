@@ -261,10 +261,10 @@ const ResidentsOverview: React.FC = () => {
               </Button>
             </Box>
             <Divider />
-            <Tabs value={detailTab} onChange={(_, value: number) => setDetailTab(value)} variant="scrollable" scrollButtons="auto">
-              <Tab label={t('residents.detail.invoices')} />
-              <Tab label={t('residents.detail.payments')} />
-              <Tab label={t('residents.detail.consumption')} />
+            <Tabs value={detailTab} onChange={(_, value: number) => setDetailTab(value)} variant="fullWidth">
+              <Tab label={t('residents.detail.invoices')} sx={{ minWidth: 0 }} />
+              <Tab label={t('residents.detail.payments')} sx={{ minWidth: 0 }} />
+              <Tab label={t('residents.detail.consumption')} sx={{ minWidth: 0 }} />
             </Tabs>
             {detailTab === 0 && (
               <ResponsiveDataView

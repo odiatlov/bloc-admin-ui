@@ -343,6 +343,12 @@
       "cashRegister": "Registru numerar",
       "maintenance": "Întreținere"
     },
+    "tabsShort": {
+      "invoices": "Fact.",
+      "payments": "Plăți",
+      "cashRegister": "Numerar",
+      "maintenance": "Întreț."
+    },
     "columns": {
       "invoice": "Factură",
       "payment": "Plată",
@@ -557,6 +563,12 @@
       "history": "Istoric revizie",
       "invoices": "Facturi",
       "maintenance": "Întreținere"
+    },
+    "tabsShort": {
+      "anomalies": "Anom.",
+      "history": "Ist.",
+      "invoices": "Fact.",
+      "maintenance": "Întreț."
     },
     "type": {
       "anomaly": "Anomalie",

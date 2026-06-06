@@ -42,6 +42,8 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
     <Box
       sx={{
         containerType: 'inline-size',
+        maxWidth: '100%',
+        overflowX: 'hidden',
         '.ResponsiveDataView-table': {
           display: 'none',
         },
@@ -62,6 +64,7 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
         className="ResponsiveDataView-table"
         component={Paper}
         sx={{
+          maxWidth: '100%',
           overflowX: 'hidden',
         }}
       >
@@ -89,6 +92,8 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
         className="ResponsiveDataView-cards"
         sx={{
           gap: 1.5,
+          maxWidth: '100%',
+          overflowX: 'hidden',
         }}
       >
         {rows.map((row) => {
