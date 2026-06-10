@@ -427,9 +427,12 @@
     "actions": {
       "openOverview": "Deschide prezentarea",
       "backToList": "Înapoi la blocuri",
-      "backToDashboard": "Panou principal"
+      "backToDashboard": "Panou principal",
+      "retry": "Reîncearcă"
     },
     "columns": {
+      "address": "Adresă",
+      "createdAt": "Creat",
       "floor": "Etaj",
       "staircase": "Scară",
       "usableSurface": "Suprafață utilă",
@@ -443,6 +446,10 @@
       "totalInvoices": "Total facturi",
       "totalPayments": "Total plăți",
       "unpaid": "Sold neachitat"
+    },
+    "loading": "Se încarcă blocurile...",
+    "errors": {
+      "loadFailed": "Blocurile nu au putut fi încărcate. Încercați din nou."
     }
   },
   "resident": {

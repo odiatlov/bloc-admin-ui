@@ -421,9 +421,12 @@
     "actions": {
       "openOverview": "Open overview",
       "backToList": "Back to blocks",
-      "backToDashboard": "Dashboard"
+      "backToDashboard": "Dashboard",
+      "retry": "Retry"
     },
     "columns": {
+      "address": "Address",
+      "createdAt": "Created",
       "floor": "Floor",
       "staircase": "Staircase",
       "usableSurface": "Usable sqm",
@@ -437,6 +440,10 @@
       "totalInvoices": "Total invoices",
       "totalPayments": "Total payments",
       "unpaid": "Unpaid balance"
+    },
+    "loading": "Loading blocks...",
+    "errors": {
+      "loadFailed": "Blocks could not be loaded. Please try again."
     }
   },
   "resident": {

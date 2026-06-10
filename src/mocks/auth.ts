@@ -12,6 +12,21 @@ export const mockAccounts: MockAccount[] = [
     token: 'mock-jwt-super-admin',
   },
   {
+    id: 'acct-demo',
+    name: 'Demo Account',
+    email: 'demo.account@example.com',
+    roles: ['Admin', 'Resident'],
+    defaultRole: 'Admin',
+    adminId: 'ADM-1',
+    residentId: 'R-1003',
+    seededBlockIds: [
+      '11111111-1111-1111-1111-111111111111',
+      '22222222-2222-2222-2222-222222222222',
+      '33333333-3333-3333-3333-333333333333',
+    ],
+    token: 'mock-jwt-demo-account',
+  },
+  {
     id: 'acct-admin-a',
     name: 'Andrei Georgescu',
     email: 'andrei.admin@example.com',
