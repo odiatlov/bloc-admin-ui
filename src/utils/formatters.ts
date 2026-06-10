@@ -5,11 +5,13 @@ const monthFormatter = new Intl.DateTimeFormat(undefined, { month: 'long', year:
 const shortDateFormatter = new Intl.DateTimeFormat(undefined, { month: 'long', day: 'numeric' })
 const timeFormatter = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' })
 
-export const formatCurrency = (value: number) => currencyFormatter.format(value)
+const normalizeNumber = (value: number | null | undefined) => Number.isFinite(value) ? value : 0
 
-export const formatNumber = (value: number) => numberFormatter.format(value)
+export const formatCurrency = (value: number | null | undefined) => currencyFormatter.format(normalizeNumber(value))
 
-export const formatPercent = (value: number) => percentFormatter.format(value / 100)
+export const formatNumber = (value: number | null | undefined) => numberFormatter.format(normalizeNumber(value))
+
+export const formatPercent = (value: number | null | undefined) => percentFormatter.format(normalizeNumber(value) / 100)
 
 export const formatMonth = (month: string) => {
   const [year, monthNumber] = month.split('-')

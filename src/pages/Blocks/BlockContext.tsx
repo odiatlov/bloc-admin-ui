@@ -1,6 +1,8 @@
 import React from 'react'
+import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
@@ -11,7 +13,9 @@ import EmptyState from '../../components/shared/EmptyState'
 import MetricCard from '../../components/shared/MetricCard'
 import PageHeader from '../../components/shared/PageHeader'
 import ResponsiveDataView, { type DataColumn } from '../../components/shared/ResponsiveDataView'
+import { RoleContext } from '../../contexts/RoleContext'
 import { translateHeatingType } from '../../domain/displayLabels'
+import { useBlocks } from '../../hooks/useBlocks'
 import { formatCurrency, formatNumber, useBlockContext } from '../../hooks/useApartmentData'
 import ApartmentManagement from '../Apartments/components/ApartmentManagement'
 
@@ -19,6 +23,28 @@ const BlockContext: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { blockId, section = 'overview' } = useParams()
+  const { account } = React.useContext(RoleContext)
+  const shouldUseDatabaseBlocks = account.id === 'acct-demo'
+  const databaseBlocks = useBlocks({ enabled: shouldUseDatabaseBlocks })
+  const mockBlockContext = useBlockContext(blockId)
+  const databaseBlock = databaseBlocks.blocks.find((item) => item.id === blockId)
+  const databaseBlockContext = databaseBlock ? {
+    apartmentCount: databaseBlock.apartmentCount,
+    block: {
+      id: databaseBlock.id,
+      name: databaseBlock.name,
+      address: databaseBlock.address,
+      hasStaircases: databaseBlock.staircaseCount > 0,
+      heatingType: 'central' as const,
+    },
+    blockApartments: [],
+    blockInvoices: [],
+    blockPayments: [],
+    residentCount: databaseBlock.residentCount,
+    staircaseTotals: [],
+    totalInvoices: databaseBlock.totalInvoices,
+    totalPayments: databaseBlock.totalPayments,
+  } : null
   const {
     apartmentCount,
     block,
@@ -29,7 +55,24 @@ const BlockContext: React.FC = () => {
     staircaseTotals,
     totalInvoices,
     totalPayments,
-  } = useBlockContext(blockId)
+  } = shouldUseDatabaseBlocks && databaseBlockContext ? databaseBlockContext : mockBlockContext
+
+  if (shouldUseDatabaseBlocks && databaseBlocks.isLoading) {
+    return (
+      <Paper sx={{ alignItems: 'center', display: 'grid', gap: 1.5, justifyItems: 'center', p: 4 }}>
+        <CircularProgress size={32} />
+        <Typography color="text.secondary">{t('blocks.loading')}</Typography>
+      </Paper>
+    )
+  }
+
+  if (shouldUseDatabaseBlocks && databaseBlocks.error) {
+    return (
+      <Alert severity="error">
+        {t('blocks.errors.loadFailed')}
+      </Alert>
+    )
+  }
 
   if (!block) return <Navigate to="/admin/dashboard" replace />
   if (section === 'staircases' && !block.hasStaircases) return <Navigate to={`/admin/blocks/${block.id}/apartments`} replace />
