@@ -1,0 +1,25 @@
+# Temporary Data Source Rule
+
+This rule applies while the application uses both mocked account data and the database-backed Demo account.
+
+1. Only the Demo account (`acct-demo`) may fetch Blocks data from the backend API.
+2. All other mocked accounts must remain isolated from the backend API.
+3. Mocked accounts that have assigned mocked Blocks must continue using their existing mocked Blocks data.
+4. Mocked accounts without assigned mocked Blocks must receive an empty collection and display the shared EmptyState component.
+5. An empty successful result must never render an empty table shell.
+6. API load failures must use LoadErrorState and must remain distinct from successful empty results.
+7. Do not modify or merge mocked data belonging to other accounts.
+8. Apply the same empty-list presentation consistently to Blocks, Apartments, Residents, and future entity lists.
+9. This file is temporary and should be removed when all accounts use the real backend.
+
+## Required List States
+
+Every asynchronous list, especially the Demo account Blocks list, must distinguish these states explicitly:
+
+1. Loading: show the loading presentation.
+2. Failed request: show LoadErrorState with a retry action.
+3. Successful request with zero records: show EmptyState with the relevant add/setup action.
+4. Successful request with records: show the list or table.
+
+An HTTP or network failure must never be converted into an empty collection or displayed as EmptyState.
+An empty successful response must never be displayed as LoadErrorState.

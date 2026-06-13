@@ -21,6 +21,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import EditIcon from '@mui/icons-material/Edit'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import { useTranslation } from 'react-i18next'
+import EmptyState from '../../../components/shared/EmptyState'
 import { EntityListItem } from '../../../components/shared/EntityPresentation'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
@@ -277,6 +278,14 @@ const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ hideScopeFilt
         ariaLabel={t('sidebar.apartments')}
         columns={apartmentColumns}
         desktopTableMinWidth={1120}
+        emptyState={(
+          <EmptyState
+            actionLabel={t('emptyState.action', { information: t('emptyState.information.apartments') })}
+            actionTo="/admin/settings"
+            headline={t('emptyState.headline', { information: t('emptyState.information.apartments') })}
+            helperText={t('emptyState.helper.settings', { information: t('emptyState.information.apartments') })}
+          />
+        )}
         getRowId={(apartment) => apartment.id}
         rows={selectedApartments}
       />

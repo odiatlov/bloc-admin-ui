@@ -5,7 +5,7 @@ export type ApiResponse<T> = {
   data?: T
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5153/api'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
 
 export const apiGet = async <T>(path: string): Promise<T> => {
   const response = await fetch(`${API_BASE_URL}${path}`)

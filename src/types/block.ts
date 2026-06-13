@@ -1,13 +1,12 @@
-export type BlockRecord = {
+export type BlockOverview = {
   id: string
   name: string
-  address?: string
-  createdAt: string
-  activeAdminName?: string
+  displayName: string
+  administratorName: string | null
   apartmentCount: number
   residentCount: number
   staircaseCount: number
-  totalInvoices: number
-  totalPayments: number
+  totalInvoicesAmount: number
+  totalPaymentsAmount: number
   unpaidBalance: number
 }

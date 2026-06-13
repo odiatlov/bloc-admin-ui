@@ -1,4 +1,4 @@
-import type { BlockRecord } from '../types/block'
+import type { BlockOverview } from '../types/block'
 import { apiGet } from './apiClient'
 
-export const fetchBlocks = () => apiGet<BlockRecord[]>('/blocks')
+export const fetchBlockOverview = () => apiGet<BlockOverview[]>('/blocks/overview')
