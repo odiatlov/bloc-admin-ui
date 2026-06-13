@@ -465,6 +465,18 @@
         "title": "Cost breakdown"
       },
       "description": "View invoices, payment status, and downloadable bill details.",
+      "history": "Invoice history",
+      "payAll": "Pay All",
+      "payBill": "Pay bill",
+      "payment": {
+        "title": "Confirm payment",
+        "allBody": "You are about to pay all outstanding bills.",
+        "singleBody": "You are about to pay this bill.",
+        "invoiceContext": "{{invoice}} from {{month}}",
+        "amount": "Amount",
+        "totalAmount": "Total amount",
+        "confirm": "Confirm payment"
+      },
       "viewDetails": "View details",
       "download": "Download",
       "detailsTitle": "Invoice details",

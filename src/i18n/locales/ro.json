@@ -41,6 +41,13 @@
     "retry": "Reîncearcă",
     "retrying": "Se reîncearcă..."
   },
+  "auth": {
+    "logout": {
+      "title": "Vă deconectați?",
+      "body": "Sigur doriți să încheiați această sesiune demonstrativă?",
+      "confirm": "Da, deconectează-mă"
+    }
+  },
   "layout": {
     "topbar": {
       "role": {
@@ -471,6 +478,18 @@
         "title": "Defalcare costuri"
       },
       "description": "Vedeți facturile, statusul plăților și detalii descărcabile.",
+      "history": "Istoric facturi",
+      "payAll": "Plătește tot",
+      "payBill": "Plătește factura",
+      "payment": {
+        "title": "Confirmă plata",
+        "allBody": "Urmează să plătiți toate facturile restante.",
+        "singleBody": "Urmează să plătiți această factură.",
+        "invoiceContext": "{{invoice}} din {{month}}",
+        "amount": "Sumă",
+        "totalAmount": "Sumă totală",
+        "confirm": "Confirmă plata"
+      },
       "viewDetails": "Vezi detalii",
       "download": "Descarcă",
       "detailsTitle": "Detalii factură",

@@ -8,6 +8,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ApartmentIcon from '@mui/icons-material/Apartment'
 import { Link as RouterLink, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import ActionBar from '../../components/shared/ActionBar'
 import EmptyState from '../../components/shared/EmptyState'
 import LoadErrorState from '../../components/shared/LoadErrorState'
 import MetricCard from '../../components/shared/MetricCard'
@@ -119,19 +120,16 @@ const BlockContext: React.FC = () => {
       />
 
       <Box sx={{ display: 'grid', gap: 2 }}>
-        <Paper sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
-          <Typography variant="h6">{t('dashboard.admin.quickActions')}</Typography>
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'flex-end', ml: { sm: 'auto' } }}>
-            {section !== 'apartments' && (
-              <Button startIcon={<ApartmentIcon />} variant="contained" component={RouterLink} to={`/admin/blocks/${block.id}/apartments`}>
-                {t('sidebar.apartments')}
-              </Button>
-            )}
-            <Button startIcon={<ArrowBackIcon />} variant="outlined" onClick={() => navigate('/admin/blocks')}>
-              {t('blocks.actions.backToList')}
+        <ActionBar title={t('dashboard.admin.quickActions')}>
+          {section !== 'apartments' && (
+            <Button startIcon={<ApartmentIcon />} variant="contained" component={RouterLink} to={`/admin/blocks/${block.id}/apartments`}>
+              {t('sidebar.apartments')}
             </Button>
-          </Box>
-        </Paper>
+          )}
+          <Button startIcon={<ArrowBackIcon />} variant="outlined" onClick={() => navigate('/admin/blocks')}>
+            {t('blocks.actions.backToList')}
+          </Button>
+        </ActionBar>
 
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(4, minmax(0, 1fr))' }, gap: 2 }}>
           <MetricCard label={t('dashboard.admin.overview.apartments')} value={apartmentCount} />

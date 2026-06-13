@@ -121,7 +121,6 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
 
       {(mode === 'resident' || isSectionVisible('readings')) && (
         <Box sx={{ display: 'grid', gap: 1 }}>
-          <Typography variant="h6">{t('consumption.sections.readings')}</Typography>
           <ResponsiveDataView
             ariaLabel={t('consumption.sections.readings')}
             columns={readingColumns}
@@ -158,7 +157,7 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
 
       <Dialog open={submitOpen} onClose={() => setSubmitOpen(false)} fullWidth maxWidth="sm">
         <DialogTitle>{mode === 'resident' ? t('consumption.dialog.submitTitle') : t('consumption.dialog.adminTitle')}</DialogTitle>
-        <DialogContent sx={{ display: 'grid', gap: 2, pt: 1 }}>
+        <DialogContent sx={{ display: 'grid', gap: 2, pt: 2.5 }}>
           {mode === 'resident' && (
             <FormControl fullWidth>
               <InputLabel>{t('consumption.columns.apartment')}</InputLabel>
