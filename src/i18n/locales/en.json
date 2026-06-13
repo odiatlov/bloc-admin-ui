@@ -654,12 +654,14 @@
       "maintenanceFee": "Maintenance fee",
       "emailNotifications": "Email notifications",
       "paymentReminders": "Payment reminders",
+      "maintenanceNotifications": "Maintenance notifications",
       "overdueAlerts": "Overdue payment alerts",
       "cashAlerts": "Cash reconciliation alerts"
     },
     "actions": {
       "addBlock": "Add block",
-      "editBlock": "Edit block"
+      "editBlock": "Edit block",
+      "saveChanges": "Save changes"
     },
     "apartmentsSetup": {
       "addApartment": "Add apartment",

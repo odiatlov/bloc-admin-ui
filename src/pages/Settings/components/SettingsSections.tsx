@@ -96,7 +96,14 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
 
   if (mode === 'resident') {
     return (
-      <Box sx={{ display: 'grid', gap: 2, maxWidth: 720 }}>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 2fr) minmax(280px, 1fr)' },
+          gap: 2,
+          alignItems: 'stretch',
+        }}
+      >
         <Paper sx={{ p: 2, display: 'grid', gap: 2 }}>
           <Typography variant="h6">{t('settings.resident.profile')}</Typography>
           <TextField label={t('settings.fields.name')} defaultValue="Ana Popescu" />
@@ -113,6 +120,7 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
           <Typography variant="h6">{t('settings.sections.notifications')}</Typography>
           <FormControlLabel control={<Checkbox defaultChecked />} label={t('settings.fields.emailNotifications')} />
           <FormControlLabel control={<Checkbox defaultChecked />} label={t('settings.fields.paymentReminders')} />
+          <FormControlLabel control={<Checkbox defaultChecked />} label={t('settings.fields.maintenanceNotifications')} />
         </Paper>
       </Box>
     )
