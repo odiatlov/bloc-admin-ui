@@ -23,6 +23,7 @@ import PaymentIcon from '@mui/icons-material/Payment'
 import { useTranslation } from 'react-i18next'
 import EmptyState from '../../../components/shared/EmptyState'
 import { EntityListItem } from '../../../components/shared/EntityPresentation'
+import FilterBar from '../../../components/shared/FilterBar'
 import InvoiceBreakdownDrawer from '../../../components/shared/InvoiceBreakdownDrawer'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
@@ -131,41 +132,39 @@ const ResidentsOverview: React.FC = () => {
 
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
-      <Paper sx={{ p: 2, display: 'flex', gap: 2, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-        <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', flexWrap: 'wrap' }}>
-          <FormControl size="small" sx={{ minWidth: 160 }}>
-            <InputLabel>{t('residents.filters.block')}</InputLabel>
-            <Select label={t('residents.filters.block')} value={blockFilter} onChange={(event: SelectChangeEvent) => setBlockFilter(event.target.value)}>
-              <MenuItem value="all">{t('common.all')}</MenuItem>
-              {blocks.map((block) => (
-                <MenuItem key={block.id} value={block.id}>
-                  {t('common.blockValue', { block: block.name })}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel>{t('residents.filters.financialStatus')}</InputLabel>
-            <Select
-              label={t('residents.filters.financialStatus')}
-              value={financialStatusFilter}
-              onChange={(event: SelectChangeEvent) => setFinancialStatusFilter(event.target.value as FinancialStatus | 'all')}
-            >
-              <MenuItem value="all">{t('common.all')}</MenuItem>
-              <MenuItem value="current">{t('status.financial.current')}</MenuItem>
-              <MenuItem value="due">{t('status.financial.due')}</MenuItem>
-              <MenuItem value="overdue">{t('status.financial.overdue')}</MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'flex-end', ml: { sm: 'auto' } }}>
+      <FilterBar
+        actions={(
           <Button startIcon={<PersonAddIcon />} variant="contained" onClick={() => setIsAddDialogOpen(true)}>
             {t('residents.actions.addResident')}
           </Button>
-        </Box>
-      </Paper>
+        )}
+      >
+        <FormControl size="small" sx={{ minWidth: { sm: 160 } }}>
+          <InputLabel>{t('residents.filters.block')}</InputLabel>
+          <Select label={t('residents.filters.block')} value={blockFilter} onChange={(event: SelectChangeEvent) => setBlockFilter(event.target.value)}>
+            <MenuItem value="all">{t('common.all')}</MenuItem>
+            {blocks.map((block) => (
+              <MenuItem key={block.id} value={block.id}>
+                {t('common.blockValue', { block: block.name })}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl size="small" sx={{ minWidth: { sm: 180 } }}>
+          <InputLabel>{t('residents.filters.financialStatus')}</InputLabel>
+          <Select
+            label={t('residents.filters.financialStatus')}
+            value={financialStatusFilter}
+            onChange={(event: SelectChangeEvent) => setFinancialStatusFilter(event.target.value as FinancialStatus | 'all')}
+          >
+            <MenuItem value="all">{t('common.all')}</MenuItem>
+            <MenuItem value="current">{t('status.financial.current')}</MenuItem>
+            <MenuItem value="due">{t('status.financial.due')}</MenuItem>
+            <MenuItem value="overdue">{t('status.financial.overdue')}</MenuItem>
+          </Select>
+        </FormControl>
+      </FilterBar>
 
       <Box sx={{ display: 'grid', gap: 2 }}>
         {apartmentGroups.length === 0 ? (

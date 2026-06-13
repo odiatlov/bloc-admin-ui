@@ -162,7 +162,7 @@ const FinanceSections: React.FC = () => {
 
       {tab === 1 && (
         <Box sx={{ display: 'grid', gap: 1.5 }}>
-          <FormControl size="small" sx={{ maxWidth: 260 }}>
+          <FormControl size="small" sx={{ width: { xs: '100%', sm: 'auto' }, minWidth: { sm: 260 } }}>
             <InputLabel>{t('finance.filters.method')}</InputLabel>
             <Select
               label={t('finance.filters.method')}
