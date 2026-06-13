@@ -1,10 +1,6 @@
 import React from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import Chip from '@mui/material/Chip'
@@ -18,6 +14,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import LocalAtmIcon from '@mui/icons-material/LocalAtm'
 import PaidIcon from '@mui/icons-material/Paid'
 import { useTranslation } from 'react-i18next'
+import AppDialog from '../../../components/shared/AppDialog'
 import EmptyState from '../../../components/shared/EmptyState'
 import MetricCard from '../../../components/shared/MetricCard'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
@@ -262,23 +259,21 @@ const FinanceSections: React.FC = () => {
         </Box>
       )}
 
-      <Dialog open={Boolean(selectedInvoice)} onClose={() => setDialogInvoiceId(null)} fullWidth maxWidth="sm">
-        <DialogTitle>{t('finance.dialog.cashTitle')}</DialogTitle>
-        <DialogContent>
+      <AppDialog
+        cancelLabel={t('common.cancel')}
+        confirmLabel={t('finance.actions.registerCash')}
+        onCancel={() => setDialogInvoiceId(null)}
+        onConfirm={confirmRegisterCash}
+        open={Boolean(selectedInvoice)}
+        title={t('finance.dialog.cashTitle')}
+      >
           <Typography>
             {t('finance.dialog.cashBody', {
               invoice: selectedInvoice?.id,
               amount: selectedInvoice ? formatCurrency(selectedInvoice.totalAmount) : '',
             })}
           </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDialogInvoiceId(null)}>{t('common.cancel')}</Button>
-          <Button variant="contained" onClick={confirmRegisterCash}>
-            {t('finance.actions.registerCash')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      </AppDialog>
     </Box>
   )
 }

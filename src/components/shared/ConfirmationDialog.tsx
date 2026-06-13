@@ -1,9 +1,5 @@
 import React from 'react'
-import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
+import AppDialog from './AppDialog'
 
 type ConfirmationDialogProps = {
   cancelLabel: string
@@ -24,16 +20,17 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   open,
   title,
 }) => (
-  <Dialog open={open} onClose={onCancel} fullWidth maxWidth="xs">
-    <DialogTitle>{title}</DialogTitle>
-    <DialogContent>{children}</DialogContent>
-    <DialogActions>
-      <Button onClick={onCancel}>{cancelLabel}</Button>
-      <Button variant="contained" onClick={onConfirm}>
-        {confirmLabel}
-      </Button>
-    </DialogActions>
-  </Dialog>
+  <AppDialog
+    cancelLabel={cancelLabel}
+    confirmLabel={confirmLabel}
+    maxWidth="xs"
+    onCancel={onCancel}
+    onConfirm={onConfirm}
+    open={open}
+    title={title}
+  >
+    {children}
+  </AppDialog>
 )
 
 export default ConfirmationDialog

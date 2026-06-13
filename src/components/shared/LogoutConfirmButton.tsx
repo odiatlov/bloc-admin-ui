@@ -1,14 +1,11 @@
 import React from 'react'
 import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
 import Typography from '@mui/material/Typography'
 import LogoutIcon from '@mui/icons-material/Logout'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { RoleContext } from '../../contexts/RoleContext'
+import AppDialog from './AppDialog'
 
 type LogoutConfirmButtonProps = {
   fullWidth?: boolean
@@ -38,18 +35,17 @@ const LogoutConfirmButton: React.FC<LogoutConfirmButtonProps> = ({ fullWidth = f
       >
         {t('layout.topbar.logout')}
       </Button>
-      <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="xs">
-        <DialogTitle>{t('auth.logout.title')}</DialogTitle>
-        <DialogContent>
-          <Typography>{t('auth.logout.body')}</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpen(false)}>{t('common.cancel')}</Button>
-          <Button variant="contained" color="primary" onClick={confirmLogout}>
-            {t('auth.logout.confirm')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <AppDialog
+        cancelLabel={t('common.cancel')}
+        confirmLabel={t('auth.logout.confirm')}
+        maxWidth="xs"
+        onCancel={() => setOpen(false)}
+        onConfirm={confirmLogout}
+        open={open}
+        title={t('auth.logout.title')}
+      >
+        <Typography>{t('auth.logout.body')}</Typography>
+      </AppDialog>
     </>
   )
 }

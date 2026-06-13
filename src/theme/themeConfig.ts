@@ -80,6 +80,13 @@ const createThemeConfig = (mode: 'light' | 'dark' = 'dark') =>
           }
         }
       },
+      MuiDialogContent: {
+        styleOverrides: {
+          root: {
+            paddingTop: '20px !important',
+          },
+        },
+      },
       MuiListItemButton: {
         styleOverrides: {
           root: {

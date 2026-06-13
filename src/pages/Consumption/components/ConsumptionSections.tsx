@@ -1,10 +1,6 @@
 import React from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
@@ -12,6 +8,7 @@ import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
+import AppDialog from '../../../components/shared/AppDialog'
 import EmptyState from '../../../components/shared/EmptyState'
 import FilterBar from '../../../components/shared/FilterBar'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
@@ -155,9 +152,15 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
         </Box>
       )}
 
-      <Dialog open={submitOpen} onClose={() => setSubmitOpen(false)} fullWidth maxWidth="sm">
-        <DialogTitle>{mode === 'resident' ? t('consumption.dialog.submitTitle') : t('consumption.dialog.adminTitle')}</DialogTitle>
-        <DialogContent sx={{ display: 'grid', gap: 2, pt: 2.5 }}>
+      <AppDialog
+        cancelLabel={t('common.cancel')}
+        confirmLabel={t('common.save')}
+        contentSx={{ display: 'grid', gap: 2 }}
+        onCancel={() => setSubmitOpen(false)}
+        onConfirm={() => setSubmitOpen(false)}
+        open={submitOpen}
+        title={mode === 'resident' ? t('consumption.dialog.submitTitle') : t('consumption.dialog.adminTitle')}
+      >
           {mode === 'resident' && (
             <FormControl fullWidth>
               <InputLabel>{t('consumption.columns.apartment')}</InputLabel>
@@ -175,14 +178,7 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
             <TextField label={t('consumption.dialog.hotWaterIndex')} type="number" fullWidth />
           </Box>
           <TextField label={t('finance.columns.month')} fullWidth defaultValue="05-2026" />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setSubmitOpen(false)}>{t('common.cancel')}</Button>
-          <Button variant="contained" onClick={() => setSubmitOpen(false)}>
-            {t('common.save')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      </AppDialog>
     </Box>
   )
 }

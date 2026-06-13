@@ -2,10 +2,6 @@ import React from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
 import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
@@ -21,6 +17,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 import PaymentIcon from '@mui/icons-material/Payment'
 import { useTranslation } from 'react-i18next'
+import AppDialog from '../../../components/shared/AppDialog'
 import EmptyState from '../../../components/shared/EmptyState'
 import { EntityListItem } from '../../../components/shared/EntityPresentation'
 import FilterBar from '../../../components/shared/FilterBar'
@@ -318,9 +315,16 @@ const ResidentsOverview: React.FC = () => {
           </Box>
         )}
       </Drawer>
-      <Dialog open={isAddDialogOpen} onClose={() => setIsAddDialogOpen(false)} fullWidth maxWidth="sm">
-        <DialogTitle>{t('residents.dialog.addTitle')}</DialogTitle>
-        <DialogContent sx={{ display: 'grid', gap: 2, pt: 2 }}>
+      <AppDialog
+        cancelLabel={t('common.cancel')}
+        confirmDisabled={!residentForm.name.trim()}
+        confirmLabel={t('residents.actions.addResident')}
+        contentSx={{ display: 'grid', gap: 2 }}
+        onCancel={() => setIsAddDialogOpen(false)}
+        onConfirm={handleAddResident}
+        open={isAddDialogOpen}
+        title={t('residents.dialog.addTitle')}
+      >
           <TextField
             autoFocus
             label={t('residents.fields.name')}
@@ -368,14 +372,7 @@ const ResidentsOverview: React.FC = () => {
               ))}
             </Select>
           </FormControl>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsAddDialogOpen(false)}>{t('common.cancel')}</Button>
-          <Button variant="contained" onClick={handleAddResident} disabled={!residentForm.name.trim()}>
-            {t('residents.actions.addResident')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      </AppDialog>
       <InvoiceBreakdownDrawer invoice={selectedInvoice} onClose={() => setSelectedInvoiceId(null)} formatCurrency={formatCurrency} />
     </Box>
   )
