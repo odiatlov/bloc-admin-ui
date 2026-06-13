@@ -666,12 +666,14 @@
       "maintenanceFee": "Taxă întreținere",
       "emailNotifications": "Notificări email",
       "paymentReminders": "Atenționări plăți",
+      "maintenanceNotifications": "Notificări de întreținere",
       "overdueAlerts": "Alerte restante",
       "cashAlerts": "Alerte reconciliere numerar"
     },
     "actions": {
       "addBlock": "Adaugă bloc",
-      "editBlock": "Editează bloc"
+      "editBlock": "Editează bloc",
+      "saveChanges": "Salvează modificările"
     },
     "apartmentsSetup": {
       "addApartment": "Adaugă apartament",
