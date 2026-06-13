@@ -2,10 +2,6 @@ import React from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
 import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
@@ -20,6 +16,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import EditIcon from '@mui/icons-material/Edit'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import { useTranslation } from 'react-i18next'
+import AppDialog from '../../../components/shared/AppDialog'
 import EmptyState from '../../../components/shared/EmptyState'
 import { EntityListItem } from '../../../components/shared/EntityPresentation'
 import FilterBar from '../../../components/shared/FilterBar'
@@ -466,9 +463,17 @@ const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ hideScopeFilt
         )}
       </Drawer>
 
-      <Dialog open={isAddDialogOpen} onClose={() => setIsAddDialogOpen(false)} fullWidth maxWidth="md">
-        <DialogTitle>{t('apartments.setup.addApartment')}</DialogTitle>
-        <DialogContent sx={{ display: 'grid', gap: 2, pt: '20px !important' }}>
+      <AppDialog
+        cancelLabel={t('common.cancel')}
+        confirmDisabled={!canAddApartment}
+        confirmLabel={t('apartments.setup.addApartment')}
+        contentSx={{ display: 'grid', gap: 2 }}
+        maxWidth="md"
+        onCancel={() => setIsAddDialogOpen(false)}
+        onConfirm={addApartment}
+        open={isAddDialogOpen}
+        title={t('apartments.setup.addApartment')}
+      >
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' }, gap: 1.5 }}>
             <TextField
               fullWidth
@@ -573,18 +578,7 @@ const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ hideScopeFilt
               onChange={(event) => setApartmentForm((form) => ({ ...form, indivisibleShare: event.target.value }))}
             />
           </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsAddDialogOpen(false)}>{t('common.cancel')}</Button>
-          <Button
-            variant="contained"
-            onClick={addApartment}
-            disabled={!canAddApartment}
-          >
-            {t('apartments.setup.addApartment')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      </AppDialog>
     </Box>
   )
 }
