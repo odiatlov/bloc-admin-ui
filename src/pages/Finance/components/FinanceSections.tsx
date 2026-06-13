@@ -140,9 +140,6 @@ const FinanceSections: React.FC = () => {
 
       {tab === 0 && (
         <Box sx={{ display: 'grid', gap: 1.5 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button variant="outlined">{t('finance.actions.bulkActions')}</Button>
-          </Box>
           <ResponsiveDataView
             ariaLabel={t('finance.tabs.invoices')}
             columns={invoiceColumns}

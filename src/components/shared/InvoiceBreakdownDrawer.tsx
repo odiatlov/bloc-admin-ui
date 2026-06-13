@@ -30,9 +30,10 @@ type InvoiceBreakdownDrawerProps = {
   invoice: InvoiceWithBreakdown | null
   onClose: () => void
   formatCurrency: (value: number) => string
+  onPay?: () => void
 }
 
-const InvoiceBreakdownDrawer: React.FC<InvoiceBreakdownDrawerProps> = ({ formatCurrency, invoice, onClose }) => {
+const InvoiceBreakdownDrawer: React.FC<InvoiceBreakdownDrawerProps> = ({ formatCurrency, invoice, onClose, onPay }) => {
   const { t } = useTranslation()
   const maintenanceTotal = invoice?.maintenanceTotal
   const expenseTotal = maintenanceTotal?.lines.reduce((total, line) => total + line.amount, 0) ?? invoice?.totalAmount ?? 0
@@ -164,6 +165,15 @@ const InvoiceBreakdownDrawer: React.FC<InvoiceBreakdownDrawerProps> = ({ formatC
               ))}
             </Paper>
           ) : null}
+
+          {onPay && (
+            <Box>
+              <Divider sx={{ mb: 2 }} />
+              <Button variant="contained" size="large" fullWidth disabled={balance <= 0} onClick={onPay}>
+                {t('resident.bills.payBill')}
+              </Button>
+            </Box>
+          )}
         </Box>
       )}
     </Drawer>

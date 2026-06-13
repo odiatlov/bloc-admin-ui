@@ -4,6 +4,8 @@ import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import MetricCard from '../../../components/shared/MetricCard'
 
+export { default as ActionBar } from '../../../components/shared/ActionBar'
+
 type DashboardHeaderProps = {
   title: string
   description?: string
@@ -26,41 +28,6 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ context, descr
       </Typography>
     )}
   </Box>
-)
-
-type ActionBarProps = {
-  title: string
-  children: React.ReactNode
-}
-
-export const ActionBar: React.FC<ActionBarProps> = ({ children, title }) => (
-  <Paper
-    sx={{
-      p: 1.5,
-      width: '100%',
-      boxSizing: 'border-box',
-      display: 'flex',
-      alignItems: { xs: 'stretch', sm: 'center' },
-      justifyContent: 'space-between',
-      gap: 1.5,
-      flexDirection: { xs: 'column', sm: 'row' },
-    }}
-  >
-    <Typography variant="h6" sx={{ lineHeight: 1.35 }}>
-      {title}
-    </Typography>
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: { xs: 'flex-start', sm: 'flex-end' },
-        gap: 1,
-        flexWrap: 'wrap',
-      }}
-    >
-      {children}
-    </Box>
-  </Paper>
 )
 
 type StatCardProps = {
