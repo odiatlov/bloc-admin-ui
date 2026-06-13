@@ -1,5 +1,4 @@
 import React from 'react'
-import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -10,6 +9,7 @@ import ApartmentIcon from '@mui/icons-material/Apartment'
 import { Link as RouterLink, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import EmptyState from '../../components/shared/EmptyState'
+import LoadErrorState from '../../components/shared/LoadErrorState'
 import MetricCard from '../../components/shared/MetricCard'
 import PageHeader from '../../components/shared/PageHeader'
 import ResponsiveDataView, { type DataColumn } from '../../components/shared/ResponsiveDataView'
@@ -33,7 +33,7 @@ const BlockContext: React.FC = () => {
     block: {
       id: databaseBlock.id,
       name: databaseBlock.name,
-      address: databaseBlock.address,
+      address: '',
       hasStaircases: databaseBlock.staircaseCount > 0,
       heatingType: 'central' as const,
     },
@@ -42,8 +42,8 @@ const BlockContext: React.FC = () => {
     blockPayments: [],
     residentCount: databaseBlock.residentCount,
     staircaseTotals: [],
-    totalInvoices: databaseBlock.totalInvoices,
-    totalPayments: databaseBlock.totalPayments,
+    totalInvoices: databaseBlock.totalInvoicesAmount,
+    totalPayments: databaseBlock.totalPaymentsAmount,
   } : null
   const {
     apartmentCount,
@@ -68,9 +68,10 @@ const BlockContext: React.FC = () => {
 
   if (shouldUseDatabaseBlocks && databaseBlocks.error) {
     return (
-      <Alert severity="error">
-        {t('blocks.errors.loadFailed')}
-      </Alert>
+      <LoadErrorState
+        helperText={t('blocks.errors.loadFailed')}
+        onRetry={databaseBlocks.refresh}
+      />
     )
   }
 

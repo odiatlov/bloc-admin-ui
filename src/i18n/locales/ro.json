@@ -35,6 +35,12 @@
       "reviews": "revizii"
     }
   },
+  "loadErrorState": {
+    "headline": "Informațiile nu sunt disponibile",
+    "helperText": "Informațiile nu au putut fi încărcate. Încercați din nou.",
+    "retry": "Reîncearcă",
+    "retrying": "Se reîncearcă..."
+  },
   "layout": {
     "topbar": {
       "role": {

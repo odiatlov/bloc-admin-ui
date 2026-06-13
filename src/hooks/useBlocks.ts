@@ -1,13 +1,13 @@
 import React from 'react'
-import { fetchBlocks } from '../services/blocksApi'
-import type { BlockRecord } from '../types/block'
+import { fetchBlockOverview } from '../services/blocksApi'
+import type { BlockOverview } from '../types/block'
 
 type UseBlocksOptions = {
   enabled?: boolean
 }
 
 export const useBlocks = ({ enabled = true }: UseBlocksOptions = {}) => {
-  const [blocks, setBlocks] = React.useState<BlockRecord[]>([])
+  const [blocks, setBlocks] = React.useState<BlockOverview[]>([])
   const [error, setError] = React.useState<string | null>(null)
   const [isLoading, setIsLoading] = React.useState(enabled)
   const [search, setSearch] = React.useState('')
@@ -23,7 +23,7 @@ export const useBlocks = ({ enabled = true }: UseBlocksOptions = {}) => {
     setError(null)
 
     try {
-      const nextBlocks = await fetchBlocks()
+      const nextBlocks = await fetchBlockOverview()
       setBlocks(nextBlocks)
     } catch (nextError) {
       setError(nextError instanceof Error ? nextError.message : 'Unable to load blocks')
@@ -41,7 +41,7 @@ export const useBlocks = ({ enabled = true }: UseBlocksOptions = {}) => {
     if (!query) return blocks
 
     return blocks.filter((block) =>
-      [block.name, block.address]
+      [block.name, block.displayName, block.administratorName]
         .filter(Boolean)
         .some((value) => value!.toLowerCase().includes(query)),
     )

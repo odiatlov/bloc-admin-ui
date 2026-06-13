@@ -35,6 +35,12 @@
       "reviews": "reviews"
     }
   },
+  "loadErrorState": {
+    "headline": "The information is unavailable",
+    "helperText": "The information could not be loaded. Please try again.",
+    "retry": "Retry",
+    "retrying": "Retrying..."
+  },
   "auth": {
     "logout": {
       "title": "Log out?",
