@@ -45,9 +45,10 @@ const SectionVisibilitySelector = <T extends string>({
         variant="outlined"
         sx={{
           flex: '0 0 auto',
-          justifyContent: 'space-between',
+          justifyContent: 'center',
           minHeight: 40,
           minWidth: { xs: 162, sm: 180 },
+          textAlign: 'center',
         }}
       >
         {label}: {visibleCountLabel}

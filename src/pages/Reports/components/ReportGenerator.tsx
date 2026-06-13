@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import PreviewIcon from '@mui/icons-material/Preview'
 import { useTranslation } from 'react-i18next'
+import FilterBar from '../../../components/shared/FilterBar'
 import { formatCurrency, formatMonth, formatNumber, useReports } from '../../../hooks/useApartmentData'
 
 const ReportGenerator: React.FC = () => {
@@ -25,41 +26,40 @@ const ReportGenerator: React.FC = () => {
 
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
-      <Paper sx={{ p: 2 }}>
-        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
-          <FormControl size="small" sx={{ minWidth: 160 }}>
-            <InputLabel>{t('reports.filters.month')}</InputLabel>
-            <Select label={t('reports.filters.month')} value={month} onChange={(event: SelectChangeEvent) => setMonth(event.target.value)}>
-              {months.map((item) => (
-                <MenuItem key={item} value={item}>
-                  {formatMonth(item)}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl size="small" sx={{ minWidth: 160 }}>
-            <InputLabel>{t('residents.filters.block')}</InputLabel>
-            <Select label={t('residents.filters.block')} value={block} onChange={(event: SelectChangeEvent) => setBlock(event.target.value)}>
-              <MenuItem value="all">{t('common.all')}</MenuItem>
-              {blocks.map((item) => (
-                <MenuItem key={item.id} value={item.id}>
-                  {t('common.blockValue', { block: item.name })}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          </Box>
-          <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end', ml: { sm: 'auto' } }}>
+      <FilterBar
+        actions={(
+          <>
             <Button startIcon={<PreviewIcon />} variant="outlined">
               {t('reports.actions.preview')}
             </Button>
             <Button startIcon={<FileDownloadIcon />} variant="contained">
               {t('reports.actions.export')}
             </Button>
-          </Box>
-        </Box>
-      </Paper>
+          </>
+        )}
+      >
+        <FormControl size="small" sx={{ minWidth: { sm: 160 } }}>
+          <InputLabel>{t('reports.filters.month')}</InputLabel>
+          <Select label={t('reports.filters.month')} value={month} onChange={(event: SelectChangeEvent) => setMonth(event.target.value)}>
+            {months.map((item) => (
+              <MenuItem key={item} value={item}>
+                {formatMonth(item)}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl size="small" sx={{ minWidth: { sm: 160 } }}>
+          <InputLabel>{t('residents.filters.block')}</InputLabel>
+          <Select label={t('residents.filters.block')} value={block} onChange={(event: SelectChangeEvent) => setBlock(event.target.value)}>
+            <MenuItem value="all">{t('common.all')}</MenuItem>
+            {blocks.map((item) => (
+              <MenuItem key={item.id} value={item.id}>
+                {t('common.blockValue', { block: item.name })}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </FilterBar>
 
       <Paper sx={{ p: 2 }}>
         <Typography variant="h6" gutterBottom>

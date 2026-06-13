@@ -8,12 +8,12 @@ import DialogTitle from '@mui/material/DialogTitle'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
-import Paper from '@mui/material/Paper'
 import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import EmptyState from '../../../components/shared/EmptyState'
+import FilterBar from '../../../components/shared/FilterBar'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import SectionVisibilitySelector, { type SectionVisibilityOption } from '../../../components/shared/SectionVisibilitySelector'
 import StatusChip from '../../../components/shared/StatusChip'
@@ -84,43 +84,40 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
 
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
-      <Paper sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', flex: '0 1 auto', gap: 1.5, flexWrap: 'wrap', minWidth: 0 }}>
-          {mode !== 'resident' ? (
-            <FormControl size="small" sx={{ flex: '0 0 auto', minWidth: { xs: 162, sm: 180 } }}>
-              <InputLabel>{t('residents.filters.block')}</InputLabel>
-              <Select label={t('residents.filters.block')} value={blockFilter} onChange={(event: SelectChangeEvent) => setBlockFilter(event.target.value)}>
-                <MenuItem value="all">{t('common.all')}</MenuItem>
-                {blocks.map((block) => (
-                  <MenuItem key={block.id} value={block.id}>
-                    {t('common.blockValue', { block: block.name })}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          ) : (
-            <Typography variant="h6">{t('consumption.resident.history')}</Typography>
-          )}
-          {mode !== 'resident' && (
-            <SectionVisibilitySelector
-              ariaLabel={t('consumption.visibility.ariaLabel')}
-              label={t('consumption.visibility.label')}
-              minimumVisibleMessage={t('consumption.visibility.minimumVisible')}
-              onToggle={handleSectionVisibilityToggle}
-              options={sectionVisibilityOptions}
-              visibleCountLabel={t('consumption.visibility.visibleCount', { count: visibleSectionIds.length })}
-              visibleIds={visibleSectionIds}
-            />
-          )}
-        </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1, flexWrap: 'wrap', ml: 'auto' }}>
-          {canEditReadings && (
-            <Button variant="contained" onClick={() => setSubmitOpen(true)}>
-              {mode === 'resident' ? t('consumption.actions.submitIndex') : t('consumption.actions.addReading')}
-            </Button>
-          )}
-        </Box>
-      </Paper>
+      <FilterBar
+        actions={canEditReadings ? (
+          <Button variant="contained" onClick={() => setSubmitOpen(true)}>
+            {mode === 'resident' ? t('consumption.actions.submitIndex') : t('consumption.actions.addReading')}
+          </Button>
+        ) : undefined}
+      >
+        {mode !== 'resident' ? (
+          <FormControl size="small" sx={{ minWidth: { sm: 180 } }}>
+            <InputLabel>{t('residents.filters.block')}</InputLabel>
+            <Select label={t('residents.filters.block')} value={blockFilter} onChange={(event: SelectChangeEvent) => setBlockFilter(event.target.value)}>
+              <MenuItem value="all">{t('common.all')}</MenuItem>
+              {blocks.map((block) => (
+                <MenuItem key={block.id} value={block.id}>
+                  {t('common.blockValue', { block: block.name })}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        ) : (
+          <Typography variant="h6">{t('consumption.resident.history')}</Typography>
+        )}
+        {mode !== 'resident' && (
+          <SectionVisibilitySelector
+            ariaLabel={t('consumption.visibility.ariaLabel')}
+            label={t('consumption.visibility.label')}
+            minimumVisibleMessage={t('consumption.visibility.minimumVisible')}
+            onToggle={handleSectionVisibilityToggle}
+            options={sectionVisibilityOptions}
+            visibleCountLabel={t('consumption.visibility.visibleCount', { count: visibleSectionIds.length })}
+            visibleIds={visibleSectionIds}
+          />
+        )}
+      </FilterBar>
 
       {(mode === 'resident' || isSectionVisible('readings')) && (
         <Box sx={{ display: 'grid', gap: 1 }}>
