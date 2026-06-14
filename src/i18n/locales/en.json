@@ -426,6 +426,7 @@
     "results": "{{count}} blocks",
     "actions": {
       "openOverview": "Open overview",
+      "configureBlocks": "Configure blocks",
       "backToList": "Back to blocks",
       "backToDashboard": "Dashboard",
       "retry": "Retry"
@@ -662,6 +663,22 @@
       "addBlock": "Add block",
       "editBlock": "Edit block",
       "saveChanges": "Save changes"
+    },
+    "blockDialog": {
+      "address": "Address",
+      "administrator": "Administrator",
+      "apartmentsCount": "Apartments count",
+      "createSuccess": "Block created successfully.",
+      "createTitle": "Add block",
+      "editTitle": "Edit block",
+      "hasStaircases": "Has staircases",
+      "residentsCount": "Residents count",
+      "saveEdit": "Save block",
+      "saving": "Saving...",
+      "serverError": "The block could not be saved.",
+      "staircaseCount": "Staircase count",
+      "updateSuccess": "Block updated successfully.",
+      "validationError": "Complete the required fields and use non-negative whole numbers."
     },
     "apartmentsSetup": {
       "addApartment": "Add apartment",

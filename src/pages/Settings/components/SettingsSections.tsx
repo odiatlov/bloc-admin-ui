@@ -1,4 +1,6 @@
 import React from 'react'
+import Alert from '@mui/material/Alert'
+import Autocomplete from '@mui/material/Autocomplete'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
@@ -10,6 +12,7 @@ import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import Switch from '@mui/material/Switch'
+import Snackbar from '@mui/material/Snackbar'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import AddIcon from '@mui/icons-material/Add'
@@ -18,6 +21,9 @@ import { useTranslation } from 'react-i18next'
 import AppDatePicker from '../../../components/shared/AppDatePicker'
 import { filterBlocksForAccount } from '../../../application/accessScope'
 import { RoleContext } from '../../../contexts/RoleContext'
+import { useBlocks } from '../../../hooks/useBlocks'
+import { blocksApi } from '../../../services/blocksApi'
+import type { CreateBlockRequest } from '../../../types/block'
 import {
   apartments,
   blocks,
@@ -31,6 +37,7 @@ import {
   type CustomCostConfiguration,
   type UtilityCategory,
 } from '../../../mocks/apartmentData'
+import AddBlockDialog from './AddBlockDialog'
 
 type SettingsSectionsProps = {
   mode: 'admin' | 'resident'
@@ -42,30 +49,36 @@ const allocationTypes: AllocationType[] = ['per_person', 'per_apartment', 'by_su
 const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
   const { t } = useTranslation()
   const { account, role } = React.useContext(RoleContext)
+  const shouldUseDatabaseBlocks = account.id === 'acct-demo'
+  const databaseOverview = useBlocks({ enabled: shouldUseDatabaseBlocks })
   const scopedBlocks = React.useMemo(
     () => filterBlocksForAccount(blocks, { ...account, role }, buildingAdminAssignments, residentApartments, apartments),
     [account, role],
   )
-  const [selectedBlockId, setSelectedBlockId] = React.useState(scopedBlocks[0]?.id ?? '')
+  const settingsBlocks = shouldUseDatabaseBlocks ? databaseOverview.blocks : scopedBlocks
+  const [selectedBlockId, setSelectedBlockId] = React.useState(settingsBlocks[0]?.id ?? '')
   const [selectedStaircaseId, setSelectedStaircaseId] = React.useState('all')
   const [blockDeadline, setBlockDeadline] = React.useState('2026-05-15')
   const [staircaseDeadlines, setStaircaseDeadlines] = React.useState<Record<string, string>>({})
   const [customCosts, setCustomCosts] = React.useState<CustomCostConfiguration[]>(customCostConfigurations)
+  const [dialogMode, setDialogMode] = React.useState<'create' | 'edit' | null>(null)
+  const [notification, setNotification] = React.useState<{
+    message: string
+    severity: 'success' | 'error'
+  } | null>(null)
   React.useEffect(() => {
-    if (!scopedBlocks.some((block) => block.id === selectedBlockId)) {
-      setSelectedBlockId(scopedBlocks[0]?.id ?? '')
+    if (!settingsBlocks.some((block) => block.id === selectedBlockId)) {
+      setSelectedBlockId(settingsBlocks[0]?.id ?? '')
       setSelectedStaircaseId('all')
     }
-  }, [scopedBlocks, selectedBlockId])
+  }, [settingsBlocks, selectedBlockId])
 
-  const selectedBlock = scopedBlocks.find((block) => block.id === selectedBlockId) ?? scopedBlocks[0]
+  const selectedBlock = settingsBlocks.find((block) => block.id === selectedBlockId) ?? settingsBlocks[0]
+  const selectedDatabaseBlock = shouldUseDatabaseBlocks
+    ? databaseOverview.blocks.find((block) => block.id === selectedBlockId) ?? null
+    : null
   const selectedBlockStaircases = staircases.filter((staircase) => staircase.blockId === selectedBlock?.id)
   const selectedCustomCosts = customCosts.filter((cost) => cost.blockId === selectedBlock?.id)
-
-  const handleBlockChange = (event: SelectChangeEvent) => {
-    setSelectedBlockId(event.target.value)
-    setSelectedStaircaseId('all')
-  }
 
   const handleStaircaseChange = (event: SelectChangeEvent) => {
     setSelectedStaircaseId(event.target.value)
@@ -92,6 +105,32 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
     }
 
     setCustomCosts((costs) => [nextCost, ...costs])
+  }
+
+  const saveBlock = async (request: CreateBlockRequest) => {
+    if (!shouldUseDatabaseBlocks) return
+
+    try {
+      if (dialogMode === 'edit' && selectedDatabaseBlock) {
+        await blocksApi.updateBlock(selectedDatabaseBlock.id, request)
+      } else {
+        await blocksApi.createBlock(request)
+      }
+
+      await databaseOverview.refresh()
+      setDialogMode(null)
+      setNotification({
+        message: t(dialogMode === 'edit'
+          ? 'settings.blockDialog.updateSuccess'
+          : 'settings.blockDialog.createSuccess'),
+        severity: 'success',
+      })
+    } catch (error) {
+      setNotification({
+        message: error instanceof Error ? error.message : t('settings.blockDialog.serverError'),
+        severity: 'error',
+      })
+    }
   }
 
   if (mode === 'resident') {
@@ -129,37 +168,77 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
       <Paper sx={{ p: 2, display: 'grid', gap: 2 }}>
-        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
-          <Typography variant="h6">{t('settings.admin.blockManagement')}</Typography>
-          <Button startIcon={<AddIcon />} variant="outlined">
-            {t('settings.actions.addBlock')}
-          </Button>
-        </Box>
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' }, gap: 2 }}>
-          <FormControl size="small">
-            <InputLabel>{t('settings.fields.block')}</InputLabel>
-            <Select label={t('settings.fields.block')} value={selectedBlockId} onChange={handleBlockChange}>
-              {scopedBlocks.map((block) => (
-                <MenuItem key={block.id} value={block.id}>
-                  {t('common.blockValue', { block: block.name })}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl size="small" disabled={!selectedBlock?.hasStaircases}>
-            <InputLabel>{t('blocks.columns.staircase')}</InputLabel>
-            <Select label={t('blocks.columns.staircase')} value={selectedStaircaseId} onChange={handleStaircaseChange}>
-              <MenuItem value="all">{t('common.all')}</MenuItem>
-              {selectedBlockStaircases.map((staircase) => (
-                <MenuItem key={staircase.id} value={staircase.id}>
-                  {t('settings.fields.staircaseName', { staircase: staircase.name })}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-            <TextField size="small" label={t('settings.fields.blockName')} defaultValue={selectedBlock?.name} sx={{ minWidth: { xs: '100%', sm: 180 } }} />
-            <Button startIcon={<EditIcon />} variant="contained">
+        <Typography variant="h6">{t('settings.admin.blockManagement')}</Typography>
+        <Box
+          sx={{
+            alignItems: 'center',
+            display: 'grid',
+            gap: 2,
+            gridTemplateColumns: { xs: '1fr', lg: 'minmax(0, 1fr) auto' },
+          }}
+        >
+          <Box
+            sx={{
+              display: 'grid',
+              gap: 2,
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 280px))' },
+              justifyContent: 'start',
+            }}
+          >
+            <Autocomplete
+              autoHighlight
+              getOptionKey={(block) => block.id}
+              getOptionLabel={(block) => t('common.blockValue', { block: block.name })}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              options={settingsBlocks}
+              value={selectedBlock ?? null}
+              onChange={(_, block) => {
+                setSelectedBlockId(block?.id ?? '')
+                setSelectedStaircaseId('all')
+              }}
+              renderInput={(params) => (
+                <TextField {...params} label={t('settings.fields.block')} size="small" />
+              )}
+            />
+            <FormControl size="small" disabled={!selectedBlock?.hasStaircases}>
+              <InputLabel>{t('blocks.columns.staircase')}</InputLabel>
+              <Select label={t('blocks.columns.staircase')} value={selectedStaircaseId} onChange={handleStaircaseChange}>
+                <MenuItem value="all">{t('common.all')}</MenuItem>
+                {selectedBlockStaircases.map((staircase) => (
+                  <MenuItem key={staircase.id} value={staircase.id}>
+                    {t('settings.fields.staircaseName', { staircase: staircase.name })}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+          <Box
+            sx={{
+              display: 'grid',
+              gap: 1,
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' },
+              justifyContent: { lg: 'end' },
+              width: { xs: '100%', lg: 'auto' },
+            }}
+          >
+            <Button
+              startIcon={<AddIcon />}
+              variant="outlined"
+              onClick={() => {
+                if (shouldUseDatabaseBlocks) setDialogMode('create')
+              }}
+              sx={{ justifyContent: 'center', width: { xs: '100%', lg: 'auto' } }}
+            >
+              {t('settings.actions.addBlock')}
+            </Button>
+            <Button
+              startIcon={<EditIcon />}
+              variant="contained"
+              onClick={() => {
+                if (shouldUseDatabaseBlocks && selectedDatabaseBlock) setDialogMode('edit')
+              }}
+              sx={{ justifyContent: 'center', width: { xs: '100%', lg: 'auto' } }}
+            >
               {t('settings.actions.editBlock')}
             </Button>
           </Box>
@@ -362,6 +441,27 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
         <FormControlLabel control={<Checkbox defaultChecked />} label={t('settings.fields.overdueAlerts')} />
         <FormControlLabel control={<Checkbox defaultChecked />} label={t('settings.fields.cashAlerts')} />
       </Paper>
+
+      <AddBlockDialog
+        block={dialogMode === 'edit' ? selectedDatabaseBlock : null}
+        open={dialogMode !== null}
+        onClose={() => setDialogMode(null)}
+        onSubmit={saveBlock}
+      />
+      <Snackbar
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        autoHideDuration={4000}
+        open={Boolean(notification)}
+        onClose={() => setNotification(null)}
+      >
+        <Alert
+          severity={notification?.severity ?? 'success'}
+          variant="filled"
+          onClose={() => setNotification(null)}
+        >
+          {notification?.message}
+        </Alert>
+      </Snackbar>
     </Box>
   )
 }
