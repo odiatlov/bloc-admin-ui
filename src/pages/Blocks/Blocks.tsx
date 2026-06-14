@@ -5,9 +5,11 @@ import CircularProgress from '@mui/material/CircularProgress'
 import Paper from '@mui/material/Paper'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+import SettingsIcon from '@mui/icons-material/Settings'
 import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import EmptyState from '../../components/shared/EmptyState'
+import FilterBar from '../../components/shared/FilterBar'
 import LoadErrorState from '../../components/shared/LoadErrorState'
 import PageHeader from '../../components/shared/PageHeader'
 import ResponsiveDataView, { type DataColumn } from '../../components/shared/ResponsiveDataView'
@@ -29,6 +31,9 @@ const Blocks: React.FC = () => {
       name: overview.block.name,
       displayName: t('common.blockValue', { block: overview.block.name }),
       administratorName: overview.activeAdmin?.name ?? null,
+      hasStaircases: overview.block.hasStaircases,
+      address: overview.block.address ?? null,
+      createdAt: '',
       apartmentCount: overview.apartmentCount,
       residentCount: overview.residentCount,
       staircaseCount: overview.staircaseCount,
@@ -87,21 +92,27 @@ const Blocks: React.FC = () => {
       <PageHeader title={t('pages.blocks.title')} description={t('pages.blocks.description')} />
 
       <Box sx={{ display: 'grid', gap: 2 }}>
-        <Paper sx={{ p: 2, display: 'grid', gap: 1.5 }}>
+        <FilterBar
+          actions={(
+            <Button
+              component={RouterLink}
+              startIcon={<SettingsIcon />}
+              to="/admin/settings"
+              variant="contained"
+            >
+              {t('blocks.actions.configureBlocks')}
+            </Button>
+          )}
+        >
           <TextField
-            fullWidth
             size="small"
             label={t('sidebar.searchBlocks')}
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             disabled={Boolean(error)}
+            sx={{ minWidth: { sm: 320 } }}
           />
-          {!error && (
-            <Typography variant="body2" color="text.secondary">
-              {t('blocks.results', { count: blocks.length })}
-            </Typography>
-          )}
-        </Paper>
+        </FilterBar>
 
         {isLoading ? (
           <Paper sx={{ alignItems: 'center', display: 'grid', gap: 1.5, justifyItems: 'center', p: 4 }}>

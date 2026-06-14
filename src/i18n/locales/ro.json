@@ -439,6 +439,7 @@
     "results": "{{count}} blocuri",
     "actions": {
       "openOverview": "Deschide prezentarea",
+      "configureBlocks": "Configurează blocurile",
       "backToList": "Înapoi la blocuri",
       "backToDashboard": "Panou principal",
       "retry": "Reîncearcă"
@@ -674,6 +675,22 @@
       "addBlock": "Adaugă bloc",
       "editBlock": "Editează bloc",
       "saveChanges": "Salvează modificările"
+    },
+    "blockDialog": {
+      "address": "Adresă",
+      "administrator": "Administrator",
+      "apartmentsCount": "Număr de apartamente",
+      "createSuccess": "Blocul a fost creat cu succes.",
+      "createTitle": "Adaugă bloc",
+      "editTitle": "Editează bloc",
+      "hasStaircases": "Are scări",
+      "residentsCount": "Număr de rezidenți",
+      "saveEdit": "Salvează blocul",
+      "saving": "Se salvează...",
+      "serverError": "Blocul nu a putut fi salvat.",
+      "staircaseCount": "Număr de scări",
+      "updateSuccess": "Blocul a fost actualizat cu succes.",
+      "validationError": "Completați câmpurile obligatorii și folosiți numere întregi nenegative."
     },
     "apartmentsSetup": {
       "addApartment": "Adaugă apartament",
