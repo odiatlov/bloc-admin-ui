@@ -4,6 +4,7 @@ import AppDialog from './AppDialog'
 type ConfirmationDialogProps = {
   cancelLabel: string
   children: React.ReactNode
+  confirmDisabled?: boolean
   confirmLabel: string
   open: boolean
   title: string
@@ -14,6 +15,7 @@ type ConfirmationDialogProps = {
 const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   cancelLabel,
   children,
+  confirmDisabled = false,
   confirmLabel,
   onCancel,
   onConfirm,
@@ -22,6 +24,7 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
 }) => (
   <AppDialog
     cancelLabel={cancelLabel}
+    confirmDisabled={confirmDisabled}
     confirmLabel={confirmLabel}
     maxWidth="xs"
     onCancel={onCancel}

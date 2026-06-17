@@ -45,3 +45,8 @@ export const apiPut = <TRequest, TResponse>(path: string, body: TRequest) =>
     method: 'PUT',
     body: JSON.stringify(body),
   })
+
+export const apiDelete = <TResponse>(path: string) =>
+  apiRequest<TResponse>(path, {
+    method: 'DELETE',
+  })
