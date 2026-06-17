@@ -661,6 +661,7 @@
     },
     "actions": {
       "addBlock": "Add block",
+      "deleteBlock": "Delete block",
       "editBlock": "Edit block",
       "saveChanges": "Save changes"
     },
@@ -670,6 +671,12 @@
       "apartmentsCount": "Apartments count",
       "createSuccess": "Block created successfully.",
       "createTitle": "Add block",
+      "deleteConfirm": "Are you sure you want to delete block {{block}}?",
+      "deleteConfirmYes": "Yes",
+      "deleteError": "The block could not be deleted.",
+      "deleteSuccess": "Block deleted successfully.",
+      "deleteTitle": "Delete block",
+      "deleting": "Deleting...",
       "editTitle": "Edit block",
       "hasStaircases": "Has staircases",
       "residentsCount": "Residents count",
