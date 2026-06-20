@@ -3,25 +3,25 @@
                 "title":  "Bloc Admin"
             },
     "common":  {
-                   "actions":  "AcÈ›iuni",
+                   "actions":  "Acțiuni",
                    "all":  "Toate",
                    "blockValue":  "Bloc {{block}}",
-                   "cancel":  "AnuleazÄƒ",
-                   "close":  "ÃŽnchide",
+                   "cancel":  "Anulează",
+                   "close":  "Închide",
                    "at":  "la",
                    "notAvailable":  "indisponibil",
-                   "save":  "SalveazÄƒ",
-                   "today":  "AstÄƒzi"
+                   "save":  "Salvează",
+                   "today":  "Astăzi"
                },
     "emptyState":  {
-                       "headline":  "Nu existÄƒ {{information}} de afiÈ™at Ã®ncÄƒ",
-                       "action":  "AdaugÄƒ {{information}}",
+                       "headline":  "Nu există {{information}} de afișat încă",
+                       "action":  "Adaugă {{information}}",
                        "helper":  {
-                                      "settings":  "MergeÈ›i la SetÄƒri pentru a adÄƒuga {{information}}, iar acestea vor apÄƒrea aici automat.",
-                                      "dedicated":  "FolosiÈ›i fluxul dedicat pentru a adÄƒuga {{information}} È™i pentru a menÈ›ine aceastÄƒ vizualizare actualizatÄƒ.",
-                                      "finance":  "AdÄƒugaÈ›i {{information}} din fluxul financiar, iar acestea vor apÄƒrea aici automat.",
-                                      "residentIndexOnly":  "Facturile sunt generate de administraÈ›ie. PuteÈ›i trimite un index de apÄƒ atunci cÃ¢nd este necesar.",
-                                      "reviews":  "Elementele de revizie vor apÄƒrea aici dupÄƒ ce administraÈ›ia trimite Ã®nregistrÄƒri pentru validare."
+                                      "settings":  "Mergeți la Setări pentru a adăuga {{information}}, iar acestea vor apărea aici automat.",
+                                      "dedicated":  "Folosiți fluxul dedicat pentru a adăuga {{information}} și pentru a menține această vizualizare actualizată.",
+                                      "finance":  "Adăugați {{information}} din fluxul financiar, iar acestea vor apărea aici automat.",
+                                      "residentIndexOnly":  "Facturile sunt generate de administrație. Puteți trimite un index de apă atunci când este necesar.",
+                                      "reviews":  "Elementele de revizie vor apărea aici după ce administrația trimite înregistrări pentru validare."
                                   },
                        "information":  {
                                            "blocks":  "blocuri",
@@ -29,24 +29,24 @@
                                            "residents":  "locatari",
                                            "invoices":  "facturi",
                                            "consumption":  "citiri de consum",
-                                           "waterIndex":  "indexuri de apÄƒ",
-                                           "payments":  "plÄƒÈ›i",
-                                           "cashEntries":  "intrÄƒri numerar",
+                                           "waterIndex":  "indexuri de apă",
+                                           "payments":  "plăți",
+                                           "cashEntries":  "intrări numerar",
                                            "reviews":  "revizii",
                                            "staircases":  "scări"
                                        }
                    },
     "loadErrorState":  {
-                           "headline":  "InformaÈ›iile nu sunt disponibile",
-                           "helperText":  "InformaÈ›iile nu au putut fi Ã®ncÄƒrcate. ÃŽncercaÈ›i din nou.",
-                           "retry":  "ReÃ®ncearcÄƒ",
-                           "retrying":  "Se reÃ®ncearcÄƒ..."
+                           "headline":  "Informațiile nu sunt disponibile",
+                           "helperText":  "Informațiile nu au putut fi încărcate. Încercați din nou.",
+                           "retry":  "Reîncearcă",
+                           "retrying":  "Se reîncearcă..."
                        },
     "auth":  {
                  "logout":  {
-                                "title":  "VÄƒ deconectaÈ›i?",
-                                "body":  "Sigur doriÈ›i sÄƒ Ã®ncheiaÈ›i aceastÄƒ sesiune demonstrativÄƒ?",
-                                "confirm":  "Da, deconecteazÄƒ-mÄƒ"
+                                "title":  "Vă deconectați?",
+                                "body":  "Sigur doriți să încheiați această sesiune demonstrativă?",
+                                "confirm":  "Da, deconectează-mă"
                             }
              },
     "layout":  {
@@ -59,20 +59,20 @@
                                   "logout":  "Deconectare",
                                   "language":  "Limba",
                                   "openSidebar":  "Deschide meniul",
-                                  "toggleTheme":  "SchimbÄƒ tema"
+                                  "toggleTheme":  "Schimbă tema"
                               },
                    "debts":  {
                                  "previousBalance":  "Sold restant anterior"
                              },
                    "penalties":  {
-                                     "latePayment":  "Penalizare pentru Ã®ntÃ¢rziere"
+                                     "latePayment":  "Penalizare pentru întârziere"
                                  },
                    "maintenance":  {
-                                       "adjustments":  "Restante istorice: {{debts}} - penalizÄƒri: {{penalties}}",
+                                       "adjustments":  "Restante istorice: {{debts}} - penalizări: {{penalties}}",
                                        "blockMonth":  "Bloc {{block}} - {{month}}",
                                        "generatedAt":  "Generat {{generatedAt}}",
                                        "status":  {
-                                                      "draft":  "CiornÄƒ",
+                                                      "draft":  "Ciornă",
                                                       "published":  "Publicat"
                                                   }
                                    }
@@ -80,55 +80,55 @@
     "maintenance":  {
                         "explain":  {
                                         "per_person":  "{{label}} = {{amount}} deoarece sunt declarate {{basis}} persoane.",
-                                        "per_apartment":  "{{label}} = {{amount}} deoarece costul este Ã®mpÄƒrÈ›it pe apartament.",
+                                        "per_apartment":  "{{label}} = {{amount}} deoarece costul este împărțit pe apartament.",
                                         "by_surface":  "{{label}} = {{amount}} pentru {{basis}} mp utili din {{totalBasis}} mp.",
-                                        "by_heating_area":  "{{label}} = {{amount}} pentru {{basis}} mp Ã®ncÄƒlziÈ›i din {{totalBasis}} mp.",
+                                        "by_heating_area":  "{{label}} = {{amount}} pentru {{basis}} mp încălziți din {{totalBasis}} mp.",
                                         "individual_meter":  "{{label}} = {{amount}} pentru {{basis}} mc din {{totalBasis}} mc.",
-                                        "equal_split":  "{{label}} = {{amount}} prin Ã®mpÄƒrÈ›ire egalÄƒ Ã®ntre apartamente eligibile.",
+                                        "equal_split":  "{{label}} = {{amount}} prin împărțire egală între apartamente eligibile.",
                                         "custom":  "{{label}} = {{amount}} pe baza cotei configurate manual."
                                     }
                     },
     "heatingType":  {
-                        "central":  "ÃŽncÄƒlzire centralÄƒ",
-                        "individual":  "ÃŽncÄƒlzire individualÄƒ",
-                        "gas_boiler":  "CentralÄƒ pe gaz",
-                        "district":  "ÃŽncÄƒlzire de cartier"
+                        "central":  "Încălzire centrală",
+                        "individual":  "Încălzire individuală",
+                        "gas_boiler":  "Centrală pe gaz",
+                        "district":  "Încălzire de cartier"
                     },
     "sidebar":  {
                     "apartments":  "Apartamente",
                     "blocks":  "Blocuri",
                     "dashboard":  "Panou principal",
                     "residents":  "Locatari",
-                    "finance":  "FinanÈ›e",
+                    "finance":  "Finanțe",
                     "myBills":  "Facturile mele",
-                    "waterIndex":  "Index apÄƒ",
+                    "waterIndex":  "Index apă",
                     "consumption":  "Consum",
                     "reviews":  "Revizii",
                     "reports":  "Rapoarte",
-                    "settings":  "SetÄƒri",
+                    "settings":  "Setări",
                     "overview":  "Prezentare",
-                    "searchBlocks":  "CautÄƒ blocuri",
-                    "staircases":  "ScÄƒri",
-                    "close":  "ÃŽnchide meniul"
+                    "searchBlocks":  "Caută blocuri",
+                    "staircases":  "Scări",
+                    "close":  "Închide meniul"
                 },
     "status":  {
                    "invoice":  {
-                                   "paid":  "PlÄƒtitÄƒ",
-                                   "unpaid":  "NeachitatÄƒ",
-                                   "overdue":  "RestanÈ›Äƒ"
+                                   "paid":  "Plătită",
+                                   "unpaid":  "Neachitată",
+                                   "overdue":  "Restanță"
                                },
                    "cash":  {
-                                "unverified":  "NeverificatÄƒ",
-                                "verified":  "VerificatÄƒ",
-                                "deposited":  "DepusÄƒ"
+                                "unverified":  "Neverificată",
+                                "verified":  "Verificată",
+                                "deposited":  "Depusă"
                             },
                    "financial":  {
                                      "current":  "La zi",
-                                     "due":  "ScadentÄƒ",
-                                     "overdue":  "RestanÈ›Äƒ"
+                                     "due":  "Scadentă",
+                                     "overdue":  "Restanță"
                                  },
                    "residentAccount":  {
-                                           "no_account":  "FÄƒrÄƒ cont",
+                                           "no_account":  "Fără cont",
                                            "invited":  "Invitat",
                                            "active":  "Cont activ"
                                        },
@@ -138,25 +138,25 @@
                                       },
                    "anomaly":  {
                                    "normal":  "Normal",
-                                   "warning":  "AtenÈ›ie",
+                                   "warning":  "Atenție",
                                    "critical":  "Critic"
                                },
                    "review":  {
                                   "approved":  "Aprobat",
-                                  "needs_changes":  "NecesitÄƒ modificÄƒri",
-                                  "pending":  "ÃŽn aÈ™teptare",
+                                  "needs_changes":  "Necesită modificări",
+                                  "pending":  "În așteptare",
                                   "rejected":  "Respins"
                               }
                },
     "dashboard":  {
                       "admin":  {
                                     "title":  "Panoul administratorului",
-                                    "description":  "Prezentare generalÄƒ a activitÄƒÈ›ii asociaÈ›iei",
-                                    "quickActions":  "AcÈ›iuni rapide",
+                                    "description":  "Prezentare generală a activității asociației",
+                                    "quickActions":  "Acțiuni rapide",
                                     "options":  {
-                                                    "addInvoice":  "+ FacturÄƒ",
-                                                    "newInvoice":  "+ FacturÄƒ nouÄƒ",
-                                                    "addWaterReading":  "+ Citire apÄƒ",
+                                                    "addInvoice":  "+ Factură",
+                                                    "newInvoice":  "+ Factură nouă",
+                                                    "addWaterReading":  "+ Citire apă",
                                                     "exportExcel":  "Export Excel",
                                                     "open":  "Deschide"
                                                 },
@@ -167,24 +167,24 @@
                                                      "apartmentsShort":  "Ap.",
                                                      "blocks":  "Blocuri",
                                                      "blocksShort":  "Bl.",
-                                                     "propertyStats":  "Statistici proprietÄƒÈ›i",
+                                                     "propertyStats":  "Statistici proprietăți",
                                                      "propertyStatsDescription":  "Acoperire portofoliu",
                                                      "statsValue":  "{{blocks}} Blocuri | {{apartments}} Apartamente | {{residents}} Locatari"
                                                  },
                                     "activity":  {
-                                                     "title":  "Activitate recentÄƒ",
-                                                     "invoiceGenerated":  "FacturÄƒ generatÄƒ - Bloc A",
-                                                     "paymentReceived":  "PlatÄƒ primitÄƒ - Ap. 12",
-                                                     "waterReadingSubmitted":  "Index apÄƒ trimis - Ap. 7",
+                                                     "title":  "Activitate recentă",
+                                                     "invoiceGenerated":  "Factură generată - Bloc A",
+                                                     "paymentReceived":  "Plată primită - Ap. 12",
+                                                     "waterReadingSubmitted":  "Index apă trimis - Ap. 7",
                                                      "twoHoursAgo":  "acum 2h",
                                                      "fourHoursAgo":  "acum 4h",
                                                      "oneDayAgo":  "acum 1 zi"
                                                  },
                                     "alerts":  {
                                                    "title":  "Alerte",
-                                                   "overdueInvoices":  "{{count}} facturi restante necesitÄƒ urmÄƒrire",
-                                                   "unusualConsumption":  "{{count}} apartamente au consum neobiÈ™nuit",
-                                                   "cashWorkflow":  "Registrul de numerar are intrÄƒri de reconciliat"
+                                                   "overdueInvoices":  "{{count}} facturi restante necesită urmărire",
+                                                   "unusualConsumption":  "{{count}} apartamente au consum neobișnuit",
+                                                   "cashWorkflow":  "Registrul de numerar are intrări de reconciliat"
                                                },
                                     "keyMetrics":  {
                                                        "title":  "Indicatori cheie",
@@ -193,77 +193,77 @@
                                                        "outstandingValue":  "{{count}} facturi",
                                                        "collectionRate":  "Rata colectare",
                                                        "cashVerification":  "Verificare numerar",
-                                                       "cashVerificationValue":  "{{count}} Ã®n aÈ™teptare",
-                                                       "monthlyRevenueTrend":  "+8% faÈ›Äƒ de luna trecutÄƒ",
+                                                       "cashVerificationValue":  "{{count}} în așteptare",
+                                                       "monthlyRevenueTrend":  "+8% față de luna trecută",
                                                        "monthlyRevenueTrendShort":  "+8%",
-                                                       "outstandingTrend":  "+3 noi sÄƒptÄƒmÃ¢na aceasta",
+                                                       "outstandingTrend":  "+3 noi săptămâna aceasta",
                                                        "outstandingTrendShort":  "+3 noi",
                                                        "collectionStable":  "Stabil",
-                                                       "cashVerificationTrend":  "NEVERIFICATÄ‚ -\u003e VERIFICATÄ‚ -\u003e DEPUSÄ‚",
-                                                       "pendingReview":  "ÃŽn verificare"
+                                                       "cashVerificationTrend":  "NEVERIFICATĂ -\u003e VERIFICATĂ -\u003e DEPUSĂ",
+                                                       "pendingReview":  "În verificare"
                                                    }
                                 },
                       "resident":  {
                                        "title":  "Panoul locatarului",
-                                       "quickActions":  "AcÈ›iuni rapide",
+                                       "quickActions":  "Acțiuni rapide",
                                        "myApartments":  "Apartamentele mele",
-                                       "adminContact":  "{{admin}} Â· {{phone}}",
-                                       "primaryResidence":  "reÈ™edinÈ›Äƒ principalÄƒ",
-                                       "surfaceSummary":  "{{usable}} mp utili Â· {{total}} mp total",
-                                       "currentDue":  "Suma curentÄƒ datoratÄƒ",
-                                       "currentDueSubtitle":  "ScadenÈ›Äƒ: 31 mai 2026",
-                                       "pay":  "PlÄƒteÈ™te",
+                                       "adminContact":  "{{admin}} · {{phone}}",
+                                       "primaryResidence":  "reședință principală",
+                                       "surfaceSummary":  "{{usable}} mp utili · {{total}} mp total",
+                                       "currentDue":  "Suma curentă datorată",
+                                       "currentDueSubtitle":  "Scadență: 31 mai 2026",
+                                       "pay":  "Plătește",
                                        "lastSubmittedIndex":  "Ultimul index trimis",
                                        "indexValue":  "Index: {{value}}",
-                                       "coldWaterTotal":  "ApÄƒ rece (total)",
-                                       "hotWaterTotal":  "ApÄƒ caldÄƒ (total)",
+                                       "coldWaterTotal":  "Apă rece (total)",
+                                       "hotWaterTotal":  "Apă caldă (total)",
                                        "noIndex":  "Nu a fost trimis niciun index.",
-                                       "recentAnnouncements":  "AnunÈ›uri recente",
-                                       "noAnnouncements":  "Nu existÄƒ anunÈ›uri",
-                                       "lastPayment":  "Ultima platÄƒ: {{amount}}",
+                                       "recentAnnouncements":  "Anunțuri recente",
+                                       "noAnnouncements":  "Nu există anunțuri",
+                                       "lastPayment":  "Ultima plată: {{amount}}",
                                        "announcements":  {
-                                                             "elevator":  "Revizia liftului este programatÄƒ pentru 12 mai.",
-                                                             "water":  "Oprirea apei pentru blocul B este programatÄƒ pentru 22 aprilie."
+                                                             "elevator":  "Revizia liftului este programată pentru 12 mai.",
+                                                             "water":  "Oprirea apei pentru blocul B este programată pentru 22 aprilie."
                                                          }
                                    },
                       "censor":  {
                                      "title":  "Panoul cenzorului",
-                                     "quickActions":  "AcÈ›iuni rapide",
-                                     "description":  "VerificaÈ›i facturi, rulari de Ã®ntreÈ›inere È™i anomalii de consum Ã®n aÈ™teptarea aprobÄƒrii."
+                                     "quickActions":  "Acțiuni rapide",
+                                     "description":  "Verificați facturi, rulari de întreținere și anomalii de consum în așteptarea aprobării."
                                  }
                   },
     "pages":  {
                   "residents":  {
                                     "title":  "Locatari",
-                                    "description":  "GestionaÈ›i locatarii È™i apartamentele Ã®ntr-un singur loc."
+                                    "description":  "Gestionați locatarii și apartamentele într-un singur loc."
                                 },
                   "blocks":  {
                                  "title":  "Blocuri",
-                                 "description":  "CÄƒutaÈ›i, verificaÈ›i È™i deschideÈ›i blocurile administrate."
+                                 "description":  "Căutați, verificați și deschideți blocurile administrate."
                              },
                   "apartments":  {
                                      "title":  "Apartamente",
-                                     "description":  "VedeÈ›i, adÄƒugaÈ›i, editaÈ›i, alocaÈ›i locatari È™i finalizaÈ›i configurarea apartamentelor."
+                                     "description":  "Vedeți, adăugați, editați, alocați locatari și finalizați configurarea apartamentelor."
                                  },
                   "finance":  {
-                                  "title":  "FinanÈ›e",
-                                  "description":  "GestionaÈ›i facturi, plÄƒÈ›i, reconciliere numerar È™i solduri."
+                                  "title":  "Finanțe",
+                                  "description":  "Gestionați facturi, plăți, reconciliere numerar și solduri."
                               },
                   "consumption":  {
                                       "title":  "Consum",
-                                      "description":  "Citiri utilitÄƒÈ›i, indexuri de contoare È™i detecÈ›ie anomalii."
+                                      "description":  "Citiri utilități, indexuri de contoare și detecție anomalii."
                                   },
                   "reports":  {
                                   "title":  "Rapoarte",
-                                  "description":  "GeneraÈ›i rapoarte lunare, previzualizaÈ›i È™i exportaÈ›i formate standard."
+                                  "description":  "Generați rapoarte lunare, previzualizați și exportați formate standard."
                               },
                   "censor":  {
                                  "title":  "Coada de revizie",
-                                 "description":  "AprobaÈ›i, respingeÈ›i sau cereÈ›i modificÄƒri pentru Ã®nregistrÄƒri Ã®nainte de publicare."
+                                 "description":  "Aprobați, respingeți sau cereți modificări pentru înregistrări înainte de publicare."
                              },
                   "settings":  {
-                                   "title":  "SetÄƒri",
-                                   "description":  "ConfiguraÈ›i blocuri, reguli de preÈ›, termene de platÄƒ È™i notificÄƒri."
+                                   "title":  "Setări",
+                                   "description":  "Configurați blocuri, reguli de preț, termene de plată și notificări."
                                },
                   "staircases":  {
                                      "title":  "Scări",
@@ -274,28 +274,28 @@
                       "apartmentLabel":  "Apartament {{apartment}}, etaj {{floor}}",
                       "apartment":  {
                                         "empty":  "Apartament gol",
-                                        "noResidentsAssigned":  "Nu sunt locatari alocaÈ›i",
+                                        "noResidentsAssigned":  "Nu sunt locatari alocați",
                                         "number":  "Apartament {{number}}",
-                                        "unassigned":  "FÄƒrÄƒ apartament alocat"
+                                        "unassigned":  "Fără apartament alocat"
                                     },
                       "fields":  {
                                      "accountStatus":  "Status cont",
-                                     "apartmentOptional":  "Alocare apartament (opÈ›ional)",
-                                     "emailOptional":  "Email (opÈ›ional)",
+                                     "apartmentOptional":  "Alocare apartament (opțional)",
+                                     "emailOptional":  "Email (opțional)",
                                      "name":  "Nume",
-                                     "phoneOptional":  "Telefon (opÈ›ional)"
+                                     "phoneOptional":  "Telefon (opțional)"
                                  },
                       "resident":  {
-                                       "noEmail":  "FÄƒrÄƒ email"
+                                       "noEmail":  "Fără email"
                                    },
                       "summary":  {
                                       "emptyApartments":  "{{count}} apartamente goale",
-                                      "noAccountResidents":  "{{count}} locatari fÄƒrÄƒ cont",
+                                      "noAccountResidents":  "{{count}} locatari fără cont",
                                       "unconfiguredApartments":  "{{count}} apartamente neconfigurate"
                                   },
                       "ownership":  {
                                         "owner":  "Proprietar",
-                                        "tenant":  "ChiriaÈ™",
+                                        "tenant":  "Chiriaș",
                                         "co_owner":  "Coproprietar",
                                         "family_member":  "Membru al familiei"
                                     },
@@ -308,33 +308,33 @@
                                       "financialStatus":  "Status financiar"
                                   },
                       "actions":  {
-                                      "addResident":  "AdaugÄƒ locatar",
-                                      "assign":  "AlocÄƒ",
-                                      "assignResident":  "AlocÄƒ locatar",
+                                      "addResident":  "Adaugă locatar",
+                                      "assign":  "Alocă",
+                                      "assignResident":  "Alocă locatar",
                                       "openDetails":  "Deschide detalii",
-                                      "backToList":  "ÃŽnapoi",
-                                      "sendReminder":  "Trimite atenÈ›ionare",
-                                      "registerPayment":  "ÃŽnregistreazÄƒ plata",
-                                      "unassign":  "DezalocÄƒ"
+                                      "backToList":  "Înapoi",
+                                      "sendReminder":  "Trimite atenționare",
+                                      "registerPayment":  "Înregistrează plata",
+                                      "unassign":  "Dezalocă"
                                   },
                       "dialog":  {
-                                     "addTitle":  "AdaugÄƒ locatar"
+                                     "addTitle":  "Adaugă locatar"
                                  },
                       "detail":  {
                                      "invoices":  "Istoric facturi",
-                                     "payments":  "Istoric plÄƒÈ›i",
+                                     "payments":  "Istoric plăți",
                                      "consumption":  "Istoric consum"
                                  }
                   },
     "apartments":  {
                        "actions":  {
-                                       "edit":  "EditeazÄƒ"
+                                       "edit":  "Editează"
                                    },
                        "filters":  {
                                        "setupStatus":  "Status configurare"
                                    },
                        "sections":  {
-                                        "residents":  "Locatari alocaÈ›i"
+                                        "residents":  "Locatari alocați"
                                     },
                        "summary":  {
                                        "total":  "{{count}} apartamente"
@@ -344,12 +344,12 @@
                                     "residents":  "Locatari ({{count}})"
                                 },
                        "setup":  {
-                                     "addApartment":  "AdaugÄƒ apartament",
-                                     "description":  "AdaugÄƒ È™i configureazÄƒ apartamentele pentru blocul È™i scara selectate.",
+                                     "addApartment":  "Adaugă apartament",
+                                     "description":  "Adaugă și configurează apartamentele pentru blocul și scara selectate.",
                                      "familyName":  "Nume familie",
-                                     "indivisibleShare":  "CotÄƒ indivizÄƒ",
-                                     "noApartments":  "Nu existÄƒ apartamente pentru blocul È™i scara selectate.",
-                                     "number":  "NumÄƒr apartament",
+                                     "indivisibleShare":  "Cotă indiviză",
+                                     "noApartments":  "Nu există apartamente pentru blocul și scara selectate.",
+                                     "number":  "Număr apartament",
                                      "setupStatus":  "Status configurare",
                                      "title":  "Configurare apartamente"
                                  },
@@ -364,26 +364,26 @@
     "finance":  {
                     "tabs":  {
                                  "invoices":  "Facturi",
-                                 "payments":  "PlÄƒÈ›i",
+                                 "payments":  "Plăți",
                                  "cashRegister":  "Registru numerar",
-                                 "maintenance":  "ÃŽntreÈ›inere"
+                                 "maintenance":  "Întreținere"
                              },
                     "tabsShort":  {
                                       "invoices":  "Fact.",
-                                      "payments":  "PlÄƒÈ›i",
+                                      "payments":  "Plăți",
                                       "cashRegister":  "Numerar",
-                                      "maintenance":  "ÃŽntreÈ›."
+                                      "maintenance":  "Întreț."
                                   },
                     "columns":  {
-                                    "invoice":  "FacturÄƒ",
-                                    "payment":  "PlatÄƒ",
+                                    "invoice":  "Factură",
+                                    "payment":  "Plată",
                                     "cash":  "Intrare numerar",
                                     "apartment":  "Apartament",
                                     "resident":  "Locatar",
                                     "month":  "Luna",
                                     "amount":  "Suma",
                                     "status":  "Status",
-                                    "method":  "MetodÄƒ",
+                                    "method":  "Metodă",
                                     "verification":  "Verificare",
                                     "notes":  "Note"
                                 },
@@ -397,141 +397,141 @@
                                    "bank":  "Transfer bancar"
                                },
                     "filters":  {
-                                    "method":  "Metoda de platÄƒ"
+                                    "method":  "Metoda de plată"
                                 },
                     "actions":  {
-                                    "bulkActions":  "AcÈ›iuni Ã®n masÄƒ",
-                                    "registerCash":  "ÃŽnregistreazÄƒ numerar",
-                                    "verify":  "VerificÄƒ",
-                                    "deposit":  "MarcheazÄƒ depus"
+                                    "bulkActions":  "Acțiuni în masă",
+                                    "registerCash":  "Înregistrează numerar",
+                                    "verify":  "Verifică",
+                                    "deposit":  "Marchează depus"
                                 },
                     "dialog":  {
-                                   "cashTitle":  "ÃŽnregistrare platÄƒ numerar",
-                                   "cashBody":  "ÃŽnregistraÈ›i {{amount}} numerar pentru factura {{invoice}}. Intrarea porneÈ™te ca neverificatÄƒ."
+                                   "cashTitle":  "Înregistrare plată numerar",
+                                   "cashBody":  "Înregistrați {{amount}} numerar pentru factura {{invoice}}. Intrarea pornește ca neverificată."
                                },
                     "cash":  {
                                  "notes":  {
-                                               "partial":  "PlatÄƒ parÈ›ialÄƒ primitÄƒ la birou",
-                                               "receipt":  "ChitanÈ›Äƒ verificatÄƒ de administrator",
-                                               "deposited":  "DepusÄƒ Ã®n contul asociaÈ›iei",
-                                               "manual":  "ÃŽnregistrare manualÄƒ numerar"
+                                               "partial":  "Plată parțială primită la birou",
+                                               "receipt":  "Chitanță verificată de administrator",
+                                               "deposited":  "Depusă în contul asociației",
+                                               "manual":  "Înregistrare manuală numerar"
                                            }
                              },
                     "expenses":  {
-                                     "maintenance":  "ÃŽntreÈ›inere",
+                                     "maintenance":  "Întreținere",
                                      "administrative":  "Administrativ",
                                      "garbage":  "Salubritate",
-                                     "heating":  "ÃŽncÄƒlzire",
-                                     "coldWater":  "ApÄƒ rece",
+                                     "heating":  "Încălzire",
+                                     "coldWater":  "Apă rece",
                                      "staircaseElectricity":  "Electricitate scara",
                                      "surfaceRepairs":  "Reparatii pe suprafata",
-                                     "staircaseCleaning":  "CurÄƒÈ›enie scara",
-                                     "gardening":  "GrÄƒdinÄƒrit"
+                                     "staircaseCleaning":  "Curățenie scara",
+                                     "gardening":  "Grădinărit"
                                  },
                     "debts":  {
                                   "previousBalance":  "Sold restant anterior"
                               },
                     "penalties":  {
-                                      "latePayment":  "Penalizare pentru Ã®ntÃ¢rziere"
+                                      "latePayment":  "Penalizare pentru întârziere"
                                   },
                     "maintenance":  {
-                                        "adjustments":  "RestanÈ›e istorice: {{debts}} - penalizÄƒri: {{penalties}}",
+                                        "adjustments":  "Restanțe istorice: {{debts}} - penalizări: {{penalties}}",
                                         "blockMonth":  "Bloc {{block}} - {{month}}",
                                         "generatedAt":  "Generat {{generatedAt}}",
                                         "status":  {
-                                                       "draft":  "CiornÄƒ",
+                                                       "draft":  "Ciornă",
                                                        "published":  "Publicat"
                                                    }
                                     }
                 },
     "blocks":  {
                    "title":  "Bloc {{block}}",
-                   "description":  "Apartamente, ierarhie, finanÈ›e È™i consum la nivel de bloc.",
-                   "monthlyStaircasePayments":  "PlÄƒÈ›i lunare pe scarÄƒ",
+                   "description":  "Apartamente, ierarhie, finanțe și consum la nivel de bloc.",
+                   "monthlyStaircasePayments":  "Plăți lunare pe scară",
                    "results":  "{{count}} blocuri",
                    "actions":  {
                                    "openOverview":  "Deschide prezentarea",
-                                   "configureBlocks":  "ConfigureazÄƒ blocurile",
-                                   "backToList":  "ÃŽnapoi la blocuri",
+                                   "configureBlocks":  "Configurează blocurile",
+                                   "backToList":  "Înapoi la blocuri",
                                    "backToDashboard":  "Panou principal",
-                                   "retry":  "ReÃ®ncearcÄƒ"
+                                   "retry":  "Reîncearcă"
                                },
                    "columns":  {
-                                   "address":  "AdresÄƒ",
+                                   "address":  "Adresă",
                                    "createdAt":  "Creat",
                                    "floor":  "Etaj",
-                                   "staircase":  "ScarÄƒ",
-                                   "usableSurface":  "SuprafaÈ›Äƒ utilÄƒ",
-                                   "totalSurface":  "SuprafaÈ›Äƒ totalÄƒ",
-                                   "heatedSurface":  "SuprafaÈ›Äƒ Ã®ncÄƒlzitÄƒ",
-                                   "heatingType":  "ÃŽncÄƒlzire"
+                                   "staircase":  "Scară",
+                                   "usableSurface":  "Suprafață utilă",
+                                   "totalSurface":  "Suprafață totală",
+                                   "heatedSurface":  "Suprafață încălzită",
+                                   "heatingType":  "Încălzire"
                                },
                    "metrics":  {
-                                   "bank":  "BancÄƒ",
+                                   "bank":  "Bancă",
                                    "cash":  "Numerar",
                                    "totalInvoices":  "Total facturi",
-                                   "totalPayments":  "Total plÄƒÈ›i",
+                                   "totalPayments":  "Total plăți",
                                    "unpaid":  "Sold neachitat"
                                },
-                   "loading":  "Se Ã®ncarcÄƒ blocurile...",
+                   "loading":  "Se încarcă blocurile...",
                    "errors":  {
-                                  "loadFailed":  "Blocurile nu au putut fi Ã®ncÄƒrcate. ÃŽncercaÈ›i din nou."
+                                  "loadFailed":  "Blocurile nu au putut fi încărcate. Încercați din nou."
                               }
                },
     "resident":  {
                      "bills":  {
                                    "adjustments":  {
-                                                       "title":  "AjustÄƒri"
+                                                       "title":  "Ajustări"
                                                    },
-                                   "backToBills":  "ÃŽnapoi",
+                                   "backToBills":  "Înapoi",
                                    "breakdown":  {
                                                      "basis":  "Baza",
                                                      "method":  "Alocare",
                                                      "methodTooltip":  "Calculat folosind {{method}}",
                                                      "title":  "Defalcare costuri"
                                                  },
-                                   "description":  "VedeÈ›i facturile, statusul plÄƒÈ›ilor È™i detalii descÄƒrcabile.",
+                                   "description":  "Vedeți facturile, statusul plăților și detalii descărcabile.",
                                    "history":  "Istoric facturi",
-                                   "payAll":  "PlÄƒteÈ™te tot",
-                                   "payBill":  "PlÄƒteÈ™te factura",
+                                   "payAll":  "Plătește tot",
+                                   "payBill":  "Plătește factura",
                                    "payment":  {
-                                                   "title":  "ConfirmÄƒ plata",
-                                                   "allBody":  "UrmeazÄƒ sÄƒ plÄƒtiÈ›i toate facturile restante.",
-                                                   "singleBody":  "UrmeazÄƒ sÄƒ plÄƒtiÈ›i aceastÄƒ facturÄƒ.",
+                                                   "title":  "Confirmă plata",
+                                                   "allBody":  "Urmează să plătiți toate facturile restante.",
+                                                   "singleBody":  "Urmează să plătiți această factură.",
                                                    "invoiceContext":  "{{invoice}} din {{month}}",
-                                                   "amount":  "SumÄƒ",
-                                                   "totalAmount":  "SumÄƒ totalÄƒ",
-                                                   "confirm":  "ConfirmÄƒ plata"
+                                                   "amount":  "Sumă",
+                                                   "totalAmount":  "Sumă totală",
+                                                   "confirm":  "Confirmă plata"
                                                },
                                    "viewDetails":  "Vezi detalii",
-                                   "download":  "DescarcÄƒ",
-                                   "detailsTitle":  "Detalii facturÄƒ",
-                                   "detailsBody":  "Factura {{invoice}} pentru {{month}} are suma totalÄƒ {{amount}}.",
-                                   "invoiceContext":  "{{invoice}} Â· {{month}}",
+                                   "download":  "Descarcă",
+                                   "detailsTitle":  "Detalii factură",
+                                   "detailsBody":  "Factura {{invoice}} pentru {{month}} are suma totală {{amount}}.",
+                                   "invoiceContext":  "{{invoice}} · {{month}}",
                                    "summary":  {
-                                                   "balance":  "Sold rÄƒmas",
+                                                   "balance":  "Sold rămas",
                                                    "debts":  "Rest anterior",
                                                    "expenses":  "Cheltuieli curente",
-                                                   "penalties":  "PenalizÄƒri",
+                                                   "penalties":  "Penalizări",
                                                    "title":  "Calcul total",
-                                                   "total":  "Total de platÄƒ"
+                                                   "total":  "Total de plată"
                                                }
                                }
                  },
     "consumption":  {
                         "resident":  {
-                                         "description":  "TrimiteÈ›i indexul de apÄƒ È™i vedeÈ›i citirile anterioare.",
+                                         "description":  "Trimiteți indexul de apă și vedeți citirile anterioare.",
                                          "history":  "Istoric citiri"
                                      },
                         "sections":  {
-                                         "readings":  "Citiri apÄƒ",
-                                         "anomalies":  "DetecÈ›ie anomalii",
-                                         "waterBalance":  "BilanÈ› apÄƒ"
+                                         "readings":  "Citiri apă",
+                                         "anomalies":  "Detecție anomalii",
+                                         "waterBalance":  "Bilanț apă"
                                      },
                         "visibility":  {
-                                           "ariaLabel":  "SecÈ›iuni vizibile pentru consum",
-                                           "label":  "SecÈ›iuni",
-                                           "minimumVisible":  "Cel puÈ›in o secÈ›iune trebuie sÄƒ rÄƒmÃ¢nÄƒ vizibilÄƒ.",
+                                           "ariaLabel":  "Secțiuni vizibile pentru consum",
+                                           "label":  "Secțiuni",
+                                           "minimumVisible":  "Cel puțin o secțiune trebuie să rămână vizibilă.",
                                            "visibleCount":  "{{count}} vizibile"
                                        },
                         "columns":  {
@@ -541,34 +541,34 @@
                                         "current":  "Index curent",
                                         "usage":  "Consum",
                                         "totalUsage":  "Consum total",
-                                        "meterValue":  "{{previous}} â†’ {{current}} ({{usage}})",
+                                        "meterValue":  "{{previous}} → {{current}} ({{usage}})",
                                         "anomaly":  "Anomalie",
                                         "mainMeter":  "Contor general",
                                         "apartmentMeters":  "Contoare apartamente",
-                                        "waterLoss":  "DiferenÈ›a"
+                                        "waterLoss":  "Diferența"
                                     },
                         "actions":  {
                                         "submitIndex":  "Trimite index",
-                                        "addReading":  "AdaugÄƒ citire"
+                                        "addReading":  "Adaugă citire"
                                     },
                         "dialog":  {
-                                       "submitTitle":  "Trimite index apÄƒ",
-                                       "adminTitle":  "AdaugÄƒ citire apÄƒ",
-                                       "coldWaterIndex":  "Index apÄƒ rece",
-                                       "hotWaterIndex":  "Index apÄƒ caldÄƒ"
+                                       "submitTitle":  "Trimite index apă",
+                                       "adminTitle":  "Adaugă citire apă",
+                                       "coldWaterIndex":  "Index apă rece",
+                                       "hotWaterIndex":  "Index apă caldă"
                                    },
                         "waterType":  {
-                                          "cold":  "ApÄƒ rece",
-                                          "hot":  "ApÄƒ caldÄƒ"
+                                          "cold":  "Apă rece",
+                                          "hot":  "Apă caldă"
                                       }
                     },
     "censor":  {
                    "actions":  {
-                                   "approved":  "AprobÄƒ",
-                                   "needs_changes":  "Cere modificÄƒri",
+                                   "approved":  "Aprobă",
+                                   "needs_changes":  "Cere modificări",
                                    "openQueue":  "Deschide coada",
                                    "rejected":  "Respinge",
-                                   "review":  "RevizuieÈ™te",
+                                   "review":  "Revizuiește",
                                    "viewAnomalies":  "Vezi anomalii"
                                },
                    "anomalies":  {
@@ -590,41 +590,41 @@
                    "metrics":  {
                                    "anomalies":  "Anomalii vizibile",
                                    "invoiceReviews":  "Revizii facturi",
-                                   "needsAttention":  "NecesitÄƒ atenÈ›ie",
-                                   "pending":  "AprobÄƒri Ã®n aÈ™teptare"
+                                   "needsAttention":  "Necesită atenție",
+                                   "pending":  "Aprobări în așteptare"
                                },
                    "review":  {
                                   "history":  {
                                                   "approved":  "Aprobat de cenzor",
                                                   "flagged":  "Marcat automat",
-                                                  "needs_changes":  "ModificÄƒri cerute de cenzor",
-                                                  "pending":  "Revenit Ã®n aÈ™teptarea reviziei",
+                                                  "needs_changes":  "Modificări cerute de cenzor",
+                                                  "pending":  "Revenit în așteptarea reviziei",
                                                   "rejected":  "Respins de cenzor",
-                                                  "requestedChanges":  "ModificÄƒri solicitate",
+                                                  "requestedChanges":  "Modificări solicitate",
                                                   "submitted":  "Trimis pentru revizie"
                                               },
                                   "notes":  {
-                                                "consumptionSpike":  "Consumul depÄƒÈ™eÈ™te pragul normal È™i trebuie verificat Ã®nainte de raportare.",
-                                                "invoiceBalance":  "Totalul facturii È™i soldul restant necesitÄƒ aprobare Ã®nainte de publicare.",
-                                                "maintenanceDraft":  "Rularea de Ã®ntreÈ›inere are ajustÄƒri care necesitÄƒ revizia cenzorului."
+                                                "consumptionSpike":  "Consumul depășește pragul normal și trebuie verificat înainte de raportare.",
+                                                "invoiceBalance":  "Totalul facturii și soldul restant necesită aprobare înainte de publicare.",
+                                                "maintenanceDraft":  "Rularea de întreținere are ajustări care necesită revizia cenzorului."
                                             }
                               },
                    "tabs":  {
                                 "anomalies":  "Anomalii",
                                 "history":  "Istoric revizie",
                                 "invoices":  "Facturi",
-                                "maintenance":  "ÃŽntreÈ›inere"
+                                "maintenance":  "Întreținere"
                             },
                    "tabsShort":  {
                                      "anomalies":  "Anom.",
                                      "history":  "Ist.",
                                      "invoices":  "Fact.",
-                                     "maintenance":  "ÃŽntreÈ›."
+                                     "maintenance":  "Întreț."
                                  },
                    "type":  {
                                 "anomaly":  "Anomalie",
-                                "invoice":  "FacturÄƒ",
-                                "maintenance":  "ÃŽntreÈ›inere"
+                                "invoice":  "Factură",
+                                "maintenance":  "Întreținere"
                             }
                },
     "reports":  {
@@ -639,8 +639,8 @@
                                     "title":  "Previzualizare raport",
                                     "invoices":  "Facturi",
                                     "revenue":  "Venit",
-                                    "waterUsage":  "Consum apÄƒ",
-                                    "surfaceTotal":  "SuprafaÈ›Äƒ utilÄƒ",
+                                    "waterUsage":  "Consum apă",
+                                    "surfaceTotal":  "Suprafață utilă",
                                     "boilerTax":  "Taxe centrale",
                                     "units":  {
                                                   "surface":  "mp",
@@ -651,74 +651,74 @@
     "settings":  {
                      "admin":  {
                                    "blockManagement":  "Administrare blocuri",
-                                   "financialSetup":  "Configurare financiarÄƒ"
+                                   "financialSetup":  "Configurare financiară"
                                },
                      "resident":  {
-                                      "description":  "GestionaÈ›i profilul, notificÄƒrile È™i limba.",
+                                      "description":  "Gestionați profilul, notificările și limba.",
                                       "profile":  "Profil"
                                   },
                      "sections":  {
                                       "costs":  "Costuri pe bloc",
-                                      "deadlines":  "Termene de platÄƒ",
-                                      "notifications":  "PreferinÈ›e notificÄƒri",
-                                      "staircaseCosts":  "Costuri specifice pe scarÄƒ"
+                                      "deadlines":  "Termene de plată",
+                                      "notifications":  "Preferințe notificări",
+                                      "staircaseCosts":  "Costuri specifice pe scară"
                                   },
                      "fields":  {
                                     "block":  "Bloc",
-                                    "blockDeadline":  "Termen de platÄƒ bloc",
+                                    "blockDeadline":  "Termen de plată bloc",
                                     "blockName":  "Nume bloc",
                                     "name":  "Nume",
                                     "email":  "Email",
                                     "language":  "Limba",
                                     "blocks":  "Blocuri",
-                                    "currency":  "MonedÄƒ",
-                                    "deadline":  "Zi scadentÄƒ platÄƒ",
-                                    "staircaseDeadline":  "Termen de platÄƒ scara {{staircase}}",
+                                    "currency":  "Monedă",
+                                    "deadline":  "Zi scadentă plată",
+                                    "staircaseDeadline":  "Termen de plată scara {{staircase}}",
                                     "staircaseName":  "Scara {{staircase}}",
-                                    "waterPrice":  "PreÈ› apÄƒ",
-                                    "maintenanceFee":  "TaxÄƒ Ã®ntreÈ›inere",
-                                    "emailNotifications":  "NotificÄƒri email",
-                                    "paymentReminders":  "AtenÈ›ionÄƒri plÄƒÈ›i",
-                                    "maintenanceNotifications":  "NotificÄƒri de Ã®ntreÈ›inere",
+                                    "waterPrice":  "Preț apă",
+                                    "maintenanceFee":  "Taxă întreținere",
+                                    "emailNotifications":  "Notificări email",
+                                    "paymentReminders":  "Atenționări plăți",
+                                    "maintenanceNotifications":  "Notificări de întreținere",
                                     "overdueAlerts":  "Alerte restante",
                                     "cashAlerts":  "Alerte reconciliere numerar"
                                 },
                      "actions":  {
-                                     "addBlock":  "AdaugÄƒ bloc",
-                                     "deleteBlock":  "È˜terge bloc",
-                                     "editBlock":  "EditeazÄƒ bloc",
-                                     "saveChanges":  "SalveazÄƒ modificÄƒrile"
+                                     "addBlock":  "Adaugă bloc",
+                                     "deleteBlock":  "Șterge bloc",
+                                     "editBlock":  "Editează bloc",
+                                     "saveChanges":  "Salvează modificările"
                                  },
                      "blockDialog":  {
-                                         "address":  "AdresÄƒ",
+                                         "address":  "Adresă",
                                          "administrator":  "Administrator",
-                                         "apartmentsCount":  "NumÄƒr de apartamente",
+                                         "apartmentsCount":  "Număr de apartamente",
                                          "createSuccess":  "Blocul a fost creat cu succes.",
-                                         "createTitle":  "AdaugÄƒ bloc",
-                                         "deleteConfirm":  "Sigur doriÈ›i sÄƒ È™tergeÈ›i blocul {{block}}?",
+                                         "createTitle":  "Adaugă bloc",
+                                         "deleteConfirm":  "Sigur doriți să ștergeți blocul {{block}}?",
                                          "deleteConfirmYes":  "Da",
-                                         "deleteError":  "Blocul nu a putut fi È™ters.",
-                                         "deleteSuccess":  "Blocul a fost È™ters cu succes.",
-                                         "deleteTitle":  "È˜terge bloc",
-                                         "deleting":  "Se È™terge...",
-                                         "editTitle":  "EditeazÄƒ bloc",
-                                         "hasStaircases":  "Are scÄƒri",
-                                         "residentsCount":  "NumÄƒr de rezidenÈ›i",
-                                         "saveEdit":  "SalveazÄƒ blocul",
-                                         "saving":  "Se salveazÄƒ...",
+                                         "deleteError":  "Blocul nu a putut fi șters.",
+                                         "deleteSuccess":  "Blocul a fost șters cu succes.",
+                                         "deleteTitle":  "Șterge bloc",
+                                         "deleting":  "Se șterge...",
+                                         "editTitle":  "Editează bloc",
+                                         "hasStaircases":  "Are scări",
+                                         "residentsCount":  "Număr de rezidenți",
+                                         "saveEdit":  "Salvează blocul",
+                                         "saving":  "Se salvează...",
                                          "serverError":  "Blocul nu a putut fi salvat.",
-                                         "staircaseCount":  "NumÄƒr de scÄƒri",
+                                         "staircaseCount":  "Număr de scări",
                                          "updateSuccess":  "Blocul a fost actualizat cu succes.",
-                                         "validationError":  "CompletaÈ›i cÃ¢mpurile obligatorii È™i folosiÈ›i numere Ã®ntregi nenegative."
+                                         "validationError":  "Completați câmpurile obligatorii și folosiți numere întregi nenegative."
                                      },
                      "apartmentsSetup":  {
-                                             "addApartment":  "AdaugÄƒ apartament",
+                                             "addApartment":  "Adaugă apartament",
                                              "apartmentOption":  "Apartament {{number}}, etaj {{floor}}",
-                                             "description":  "AdaugÄƒ È™i configureazÄƒ apartamentele pentru blocul È™i scara selectate.",
+                                             "description":  "Adaugă și configurează apartamentele pentru blocul și scara selectate.",
                                              "familyName":  "Nume familie",
-                                             "indivisibleShare":  "CotÄƒ indivizÄƒ",
-                                             "noApartments":  "Nu existÄƒ apartamente pentru blocul È™i scara selectate.",
-                                             "number":  "NumÄƒr apartament",
+                                             "indivisibleShare":  "Cotă indiviză",
+                                             "noApartments":  "Nu există apartamente pentru blocul și scara selectate.",
+                                             "number":  "Număr apartament",
                                              "selectedApartment":  "Apartament",
                                              "setupStatus":  "Status configurare",
                                              "title":  "Configurare apartamente"
@@ -727,47 +727,47 @@
                                    "gas":  "Gaz",
                                    "electricity":  "Electricitate",
                                    "garbage":  "Salubritate",
-                                   "water":  "ApÄƒ",
-                                   "heating":  "ÃŽncÄƒlzire"
+                                   "water":  "Apă",
+                                   "heating":  "Încălzire"
                                },
                      "allocation":  {
-                                        "per_person":  "Pe persoana declaratÄƒ",
+                                        "per_person":  "Pe persoana declarată",
                                         "per_apartment":  "Pe apartament",
-                                        "by_surface":  "DupÄƒ suprafaÈ›Äƒ utilÄƒ",
-                                        "by_heating_area":  "DupÄƒ suprafaÈ›a Ã®ncÄƒlzitÄƒ",
+                                        "by_surface":  "După suprafață utilă",
+                                        "by_heating_area":  "După suprafața încălzită",
                                         "individual_meter":  "Contor individual",
-                                        "equal_split":  "ÃŽmpÄƒrÈ›ire egalÄƒ",
+                                        "equal_split":  "Împărțire egală",
                                         "custom":  "Cote personalizate"
                                     },
                      "customCosts":  {
                                          "active":  "Activ",
-                                         "add":  "AdaugÄƒ cost personalizat",
+                                         "add":  "Adaugă cost personalizat",
                                          "allocation":  "Strategie de alocare",
                                          "blockScope":  "Tot blocul",
-                                         "description":  "ConfigureazÄƒ costuri recurente sau punctuale pe bloc ori pe scarÄƒ.",
+                                         "description":  "Configurează costuri recurente sau punctuale pe bloc ori pe scară.",
                                          "effectiveFrom":  "Valabil din",
                                          "notesLabel":  "Note",
                                          "recurring":  "Recurent lunar",
                                          "scope":  "Arie",
-                                         "staircaseScope":  "ScarÄƒ",
+                                         "staircaseScope":  "Scară",
                                          "title":  "Costuri personalizate",
-                                         "type":  "Tip cheltuialÄƒ",
+                                         "type":  "Tip cheltuială",
                                          "types":  {
                                                        "administrationCost":  "Cost administrare",
-                                                       "customMonthlyFee":  "TaxÄƒ lunarÄƒ personalizatÄƒ",
-                                                       "elevatorMaintenance":  "ÃŽntreÈ›inere lift",
-                                                       "gardening":  "GrÄƒdinarit",
-                                                       "intercomMaintenance":  "ÃŽntreÈ›inere interfon",
-                                                       "pestControl":  "DezinsecÈ›ie",
-                                                       "repairs":  "ReparaÈ›ii",
-                                                       "staircaseCleaning":  "CurÄƒÈ›enie scarÄƒ"
+                                                       "customMonthlyFee":  "Taxă lunară personalizată",
+                                                       "elevatorMaintenance":  "Întreținere lift",
+                                                       "gardening":  "Grădinarit",
+                                                       "intercomMaintenance":  "Întreținere interfon",
+                                                       "pestControl":  "Dezinsecție",
+                                                       "repairs":  "Reparații",
+                                                       "staircaseCleaning":  "Curățenie scară"
                                                    },
                                          "notes":  {
                                                        "administration":  "Cost lunar pentru serviciul de administrare.",
-                                                       "cleaning":  "Contract recurent de curÄƒÈ›enie pentru scara selectatÄƒ.",
-                                                       "gardening":  "LucrÄƒri sezoniere pentru spaÈ›iile verzi comune.",
-                                                       "intercom":  "Contract opÈ›ional pentru mentenanÈ›a interfonului.",
-                                                       "manual":  "Cost personalizat adÄƒugat manual de administrator."
+                                                       "cleaning":  "Contract recurent de curățenie pentru scara selectată.",
+                                                       "gardening":  "Lucrări sezoniere pentru spațiile verzi comune.",
+                                                       "intercom":  "Contract opțional pentru mentenanța interfonului.",
+                                                       "manual":  "Cost personalizat adăugat manual de administrator."
                                                    }
                                      }
                  },
