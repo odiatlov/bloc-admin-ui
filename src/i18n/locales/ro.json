@@ -328,6 +328,7 @@
                   },
     "apartments":  {
                        "actions":  {
+                                       "delete":  "Șterge",
                                        "edit":  "Editează"
                                    },
                        "filters":  {
@@ -354,6 +355,10 @@
                                      "title":  "Configurare apartamente"
                                  },
                        "dialog":  {
+                                      "deleteConfirm":  "Sigur doriți să ștergeți apartamentul {{apartment}}?",
+                                      "deleteConfirmYes":  "Da, șterge",
+                                      "deleteTitle":  "Șterge apartamentul",
+                                      "deleting":  "Se șterge...",
                                       "editTitle":  "Editează apartamentul"
                                   },
                        "errors":  {
@@ -774,6 +779,7 @@
     "staircases":  {
                        "actions":  {
                                        "add":  "Adaugă scară",
+                                       "delete":  "Șterge",
                                        "edit":  "Editează"
                                    },
                        "columns":  {
@@ -781,6 +787,11 @@
                                    },
                        "dialog":  {
                                       "addTitle":  "Adaugă scară",
+                                      "deleteBlocked":  "Scara {{staircase}} nu poate fi ștearsă deoarece are {{count}} apartamente. Mutați sau ștergeți mai întâi apartamentele.",
+                                      "deleteConfirm":  "Sigur doriți să ștergeți scara {{staircase}}?",
+                                      "deleteConfirmYes":  "Da, șterge",
+                                      "deleteTitle":  "Șterge scara",
+                                      "deleting":  "Se șterge...",
                                       "editTitle":  "Editează scara"
                                   },
                        "errors":  {

@@ -1,5 +1,5 @@
 import type { CreateStaircaseRequest, StaircaseResponse, UpdateStaircaseRequest } from '../types/management'
-import { apiGet, apiPatch, apiPost } from './apiClient'
+import { apiDelete, apiGet, apiPatch, apiPost } from './apiClient'
 
 export const staircasesApi = {
   getAll: () => apiGet<StaircaseResponse[]>('/staircases'),
@@ -8,4 +8,5 @@ export const staircasesApi = {
     apiPost<CreateStaircaseRequest, StaircaseResponse>('/staircases', request),
   update: (id: string, request: UpdateStaircaseRequest) =>
     apiPatch<UpdateStaircaseRequest, StaircaseResponse>(`/staircases/${id}`, request),
+  delete: (id: string) => apiDelete<string>(`/staircases/${id}`),
 }

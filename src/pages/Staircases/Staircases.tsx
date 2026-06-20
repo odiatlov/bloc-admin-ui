@@ -10,9 +10,11 @@ import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import AddIcon from '@mui/icons-material/Add'
+import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import { useTranslation } from 'react-i18next'
 import AppDialog from '../../components/shared/AppDialog'
+import ConfirmationDialog from '../../components/shared/ConfirmationDialog'
 import EmptyState from '../../components/shared/EmptyState'
 import FilterBar from '../../components/shared/FilterBar'
 import LoadErrorState from '../../components/shared/LoadErrorState'
@@ -37,6 +39,8 @@ const Staircases: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState(shouldUseDatabase)
   const [dialogMode, setDialogMode] = React.useState<'create' | 'edit' | null>(null)
   const [editingStaircase, setEditingStaircase] = React.useState<StaircaseResponse | null>(null)
+  const [deletingStaircase, setDeletingStaircase] = React.useState<StaircaseResponse | null>(null)
+  const [isDeletingStaircase, setIsDeletingStaircase] = React.useState(false)
   const [form, setForm] = React.useState({ blockId: '', name: '' })
 
   const mockRows = React.useMemo<StaircaseResponse[]>(() => (
@@ -133,6 +137,24 @@ const Staircases: React.FC = () => {
     void databaseBlocks.refresh()
   }
 
+  const deleteStaircase = async () => {
+    if (!deletingStaircase || deletingStaircase.apartmentCount > 0 || isDeletingStaircase || !shouldUseDatabase) return
+
+    setIsDeletingStaircase(true)
+    setError(null)
+
+    try {
+      await staircasesApi.delete(deletingStaircase.id)
+      setDeletingStaircase(null)
+      await loadStaircases()
+      void databaseBlocks.refresh()
+    } catch (nextError) {
+      setError(nextError instanceof Error ? nextError.message : 'Unable to delete staircase')
+    } finally {
+      setIsDeletingStaircase(false)
+    }
+  }
+
   const columns: DataColumn<StaircaseResponse>[] = [
     { key: 'name', label: t('staircases.columns.name'), cardRole: 'primary', render: (staircase) => t('settings.fields.staircaseName', { staircase: staircase.name }) },
     { key: 'block', label: t('settings.fields.block'), cardRole: 'secondary', render: (staircase) => t('common.blockValue', { block: staircase.blockName }) },
@@ -143,9 +165,20 @@ const Staircases: React.FC = () => {
       label: t('common.actions'),
       cardRole: 'actions',
       render: (staircase) => (
-        <Button size="small" startIcon={<EditIcon />} onClick={() => openEditDialog(staircase)} disabled={!shouldUseDatabase}>
-          {t('staircases.actions.edit')}
-        </Button>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+          <Button size="small" startIcon={<EditIcon />} onClick={() => openEditDialog(staircase)} disabled={!shouldUseDatabase}>
+            {t('staircases.actions.edit')}
+          </Button>
+          <Button
+            color="error"
+            size="small"
+            startIcon={<DeleteIcon />}
+            onClick={() => setDeletingStaircase(staircase)}
+            disabled={!shouldUseDatabase || isDeletingStaircase}
+          >
+            {t('staircases.actions.delete')}
+          </Button>
+        </Box>
       ),
     },
   ]
@@ -235,6 +268,27 @@ const Staircases: React.FC = () => {
           onChange={(event) => setForm((value) => ({ ...value, name: event.target.value }))}
         />
       </AppDialog>
+
+      <ConfirmationDialog
+        cancelLabel={t('common.cancel')}
+        confirmDisabled={!deletingStaircase || deletingStaircase.apartmentCount > 0 || isDeletingStaircase}
+        confirmLabel={isDeletingStaircase ? t('staircases.dialog.deleting') : t('staircases.dialog.deleteConfirmYes')}
+        onCancel={() => setDeletingStaircase(null)}
+        onConfirm={() => { void deleteStaircase() }}
+        open={Boolean(deletingStaircase)}
+        title={t('staircases.dialog.deleteTitle')}
+      >
+        <Typography color="text.secondary">
+          {deletingStaircase?.apartmentCount
+            ? t('staircases.dialog.deleteBlocked', {
+                staircase: deletingStaircase.name,
+                count: deletingStaircase.apartmentCount,
+              })
+            : t('staircases.dialog.deleteConfirm', {
+                staircase: deletingStaircase?.name ?? '',
+              })}
+        </Typography>
+      </ConfirmationDialog>
     </Box>
   )
 }

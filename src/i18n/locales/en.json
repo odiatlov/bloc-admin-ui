@@ -297,6 +297,7 @@
   "staircases": {
     "actions": {
       "add": "Add staircase",
+      "delete": "Delete",
       "edit": "Edit"
     },
     "columns": {
@@ -304,6 +305,11 @@
     },
     "dialog": {
       "addTitle": "Add staircase",
+      "deleteBlocked": "Staircase {{staircase}} cannot be deleted because it has {{count}} apartments. Move or delete the apartments first.",
+      "deleteConfirm": "Are you sure you want to delete staircase {{staircase}}?",
+      "deleteConfirmYes": "Yes, delete",
+      "deleteTitle": "Delete staircase",
+      "deleting": "Deleting...",
       "editTitle": "Edit staircase"
     },
     "errors": {
@@ -452,9 +458,14 @@
   },
   "apartments": {
     "actions": {
+      "delete": "Delete",
       "edit": "Edit"
     },
     "dialog": {
+      "deleteConfirm": "Are you sure you want to delete apartment {{apartment}}?",
+      "deleteConfirmYes": "Yes, delete",
+      "deleteTitle": "Delete apartment",
+      "deleting": "Deleting...",
       "editTitle": "Edit apartment"
     },
     "errors": {

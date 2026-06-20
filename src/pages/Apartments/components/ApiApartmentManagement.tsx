@@ -10,9 +10,11 @@ import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import AddIcon from '@mui/icons-material/Add'
+import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import { useTranslation } from 'react-i18next'
 import AppDialog from '../../../components/shared/AppDialog'
+import ConfirmationDialog from '../../../components/shared/ConfirmationDialog'
 import EmptyState from '../../../components/shared/EmptyState'
 import FilterBar from '../../../components/shared/FilterBar'
 import LoadErrorState from '../../../components/shared/LoadErrorState'
@@ -66,6 +68,8 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ initial
   const [isLoading, setIsLoading] = React.useState(true)
   const [dialogMode, setDialogMode] = React.useState<'create' | 'edit' | null>(null)
   const [editingApartment, setEditingApartment] = React.useState<ApartmentResponse | null>(null)
+  const [deletingApartment, setDeletingApartment] = React.useState<ApartmentResponse | null>(null)
+  const [isDeletingApartment, setIsDeletingApartment] = React.useState(false)
   const [form, setForm] = React.useState<FormState>(emptyForm)
 
   const blocks = databaseBlocks.blocks
@@ -173,6 +177,24 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ initial
     void databaseBlocks.refresh()
   }
 
+  const deleteApartment = async () => {
+    if (!deletingApartment || isDeletingApartment) return
+
+    setIsDeletingApartment(true)
+    setError(null)
+
+    try {
+      await apartmentsApi.delete(deletingApartment.id)
+      setDeletingApartment(null)
+      await loadData()
+      void databaseBlocks.refresh()
+    } catch (nextError) {
+      setError(nextError instanceof Error ? nextError.message : 'Unable to delete apartment')
+    } finally {
+      setIsDeletingApartment(false)
+    }
+  }
+
   const columns: DataColumn<ApartmentResponse>[] = [
     { key: 'number', label: t('apartments.setup.number'), cardRole: 'primary', render: (apartment) => t('residents.apartment.number', { number: apartment.number }) },
     { key: 'familyName', label: t('apartments.setup.familyName'), cardRole: 'secondary', render: (apartment) => apartment.familyName || t('common.notAvailable') },
@@ -186,9 +208,20 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ initial
       label: t('common.actions'),
       cardRole: 'actions',
       render: (apartment) => (
-        <Button size="small" startIcon={<EditIcon />} onClick={() => openEditDialog(apartment)}>
-          {t('apartments.actions.edit')}
-        </Button>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+          <Button size="small" startIcon={<EditIcon />} onClick={() => openEditDialog(apartment)}>
+            {t('apartments.actions.edit')}
+          </Button>
+          <Button
+            color="error"
+            size="small"
+            startIcon={<DeleteIcon />}
+            onClick={() => setDeletingApartment(apartment)}
+            disabled={isDeletingApartment}
+          >
+            {t('apartments.actions.delete')}
+          </Button>
+        </Box>
       ),
     },
   ]
@@ -301,6 +334,22 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ initial
           </Select>
         </FormControl>
       </AppDialog>
+
+      <ConfirmationDialog
+        cancelLabel={t('common.cancel')}
+        confirmDisabled={!deletingApartment || isDeletingApartment}
+        confirmLabel={isDeletingApartment ? t('apartments.dialog.deleting') : t('apartments.dialog.deleteConfirmYes')}
+        onCancel={() => setDeletingApartment(null)}
+        onConfirm={() => { void deleteApartment() }}
+        open={Boolean(deletingApartment)}
+        title={t('apartments.dialog.deleteTitle')}
+      >
+        <Typography color="text.secondary">
+          {t('apartments.dialog.deleteConfirm', {
+            apartment: deletingApartment?.number ?? '',
+          })}
+        </Typography>
+      </ConfirmationDialog>
     </Box>
   )
 }

@@ -1,5 +1,5 @@
 import type { ApartmentResponse, CreateApartmentRequest, UpdateApartmentRequest } from '../types/management'
-import { apiGet, apiPatch, apiPost } from './apiClient'
+import { apiDelete, apiGet, apiPatch, apiPost } from './apiClient'
 
 export const apartmentsApi = {
   getAll: () => apiGet<ApartmentResponse[]>('/apartments'),
@@ -9,4 +9,5 @@ export const apartmentsApi = {
     apiPost<CreateApartmentRequest, ApartmentResponse>('/apartments', request),
   update: (id: string, request: UpdateApartmentRequest) =>
     apiPatch<UpdateApartmentRequest, ApartmentResponse>(`/apartments/${id}`, request),
+  delete: (id: string) => apiDelete<string>(`/apartments/${id}`),
 }
