@@ -135,7 +135,7 @@ const AddBlockDialog: React.FC<AddBlockDialogProps> = ({
         />
         <TextField
           required
-          inputProps={{ min: 0, step: 1 }}
+          slotProps={{ htmlInput: { min: 0, step: 1 } }}
           label={t('settings.blockDialog.apartmentsCount')}
           type="number"
           value={form.apartmentCount}
@@ -143,7 +143,7 @@ const AddBlockDialog: React.FC<AddBlockDialogProps> = ({
         />
         <TextField
           required
-          inputProps={{ min: 0, step: 1 }}
+          slotProps={{ htmlInput: { min: 0, step: 1 } }}
           label={t('settings.blockDialog.residentsCount')}
           type="number"
           value={form.residentCount}
@@ -164,7 +164,7 @@ const AddBlockDialog: React.FC<AddBlockDialogProps> = ({
         />
         <TextField
           disabled={!form.hasStaircases}
-          inputProps={{ min: 0, step: 1 }}
+          slotProps={{ htmlInput: { min: 0, step: 1 } }}
           label={t('settings.blockDialog.staircaseCount')}
           type="number"
           value={form.staircaseCount}

@@ -5,7 +5,9 @@ const monthFormatter = new Intl.DateTimeFormat(undefined, { month: 'long', year:
 const shortDateFormatter = new Intl.DateTimeFormat(undefined, { month: 'long', day: 'numeric' })
 const timeFormatter = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' })
 
-const normalizeNumber = (value: number | null | undefined) => Number.isFinite(value) ? value : 0
+const normalizeNumber = (value: number | null | undefined) => (
+  typeof value === 'number' && Number.isFinite(value) ? value : 0
+)
 
 export const formatCurrency = (value: number | null | undefined) => currencyFormatter.format(normalizeNumber(value))
 

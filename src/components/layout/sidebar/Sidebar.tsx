@@ -18,6 +18,7 @@ import OpacityIcon from '@mui/icons-material/Opacity'
 import AssessmentIcon from '@mui/icons-material/Assessment'
 import HomeWorkIcon from '@mui/icons-material/HomeWork'
 import ApartmentIcon from '@mui/icons-material/Apartment'
+import StairsIcon from '@mui/icons-material/Stairs'
 import FactCheckIcon from '@mui/icons-material/FactCheck'
 import { NavLink } from 'react-router-dom'
 import { RoleContext } from '../../../contexts/RoleContext'
@@ -58,6 +59,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ onNavigate, onClose, sh
     : [
         { label: t('sidebar.dashboard'), to: '/admin/dashboard', icon: <DashboardIcon />, permission: 'dashboard' as const },
         { label: t('sidebar.blocks'), to: '/admin/blocks', icon: <HomeWorkIcon />, permission: 'blocks' as const },
+        { label: t('sidebar.staircases'), to: '/admin/staircases', icon: <StairsIcon />, permission: 'blocks' as const },
         { label: t('sidebar.apartments'), to: '/admin/apartments', icon: <ApartmentIcon />, permission: 'blocks' as const },
         { label: t('sidebar.residents'), to: '/admin/residents', icon: <PeopleIcon />, permission: 'residents' as const },
         { label: t('sidebar.finance'), to: '/admin/finance', icon: <MonetizationOnIcon />, permission: 'finance' as const },
