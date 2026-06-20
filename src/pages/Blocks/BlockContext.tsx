@@ -17,7 +17,7 @@ import ResponsiveDataView, { type DataColumn } from '../../components/shared/Res
 import { RoleContext } from '../../contexts/RoleContext'
 import { translateHeatingType } from '../../domain/displayLabels'
 import { useBlocks } from '../../hooks/useBlocks'
-import { formatCurrency, formatNumber, useBlockContext } from '../../hooks/useApartmentData'
+import { formatCurrency, formatSquareMeters, useBlockContext } from '../../hooks/useApartmentData'
 import ApartmentManagement from '../Apartments/components/ApartmentManagement'
 
 const BlockContext: React.FC = () => {
@@ -84,9 +84,9 @@ const BlockContext: React.FC = () => {
     { key: 'residents', label: t('residents.family.members'), render: (apartment) => apartment.residentCount },
     { key: 'floor', label: t('blocks.columns.floor'), render: (apartment) => apartment.floor },
     { key: 'staircase', label: t('blocks.columns.staircase'), render: (apartment) => staircaseTotals.find((item) => item.staircase.id === apartment.staircaseId)?.staircase.name ?? t('common.notAvailable') },
-    { key: 'usableSurface', label: t('blocks.columns.usableSurface'), render: (apartment) => formatNumber(apartment.usableSurface) },
-    { key: 'totalSurface', label: t('blocks.columns.totalSurface'), render: (apartment) => formatNumber(apartment.totalSurface) },
-    { key: 'heatedSurface', label: t('blocks.columns.heatedSurface'), render: (apartment) => formatNumber(apartment.heatedSurface) },
+    { key: 'usableSurface', label: t('blocks.columns.usableSurface'), render: (apartment) => formatSquareMeters(apartment.usableSurface) },
+    { key: 'totalSurface', label: t('blocks.columns.totalSurface'), render: (apartment) => formatSquareMeters(apartment.totalSurface) },
+    { key: 'heatedSurface', label: t('blocks.columns.heatedSurface'), render: (apartment) => formatSquareMeters(apartment.heatedSurface) },
     { key: 'heatingType', label: t('blocks.columns.heatingType'), render: (apartment) => translateHeatingType(t, apartment.heatingType) },
   ]
 

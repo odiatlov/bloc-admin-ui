@@ -177,7 +177,7 @@
       "myApartments": "My apartments",
       "adminContact": "{{admin}} · {{phone}}",
       "primaryResidence": "primary residence",
-      "surfaceSummary": "{{usable}} sqm usable · {{total}} sqm total",
+      "surfaceSummary": "{{usable}} usable · {{total}} total",
       "currentDue": "Current amount due",
       "currentDueSubtitle": "Due date: May 31, 2026",
       "pay": "Pay",

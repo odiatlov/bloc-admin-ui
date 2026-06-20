@@ -209,7 +209,7 @@
                                        "myApartments":  "Apartamentele mele",
                                        "adminContact":  "{{admin}} · {{phone}}",
                                        "primaryResidence":  "reședință principală",
-                                       "surfaceSummary":  "{{usable}} mp utili · {{total}} mp total",
+                                       "surfaceSummary":  "{{usable}} utili · {{total}} total",
                                        "currentDue":  "Suma curentă datorată",
                                        "currentDueSubtitle":  "Scadență: 31 mai 2026",
                                        "pay":  "Plătește",

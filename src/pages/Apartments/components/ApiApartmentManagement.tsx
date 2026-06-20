@@ -2,16 +2,21 @@ import React from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
+import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Select, { type SelectChangeEvent } from '@mui/material/Select'
+import Tab from '@mui/material/Tab'
+import Tabs from '@mui/material/Tabs'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import AddIcon from '@mui/icons-material/Add'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
+import SaveIcon from '@mui/icons-material/Save'
 import { useTranslation } from 'react-i18next'
 import AppDialog from '../../../components/shared/AppDialog'
 import ConfirmationDialog from '../../../components/shared/ConfirmationDialog'
@@ -22,7 +27,7 @@ import ResponsiveDataView, { type DataColumn } from '../../../components/shared/
 import StatusChip from '../../../components/shared/StatusChip'
 import { translateApartmentSetupStatus } from '../../../domain/displayLabels'
 import { useBlocks } from '../../../hooks/useBlocks'
-import { formatNumber } from '../../../hooks/useApartmentData'
+import { formatSquareMeters } from '../../../hooks/useApartmentData'
 import { apartmentsApi } from '../../../services/apartmentsApi'
 import { staircasesApi } from '../../../services/staircasesApi'
 import type { ApartmentSetupStatus } from '../../../types/apartment'
@@ -68,6 +73,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ initial
   const [isLoading, setIsLoading] = React.useState(true)
   const [dialogMode, setDialogMode] = React.useState<'create' | 'edit' | null>(null)
   const [editingApartment, setEditingApartment] = React.useState<ApartmentResponse | null>(null)
+  const [editTab, setEditTab] = React.useState(0)
   const [deletingApartment, setDeletingApartment] = React.useState<ApartmentResponse | null>(null)
   const [isDeletingApartment, setIsDeletingApartment] = React.useState(false)
   const [form, setForm] = React.useState<FormState>(emptyForm)
@@ -147,7 +153,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ initial
       usableSqm: apartment.usableSqm === null ? '' : String(apartment.usableSqm),
       setupStatus: apartment.setupStatus,
     })
-    setDialogMode('edit')
+    setEditTab(0)
   }
 
   const saveApartment = async () => {
@@ -166,13 +172,14 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ initial
       setupStatus: form.setupStatus,
     }
 
-    if (dialogMode === 'edit' && editingApartment) {
+    if (editingApartment) {
       await apartmentsApi.update(editingApartment.id, request)
     } else {
       await apartmentsApi.create(request)
     }
 
     setDialogMode(null)
+    setEditingApartment(null)
     await loadData()
     void databaseBlocks.refresh()
   }
@@ -201,7 +208,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ initial
     { key: 'residents', label: t('residents.family.members'), render: (apartment) => apartment.residentCount },
     { key: 'floor', label: t('blocks.columns.floor'), render: (apartment) => apartment.floor ?? t('common.notAvailable') },
     { key: 'staircase', label: t('blocks.columns.staircase'), render: (apartment) => apartment.staircaseName ? t('settings.fields.staircaseName', { staircase: apartment.staircaseName }) : t('common.notAvailable') },
-    { key: 'usableSurface', label: t('blocks.columns.usableSurface'), render: (apartment) => apartment.usableSqm === null ? t('common.notAvailable') : formatNumber(apartment.usableSqm) },
+    { key: 'usableSurface', label: t('blocks.columns.usableSurface'), render: (apartment) => apartment.usableSqm === null ? t('common.notAvailable') : formatSquareMeters(apartment.usableSqm) },
     { key: 'setupStatus', label: t('apartments.setup.setupStatus'), cardRole: 'status', render: (apartment) => <StatusChip status={apartment.setupStatus} label={translateApartmentSetupStatus(t, apartment.setupStatus)} /> },
     {
       key: 'actions',
@@ -300,8 +307,8 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ initial
         maxWidth="md"
         onCancel={() => setDialogMode(null)}
         onConfirm={() => { void saveApartment() }}
-        open={Boolean(dialogMode)}
-        title={dialogMode === 'edit' ? t('apartments.dialog.editTitle') : t('apartments.setup.addApartment')}
+        open={dialogMode === 'create'}
+        title={t('apartments.setup.addApartment')}
       >
         <FormControl fullWidth size="small" required>
           <InputLabel>{t('settings.fields.block')}</InputLabel>
@@ -334,6 +341,86 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ initial
           </Select>
         </FormControl>
       </AppDialog>
+
+      <Drawer
+        anchor="right"
+        open={Boolean(editingApartment)}
+        onClose={() => setEditingApartment(null)}
+        slotProps={{ paper: { sx: { width: { xs: '100%', sm: 520 }, p: 2 } } }}
+      >
+        {editingApartment && (
+          <Box sx={{ display: 'grid', gap: 2 }}>
+            <Box sx={{ alignItems: 'flex-start', display: 'flex', gap: 1.5 }}>
+              <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
+                <Button startIcon={<ArrowBackIcon />} onClick={() => setEditingApartment(null)}>
+                  {t('residents.actions.backToList')}
+                </Button>
+                <Box>
+                  <Typography variant="h6">{t('apartments.setup.title')}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {t('residents.apartment.number', { number: editingApartment.number })}
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+
+            <Box sx={{ display: 'grid', alignContent: 'start', gap: 2 }}>
+              <Tabs value={editTab} onChange={(_, value: number) => setEditTab(value)} variant="fullWidth">
+                <Tab label={t('apartments.tabs.details')} />
+                <Tab label={t('apartments.tabs.residents', { count: editingApartment.residentCount })} />
+              </Tabs>
+
+              {editTab === 0 && (
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' }, gap: 1.5 }}>
+                  <TextField fullWidth required size="small" label={t('apartments.setup.number')} value={form.number} onChange={(event) => setForm((value) => ({ ...value, number: event.target.value }))} />
+                  <TextField fullWidth size="small" type="number" label={t('blocks.columns.floor')} value={form.floor} onChange={(event) => setForm((value) => ({ ...value, floor: event.target.value }))} />
+                  <TextField fullWidth size="small" label={t('apartments.setup.familyName')} value={form.familyName} onChange={(event) => setForm((value) => ({ ...value, familyName: event.target.value }))} />
+                  <FormControl fullWidth size="small" required>
+                    <InputLabel>{t('apartments.setup.setupStatus')}</InputLabel>
+                    <Select label={t('apartments.setup.setupStatus')} value={form.setupStatus} onChange={(event: SelectChangeEvent) => setForm((value) => ({ ...value, setupStatus: event.target.value as ApartmentSetupStatus }))}>
+                      {setupStatuses.map((status) => (
+                        <MenuItem key={status} value={status}>{translateApartmentSetupStatus(t, status)}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl fullWidth size="small" required={Boolean(formBlock?.hasStaircases)} disabled={!formBlock?.hasStaircases}>
+                    <InputLabel>{t('blocks.columns.staircase')}</InputLabel>
+                    <Select label={t('blocks.columns.staircase')} value={form.staircaseId} onChange={(event: SelectChangeEvent) => setForm((value) => ({ ...value, staircaseId: event.target.value }))}>
+                      <MenuItem value="">{t('common.notAvailable')}</MenuItem>
+                      {formBlockStaircases.map((staircase) => (
+                        <MenuItem key={staircase.id} value={staircase.id}>{t('settings.fields.staircaseName', { staircase: staircase.name })}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <TextField fullWidth size="small" type="number" label={t('residents.family.members')} value={form.residentCount} onChange={(event) => setForm((value) => ({ ...value, residentCount: event.target.value }))} />
+                  <TextField fullWidth size="small" type="number" label={t('blocks.columns.usableSurface')} value={form.usableSqm} onChange={(event) => setForm((value) => ({ ...value, usableSqm: event.target.value }))} />
+                  <Box sx={{ display: 'flex', gridColumn: '1 / -1', justifyContent: { xs: 'stretch', sm: 'flex-end' }, pt: 0.5 }}>
+                    <Button
+                      fullWidth
+                      startIcon={<SaveIcon />}
+                      variant="contained"
+                      onClick={() => { void saveApartment() }}
+                      disabled={!canSave}
+                      sx={{ width: { xs: '100%', sm: 'auto' } }}
+                    >
+                      {t('common.save')}
+                    </Button>
+                  </Box>
+                </Box>
+              )}
+
+              {editTab === 1 && (
+                <Typography variant="body2" color="text.secondary">
+                  {editingApartment.residentCount > 0
+                    ? t('residents.family.residentCount', { count: editingApartment.residentCount })
+                    : t('residents.apartment.noResidentsAssigned')}
+                </Typography>
+              )}
+            </Box>
+
+          </Box>
+        )}
+      </Drawer>
 
       <ConfirmationDialog
         cancelLabel={t('common.cancel')}

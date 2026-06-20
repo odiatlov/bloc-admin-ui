@@ -13,6 +13,8 @@ export const formatCurrency = (value: number | null | undefined) => currencyForm
 
 export const formatNumber = (value: number | null | undefined) => numberFormatter.format(normalizeNumber(value))
 
+export const formatSquareMeters = (value: number | null | undefined) => `${formatNumber(value)} m²`
+
 export const formatPercent = (value: number | null | undefined) => percentFormatter.format(normalizeNumber(value) / 100)
 
 export const formatMonth = (month: string) => {
