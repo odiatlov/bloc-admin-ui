@@ -5,11 +5,15 @@ const monthFormatter = new Intl.DateTimeFormat(undefined, { month: 'long', year:
 const shortDateFormatter = new Intl.DateTimeFormat(undefined, { month: 'long', day: 'numeric' })
 const timeFormatter = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' })
 
-const normalizeNumber = (value: number | null | undefined) => Number.isFinite(value) ? value : 0
+const normalizeNumber = (value: number | null | undefined) => (
+  typeof value === 'number' && Number.isFinite(value) ? value : 0
+)
 
 export const formatCurrency = (value: number | null | undefined) => currencyFormatter.format(normalizeNumber(value))
 
 export const formatNumber = (value: number | null | undefined) => numberFormatter.format(normalizeNumber(value))
+
+export const formatSquareMeters = (value: number | null | undefined) => `${formatNumber(value)} m²`
 
 export const formatPercent = (value: number | null | undefined) => percentFormatter.format(normalizeNumber(value) / 100)
 

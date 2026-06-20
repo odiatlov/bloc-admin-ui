@@ -11,7 +11,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import PreviewIcon from '@mui/icons-material/Preview'
 import { useTranslation } from 'react-i18next'
 import FilterBar from '../../../components/shared/FilterBar'
-import { formatCurrency, formatMonth, formatNumber, useReports } from '../../../hooks/useApartmentData'
+import { formatCurrency, formatMonth, formatNumber, formatSquareMeters, useReports } from '../../../hooks/useApartmentData'
 
 const ReportGenerator: React.FC = () => {
   const { t } = useTranslation()
@@ -20,7 +20,7 @@ const ReportGenerator: React.FC = () => {
     { key: 'invoices', label: t('reports.preview.invoices'), value: preview.invoiceCount },
     { key: 'revenue', label: t('reports.preview.revenue'), value: formatCurrency(preview.revenue) },
     { key: 'waterUsage', label: t('reports.preview.waterUsage'), value: `${formatNumber(preview.waterUsage)} ${t('reports.preview.units.water')}` },
-    { key: 'surfaceTotal', label: t('reports.preview.surfaceTotal'), value: `${formatNumber(preview.surfaceTotal)} ${t('reports.preview.units.surface')}` },
+    { key: 'surfaceTotal', label: t('reports.preview.surfaceTotal'), value: formatSquareMeters(preview.surfaceTotal) },
     { key: 'boilerTax', label: t('reports.preview.boilerTax'), value: formatCurrency(preview.boilerTax) },
   ]
 

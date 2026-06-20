@@ -13,6 +13,7 @@ import Consumption from './pages/Consumption/Consumption'
 import Reports from './pages/Reports/Reports'
 import Settings from './pages/Settings/Settings'
 import Apartments from './pages/Apartments/Apartments'
+import Staircases from './pages/Staircases/Staircases'
 import createThemeConfig from './theme/themeConfig'
 import Dashboard from './pages/Dashboard/Dashboard'
 import Blocks from './pages/Blocks/Blocks'
@@ -57,6 +58,7 @@ const RootApp: React.FC = () => {
               <Route index element={<ProtectedRoute permission="dashboard"><Dashboard /></ProtectedRoute>} />
               <Route path="dashboard" element={<ProtectedRoute permission="dashboard"><Dashboard /></ProtectedRoute>} />
               <Route path="blocks" element={<ProtectedRoute permission="blocks"><Blocks /></ProtectedRoute>} />
+              <Route path="staircases" element={<ProtectedRoute permission="blocks"><Staircases /></ProtectedRoute>} />
               <Route path="apartments" element={<ProtectedRoute permission="blocks"><Apartments /></ProtectedRoute>} />
               <Route path="residents" element={<ProtectedRoute permission="residents"><Residents /></ProtectedRoute>} />
               <Route path="finance" element={<ProtectedRoute permission="finance"><Finance /></ProtectedRoute>} />

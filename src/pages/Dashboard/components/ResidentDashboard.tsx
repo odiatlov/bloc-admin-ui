@@ -11,7 +11,7 @@ import PaymentIcon from '@mui/icons-material/Payment'
 import OpacityIcon from '@mui/icons-material/Opacity'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { formatCurrency, formatMonth, formatNumber, getBlockLabel, useResidentPortal, type WaterReadingRow } from '../../../hooks/useApartmentData'
+import { formatCurrency, formatMonth, formatNumber, formatSquareMeters, getBlockLabel, useResidentPortal, type WaterReadingRow } from '../../../hooks/useApartmentData'
 import { ActionBar, ContentCard, DashboardHeader, DashboardPage, StatCard, StatGrid } from './DashboardSystem'
 
 const ResidentDashboard: React.FC = () => {
@@ -135,7 +135,7 @@ const ResidentDashboard: React.FC = () => {
                           {t(`residents.ownership.${apartment.residentApartment?.ownershipType ?? 'owner'}`)}
                           {apartment.residentApartment?.isPrimaryResidence ? ` - ${t('dashboard.resident.primaryResidence')}` : ''}
                           {' | '}
-                          {t('dashboard.resident.surfaceSummary', { usable: formatNumber(apartment.usableSurface), total: formatNumber(apartment.totalSurface) })}
+                          {t('dashboard.resident.surfaceSummary', { usable: formatSquareMeters(apartment.usableSurface), total: formatSquareMeters(apartment.totalSurface) })}
                         </Typography>
                       </Box>
                     ))}

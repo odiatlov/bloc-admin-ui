@@ -32,7 +32,8 @@
       "waterIndex": "water index",
       "payments": "payments",
       "cashEntries": "cash entries",
-      "reviews": "reviews"
+      "reviews": "reviews",
+      "staircases": "staircases"
     }
   },
   "loadErrorState": {
@@ -176,7 +177,7 @@
       "myApartments": "My apartments",
       "adminContact": "{{admin}} · {{phone}}",
       "primaryResidence": "primary residence",
-      "surfaceSummary": "{{usable}} sqm usable · {{total}} sqm total",
+      "surfaceSummary": "{{usable}} usable · {{total}} total",
       "currentDue": "Current amount due",
       "currentDueSubtitle": "Due date: May 31, 2026",
       "pay": "Pay",
@@ -211,6 +212,10 @@
     "apartments": {
       "title": "Apartments",
       "description": "View, add, edit, assign residents, and complete apartment setup."
+    },
+    "staircases": {
+      "title": "Staircases",
+      "description": "Manage staircase structure and review apartment coverage by block."
     },
     "finance": {
       "title": "Finance",
@@ -289,33 +294,31 @@
       "consumption": "Consumption history"
     }
   },
-  "apartments": {
+  "staircases": {
     "actions": {
+      "add": "Add staircase",
+      "delete": "Delete",
       "edit": "Edit"
     },
+    "columns": {
+      "name": "Staircase name"
+    },
+    "dialog": {
+      "addTitle": "Add staircase",
+      "deleteBlocked": "Staircase {{staircase}} cannot be deleted because it has {{count}} apartments. Move or delete the apartments first.",
+      "deleteConfirm": "Are you sure you want to delete staircase {{staircase}}?",
+      "deleteConfirmYes": "Yes, delete",
+      "deleteTitle": "Delete staircase",
+      "deleting": "Deleting...",
+      "editTitle": "Edit staircase"
+    },
+    "errors": {
+      "loadFailed": "Staircases could not be loaded. Please try again."
+    },
     "filters": {
-      "setupStatus": "Setup status"
+      "search": "Search staircases"
     },
-    "sections": {
-      "residents": "Assigned residents"
-    },
-    "summary": {
-      "total": "{{count}} apartments"
-    },
-    "tabs": {
-      "details": "Apartment Details",
-      "residents": "Residents ({{count}})"
-    },
-    "setup": {
-      "addApartment": "Add apartment",
-      "description": "Add and configure apartments for the selected block and staircase.",
-      "familyName": "Family name",
-      "indivisibleShare": "Indivisible share",
-      "noApartments": "No apartments match the selected block and staircase.",
-      "number": "Apartment number",
-      "setupStatus": "Setup status",
-      "title": "Apartments setup"
-    }
+    "loading": "Loading staircases..."
   },
   "finance": {
     "tabs": {
@@ -451,6 +454,46 @@
     "loading": "Loading blocks...",
     "errors": {
       "loadFailed": "Blocks could not be loaded. Please try again."
+    }
+  },
+  "apartments": {
+    "actions": {
+      "delete": "Delete",
+      "edit": "Edit"
+    },
+    "dialog": {
+      "deleteConfirm": "Are you sure you want to delete apartment {{apartment}}?",
+      "deleteConfirmYes": "Yes, delete",
+      "deleteTitle": "Delete apartment",
+      "deleting": "Deleting...",
+      "editTitle": "Edit apartment"
+    },
+    "errors": {
+      "loadFailed": "Apartments could not be loaded. Please try again."
+    },
+    "filters": {
+      "setupStatus": "Setup status"
+    },
+    "loading": "Loading apartments...",
+    "sections": {
+      "residents": "Assigned residents"
+    },
+    "summary": {
+      "total": "{{count}} apartments"
+    },
+    "tabs": {
+      "details": "Apartment Details",
+      "residents": "Residents ({{count}})"
+    },
+    "setup": {
+      "addApartment": "Add apartment",
+      "description": "Add and configure apartments for the selected block and staircase.",
+      "familyName": "Family name",
+      "indivisibleShare": "Indivisible share",
+      "noApartments": "No apartments match the selected block and staircase.",
+      "number": "Apartment number",
+      "setupStatus": "Setup status",
+      "title": "Apartments setup"
     }
   },
   "resident": {

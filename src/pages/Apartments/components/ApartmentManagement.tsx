@@ -25,7 +25,7 @@ import StatusChip from '../../../components/shared/StatusChip'
 import { filterBlocksForAccount } from '../../../application/accessScope'
 import { RoleContext } from '../../../contexts/RoleContext'
 import { translateApartmentSetupStatus, translateHeatingType, translateResidentAccountStatus } from '../../../domain/displayLabels'
-import { formatNumber, getApartmentResidents } from '../../../hooks/useApartmentData'
+import { formatSquareMeters, getApartmentResidents } from '../../../hooks/useApartmentData'
 import {
   apartments,
   blocks,
@@ -207,7 +207,7 @@ const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ hideScopeFilt
     { key: 'residents', label: t('residents.family.members'), render: (apartment) => getApartmentResidents(apartment.id, residents, residentApartmentRecords).length },
     { key: 'floor', label: t('blocks.columns.floor'), render: (apartment) => apartment.floor },
     { key: 'staircase', label: t('blocks.columns.staircase'), render: (apartment) => selectedBlockStaircases.find((staircase) => staircase.id === apartment.staircaseId)?.name ?? t('common.notAvailable') },
-    { key: 'usableSurface', label: t('blocks.columns.usableSurface'), render: (apartment) => formatNumber(apartment.usableSurface) },
+    { key: 'usableSurface', label: t('blocks.columns.usableSurface'), render: (apartment) => formatSquareMeters(apartment.usableSurface) },
     { key: 'setupStatus', label: t('apartments.setup.setupStatus'), cardRole: 'status', render: (apartment) => <StatusChip status={apartment.setupStatus ?? 'configured'} label={translateApartmentSetupStatus(t, apartment.setupStatus ?? 'configured')} /> },
     {
       key: 'actions',

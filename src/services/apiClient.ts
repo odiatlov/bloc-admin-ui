@@ -46,6 +46,12 @@ export const apiPut = <TRequest, TResponse>(path: string, body: TRequest) =>
     body: JSON.stringify(body),
   })
 
+export const apiPatch = <TRequest, TResponse>(path: string, body: TRequest) =>
+  apiRequest<TResponse>(path, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  })
+
 export const apiDelete = <TResponse>(path: string) =>
   apiRequest<TResponse>(path, {
     method: 'DELETE',

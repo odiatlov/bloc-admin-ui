@@ -57,7 +57,15 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
     () => filterBlocksForAccount(blocks, { ...account, role }, buildingAdminAssignments, residentApartments, apartments),
     [account, role],
   )
-  const settingsBlocks = shouldUseDatabaseBlocks ? databaseOverview.blocks : scopedBlocks
+  const settingsBlocks = React.useMemo(() => (
+    shouldUseDatabaseBlocks
+      ? databaseOverview.blocks.map((block) => ({
+          ...block,
+          address: block.address ?? undefined,
+          heatingType: 'central' as const,
+        }))
+      : scopedBlocks
+  ), [databaseOverview.blocks, scopedBlocks, shouldUseDatabaseBlocks])
   const [selectedBlockId, setSelectedBlockId] = React.useState(settingsBlocks[0]?.id ?? '')
   const [selectedStaircaseId, setSelectedStaircaseId] = React.useState('all')
   const [blockDeadline, setBlockDeadline] = React.useState('2026-05-15')
