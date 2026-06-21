@@ -176,7 +176,50 @@ const ResidentsOverview: React.FC = () => {
             <Typography variant="h6" gutterBottom>
               {t('common.blockValue', { block: getBlockLabel(block) })}
             </Typography>
-            <Box sx={{ display: 'grid', gap: 1 }}>
+            <Box sx={{ display: { xs: 'none', md: 'grid' }, gap: 0.75 }}>
+              {group.map((apartment) => (
+                <Paper
+                  key={apartment.id}
+                  variant="outlined"
+                  sx={{
+                    alignItems: 'center',
+                    bgcolor: 'action.hover',
+                    display: 'grid',
+                    gap: 1.5,
+                    gridTemplateColumns: 'minmax(0, 1.4fr) minmax(96px, 0.55fr) minmax(116px, 0.65fr) auto minmax(112px, 0.45fr)',
+                    p: 1.25,
+                    maxWidth: '100%',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography sx={{ fontWeight: 700, lineHeight: 1.35, overflowWrap: 'anywhere' }}>
+                      {apartment.familyLabel || t('residents.apartment.number', { number: apartment.number })}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography color="text.secondary" sx={{ fontSize: '0.75rem', fontWeight: 600, lineHeight: 1.35 }}>
+                      {t('residents.family.members')}
+                    </Typography>
+                    <Typography sx={{ lineHeight: 1.35 }}>
+                      {apartment.residentCount === 0 ? t('residents.apartment.empty') : t('residents.family.residentCount', { count: apartment.residentCount })}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography color="text.secondary" sx={{ fontSize: '0.75rem', fontWeight: 600, lineHeight: 1.35 }}>
+                      {t('finance.columns.amount')}
+                    </Typography>
+                    <Typography sx={{ lineHeight: 1.35 }}>{formatCurrency(apartment.debtBalance)}</Typography>
+                  </Box>
+                  <StatusChip status={apartment.financialStatus} label={t(`status.financial.${apartment.financialStatus}`)} />
+                  <Button size="small" variant="contained" onClick={() => setSelectedApartmentId(apartment.id)} sx={{ minWidth: 112, whiteSpace: 'nowrap' }}>
+                    {t('residents.actions.openDetails')}
+                  </Button>
+                </Paper>
+              ))}
+            </Box>
+
+            <Box sx={{ display: { xs: 'grid', md: 'none' }, gap: 1 }}>
               {group.map((apartment) => (
                 <EntityListItem
                   key={apartment.id}

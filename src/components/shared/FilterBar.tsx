@@ -12,20 +12,40 @@ const FilterBar = ({ actions, children }: FilterBarProps) => (
     sx={{
       p: 2,
       display: { xs: 'grid', sm: 'flex' },
-      gap: 1.5,
+      gap: 2,
       alignItems: { sm: 'center' },
       justifyContent: { sm: 'space-between' },
+      flexWrap: { sm: 'wrap', lg: 'nowrap' },
+      maxWidth: '100%',
+      overflow: 'hidden',
     }}
   >
     <Box
       sx={{
         display: { xs: 'grid', sm: 'flex' },
-        gap: 1.5,
+        gap: 2,
         alignItems: { sm: 'center' },
+        justifyContent: { sm: 'flex-start' },
+        flex: { sm: '1 1 auto' },
         flexWrap: { sm: 'wrap' },
         minWidth: 0,
         width: { xs: '100%', sm: 'auto' },
-        '& > *': { width: { xs: '100%', sm: 'auto' } },
+        '& > *': {
+          flex: { sm: '0 0 auto' },
+          minWidth: { xs: '100%', sm: 0 },
+          width: { xs: '100%', sm: 'auto' },
+        },
+        '& .MuiFormControl-root': {
+          flex: { sm: '0 0 180px' },
+          maxWidth: { xs: '100%', sm: 180 },
+          minWidth: { xs: '100%', sm: 160 },
+          width: { xs: '100%', sm: 180 },
+        },
+        '& .MuiTextField-root': {
+          flex: { sm: '0 0 280px' },
+          maxWidth: { xs: '100%', sm: 280 },
+          width: { xs: '100%', sm: 280 },
+        },
       }}
     >
       {children}
@@ -38,10 +58,15 @@ const FilterBar = ({ actions, children }: FilterBarProps) => (
           gap: 1,
           alignItems: { sm: 'center' },
           justifyContent: { sm: 'flex-end' },
-          flexWrap: { sm: 'wrap' },
+          flex: { sm: '0 0 auto' },
+          flexWrap: { sm: 'nowrap' },
           ml: { sm: 'auto' },
+          minWidth: 0,
           width: { xs: '100%', sm: 'auto' },
-          '& > *': { width: { xs: '100%', sm: 'auto' } },
+          '& > *': {
+            whiteSpace: 'nowrap',
+            width: { xs: '100%', sm: 'auto' },
+          },
         }}
       >
         {actions}
