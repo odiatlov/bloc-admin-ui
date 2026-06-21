@@ -40,7 +40,8 @@ export const MetadataGrid: React.FC<MetadataGridProps> = ({ items }) => {
         m: 0,
         display: 'grid',
         gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(3, minmax(0, 1fr))' },
-        gap: 1,
+        columnGap: 2,
+        rowGap: 1.25,
         alignItems: 'start',
         maxWidth: '100%',
         overflow: 'hidden',
@@ -170,11 +171,11 @@ export const EntityListItem: React.FC<EntityListItemProps> = ({ actions, metadat
       overflow: 'hidden',
     }}
   >
-    <Box sx={{ display: 'grid', gap: 0.75, minWidth: 0, maxWidth: '100%', overflow: 'hidden', p: 1.25 }}>
-      <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'start', flexWrap: 'wrap', minWidth: 0, maxWidth: '100%' }}>
+    <Box sx={{ display: 'grid', gap: 1, minWidth: 0, maxWidth: '100%', overflow: 'hidden', p: 1.5 }}>
+      <Box sx={{ alignItems: 'start', display: 'grid', gap: 1, gridTemplateColumns: 'minmax(0, 1fr) auto', minWidth: 0, maxWidth: '100%' }}>
         <Box sx={{ minWidth: 0 }}>
           {titleLabel && <MetadataLabel>{titleLabel}</MetadataLabel>}
-          <Typography variant="body1" sx={{ minWidth: 0, fontWeight: 600, lineHeight: 1.35, overflowWrap: 'anywhere' }}>
+          <Typography variant="body1" sx={{ minWidth: 0, fontWeight: 700, lineHeight: 1.35, overflowWrap: 'anywhere' }}>
             {title}
           </Typography>
         </Box>
