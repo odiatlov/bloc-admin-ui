@@ -80,7 +80,7 @@ const Blocks: React.FC = () => {
       key: 'actions',
       label: t('common.actions'),
       render: (block) => (
-        <Button size="small" component={RouterLink} to={`/admin/blocks/${block.id}/overview`}>
+        <Button size="small" component={RouterLink} to={`/admin/blocks/${block.id}/apartments`}>
           {t('blocks.actions.openOverview')}
         </Button>
       ),

@@ -34,6 +34,7 @@ import type { ApartmentSetupStatus } from '../../../types/apartment'
 import type { ApartmentResponse, StaircaseResponse } from '../../../types/management'
 
 type ApiApartmentManagementProps = {
+  hideScopeFilters?: boolean
   initialBlockId?: string
 }
 
@@ -61,7 +62,7 @@ const emptyForm: FormState = {
 
 const setupStatuses: ApartmentSetupStatus[] = ['configured', 'unconfigured']
 
-const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ initialBlockId }) => {
+const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideScopeFilters = false, initialBlockId }) => {
   const { t } = useTranslation()
   const databaseBlocks = useBlocks()
   const [apartments, setApartments] = React.useState<ApartmentResponse[]>([])
@@ -107,11 +108,13 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ initial
   }, [loadData])
 
   React.useEffect(() => {
+    if (databaseBlocks.isLoading) return
+
     if (selectedBlockId !== 'all' && !blocks.some((block) => block.id === selectedBlockId)) {
       setSelectedBlockId(blocks[0]?.id ?? 'all')
       setSelectedStaircaseId('all')
     }
-  }, [blocks, selectedBlockId])
+  }, [blocks, databaseBlocks.isLoading, selectedBlockId])
 
   React.useEffect(() => {
     if (!selectedBlock?.hasStaircases) {
@@ -239,41 +242,43 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ initial
 
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
-      <FilterBar
-        actions={(
-          <Button startIcon={<AddIcon />} variant="contained" onClick={openCreateDialog} disabled={Boolean(loadError) || blocks.length === 0}>
-            {t('apartments.setup.addApartment')}
-          </Button>
-        )}
-      >
-        <FormControl size="small" sx={{ minWidth: { sm: 180 } }} disabled={Boolean(loadError)}>
-          <InputLabel>{t('settings.fields.block')}</InputLabel>
-          <Select label={t('settings.fields.block')} value={selectedBlockId} onChange={(event: SelectChangeEvent) => { setSelectedBlockId(event.target.value); setSelectedStaircaseId('all') }}>
-            <MenuItem value="all">{t('common.all')}</MenuItem>
-            {blocks.map((block) => (
-              <MenuItem key={block.id} value={block.id}>{block.displayName}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl size="small" disabled={Boolean(loadError) || !selectedBlock?.hasStaircases} sx={{ minWidth: { sm: 180 } }}>
-          <InputLabel>{t('blocks.columns.staircase')}</InputLabel>
-          <Select label={t('blocks.columns.staircase')} value={selectedStaircaseId} onChange={(event: SelectChangeEvent) => setSelectedStaircaseId(event.target.value)}>
-            <MenuItem value="all">{t('common.all')}</MenuItem>
-            {selectedBlockStaircases.map((staircase) => (
-              <MenuItem key={staircase.id} value={staircase.id}>{t('settings.fields.staircaseName', { staircase: staircase.name })}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl size="small" sx={{ minWidth: { sm: 180 } }} disabled={Boolean(loadError)}>
-          <InputLabel>{t('apartments.filters.setupStatus')}</InputLabel>
-          <Select label={t('apartments.filters.setupStatus')} value={setupStatusFilter} onChange={(event: SelectChangeEvent) => setSetupStatusFilter(event.target.value as ApartmentSetupStatus | 'all')}>
-            <MenuItem value="all">{t('common.all')}</MenuItem>
-            {setupStatuses.map((status) => (
-              <MenuItem key={status} value={status}>{translateApartmentSetupStatus(t, status)}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </FilterBar>
+      {!hideScopeFilters && (
+        <FilterBar
+          actions={(
+            <Button startIcon={<AddIcon />} variant="contained" onClick={openCreateDialog} disabled={Boolean(loadError) || blocks.length === 0}>
+              {t('apartments.setup.addApartment')}
+            </Button>
+          )}
+        >
+          <FormControl size="small" sx={{ minWidth: { sm: 180 } }} disabled={Boolean(loadError)}>
+            <InputLabel>{t('settings.fields.block')}</InputLabel>
+            <Select label={t('settings.fields.block')} value={selectedBlockId} onChange={(event: SelectChangeEvent) => { setSelectedBlockId(event.target.value); setSelectedStaircaseId('all') }}>
+              <MenuItem value="all">{t('common.all')}</MenuItem>
+              {blocks.map((block) => (
+                <MenuItem key={block.id} value={block.id}>{block.displayName}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl size="small" disabled={Boolean(loadError) || !selectedBlock?.hasStaircases} sx={{ minWidth: { sm: 180 } }}>
+            <InputLabel>{t('blocks.columns.staircase')}</InputLabel>
+            <Select label={t('blocks.columns.staircase')} value={selectedStaircaseId} onChange={(event: SelectChangeEvent) => setSelectedStaircaseId(event.target.value)}>
+              <MenuItem value="all">{t('common.all')}</MenuItem>
+              {selectedBlockStaircases.map((staircase) => (
+                <MenuItem key={staircase.id} value={staircase.id}>{t('settings.fields.staircaseName', { staircase: staircase.name })}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl size="small" sx={{ minWidth: { sm: 180 } }} disabled={Boolean(loadError)}>
+            <InputLabel>{t('apartments.filters.setupStatus')}</InputLabel>
+            <Select label={t('apartments.filters.setupStatus')} value={setupStatusFilter} onChange={(event: SelectChangeEvent) => setSetupStatusFilter(event.target.value as ApartmentSetupStatus | 'all')}>
+              <MenuItem value="all">{t('common.all')}</MenuItem>
+              {setupStatuses.map((status) => (
+                <MenuItem key={status} value={status}>{translateApartmentSetupStatus(t, status)}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </FilterBar>
+      )}
 
       {loading ? (
         <Paper sx={{ alignItems: 'center', display: 'grid', gap: 1.5, justifyItems: 'center', p: 4 }}>

@@ -18,6 +18,7 @@ import { RoleContext } from '../../contexts/RoleContext'
 import { translateHeatingType } from '../../domain/displayLabels'
 import { useBlocks } from '../../hooks/useBlocks'
 import { formatCurrency, formatSquareMeters, useBlockContext } from '../../hooks/useApartmentData'
+import ApiApartmentManagement from '../Apartments/components/ApiApartmentManagement'
 import ApartmentManagement from '../Apartments/components/ApartmentManagement'
 
 const BlockContext: React.FC = () => {
@@ -77,6 +78,7 @@ const BlockContext: React.FC = () => {
   }
 
   if (!block) return <Navigate to="/admin/dashboard" replace />
+  if (section === 'overview') return <Navigate to={`/admin/blocks/${block.id}/apartments`} replace />
   if (section === 'staircases' && !block.hasStaircases) return <Navigate to={`/admin/blocks/${block.id}/apartments`} replace />
 
   const apartmentColumns: DataColumn<(typeof blockApartments)[number]>[] = [
@@ -126,12 +128,12 @@ const BlockContext: React.FC = () => {
               {t('sidebar.apartments')}
             </Button>
           )}
-          <Button startIcon={<ArrowBackIcon />} variant="outlined" onClick={() => navigate('/admin/blocks')}>
+          <Button startIcon={<ArrowBackIcon />} variant="contained" onClick={() => navigate('/admin/blocks')}>
             {t('blocks.actions.backToList')}
           </Button>
         </ActionBar>
 
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(4, minmax(0, 1fr))' }, gap: 2 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, minmax(0, 1fr))' }, gap: 2 }}>
           <MetricCard label={t('dashboard.admin.overview.apartments')} value={apartmentCount} />
           <MetricCard label={t('dashboard.admin.overview.residents')} value={residentCount} />
           <MetricCard label={t('blocks.metrics.totalInvoices')} value={formatCurrency(totalInvoices)} />
@@ -139,10 +141,14 @@ const BlockContext: React.FC = () => {
         </Box>
 
         {section === 'apartments' && (
-          <ApartmentManagement hideScopeFilters initialBlockId={block.id} />
+          shouldUseDatabaseBlocks ? (
+            <ApiApartmentManagement hideScopeFilters initialBlockId={block.id} />
+          ) : (
+            <ApartmentManagement hideScopeFilters initialBlockId={block.id} />
+          )
         )}
 
-        {(section === 'overview' || section === 'consumption') && (
+        {section === 'consumption' && (
           <ResponsiveDataView
             ariaLabel={t('sidebar.apartments')}
             columns={apartmentColumns}
