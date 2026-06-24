@@ -31,6 +31,10 @@ const ActionBar: React.FC<ActionBarProps> = ({ children, title }) => (
         justifyContent: { xs: 'flex-start', sm: 'flex-end' },
         gap: 1,
         flexWrap: 'wrap',
+        width: { xs: '100%', sm: 'auto' },
+        '& .MuiButton-root': {
+          width: { xs: '100%', sm: 'auto' },
+        },
       }}
     >
       {children}
