@@ -13,9 +13,11 @@ import Tabs from '@mui/material/Tabs'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 import PaymentIcon from '@mui/icons-material/Payment'
+import VisibilityIcon from '@mui/icons-material/Visibility'
 import { useTranslation } from 'react-i18next'
 import AppDialog from '../../../components/shared/AppDialog'
 import EmptyState from '../../../components/shared/EmptyState'
@@ -104,7 +106,7 @@ const ResidentsOverview: React.FC = () => {
       label: t('common.actions'),
       cardRole: 'actions',
       render: (invoice) => (
-        <Button size="small" onClick={() => setSelectedInvoiceId(invoice.id)}>
+        <Button size="small" startIcon={<VisibilityIcon />} onClick={() => setSelectedInvoiceId(invoice.id)}>
           {t('resident.bills.viewDetails')}
         </Button>
       ),
@@ -212,7 +214,7 @@ const ResidentsOverview: React.FC = () => {
                     <Typography sx={{ lineHeight: 1.35 }}>{formatCurrency(apartment.debtBalance)}</Typography>
                   </Box>
                   <StatusChip status={apartment.financialStatus} label={t(`status.financial.${apartment.financialStatus}`)} />
-                  <Button size="small" variant="contained" onClick={() => setSelectedApartmentId(apartment.id)} sx={{ minWidth: 112, whiteSpace: 'nowrap' }}>
+                  <Button size="small" startIcon={<VisibilityIcon />} variant="contained" onClick={() => setSelectedApartmentId(apartment.id)} sx={{ minWidth: 112, whiteSpace: 'nowrap' }}>
                     {t('residents.actions.openDetails')}
                   </Button>
                 </Paper>
@@ -228,7 +230,7 @@ const ResidentsOverview: React.FC = () => {
                   status={<StatusChip status={apartment.financialStatus} label={t(`status.financial.${apartment.financialStatus}`)} />}
                   metadata={[{ key: 'debtBalance', label: t('finance.columns.amount'), value: formatCurrency(apartment.debtBalance) }]}
                   actions={(
-                    <Button size="small" onClick={() => setSelectedApartmentId(apartment.id)}>
+                    <Button size="small" startIcon={<VisibilityIcon />} onClick={() => setSelectedApartmentId(apartment.id)}>
                       {t('residents.actions.openDetails')}
                     </Button>
                   )}
@@ -269,7 +271,7 @@ const ResidentsOverview: React.FC = () => {
                     secondary={resident.email || t('residents.resident.noEmail')}
                     status={<StatusChip status={resident.accountStatus} label={translateResidentAccountStatus(t, resident.accountStatus)} />}
                     actions={(
-                      <Button size="small" onClick={() => unassignResidentFromApartment(resident.id, selectedApartment.id)}>
+                      <Button size="small" startIcon={<PersonRemoveIcon />} onClick={() => unassignResidentFromApartment(resident.id, selectedApartment.id)}>
                         {t('residents.actions.unassign')}
                       </Button>
                     )}

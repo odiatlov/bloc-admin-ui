@@ -7,7 +7,7 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
-import { EntityListItem, type EntityMetadataItem, metadataLabelSx } from './EntityPresentation'
+import { EntityListItem, entityActionButtonSx, type EntityMetadataItem, metadataLabelSx } from './EntityPresentation'
 
 export type DataColumn<T> = {
   key: string
@@ -68,20 +68,44 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
           overflowX: 'hidden',
         }}
       >
-        <Table size="small" aria-label={ariaLabel}>
+        <Table size="small" aria-label={ariaLabel} sx={{ width: '100%' }}>
+          <colgroup>
+            {columns.map((column, index) => (
+              <col
+                key={column.key}
+                style={inferCardRole(column, index) === 'actions' ? { width: '180px' } : undefined}
+              />
+            ))}
+          </colgroup>
           <TableHead>
             <TableRow>
-              {columns.map((column) => (
-                <TableCell key={column.key} sx={metadataLabelSx}>{column.label}</TableCell>
+              {columns.map((column, index) => (
+                <TableCell
+                  key={column.key}
+                  sx={{
+                    ...metadataLabelSx,
+                    whiteSpace: inferCardRole(column, index) === 'actions' ? 'nowrap' : undefined,
+                  }}
+                >
+                  {column.label}
+                </TableCell>
               ))}
             </TableRow>
           </TableHead>
           <TableBody>
             {rows.map((row) => (
               <TableRow key={getRowId(row)} hover>
-                {columns.map((column) => (
-                  <TableCell key={column.key}>{column.render(row)}</TableCell>
-                ))}
+                {columns.map((column, index) => {
+                  const role = inferCardRole(column, index)
+
+                  return (
+                    <TableCell key={column.key}>
+                      {role === 'actions'
+                        ? <Box sx={entityActionButtonSx('table')}>{column.render(row)}</Box>
+                        : column.render(row)}
+                    </TableCell>
+                  )
+                })}
               </TableRow>
             ))}
           </TableBody>

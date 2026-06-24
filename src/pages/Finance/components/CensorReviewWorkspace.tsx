@@ -10,7 +10,9 @@ import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
 import FactCheckIcon from '@mui/icons-material/FactCheck'
+import RateReviewIcon from '@mui/icons-material/RateReview'
 import RuleIcon from '@mui/icons-material/Rule'
+import VisibilityIcon from '@mui/icons-material/Visibility'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import { useTranslation } from 'react-i18next'
 import EmptyState from '../../../components/shared/EmptyState'
@@ -57,10 +59,10 @@ const CensorReviewWorkspace: React.FC = () => {
       cardRole: 'actions',
       render: ({ invoice, review }) => (
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          <Button size="small" onClick={() => setInvoiceId(invoice.id)}>
+          <Button size="small" startIcon={<VisibilityIcon />} onClick={() => setInvoiceId(invoice.id)}>
             {t('resident.bills.viewDetails')}
           </Button>
-          <Button size="small" onClick={() => openDecision(review)}>
+          <Button size="small" startIcon={<RateReviewIcon />} onClick={() => openDecision(review)}>
             {t('censor.actions.review')}
           </Button>
         </Box>
@@ -79,7 +81,7 @@ const CensorReviewWorkspace: React.FC = () => {
       label: t('common.actions'),
       cardRole: 'actions',
       render: ({ review }) => (
-        <Button size="small" onClick={() => openDecision(review)}>
+        <Button size="small" startIcon={<RateReviewIcon />} onClick={() => openDecision(review)}>
           {t('censor.actions.review')}
         </Button>
       ),
@@ -97,7 +99,7 @@ const CensorReviewWorkspace: React.FC = () => {
       label: t('common.actions'),
       cardRole: 'actions',
       render: ({ review }) => (
-        <Button size="small" onClick={() => openDecision(review)}>
+        <Button size="small" startIcon={<RateReviewIcon />} onClick={() => openDecision(review)}>
           {t('censor.actions.review')}
         </Button>
       ),

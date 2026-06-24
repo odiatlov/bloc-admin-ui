@@ -11,8 +11,10 @@ import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
 import LocalAtmIcon from '@mui/icons-material/LocalAtm'
 import PaidIcon from '@mui/icons-material/Paid'
+import PointOfSaleIcon from '@mui/icons-material/PointOfSale'
 import { useTranslation } from 'react-i18next'
 import AppDialog from '../../../components/shared/AppDialog'
 import EmptyState from '../../../components/shared/EmptyState'
@@ -65,7 +67,7 @@ const FinanceSections: React.FC = () => {
       label: t('common.actions'),
       cardRole: 'actions',
       render: (invoice) => (
-        <Button size="small" disabled={invoice.status === 'paid'} onClick={() => setDialogInvoiceId(invoice.id)}>
+        <Button size="small" startIcon={<PointOfSaleIcon />} disabled={invoice.status === 'paid'} onClick={() => setDialogInvoiceId(invoice.id)}>
           {t('finance.actions.registerCash')}
         </Button>
       ),
@@ -102,10 +104,10 @@ const FinanceSections: React.FC = () => {
       cardRole: 'actions',
       render: (entry) => (
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          <Button size="small" disabled={entry.status !== 'unverified'} onClick={() => setCashStatus(entry.id, 'verified')}>
+          <Button size="small" startIcon={<CheckCircleIcon />} disabled={entry.status !== 'unverified'} onClick={() => setCashStatus(entry.id, 'verified')}>
             {t('finance.actions.verify')}
           </Button>
-          <Button size="small" disabled={entry.status !== 'verified'} onClick={() => setCashStatus(entry.id, 'deposited')}>
+          <Button size="small" startIcon={<AccountBalanceIcon />} disabled={entry.status !== 'verified'} onClick={() => setCashStatus(entry.id, 'deposited')}>
             {t('finance.actions.deposit')}
           </Button>
         </Box>

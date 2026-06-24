@@ -2,7 +2,9 @@ import React from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
+import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import PaymentIcon from '@mui/icons-material/Payment'
+import VisibilityIcon from '@mui/icons-material/Visibility'
 import { useTranslation } from 'react-i18next'
 import ActionBar from '../../../components/shared/ActionBar'
 import ConfirmationDialog from '../../../components/shared/ConfirmationDialog'
@@ -45,10 +47,10 @@ const ResidentBills: React.FC = () => {
       label: t('common.actions'),
       render: (invoice) => (
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          <Button size="small" onClick={() => setInvoiceId(invoice.id)}>
+          <Button size="small" startIcon={<VisibilityIcon />} onClick={() => setInvoiceId(invoice.id)}>
             {t('resident.bills.viewDetails')}
           </Button>
-          <Button size="small">{t('resident.bills.download')}</Button>
+          <Button size="small" startIcon={<FileDownloadIcon />}>{t('resident.bills.download')}</Button>
         </Box>
       ),
     },

@@ -15,6 +15,7 @@ import AddIcon from '@mui/icons-material/Add'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import EditIcon from '@mui/icons-material/Edit'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove'
 import { useTranslation } from 'react-i18next'
 import AppDialog from '../../../components/shared/AppDialog'
 import EmptyState from '../../../components/shared/EmptyState'
@@ -435,7 +436,7 @@ const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ hideScopeFilt
                     secondary={resident.email || t('residents.resident.noEmail')}
                     status={<StatusChip status={resident.accountStatus} label={translateResidentAccountStatus(t, resident.accountStatus)} />}
                     actions={(
-                      <Button size="small" onClick={() => handleUnassignResident(resident.id)}>
+                      <Button size="small" startIcon={<PersonRemoveIcon />} onClick={() => handleUnassignResident(resident.id)}>
                         {t('residents.actions.unassign')}
                       </Button>
                     )}
