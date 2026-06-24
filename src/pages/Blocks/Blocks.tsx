@@ -5,6 +5,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 import Paper from '@mui/material/Paper'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+import ApartmentIcon from '@mui/icons-material/Apartment'
 import SettingsIcon from '@mui/icons-material/Settings'
 import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -80,7 +81,7 @@ const Blocks: React.FC = () => {
       key: 'actions',
       label: t('common.actions'),
       render: (block) => (
-        <Button size="small" component={RouterLink} to={`/admin/blocks/${block.id}/apartments`}>
+        <Button size="small" startIcon={<ApartmentIcon />} component={RouterLink} to={`/admin/blocks/${block.id}/apartments`}>
           {t('blocks.actions.openOverview')}
         </Button>
       ),
