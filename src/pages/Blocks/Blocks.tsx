@@ -14,42 +14,18 @@ import FilterBar from '../../components/shared/FilterBar'
 import LoadErrorState from '../../components/shared/LoadErrorState'
 import PageHeader from '../../components/shared/PageHeader'
 import ResponsiveDataView, { type DataColumn } from '../../components/shared/ResponsiveDataView'
-import { RoleContext } from '../../contexts/RoleContext'
 import { useBlocks } from '../../hooks/useBlocks'
-import { formatCurrency, useBlocksOverview } from '../../hooks/useApartmentData'
+import { formatCurrency } from '../../hooks/useApartmentData'
 import type { BlockOverview } from '../../types/block'
 
 const Blocks: React.FC = () => {
   const { t } = useTranslation()
-  const { account } = React.useContext(RoleContext)
-  const shouldUseDatabaseBlocks = account.id === 'acct-demo'
-  const databaseOverview = useBlocks({ enabled: shouldUseDatabaseBlocks })
-  const mockOverview = useBlocksOverview()
-
-  const mockBlocks = React.useMemo<BlockOverview[]>(
-    () => mockOverview.blockOverviews.map((overview) => ({
-      id: overview.block.id,
-      name: overview.block.name,
-      displayName: t('common.blockValue', { block: overview.block.name }),
-      administratorName: overview.activeAdmin?.name ?? null,
-      hasStaircases: overview.block.hasStaircases,
-      address: overview.block.address ?? null,
-      createdAt: '',
-      apartmentCount: overview.apartmentCount,
-      residentCount: overview.residentCount,
-      staircaseCount: overview.staircaseCount,
-      totalInvoicesAmount: overview.totalInvoices,
-      totalPaymentsAmount: overview.totalPayments,
-      unpaidBalance: overview.unpaidBalance,
-    })),
-    [mockOverview.blockOverviews, t],
-  )
-
-  const blocks = shouldUseDatabaseBlocks ? databaseOverview.blocks : mockBlocks
-  const search = shouldUseDatabaseBlocks ? databaseOverview.search : mockOverview.search
-  const setSearch = shouldUseDatabaseBlocks ? databaseOverview.setSearch : mockOverview.setSearch
-  const error = shouldUseDatabaseBlocks ? databaseOverview.error : null
-  const isLoading = shouldUseDatabaseBlocks && databaseOverview.isLoading
+  const databaseOverview = useBlocks()
+  const blocks = databaseOverview.blocks
+  const search = databaseOverview.search
+  const setSearch = databaseOverview.setSearch
+  const error = databaseOverview.error
+  const isLoading = databaseOverview.isLoading
   const isEmpty = !isLoading && !error && blocks.length === 0
 
   const columns: DataColumn<BlockOverview>[] = [

@@ -12,9 +12,8 @@ import TaskAltIcon from '@mui/icons-material/TaskAlt'
 import { useNavigate } from 'react-router-dom'
 import ActivityFeed from './AdminActivityFeed'
 import AlertsPanel from './AdminAlertsPanel'
-import { RoleContext } from '../../../contexts/RoleContext'
-import { apartments, blocks, residents } from '../../../mocks/apartmentData'
-import { formatCurrency, useBlocksOverview, useFinance } from '../../../hooks/useApartmentData'
+import { useBlocks } from '../../../hooks/useBlocks'
+import { formatCurrency, useFinance } from '../../../hooks/useApartmentData'
 import { ActionBar, DashboardHeader, DashboardPage, StatCard, StatGrid } from './DashboardSystem'
 
 type PropertyStatProps = {
@@ -55,16 +54,11 @@ const PropertyStat: React.FC<PropertyStatProps> = ({ label, shortLabel, value })
 const AdminDashboard: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { account } = React.useContext(RoleContext)
   const { cashAwaitingVerification, monthlyRevenue, unpaidInvoices } = useFinance()
-  const { blockOverviews } = useBlocksOverview()
-  const usesScopedDashboardStats = Boolean(account.dataMode && account.dataMode !== 'mock-populated')
-  const populatedBlocks = blocks.filter((block) => block.id !== 'block-new-setup')
-  const populatedApartments = apartments.filter((apartment) => apartment.blockId !== 'block-new-setup')
-  const populatedResidents = residents.filter((resident) => resident.id !== 'R-NEW-BLOCK')
-  const blockCount = usesScopedDashboardStats ? blockOverviews.length : populatedBlocks.length
-  const apartmentCount = usesScopedDashboardStats ? blockOverviews.reduce((sum, overview) => sum + overview.apartmentCount, 0) : populatedApartments.length
-  const residentCount = usesScopedDashboardStats ? blockOverviews.reduce((sum, overview) => sum + overview.residentCount, 0) : populatedResidents.length
+  const { blocks: blockOverviews } = useBlocks()
+  const blockCount = blockOverviews.length
+  const apartmentCount = blockOverviews.reduce((sum, overview) => sum + overview.apartmentCount, 0)
+  const residentCount = blockOverviews.reduce((sum, overview) => sum + overview.residentCount, 0)
 
   return (
     <DashboardPage>

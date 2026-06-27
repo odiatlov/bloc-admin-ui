@@ -13,10 +13,10 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import { useTranslation } from 'react-i18next'
+import ActionBar from '../../../components/shared/ActionBar'
 import AppDialog from '../../../components/shared/AppDialog'
 import ConfirmationDialog from '../../../components/shared/ConfirmationDialog'
 import EmptyState from '../../../components/shared/EmptyState'
-import FilterBar from '../../../components/shared/FilterBar'
 import LoadErrorState from '../../../components/shared/LoadErrorState'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
@@ -42,16 +42,15 @@ const emptyForm: FormState = {
 
 const residentStatuses: ResidentStatus[] = ['active', 'inactive']
 
-const getApartmentLabel = (resident: ResidentResponse) => {
-  if (resident.apartments.length === 0) return ''
+const getUniqueApartmentValues = (
+  resident: ResidentResponse,
+  getValue: (apartment: ResidentResponse['apartments'][number]) => string | null,
+) => {
+  const values = resident.apartments
+    .map(getValue)
+    .filter((value): value is string => Boolean(value))
 
-  return resident.apartments
-    .map((apartment) => [
-      apartment.blockName,
-      apartment.staircaseName ? `Sc ${apartment.staircaseName}` : null,
-      `Apt ${apartment.apartmentNumber}`,
-    ].filter(Boolean).join(' / '))
-    .join(', ')
+  return Array.from(new Set(values)).join(', ')
 }
 
 const ApiResidentsOverview: React.FC = () => {
@@ -151,9 +150,25 @@ const ApiResidentsOverview: React.FC = () => {
     { key: 'email', label: t('residents.fields.email'), render: (resident) => resident.email || t('residents.resident.noEmail') },
     { key: 'phone', label: t('residents.fields.phone'), render: (resident) => resident.phone || t('common.notAvailable') },
     {
-      key: 'apartments',
-      label: t('sidebar.apartments'),
-      render: (resident) => resident.apartmentCount === 0 ? t('residents.apartment.unassigned') : getApartmentLabel(resident),
+      key: 'block',
+      label: t('settings.fields.block'),
+      render: (resident) => resident.apartmentCount === 0
+        ? t('residents.apartment.unassigned')
+        : getUniqueApartmentValues(resident, (apartment) => apartment.blockName),
+    },
+    {
+      key: 'staircase',
+      label: t('blocks.columns.staircase'),
+      render: (resident) => resident.apartmentCount === 0
+        ? t('common.notAvailable')
+        : getUniqueApartmentValues(resident, (apartment) => apartment.staircaseName),
+    },
+    {
+      key: 'apartment',
+      label: t('apartments.setup.number'),
+      render: (resident) => resident.apartmentCount === 0
+        ? t('common.notAvailable')
+        : getUniqueApartmentValues(resident, (apartment) => apartment.apartmentNumber),
     },
     {
       key: 'status',
@@ -188,15 +203,11 @@ const ApiResidentsOverview: React.FC = () => {
 
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
-      <FilterBar
-        actions={(
-          <Button startIcon={<PersonAddIcon />} variant="contained" onClick={openCreateDialog} disabled={Boolean(error)}>
-            {t('residents.actions.addResident')}
-          </Button>
-        )}
-      >
-        <></>
-      </FilterBar>
+      <ActionBar title={t('dashboard.admin.quickActions')}>
+        <Button startIcon={<PersonAddIcon />} variant="contained" onClick={openCreateDialog} disabled={Boolean(error)}>
+          {t('residents.actions.addResident')}
+        </Button>
+      </ActionBar>
 
       {isLoading ? (
         <Paper sx={{ alignItems: 'center', display: 'grid', gap: 1.5, justifyItems: 'center', p: 4 }}>
@@ -216,7 +227,7 @@ const ApiResidentsOverview: React.FC = () => {
         <ResponsiveDataView
           ariaLabel={t('sidebar.residents')}
           columns={columns}
-          desktopTableMinWidth={1040}
+          desktopTableMinWidth={1180}
           getRowId={(resident) => resident.id}
           rows={residents}
         />

@@ -20,70 +20,27 @@ import FilterBar from '../../components/shared/FilterBar'
 import LoadErrorState from '../../components/shared/LoadErrorState'
 import PageHeader from '../../components/shared/PageHeader'
 import ResponsiveDataView, { type DataColumn } from '../../components/shared/ResponsiveDataView'
-import { RoleContext } from '../../contexts/RoleContext'
 import { useBlocks } from '../../hooks/useBlocks'
 import { staircasesApi } from '../../services/staircasesApi'
-import type { BlockOverview } from '../../types/block'
 import type { StaircaseResponse } from '../../types/management'
-import { blocks as mockBlocks, staircases as mockStaircases, apartments as mockApartments } from '../../mocks/apartmentData'
 
 const Staircases: React.FC = () => {
   const { t } = useTranslation()
-  const { account } = React.useContext(RoleContext)
-  const shouldUseDatabase = account.id === 'acct-demo'
-  const databaseBlocks = useBlocks({ enabled: shouldUseDatabase })
+  const databaseBlocks = useBlocks()
   const [staircases, setStaircases] = React.useState<StaircaseResponse[]>([])
   const [selectedBlockId, setSelectedBlockId] = React.useState('all')
   const [search, setSearch] = React.useState('')
   const [error, setError] = React.useState<string | null>(null)
-  const [isLoading, setIsLoading] = React.useState(shouldUseDatabase)
+  const [isLoading, setIsLoading] = React.useState(true)
   const [dialogMode, setDialogMode] = React.useState<'create' | 'edit' | null>(null)
   const [editingStaircase, setEditingStaircase] = React.useState<StaircaseResponse | null>(null)
   const [deletingStaircase, setDeletingStaircase] = React.useState<StaircaseResponse | null>(null)
   const [isDeletingStaircase, setIsDeletingStaircase] = React.useState(false)
   const [form, setForm] = React.useState({ blockId: '', name: '' })
 
-  const mockRows = React.useMemo<StaircaseResponse[]>(() => (
-    mockStaircases.map((staircase) => {
-      const block = mockBlocks.find((item) => item.id === staircase.blockId)
-      const apartments = mockApartments.filter((apartment) => apartment.staircaseId === staircase.id)
-
-      return {
-        id: staircase.id,
-        name: staircase.name,
-        blockId: staircase.blockId,
-        blockName: block?.name ?? '',
-        apartmentCount: apartments.length,
-        residentCount: 0,
-      }
-    })
-  ), [])
-
-  const blocks: BlockOverview[] = shouldUseDatabase
-    ? databaseBlocks.blocks
-    : mockBlocks.map((block) => ({
-        id: block.id,
-        name: block.name,
-        displayName: t('common.blockValue', { block: block.name }),
-        administratorName: null,
-        hasStaircases: block.hasStaircases,
-        address: block.address ?? null,
-        createdAt: '',
-        apartmentCount: mockApartments.filter((apartment) => apartment.blockId === block.id).length,
-        residentCount: 0,
-        staircaseCount: mockStaircases.filter((staircase) => staircase.blockId === block.id).length,
-        totalInvoicesAmount: 0,
-        totalPaymentsAmount: 0,
-        unpaidBalance: 0,
-      }))
+  const blocks = databaseBlocks.blocks
 
   const loadStaircases = React.useCallback(async () => {
-    if (!shouldUseDatabase) {
-      setIsLoading(false)
-      setError(null)
-      return
-    }
-
     setIsLoading(true)
     setError(null)
 
@@ -94,22 +51,21 @@ const Staircases: React.FC = () => {
     } finally {
       setIsLoading(false)
     }
-  }, [shouldUseDatabase])
+  }, [])
 
   React.useEffect(() => {
     void loadStaircases()
   }, [loadStaircases])
 
-  const rows = shouldUseDatabase ? staircases : mockRows
   const filteredRows = React.useMemo(() => {
     const query = search.trim().toLowerCase()
 
-    return rows.filter((staircase) => {
+    return staircases.filter((staircase) => {
       const matchesBlock = selectedBlockId === 'all' || staircase.blockId === selectedBlockId
       const matchesSearch = !query || [staircase.name, staircase.blockName].some((value) => value.toLowerCase().includes(query))
       return matchesBlock && matchesSearch
     })
-  }, [rows, search, selectedBlockId])
+  }, [staircases, search, selectedBlockId])
 
   const openCreateDialog = () => {
     setEditingStaircase(null)
@@ -124,7 +80,7 @@ const Staircases: React.FC = () => {
   }
 
   const saveStaircase = async () => {
-    if (!form.blockId || !form.name.trim() || !shouldUseDatabase) return
+    if (!form.blockId || !form.name.trim()) return
 
     if (dialogMode === 'edit' && editingStaircase) {
       await staircasesApi.update(editingStaircase.id, { blockId: form.blockId, name: form.name.trim() })
@@ -138,7 +94,7 @@ const Staircases: React.FC = () => {
   }
 
   const deleteStaircase = async () => {
-    if (!deletingStaircase || deletingStaircase.apartmentCount > 0 || isDeletingStaircase || !shouldUseDatabase) return
+    if (!deletingStaircase || deletingStaircase.apartmentCount > 0 || isDeletingStaircase) return
 
     setIsDeletingStaircase(true)
     setError(null)
@@ -166,7 +122,7 @@ const Staircases: React.FC = () => {
       cardRole: 'actions',
       render: (staircase) => (
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-          <Button size="small" startIcon={<EditIcon />} onClick={() => openEditDialog(staircase)} disabled={!shouldUseDatabase}>
+          <Button size="small" startIcon={<EditIcon />} onClick={() => openEditDialog(staircase)}>
             {t('staircases.actions.edit')}
           </Button>
           <Button
@@ -174,7 +130,7 @@ const Staircases: React.FC = () => {
             size="small"
             startIcon={<DeleteIcon />}
             onClick={() => setDeletingStaircase(staircase)}
-            disabled={!shouldUseDatabase || isDeletingStaircase}
+            disabled={isDeletingStaircase}
           >
             {t('staircases.actions.delete')}
           </Button>
@@ -183,8 +139,8 @@ const Staircases: React.FC = () => {
     },
   ]
 
-  const loadError = shouldUseDatabase ? error || databaseBlocks.error : null
-  const loading = shouldUseDatabase && (isLoading || databaseBlocks.isLoading)
+  const loadError = error || databaseBlocks.error
+  const loading = isLoading || databaseBlocks.isLoading
 
   return (
     <Box>
@@ -193,7 +149,7 @@ const Staircases: React.FC = () => {
       <Box sx={{ display: 'grid', gap: 2 }}>
         <FilterBar
           actions={(
-            <Button startIcon={<AddIcon />} variant="contained" onClick={openCreateDialog} disabled={!shouldUseDatabase || blocks.length === 0}>
+            <Button startIcon={<AddIcon />} variant="contained" onClick={openCreateDialog} disabled={blocks.length === 0}>
               {t('staircases.actions.add')}
             </Button>
           )}
@@ -243,7 +199,7 @@ const Staircases: React.FC = () => {
 
       <AppDialog
         cancelLabel={t('common.cancel')}
-        confirmDisabled={!form.blockId || !form.name.trim() || !shouldUseDatabase}
+        confirmDisabled={!form.blockId || !form.name.trim()}
         confirmLabel={t('common.save')}
         contentSx={{ display: 'grid', gap: 2 }}
         onCancel={() => setDialogMode(null)}
