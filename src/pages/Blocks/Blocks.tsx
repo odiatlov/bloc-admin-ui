@@ -57,7 +57,7 @@ const Blocks: React.FC = () => {
       key: 'actions',
       label: t('common.actions'),
       render: (block) => (
-        <Button size="small" startIcon={<ApartmentIcon />} component={RouterLink} to={`/admin/blocks/${block.id}/apartments`}>
+        <Button size="small" startIcon={<ApartmentIcon />} component={RouterLink} to={`/admin/blocks/${block.id}/Overview`}>
           {t('blocks.actions.openOverview')}
         </Button>
       ),
