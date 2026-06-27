@@ -2,6 +2,7 @@ import React from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
+import Divider from '@mui/material/Divider'
 import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
@@ -16,22 +17,27 @@ import AddIcon from '@mui/icons-material/Add'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
+import PersonAddIcon from '@mui/icons-material/PersonAdd'
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove'
 import SaveIcon from '@mui/icons-material/Save'
 import { useTranslation } from 'react-i18next'
 import AppDialog from '../../../components/shared/AppDialog'
 import ConfirmationDialog from '../../../components/shared/ConfirmationDialog'
 import EmptyState from '../../../components/shared/EmptyState'
+import { EntityListItem } from '../../../components/shared/EntityPresentation'
 import FilterBar from '../../../components/shared/FilterBar'
 import LoadErrorState from '../../../components/shared/LoadErrorState'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
-import { translateApartmentSetupStatus } from '../../../domain/displayLabels'
+import { translateApartmentSetupStatus, translateResidentStatus } from '../../../domain/displayLabels'
 import { useBlocks } from '../../../hooks/useBlocks'
 import { formatSquareMeters } from '../../../hooks/useApartmentData'
+import { apartmentResidentsApi } from '../../../services/apartmentResidentsApi'
 import { apartmentsApi } from '../../../services/apartmentsApi'
+import { residentsApi } from '../../../services/residentsApi'
 import { staircasesApi } from '../../../services/staircasesApi'
 import type { ApartmentSetupStatus } from '../../../types/apartment'
-import type { ApartmentResponse, StaircaseResponse } from '../../../types/management'
+import type { ApartmentResidentResponse, ApartmentResponse, ResidentResponse, StaircaseResponse } from '../../../types/management'
 
 type ApiApartmentManagementProps = {
   hideScopeFilters?: boolean
@@ -66,6 +72,8 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   const { t } = useTranslation()
   const databaseBlocks = useBlocks()
   const [apartments, setApartments] = React.useState<ApartmentResponse[]>([])
+  const [residentRecords, setResidentRecords] = React.useState<ResidentResponse[]>([])
+  const [apartmentResidentLinks, setApartmentResidentLinks] = React.useState<ApartmentResidentResponse[]>([])
   const [staircases, setStaircases] = React.useState<StaircaseResponse[]>([])
   const [selectedBlockId, setSelectedBlockId] = React.useState(initialBlockId ?? 'all')
   const [selectedStaircaseId, setSelectedStaircaseId] = React.useState('all')
@@ -77,6 +85,8 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   const [editTab, setEditTab] = React.useState(0)
   const [deletingApartment, setDeletingApartment] = React.useState<ApartmentResponse | null>(null)
   const [isDeletingApartment, setIsDeletingApartment] = React.useState(false)
+  const [isLoadingApartmentResidents, setIsLoadingApartmentResidents] = React.useState(false)
+  const [assignResidentId, setAssignResidentId] = React.useState('')
   const [form, setForm] = React.useState<FormState>(emptyForm)
 
   const blocks = databaseBlocks.blocks
@@ -84,18 +94,23 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   const formBlock = blocks.find((block) => block.id === form.blockId)
   const formBlockStaircases = staircases.filter((staircase) => staircase.blockId === form.blockId)
   const selectedBlockStaircases = staircases.filter((staircase) => staircase.blockId === selectedBlockId)
+  const assignableResidents = React.useMemo(() => (
+    residentRecords.filter((resident) => !apartmentResidentLinks.some((link) => link.residentId === resident.id))
+  ), [apartmentResidentLinks, residentRecords])
 
   const loadData = React.useCallback(async () => {
     setIsLoading(true)
     setError(null)
 
     try {
-      const [nextApartments, nextStaircases] = await Promise.all([
+      const [nextApartments, nextStaircases, nextResidents] = await Promise.all([
         apartmentsApi.getAll(),
         staircasesApi.getAll(),
+        residentsApi.getAll(),
       ])
       setApartments(nextApartments)
       setStaircases(nextStaircases)
+      setResidentRecords(nextResidents)
     } catch (nextError) {
       setError(nextError instanceof Error ? nextError.message : 'Unable to load apartments')
     } finally {
@@ -106,6 +121,19 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   React.useEffect(() => {
     void loadData()
   }, [loadData])
+
+  const loadApartmentResidents = React.useCallback(async (apartmentId: string) => {
+    setIsLoadingApartmentResidents(true)
+    setError(null)
+
+    try {
+      setApartmentResidentLinks(await apartmentResidentsApi.getByApartment(apartmentId))
+    } catch (nextError) {
+      setError(nextError instanceof Error ? nextError.message : 'Unable to load apartment residents')
+    } finally {
+      setIsLoadingApartmentResidents(false)
+    }
+  }, [])
 
   React.useEffect(() => {
     if (databaseBlocks.isLoading) return
@@ -146,6 +174,8 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
 
   const openEditDialog = (apartment: ApartmentResponse) => {
     setEditingApartment(apartment)
+    setApartmentResidentLinks([])
+    setAssignResidentId('')
     setForm({
       blockId: apartment.blockId,
       staircaseId: apartment.staircaseId ?? '',
@@ -157,6 +187,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
       setupStatus: apartment.setupStatus,
     })
     setEditTab(0)
+    void loadApartmentResidents(apartment.id)
   }
 
   const saveApartment = async () => {
@@ -202,6 +233,46 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
       setError(nextError instanceof Error ? nextError.message : 'Unable to delete apartment')
     } finally {
       setIsDeletingApartment(false)
+    }
+  }
+
+  const closeEditDrawer = () => {
+    setEditingApartment(null)
+    setApartmentResidentLinks([])
+    setAssignResidentId('')
+  }
+
+  const assignResident = async () => {
+    if (!editingApartment || !assignResidentId) return
+
+    setError(null)
+
+    try {
+      await apartmentResidentsApi.create(editingApartment.id, {
+        residentId: assignResidentId,
+        livesHere: true,
+      })
+      setAssignResidentId('')
+      await loadApartmentResidents(editingApartment.id)
+      await loadData()
+      void databaseBlocks.refresh()
+    } catch (nextError) {
+      setError(nextError instanceof Error ? nextError.message : 'Unable to assign resident')
+    }
+  }
+
+  const removeResidentLink = async (link: ApartmentResidentResponse) => {
+    if (!editingApartment) return
+
+    setError(null)
+
+    try {
+      await apartmentResidentsApi.delete(editingApartment.id, link.id)
+      await loadApartmentResidents(editingApartment.id)
+      await loadData()
+      void databaseBlocks.refresh()
+    } catch (nextError) {
+      setError(nextError instanceof Error ? nextError.message : 'Unable to remove resident')
     }
   }
 
@@ -350,14 +421,14 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
       <Drawer
         anchor="right"
         open={Boolean(editingApartment)}
-        onClose={() => setEditingApartment(null)}
+        onClose={closeEditDrawer}
         slotProps={{ paper: { sx: { width: { xs: '100%', sm: 520 }, p: 2 } } }}
       >
         {editingApartment && (
           <Box sx={{ display: 'grid', gap: 2 }}>
             <Box sx={{ alignItems: 'flex-start', display: 'flex', gap: 1.5 }}>
               <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
-                <Button startIcon={<ArrowBackIcon />} onClick={() => setEditingApartment(null)}>
+                <Button startIcon={<ArrowBackIcon />} onClick={closeEditDrawer}>
                   {t('residents.actions.backToList')}
                 </Button>
                 <Box>
@@ -372,7 +443,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
             <Box sx={{ display: 'grid', alignContent: 'start', gap: 2 }}>
               <Tabs value={editTab} onChange={(_, value: number) => setEditTab(value)} variant="fullWidth">
                 <Tab label={t('apartments.tabs.details')} />
-                <Tab label={t('apartments.tabs.residents', { count: editingApartment.residentCount })} />
+                <Tab label={t('apartments.tabs.residents', { count: apartmentResidentLinks.length })} />
               </Tabs>
 
               {editTab === 0 && (
@@ -415,11 +486,55 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
               )}
 
               {editTab === 1 && (
-                <Typography variant="body2" color="text.secondary">
-                  {editingApartment.residentCount > 0
-                    ? t('residents.family.residentCount', { count: editingApartment.residentCount })
-                    : t('residents.apartment.noResidentsAssigned')}
-                </Typography>
+                <Box sx={{ display: 'grid', gap: 1.5 }}>
+                  {isLoadingApartmentResidents ? (
+                    <Box sx={{ alignItems: 'center', display: 'flex', gap: 1 }}>
+                      <CircularProgress size={20} />
+                      <Typography variant="body2" color="text.secondary">{t('residents.loading')}</Typography>
+                    </Box>
+                  ) : apartmentResidentLinks.length === 0 ? (
+                    <Typography variant="body2" color="text.secondary">
+                      {t('residents.apartment.noResidentsAssigned')}
+                    </Typography>
+                  ) : apartmentResidentLinks.map((link) => (
+                    <EntityListItem
+                      key={link.id}
+                      title={link.residentFullName}
+                      secondary={link.residentEmail || link.residentPhone || t('residents.resident.noEmail')}
+                      status={<StatusChip status={link.residentStatus} label={translateResidentStatus(t, link.residentStatus)} />}
+                      actions={(
+                        <Button size="small" startIcon={<PersonRemoveIcon />} onClick={() => { void removeResidentLink(link) }}>
+                          {t('residents.actions.unassign')}
+                        </Button>
+                      )}
+                    />
+                  ))}
+                  <Divider />
+                  <Box sx={{ alignItems: 'center', display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    <FormControl size="small" sx={{ flex: '1 1 220px', minWidth: 220 }}>
+                      <InputLabel>{t('residents.actions.assignResident')}</InputLabel>
+                      <Select
+                        label={t('residents.actions.assignResident')}
+                        value={assignResidentId}
+                        onChange={(event: SelectChangeEvent) => setAssignResidentId(event.target.value)}
+                      >
+                        {assignableResidents.map((resident) => (
+                          <MenuItem key={resident.id} value={resident.id}>
+                            {resident.fullName} - {translateResidentStatus(t, resident.status)}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    <Button
+                      startIcon={<PersonAddIcon />}
+                      variant="outlined"
+                      onClick={() => { void assignResident() }}
+                      disabled={!assignResidentId}
+                    >
+                      {t('residents.actions.assign')}
+                    </Button>
+                  </Box>
+                </Box>
               )}
             </Box>
 

@@ -114,6 +114,7 @@ export type MockAccount = {
   email: string
   roles: AuthRole[]
   defaultRole: AuthRole
+  userId?: string
   residentId?: string
   adminId?: string
   seededBlockIds?: string[]
