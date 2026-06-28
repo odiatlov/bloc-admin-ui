@@ -14,7 +14,6 @@ import LoadErrorState from '../../components/shared/LoadErrorState'
 import MetricCard from '../../components/shared/MetricCard'
 import PageHeader from '../../components/shared/PageHeader'
 import ResponsiveDataView, { type DataColumn } from '../../components/shared/ResponsiveDataView'
-import { RoleContext } from '../../contexts/RoleContext'
 import { translateHeatingType } from '../../domain/displayLabels'
 import { useBlocks } from '../../hooks/useBlocks'
 import { formatCurrency, formatSquareMeters, useBlockContext } from '../../hooks/useApartmentData'
@@ -25,9 +24,8 @@ const BlockContext: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { blockId, section = 'overview' } = useParams()
-  const { account } = React.useContext(RoleContext)
-  const shouldUseDatabaseBlocks = account.id === 'acct-demo'
-  const databaseBlocks = useBlocks({ enabled: shouldUseDatabaseBlocks })
+  const normalizedSection = section.toLowerCase()
+  const databaseBlocks = useBlocks()
   const mockBlockContext = useBlockContext(blockId)
   const databaseBlock = databaseBlocks.blocks.find((item) => item.id === blockId)
   const databaseBlockContext = databaseBlock ? {
@@ -57,9 +55,9 @@ const BlockContext: React.FC = () => {
     staircaseTotals,
     totalInvoices,
     totalPayments,
-  } = shouldUseDatabaseBlocks && databaseBlockContext ? databaseBlockContext : mockBlockContext
+  } = databaseBlockContext ?? mockBlockContext
 
-  if (shouldUseDatabaseBlocks && databaseBlocks.isLoading) {
+  if (databaseBlocks.isLoading && !mockBlockContext.block) {
     return (
       <Paper sx={{ alignItems: 'center', display: 'grid', gap: 1.5, justifyItems: 'center', p: 4 }}>
         <CircularProgress size={32} />
@@ -68,7 +66,7 @@ const BlockContext: React.FC = () => {
     )
   }
 
-  if (shouldUseDatabaseBlocks && databaseBlocks.error) {
+  if (databaseBlocks.error && !mockBlockContext.block) {
     return (
       <LoadErrorState
         helperText={t('blocks.errors.loadFailed')}
@@ -78,8 +76,7 @@ const BlockContext: React.FC = () => {
   }
 
   if (!block) return <Navigate to="/admin/dashboard" replace />
-  if (section === 'overview') return <Navigate to={`/admin/blocks/${block.id}/apartments`} replace />
-  if (section === 'staircases' && !block.hasStaircases) return <Navigate to={`/admin/blocks/${block.id}/apartments`} replace />
+  if (normalizedSection === 'staircases' && !block.hasStaircases) return <Navigate to={`/admin/blocks/${block.id}/Overview`} replace />
 
   const apartmentColumns: DataColumn<(typeof blockApartments)[number]>[] = [
     { key: 'apartment', label: t('consumption.columns.apartment'), cardRole: 'primary', render: (apartment) => apartment.familyLabel },
@@ -123,8 +120,8 @@ const BlockContext: React.FC = () => {
 
       <Box sx={{ display: 'grid', gap: 2 }}>
         <ActionBar title={t('dashboard.admin.quickActions')}>
-          {section !== 'apartments' && (
-            <Button startIcon={<ApartmentIcon />} variant="contained" component={RouterLink} to={`/admin/blocks/${block.id}/apartments`}>
+          {normalizedSection !== 'overview' && normalizedSection !== 'apartments' && (
+            <Button startIcon={<ApartmentIcon />} variant="contained" component={RouterLink} to={`/admin/blocks/${block.id}/Overview`}>
               {t('sidebar.apartments')}
             </Button>
           )}
@@ -140,15 +137,15 @@ const BlockContext: React.FC = () => {
           <MetricCard label={t('blocks.metrics.totalPayments')} value={formatCurrency(totalPayments)} />
         </Box>
 
-        {section === 'apartments' && (
-          shouldUseDatabaseBlocks ? (
+        {(normalizedSection === 'overview' || normalizedSection === 'apartments') && (
+          databaseBlockContext ? (
             <ApiApartmentManagement hideScopeFilters initialBlockId={block.id} />
           ) : (
             <ApartmentManagement hideScopeFilters initialBlockId={block.id} />
           )
         )}
 
-        {section === 'consumption' && (
+        {normalizedSection === 'consumption' && (
           <ResponsiveDataView
             ariaLabel={t('sidebar.apartments')}
             columns={apartmentColumns}
@@ -165,7 +162,7 @@ const BlockContext: React.FC = () => {
           />
         )}
 
-        {section === 'staircases' && (
+        {normalizedSection === 'staircases' && (
           <ResponsiveDataView
             ariaLabel={t('sidebar.staircases')}
             columns={staircaseColumns}
@@ -182,7 +179,7 @@ const BlockContext: React.FC = () => {
           />
         )}
 
-        {section === 'finance' && (
+        {normalizedSection === 'finance' && (
           <Box sx={{ display: 'grid', gap: 2 }}>
             {block.hasStaircases && (
               <ResponsiveDataView

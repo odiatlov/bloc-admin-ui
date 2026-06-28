@@ -4,6 +4,8 @@ import type { AuthRole, MockAccount } from '../types/apartment'
 
 export type Role = AuthRole
 
+const defaultAccount = mockAccounts.find((item) => item.id === 'acct-demo') ?? mockAccounts[0]
+
 type RoleContextType = {
   role: Role
   account: MockAccount
@@ -17,8 +19,8 @@ type RoleContextType = {
 // eslint-disable-next-line react-refresh/only-export-components
 export const RoleContext = React.createContext<RoleContextType>({
   role: 'Admin',
-  account: mockAccounts[1],
-  token: mockAccounts[1].token,
+  account: defaultAccount,
+  token: defaultAccount.token,
   isAuthenticated: true,
   login: () => undefined,
   logout: () => undefined,
@@ -28,7 +30,7 @@ export const RoleContext = React.createContext<RoleContextType>({
 export const RoleProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [account, setAccount] = React.useState<MockAccount>(() => {
     const savedAccountId = typeof window !== 'undefined' ? localStorage.getItem('mockAccountId') : null
-    return mockAccounts.find((item) => item.id === savedAccountId) ?? mockAccounts[1]
+    return mockAccounts.find((item) => item.id === savedAccountId) ?? defaultAccount
   })
   const [isAuthenticated, setIsAuthenticated] = React.useState(() => {
     if (typeof window === 'undefined') return true
@@ -55,7 +57,7 @@ export const RoleProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
   }
 
   const login = (accountId: string, requestedRole?: Role) => {
-    persistAccount(mockAccounts.find((item) => item.id === accountId) ?? mockAccounts[1], requestedRole)
+    persistAccount(mockAccounts.find((item) => item.id === accountId) ?? defaultAccount, requestedRole)
   }
 
   const logout = () => {

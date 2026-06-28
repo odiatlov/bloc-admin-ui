@@ -100,6 +100,10 @@
       "invited": "Invited",
       "active": "Active account"
     },
+    "resident": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
     "apartmentSetup": {
       "configured": "Configured",
       "unconfigured": "Unconfigured"
@@ -240,6 +244,10 @@
   },
   "residents": {
     "apartmentLabel": "Apartment {{apartment}}, floor {{floor}}",
+    "loading": "Loading residents...",
+    "errors": {
+      "loadFailed": "Residents could not be loaded. Please try again."
+    },
     "apartment": {
       "empty": "Empty apartment",
       "noResidentsAssigned": "No residents assigned",
@@ -249,8 +257,13 @@
     "fields": {
       "accountStatus": "Account status",
       "apartmentOptional": "Apartment assignment (optional)",
+      "email": "Email",
       "emailOptional": "Email (optional)",
+      "firstName": "First name",
+      "lastName": "Last name",
       "name": "Name",
+      "phone": "Phone",
+      "status": "Status",
       "phoneOptional": "Phone (optional)"
     },
     "resident": {
@@ -279,6 +292,8 @@
       "addResident": "Add resident",
       "assign": "Assign",
       "assignResident": "Assign resident",
+      "deleteResident": "Delete resident",
+      "editResident": "Edit resident",
       "openDetails": "Open details",
       "backToList": "Back",
       "sendReminder": "Send reminder",
@@ -286,7 +301,11 @@
       "unassign": "Unassign"
     },
     "dialog": {
-      "addTitle": "Add resident"
+      "addTitle": "Add resident",
+      "deleteConfirm": "Are you sure you want to delete {{resident}}?",
+      "deleteConfirmYes": "Yes, delete",
+      "deleteTitle": "Delete resident",
+      "deleting": "Deleting..."
     },
     "detail": {
       "invoices": "Invoice history",
@@ -489,6 +508,8 @@
       "addApartment": "Add apartment",
       "description": "Add and configure apartments for the selected block and staircase.",
       "familyName": "Family name",
+      "noOwner": "-",
+      "residentNames": "Resident name",
       "indivisibleShare": "Indivisible share",
       "noApartments": "No apartments match the selected block and staircase.",
       "number": "Apartment number",
@@ -735,6 +756,8 @@
       "apartmentOption": "Apartment {{number}}, floor {{floor}}",
       "description": "Add and configure apartments for the selected block and staircase.",
       "familyName": "Family name",
+      "noOwner": "-",
+      "residentNames": "Resident name",
       "indivisibleShare": "Indivisible share",
       "noApartments": "No apartments match the selected block and staircase.",
       "number": "Apartment number",
