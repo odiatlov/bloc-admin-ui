@@ -14,7 +14,6 @@ import LoadErrorState from '../../components/shared/LoadErrorState'
 import MetricCard from '../../components/shared/MetricCard'
 import PageHeader from '../../components/shared/PageHeader'
 import ResponsiveDataView, { type DataColumn } from '../../components/shared/ResponsiveDataView'
-import { RoleContext } from '../../contexts/RoleContext'
 import { translateHeatingType } from '../../domain/displayLabels'
 import { useBlocks } from '../../hooks/useBlocks'
 import { formatCurrency, formatSquareMeters, useBlockContext } from '../../hooks/useApartmentData'
@@ -26,8 +25,6 @@ const BlockContext: React.FC = () => {
   const navigate = useNavigate()
   const { blockId, section = 'overview' } = useParams()
   const normalizedSection = section.toLowerCase()
-  const { account } = React.useContext(RoleContext)
-  const shouldUseDatabaseBlocks = account.id === 'acct-demo'
   const databaseBlocks = useBlocks()
   const mockBlockContext = useBlockContext(blockId)
   const databaseBlock = databaseBlocks.blocks.find((item) => item.id === blockId)

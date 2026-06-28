@@ -23,7 +23,7 @@ export type ApartmentResponse = {
   staircaseId: string | null
   staircaseName: string | null
   number: string
-  familyName: string | null
+  residentNames: string | null
   residentCount: number
   floor: number | null
   usableSqm: number | null
@@ -36,7 +36,6 @@ export type CreateApartmentRequest = {
   blockId: string
   staircaseId?: string | null
   number: string
-  familyName?: string | null
   residentCount: number
   floor?: number | null
   usableSqm?: number | null

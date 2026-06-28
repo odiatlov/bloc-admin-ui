@@ -48,7 +48,6 @@ type FormState = {
   blockId: string
   staircaseId: string
   number: string
-  familyName: string
   residentCount: string
   floor: string
   usableSqm: string
@@ -59,7 +58,6 @@ const emptyForm: FormState = {
   blockId: '',
   staircaseId: '',
   number: '',
-  familyName: '',
   residentCount: '0',
   floor: '',
   usableSqm: '',
@@ -180,7 +178,6 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
       blockId: apartment.blockId,
       staircaseId: apartment.staircaseId ?? '',
       number: apartment.number,
-      familyName: apartment.familyName ?? '',
       residentCount: String(apartment.residentCount),
       floor: apartment.floor === null ? '' : String(apartment.floor),
       usableSqm: apartment.usableSqm === null ? '' : String(apartment.usableSqm),
@@ -199,7 +196,6 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
       blockId: form.blockId,
       staircaseId: block.hasStaircases ? form.staircaseId : null,
       number: form.number.trim(),
-      familyName: form.familyName.trim() || null,
       residentCount: Math.max(0, Number(form.residentCount) || 0),
       floor: form.floor.trim() ? Number(form.floor) : null,
       usableSqm: form.usableSqm.trim() ? Number(form.usableSqm) : null,
@@ -278,7 +274,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
 
   const columns: DataColumn<ApartmentResponse>[] = [
     { key: 'number', label: t('apartments.setup.number'), cardRole: 'primary', render: (apartment) => t('residents.apartment.number', { number: apartment.number }) },
-    { key: 'familyName', label: t('apartments.setup.familyName'), cardRole: 'secondary', render: (apartment) => apartment.familyName || t('common.notAvailable') },
+    { key: 'residentNames', label: t('apartments.setup.residentNames'), cardRole: 'secondary', render: (apartment) => apartment.residentNames || t('apartments.setup.noOwner') },
     { key: 'residents', label: t('residents.family.members'), render: (apartment) => apartment.residentCount },
     { key: 'floor', label: t('blocks.columns.floor'), render: (apartment) => apartment.floor ?? t('common.notAvailable') },
     { key: 'staircase', label: t('blocks.columns.staircase'), render: (apartment) => apartment.staircaseName ? t('settings.fields.staircaseName', { staircase: apartment.staircaseName }) : t('common.notAvailable') },
@@ -404,7 +400,6 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
           </Select>
         </FormControl>
         <TextField fullWidth required size="small" label={t('apartments.setup.number')} value={form.number} onChange={(event) => setForm((value) => ({ ...value, number: event.target.value }))} />
-        <TextField fullWidth size="small" label={t('apartments.setup.familyName')} value={form.familyName} onChange={(event) => setForm((value) => ({ ...value, familyName: event.target.value }))} />
         <TextField fullWidth size="small" type="number" label={t('residents.family.members')} value={form.residentCount} onChange={(event) => setForm((value) => ({ ...value, residentCount: event.target.value }))} />
         <TextField fullWidth size="small" type="number" label={t('blocks.columns.floor')} value={form.floor} onChange={(event) => setForm((value) => ({ ...value, floor: event.target.value }))} />
         <TextField fullWidth size="small" type="number" label={t('blocks.columns.usableSurface')} value={form.usableSqm} onChange={(event) => setForm((value) => ({ ...value, usableSqm: event.target.value }))} />
@@ -450,7 +445,6 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                 <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' }, gap: 1.5 }}>
                   <TextField fullWidth required size="small" label={t('apartments.setup.number')} value={form.number} onChange={(event) => setForm((value) => ({ ...value, number: event.target.value }))} />
                   <TextField fullWidth size="small" type="number" label={t('blocks.columns.floor')} value={form.floor} onChange={(event) => setForm((value) => ({ ...value, floor: event.target.value }))} />
-                  <TextField fullWidth size="small" label={t('apartments.setup.familyName')} value={form.familyName} onChange={(event) => setForm((value) => ({ ...value, familyName: event.target.value }))} />
                   <FormControl fullWidth size="small" required>
                     <InputLabel>{t('apartments.setup.setupStatus')}</InputLabel>
                     <Select label={t('apartments.setup.setupStatus')} value={form.setupStatus} onChange={(event: SelectChangeEvent) => setForm((value) => ({ ...value, setupStatus: event.target.value as ApartmentSetupStatus }))}>
