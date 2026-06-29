@@ -7,6 +7,7 @@
                    "all":  "Toate",
                    "blockValue":  "Bloc {{block}}",
                    "cancel":  "Anulează",
+                   "clearFilters":  "Șterge filtrele",
                    "close":  "Închide",
                    "at":  "la",
                    "notAvailable":  "indisponibil",
@@ -318,6 +319,10 @@
                                  },
                       "filters":  {
                                       "block":  "Bloc",
+                                      "emptyHeadline":  "Niciun locatar nu corespunde filtrelor",
+                                      "emptyHelper":  "Ajustați filtrele de nume, bloc sau scară pentru mai multe rezultate.",
+                                      "searchName":  "Caută după nume",
+                                      "staircase":  "Scară",
                                       "financialStatus":  "Status financiar"
                                   },
                       "actions":  {
