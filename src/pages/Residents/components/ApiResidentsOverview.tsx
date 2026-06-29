@@ -21,6 +21,7 @@ import LoadErrorState from '../../../components/shared/LoadErrorState'
 import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../components/shared/StatusChip'
 import { translateResidentStatus } from '../../../domain/displayLabels'
+import { useBlocks } from '../../../hooks/useBlocks'
 import { residentsApi } from '../../../services/residentsApi'
 import type { ResidentResponse, ResidentStatus } from '../../../types/management'
 
@@ -42,6 +43,8 @@ const emptyForm: FormState = {
 
 const residentStatuses: ResidentStatus[] = ['active', 'inactive']
 
+const normalizeFilterValue = (value: string | null | undefined) => value?.trim().toLowerCase() ?? ''
+
 const getUniqueApartmentValues = (
   resident: ResidentResponse,
   getValue: (apartment: ResidentResponse['apartments'][number]) => string | null,
@@ -55,7 +58,11 @@ const getUniqueApartmentValues = (
 
 const ApiResidentsOverview: React.FC = () => {
   const { t } = useTranslation()
+  const databaseBlocks = useBlocks()
   const [residents, setResidents] = React.useState<ResidentResponse[]>([])
+  const [nameFilter, setNameFilter] = React.useState('')
+  const [selectedBlockId, setSelectedBlockId] = React.useState('all')
+  const [staircaseFilter, setStaircaseFilter] = React.useState('')
   const [error, setError] = React.useState<string | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
   const [dialogMode, setDialogMode] = React.useState<'create' | 'edit' | null>(null)
@@ -78,8 +85,37 @@ const ApiResidentsOverview: React.FC = () => {
   }, [])
 
   React.useEffect(() => {
-    void loadResidents()
+    const timeoutId = window.setTimeout(() => {
+      void loadResidents()
+    }, 0)
+
+    return () => window.clearTimeout(timeoutId)
   }, [loadResidents])
+
+  const selectedBlockFilter = selectedBlockId === 'all' || databaseBlocks.blocks.some((block) => block.id === selectedBlockId)
+    ? selectedBlockId
+    : 'all'
+
+  const filteredResidents = React.useMemo(() => {
+    const normalizedNameFilter = normalizeFilterValue(nameFilter)
+    const normalizedStaircaseFilter = normalizeFilterValue(staircaseFilter)
+
+    return residents.filter((resident) => {
+      const matchesName = !normalizedNameFilter || normalizeFilterValue(resident.fullName).includes(normalizedNameFilter)
+      const matchesBlock = selectedBlockFilter === 'all' || resident.apartments.some((apartment) => apartment.blockId === selectedBlockFilter)
+      const matchesStaircase = !normalizedStaircaseFilter || resident.apartments.some((apartment) => (
+        normalizeFilterValue(apartment.staircaseName).includes(normalizedStaircaseFilter)
+      ))
+
+      return matchesName && matchesBlock && matchesStaircase
+    })
+  }, [nameFilter, residents, selectedBlockFilter, staircaseFilter])
+
+  const clearFilters = () => {
+    setNameFilter('')
+    setSelectedBlockId('all')
+    setStaircaseFilter('')
+  }
 
   const openCreateDialog = () => {
     setEditingResident(null)
@@ -203,7 +239,41 @@ const ApiResidentsOverview: React.FC = () => {
 
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
-      <ActionBar title={t('dashboard.admin.quickActions')}>
+      <ActionBar
+        title={(
+          <>
+            <FormControl size="small" sx={{ width: { xs: '100%', sm: 180 } }} disabled={Boolean(error) || databaseBlocks.isLoading || Boolean(databaseBlocks.error)}>
+              <InputLabel>{t('settings.fields.block')}</InputLabel>
+              <Select
+                label={t('settings.fields.block')}
+                value={selectedBlockFilter}
+                onChange={(event: SelectChangeEvent) => setSelectedBlockId(event.target.value)}
+              >
+                <MenuItem value="all">{t('common.all')}</MenuItem>
+                {databaseBlocks.blocks.map((block) => (
+                  <MenuItem key={block.id} value={block.id}>{block.displayName}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField
+              disabled={Boolean(error)}
+              label={t('residents.filters.staircase')}
+              size="small"
+              value={staircaseFilter}
+              onChange={(event) => setStaircaseFilter(event.target.value)}
+              sx={{ width: { xs: '100%', sm: 180 } }}
+            />
+            <TextField
+              disabled={Boolean(error)}
+              label={t('residents.filters.searchName')}
+              size="small"
+              value={nameFilter}
+              onChange={(event) => setNameFilter(event.target.value)}
+              sx={{ width: { xs: '100%', sm: 240 } }}
+            />
+          </>
+        )}
+      >
         <Button startIcon={<PersonAddIcon />} variant="contained" onClick={openCreateDialog} disabled={Boolean(error)}>
           {t('residents.actions.addResident')}
         </Button>
@@ -223,13 +293,20 @@ const ApiResidentsOverview: React.FC = () => {
           helperText={t('emptyState.helper.dedicated', { information: t('emptyState.information.residents') })}
           onAction={openCreateDialog}
         />
+      ) : filteredResidents.length === 0 ? (
+        <EmptyState
+          actionLabel={t('common.clearFilters')}
+          headline={t('residents.filters.emptyHeadline')}
+          helperText={t('residents.filters.emptyHelper')}
+          onAction={clearFilters}
+        />
       ) : (
         <ResponsiveDataView
           ariaLabel={t('sidebar.residents')}
           columns={columns}
           desktopTableMinWidth={1180}
           getRowId={(resident) => resident.id}
-          rows={residents}
+          rows={filteredResidents}
         />
       )}
 

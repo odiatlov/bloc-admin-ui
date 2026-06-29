@@ -4,7 +4,7 @@ import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
 type ActionBarProps = {
-  title: string
+  title: React.ReactNode
   children: React.ReactNode
 }
 
@@ -21,9 +21,24 @@ const ActionBar: React.FC<ActionBarProps> = ({ children, title }) => (
       flexDirection: { xs: 'column', sm: 'row' },
     }}
   >
-    <Typography variant="h6" sx={{ lineHeight: 1.35 }}>
-      {title}
-    </Typography>
+    {typeof title === 'string' ? (
+      <Typography variant="h6" sx={{ lineHeight: 1.35 }}>
+        {title}
+      </Typography>
+    ) : (
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: { xs: 'stretch', sm: 'center' },
+          gap: 1,
+          flexWrap: 'wrap',
+          minWidth: 0,
+          width: { xs: '100%', sm: 'auto' },
+        }}
+      >
+        {title}
+      </Box>
+    )}
     <Box
       sx={{
         display: 'flex',
