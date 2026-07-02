@@ -18,6 +18,8 @@ import { useBlocks } from '../../hooks/useBlocks'
 import { formatCurrency } from '../../hooks/useApartmentData'
 import type { BlockOverview } from '../../types/block'
 
+const tableEmptyValue = '-'
+
 const Blocks: React.FC = () => {
   const { t } = useTranslation()
   const databaseOverview = useBlocks()
@@ -29,11 +31,11 @@ const Blocks: React.FC = () => {
   const isEmpty = !isLoading && !error && blocks.length === 0
 
   const columns: DataColumn<BlockOverview>[] = [
-    { key: 'block', label: t('sidebar.blocks'), render: (block) => block.displayName },
+    { key: 'block', label: t('sidebar.blocks'), render: (block) => block.name ? t('common.blockValue', { block: block.name }) : tableEmptyValue },
     {
       key: 'admin',
       label: t('layout.topbar.role.admin'),
-      render: (block) => block.administratorName ?? t('common.notAvailable'),
+      render: (block) => block.administratorName || tableEmptyValue,
     },
     { key: 'apartments', label: t('dashboard.admin.overview.apartments'), render: (block) => block.apartmentCount },
     { key: 'residents', label: t('dashboard.admin.overview.residents'), render: (block) => block.residentCount },

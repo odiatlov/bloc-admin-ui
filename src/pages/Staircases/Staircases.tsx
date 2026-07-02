@@ -24,6 +24,8 @@ import { useBlocks } from '../../hooks/useBlocks'
 import { staircasesApi } from '../../services/staircasesApi'
 import type { StaircaseResponse } from '../../types/management'
 
+const tableEmptyValue = '-'
+
 const Staircases: React.FC = () => {
   const { t } = useTranslation()
   const databaseBlocks = useBlocks()
@@ -112,8 +114,8 @@ const Staircases: React.FC = () => {
   }
 
   const columns: DataColumn<StaircaseResponse>[] = [
-    { key: 'name', label: t('staircases.columns.name'), cardRole: 'primary', render: (staircase) => t('settings.fields.staircaseName', { staircase: staircase.name }) },
-    { key: 'block', label: t('settings.fields.block'), cardRole: 'secondary', render: (staircase) => t('common.blockValue', { block: staircase.blockName }) },
+    { key: 'name', label: t('staircases.columns.name'), cardRole: 'primary', render: (staircase) => staircase.name ? t('settings.fields.staircaseName', { staircase: staircase.name }) : tableEmptyValue },
+    { key: 'block', label: t('settings.fields.block'), cardRole: 'secondary', render: (staircase) => staircase.blockName || tableEmptyValue },
     { key: 'apartments', label: t('dashboard.admin.overview.apartments'), render: (staircase) => staircase.apartmentCount },
     { key: 'residents', label: t('dashboard.admin.overview.residents'), render: (staircase) => staircase.residentCount },
     {

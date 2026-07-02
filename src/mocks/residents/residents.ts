@@ -13,8 +13,6 @@ export const residents: Resident[] = [
 
 export const residentApartments: ResidentApartment[] = [
   { id: 'RA-1001-A12', residentId: 'R-1001', apartmentId: 'apt-a-12', ownershipType: 'owner', ownershipStartDate: '2019-03-01', isPrimaryResidence: true },
-  { id: 'RA-1001-B41', residentId: 'R-1001', apartmentId: 'apt-b-41', ownershipType: 'co_owner', ownershipStartDate: '2024-01-15', isPrimaryResidence: false },
-  { id: 'RA-1002-A12', residentId: 'R-1002', apartmentId: 'apt-a-12', ownershipType: 'family_member', ownershipStartDate: '2019-03-01', isPrimaryResidence: true },
   { id: 'RA-1003-A18', residentId: 'R-1003', apartmentId: 'apt-a-18', ownershipType: 'owner', ownershipStartDate: '2021-06-10', isPrimaryResidence: false },
   { id: 'RA-1004-A18', residentId: 'R-1004', apartmentId: 'apt-a-18', ownershipType: 'tenant', ownershipStartDate: '2025-09-01', ownershipEndDate: '2026-08-31', isPrimaryResidence: true },
   { id: 'RA-1005-B41', residentId: 'R-1005', apartmentId: 'apt-b-41', ownershipType: 'owner', ownershipStartDate: '2017-11-20', isPrimaryResidence: true },

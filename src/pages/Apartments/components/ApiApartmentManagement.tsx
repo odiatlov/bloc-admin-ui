@@ -65,6 +65,7 @@ const emptyForm: FormState = {
 }
 
 const setupStatuses: ApartmentSetupStatus[] = ['configured', 'unconfigured']
+const tableEmptyValue = '-'
 
 const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideScopeFilters = false, initialBlockId }) => {
   const { t } = useTranslation()
@@ -92,9 +93,10 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   const formBlock = blocks.find((block) => block.id === form.blockId)
   const formBlockStaircases = staircases.filter((staircase) => staircase.blockId === form.blockId)
   const selectedBlockStaircases = staircases.filter((staircase) => staircase.blockId === selectedBlockId)
+  const hasAssignedResident = apartmentResidentLinks.length > 0
   const assignableResidents = React.useMemo(() => (
-    residentRecords.filter((resident) => !apartmentResidentLinks.some((link) => link.residentId === resident.id))
-  ), [apartmentResidentLinks, residentRecords])
+    hasAssignedResident ? [] : residentRecords
+  ), [hasAssignedResident, residentRecords])
 
   const loadData = React.useCallback(async () => {
     setIsLoading(true)
@@ -249,6 +251,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
         livesHere: true,
       })
       setAssignResidentId('')
+      setForm((value) => ({ ...value, residentCount: String(Math.max(Number(value.residentCount) || 0, 1)) }))
       await loadApartmentResidents(editingApartment.id)
       await loadData()
       void databaseBlocks.refresh()
@@ -264,6 +267,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
 
     try {
       await apartmentResidentsApi.delete(editingApartment.id, link.id)
+      setForm((value) => ({ ...value, residentCount: '0' }))
       await loadApartmentResidents(editingApartment.id)
       await loadData()
       void databaseBlocks.refresh()
@@ -274,11 +278,11 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
 
   const columns: DataColumn<ApartmentResponse>[] = [
     { key: 'number', label: t('apartments.setup.number'), cardRole: 'primary', render: (apartment) => t('residents.apartment.number', { number: apartment.number }) },
-    { key: 'residentNames', label: t('apartments.setup.residentNames'), cardRole: 'secondary', render: (apartment) => apartment.residentNames || t('apartments.setup.noOwner') },
-    { key: 'residents', label: t('residents.family.members'), render: (apartment) => apartment.residentCount },
-    { key: 'floor', label: t('blocks.columns.floor'), render: (apartment) => apartment.floor ?? t('common.notAvailable') },
-    { key: 'staircase', label: t('blocks.columns.staircase'), render: (apartment) => apartment.staircaseName ? t('settings.fields.staircaseName', { staircase: apartment.staircaseName }) : t('common.notAvailable') },
-    { key: 'usableSurface', label: t('blocks.columns.usableSurface'), render: (apartment) => apartment.usableSqm === null ? t('common.notAvailable') : formatSquareMeters(apartment.usableSqm) },
+    { key: 'residentNames', label: t('apartments.setup.assignedResident'), cardRole: 'secondary', render: (apartment) => apartment.residentNames || t('apartments.setup.noOwner') },
+    { key: 'residents', label: t('apartments.setup.householdMembers'), render: (apartment) => apartment.residentCount },
+    { key: 'floor', label: t('blocks.columns.floor'), render: (apartment) => apartment.floor ?? tableEmptyValue },
+    { key: 'staircase', label: t('blocks.columns.staircase'), render: (apartment) => apartment.staircaseName || tableEmptyValue },
+    { key: 'usableSurface', label: t('blocks.columns.usableSurface'), render: (apartment) => apartment.usableSqm === null ? tableEmptyValue : formatSquareMeters(apartment.usableSqm) },
     { key: 'setupStatus', label: t('apartments.setup.setupStatus'), cardRole: 'status', render: (apartment) => <StatusChip status={apartment.setupStatus} label={translateApartmentSetupStatus(t, apartment.setupStatus)} /> },
     {
       key: 'actions',
@@ -305,7 +309,11 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
 
   const loadError = error || databaseBlocks.error
   const loading = isLoading || databaseBlocks.isLoading
-  const canSave = Boolean(form.blockId && form.number.trim() && (!formBlock?.hasStaircases || form.staircaseId))
+  const residentCountValue = Math.max(0, Number(form.residentCount) || 0)
+  const hasValidResidentCount = editingApartment
+    ? (hasAssignedResident ? residentCountValue >= 1 : residentCountValue === 0)
+    : residentCountValue === 0
+  const canSave = Boolean(form.blockId && form.number.trim() && (!formBlock?.hasStaircases || form.staircaseId) && hasValidResidentCount)
 
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
@@ -400,7 +408,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
           </Select>
         </FormControl>
         <TextField fullWidth required size="small" label={t('apartments.setup.number')} value={form.number} onChange={(event) => setForm((value) => ({ ...value, number: event.target.value }))} />
-        <TextField fullWidth size="small" type="number" label={t('residents.family.members')} value={form.residentCount} onChange={(event) => setForm((value) => ({ ...value, residentCount: event.target.value }))} />
+        <TextField fullWidth size="small" type="number" label={t('apartments.setup.householdMembers')} value={form.residentCount} disabled helperText={t('apartments.setup.assignOwnerBeforeCount')} />
         <TextField fullWidth size="small" type="number" label={t('blocks.columns.floor')} value={form.floor} onChange={(event) => setForm((value) => ({ ...value, floor: event.target.value }))} />
         <TextField fullWidth size="small" type="number" label={t('blocks.columns.usableSurface')} value={form.usableSqm} onChange={(event) => setForm((value) => ({ ...value, usableSqm: event.target.value }))} />
         <FormControl fullWidth size="small" required>
@@ -438,7 +446,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
             <Box sx={{ display: 'grid', alignContent: 'start', gap: 2 }}>
               <Tabs value={editTab} onChange={(_, value: number) => setEditTab(value)} variant="fullWidth">
                 <Tab label={t('apartments.tabs.details')} />
-                <Tab label={t('apartments.tabs.residents', { count: apartmentResidentLinks.length })} />
+                <Tab label={t('apartments.tabs.assignedResident', { count: apartmentResidentLinks.length })} />
               </Tabs>
 
               {editTab === 0 && (
@@ -462,7 +470,16 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                       ))}
                     </Select>
                   </FormControl>
-                  <TextField fullWidth size="small" type="number" label={t('residents.family.members')} value={form.residentCount} onChange={(event) => setForm((value) => ({ ...value, residentCount: event.target.value }))} />
+                  <TextField
+                    fullWidth
+                    helperText={hasAssignedResident ? t('apartments.setup.householdMembersHelp') : t('apartments.setup.assignOwnerBeforeCount')}
+                    slotProps={{ htmlInput: { min: hasAssignedResident ? 1 : 0 } }}
+                    size="small"
+                    type="number"
+                    label={t('apartments.setup.householdMembers')}
+                    value={form.residentCount}
+                    onChange={(event) => setForm((value) => ({ ...value, residentCount: event.target.value }))}
+                  />
                   <TextField fullWidth size="small" type="number" label={t('blocks.columns.usableSurface')} value={form.usableSqm} onChange={(event) => setForm((value) => ({ ...value, usableSqm: event.target.value }))} />
                   <Box sx={{ display: 'flex', gridColumn: '1 / -1', justifyContent: { xs: 'stretch', sm: 'flex-end' }, pt: 0.5 }}>
                     <Button
@@ -488,7 +505,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                     </Box>
                   ) : apartmentResidentLinks.length === 0 ? (
                     <Typography variant="body2" color="text.secondary">
-                      {t('residents.apartment.noResidentsAssigned')}
+                      {t('apartments.setup.noAssignedResident')}
                     </Typography>
                   ) : apartmentResidentLinks.map((link) => (
                     <EntityListItem
@@ -505,10 +522,10 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                   ))}
                   <Divider />
                   <Box sx={{ alignItems: 'center', display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                    <FormControl size="small" sx={{ flex: '1 1 220px', minWidth: 220 }}>
-                      <InputLabel>{t('residents.actions.assignResident')}</InputLabel>
+                    <FormControl size="small" sx={{ flex: '1 1 220px', minWidth: 220 }} disabled={hasAssignedResident}>
+                      <InputLabel>{t('apartments.actions.assignResident')}</InputLabel>
                       <Select
-                        label={t('residents.actions.assignResident')}
+                        label={t('apartments.actions.assignResident')}
                         value={assignResidentId}
                         onChange={(event: SelectChangeEvent) => setAssignResidentId(event.target.value)}
                       >
@@ -523,7 +540,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                       startIcon={<PersonAddIcon />}
                       variant="outlined"
                       onClick={() => { void assignResident() }}
-                      disabled={!assignResidentId}
+                      disabled={!assignResidentId || hasAssignedResident}
                     >
                       {t('residents.actions.assign')}
                     </Button>

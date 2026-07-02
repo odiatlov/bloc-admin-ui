@@ -21,6 +21,7 @@ type ConsumptionSectionsProps = {
 }
 
 type ConsumptionSectionId = 'readings' | 'anomalies' | 'waterBalance'
+const tableEmptyValue = '-'
 
 const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
   const { t } = useTranslation()
@@ -36,7 +37,7 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
     ? mode === 'resident' ? t('consumption.actions.submitIndex') : t('consumption.actions.addReading')
     : t('censor.actions.openQueue')
   const renderMeter = (meter: WaterReadingRow['meters']['cold']) =>
-    meter ? t('consumption.columns.meterValue', { previous: formatNumber(meter.previousValue), current: formatNumber(meter.currentValue), usage: formatNumber(meter.usageValue) }) : t('common.notAvailable')
+    meter ? t('consumption.columns.meterValue', { previous: formatNumber(meter.previousValue), current: formatNumber(meter.currentValue), usage: formatNumber(meter.usageValue) }) : tableEmptyValue
 
   const sectionVisibilityOptions: SectionVisibilityOption<ConsumptionSectionId>[] = [
     { id: 'readings', label: t('consumption.sections.readings') },
@@ -72,7 +73,7 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
   ]
 
   const waterBalanceColumns: DataColumn<(typeof waterBalances)[number]>[] = [
-    { key: 'block', label: t('residents.filters.block'), cardRole: 'primary', render: (balance) => t('common.blockValue', { block: balance.block.name }) },
+    { key: 'block', label: t('residents.filters.block'), cardRole: 'primary', render: (balance) => balance.block.name || tableEmptyValue },
     { key: 'month', label: t('finance.columns.month'), render: (balance) => formatMonth(balance.month) },
     { key: 'main', label: t('consumption.columns.mainMeter'), render: (balance) => formatNumber(balance.mainUsage) },
     { key: 'apartments', label: t('consumption.columns.apartmentMeters'), render: (balance) => formatNumber(balance.apartmentUsage) },

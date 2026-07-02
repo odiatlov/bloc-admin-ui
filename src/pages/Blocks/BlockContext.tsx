@@ -20,6 +20,8 @@ import { formatCurrency, formatSquareMeters, useBlockContext } from '../../hooks
 import ApiApartmentManagement from '../Apartments/components/ApiApartmentManagement'
 import ApartmentManagement from '../Apartments/components/ApartmentManagement'
 
+const tableEmptyValue = '-'
+
 const BlockContext: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -82,7 +84,7 @@ const BlockContext: React.FC = () => {
     { key: 'apartment', label: t('consumption.columns.apartment'), cardRole: 'primary', render: (apartment) => apartment.familyLabel },
     { key: 'residents', label: t('residents.family.members'), render: (apartment) => apartment.residentCount },
     { key: 'floor', label: t('blocks.columns.floor'), render: (apartment) => apartment.floor },
-    { key: 'staircase', label: t('blocks.columns.staircase'), render: (apartment) => staircaseTotals.find((item) => item.staircase.id === apartment.staircaseId)?.staircase.name ?? t('common.notAvailable') },
+    { key: 'staircase', label: t('blocks.columns.staircase'), render: (apartment) => staircaseTotals.find((item) => item.staircase.id === apartment.staircaseId)?.staircase.name ?? tableEmptyValue },
     { key: 'usableSurface', label: t('blocks.columns.usableSurface'), render: (apartment) => formatSquareMeters(apartment.usableSurface) },
     { key: 'totalSurface', label: t('blocks.columns.totalSurface'), render: (apartment) => formatSquareMeters(apartment.totalSurface) },
     { key: 'heatedSurface', label: t('blocks.columns.heatedSurface'), render: (apartment) => formatSquareMeters(apartment.heatedSurface) },
@@ -91,7 +93,7 @@ const BlockContext: React.FC = () => {
 
   const invoiceColumns: DataColumn<(typeof blockInvoices)[number]>[] = [
     { key: 'invoice', label: t('finance.columns.invoice'), cardRole: 'primary', render: (invoice) => invoice.id },
-    { key: 'apartment', label: t('finance.columns.apartment'), cardRole: 'secondary', render: (invoice) => invoice.familyLabel || t('common.notAvailable') },
+    { key: 'apartment', label: t('finance.columns.apartment'), cardRole: 'secondary', render: (invoice) => invoice.familyLabel || tableEmptyValue },
     { key: 'amount', label: t('finance.columns.amount'), render: (invoice) => formatCurrency(invoice.totalAmount) },
   ]
 
