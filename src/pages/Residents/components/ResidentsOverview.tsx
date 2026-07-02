@@ -31,6 +31,7 @@ import { formatCurrency, formatMonth, formatNumber, getBlockLabel, useResidents,
 import type { FinancialStatus, ResidentAccountStatus } from '../../../mocks/apartmentData'
 
 const accountStatusOptions: ResidentAccountStatus[] = ['no_account', 'invited', 'active']
+const tableEmptyValue = '-'
 
 const ResidentsOverview: React.FC = () => {
   const { t } = useTranslation()
@@ -66,8 +67,9 @@ const ResidentsOverview: React.FC = () => {
   const selectedInvoice = selectedInvoices.find((invoice) => invoice.id === selectedInvoiceId) ?? null
   const apartmentGroups = Object.entries(groupedApartments)
   const assignableResidents = selectedApartment
-    ? residents.filter((resident) => !selectedApartment.residents.some((apartmentResident) => apartmentResident.id === resident.id))
+    ? selectedApartment.residents.length === 0 ? residents : []
     : []
+  const assignableApartments = scopedApartments.filter((apartment) => apartment.residents.length === 0)
 
   const getApartmentOptionLabel = (apartment: (typeof scopedApartments)[number]) => {
     const details = [
@@ -121,7 +123,7 @@ const ResidentsOverview: React.FC = () => {
   ]
 
   const renderMeter = (meter: WaterReadingRow['meters']['cold']) =>
-    meter ? t('consumption.columns.meterValue', { previous: formatNumber(meter.previousValue), current: formatNumber(meter.currentValue), usage: formatNumber(meter.usageValue) }) : t('common.notAvailable')
+    meter ? t('consumption.columns.meterValue', { previous: formatNumber(meter.previousValue), current: formatNumber(meter.currentValue), usage: formatNumber(meter.usageValue) }) : tableEmptyValue
   const readingColumns: DataColumn<(typeof selectedReadings)[number]>[] = [
     { key: 'month', label: t('finance.columns.month'), cardRole: 'primary', render: (reading) => formatMonth(reading.month) },
     { key: 'coldWater', label: t('consumption.waterType.cold'), render: (reading) => renderMeter(reading.meters.cold) },
@@ -257,12 +259,12 @@ const ResidentsOverview: React.FC = () => {
             </Box>
             <Paper variant="outlined" sx={{ p: 1.5 }}>
               <Typography variant="subtitle2" gutterBottom>
-                {t('residents.family.members')}
+                {t('apartments.setup.assignedResident')}
               </Typography>
               <Box sx={{ display: 'grid', gap: 1 }}>
                 {selectedApartment.residents.length === 0 ? (
                   <Typography variant="body2" color="text.secondary">
-                    {t('residents.apartment.noResidentsAssigned')}
+                    {t('apartments.setup.noAssignedResident')}
                   </Typography>
                 ) : selectedApartment.residents.map((resident) => (
                   <EntityListItem
@@ -279,9 +281,9 @@ const ResidentsOverview: React.FC = () => {
                 ))}
                 <Divider />
                 <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
-                  <FormControl size="small" sx={{ minWidth: 220, flex: '1 1 220px' }}>
-                    <InputLabel>{t('residents.actions.assignResident')}</InputLabel>
-                    <Select label={t('residents.actions.assignResident')} value={assignResidentId} onChange={(event: SelectChangeEvent) => setAssignResidentId(event.target.value)}>
+                  <FormControl size="small" sx={{ minWidth: 220, flex: '1 1 220px' }} disabled={selectedApartment.residents.length > 0}>
+                    <InputLabel>{t('apartments.actions.assignResident')}</InputLabel>
+                    <Select label={t('apartments.actions.assignResident')} value={assignResidentId} onChange={(event: SelectChangeEvent) => setAssignResidentId(event.target.value)}>
                       {assignableResidents.map((resident) => (
                         <MenuItem key={resident.id} value={resident.id}>
                           {resident.name} - {translateResidentAccountStatus(t, resident.accountStatus)}
@@ -289,7 +291,7 @@ const ResidentsOverview: React.FC = () => {
                       ))}
                     </Select>
                   </FormControl>
-                  <Button variant="outlined" onClick={handleAssignResident} disabled={!assignResidentId}>
+                  <Button variant="outlined" onClick={handleAssignResident} disabled={!assignResidentId || selectedApartment.residents.length > 0}>
                     {t('residents.actions.assign')}
                   </Button>
                 </Box>
@@ -396,7 +398,7 @@ const ResidentsOverview: React.FC = () => {
               onChange={(event: SelectChangeEvent) => setResidentForm((form) => ({ ...form, apartmentId: event.target.value }))}
             >
               <MenuItem value="">{t('residents.apartment.unassigned')}</MenuItem>
-              {scopedApartments.map((apartment) => (
+              {assignableApartments.map((apartment) => (
                 <MenuItem key={apartment.id} value={apartment.id}>
                   {getApartmentOptionLabel(apartment)}
                 </MenuItem>

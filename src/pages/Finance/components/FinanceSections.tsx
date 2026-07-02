@@ -53,7 +53,7 @@ const FinanceSections: React.FC = () => {
   const invoiceColumns: DataColumn<(typeof invoices)[number]>[] = [
     { key: 'id', label: t('finance.columns.invoice'), cardRole: 'primary', render: (invoice) => invoice.id },
     { key: 'apartment', label: t('finance.columns.apartment'), cardRole: 'secondary', render: (invoice) => invoice.familyLabel },
-    { key: 'residents', label: t('residents.family.members'), render: (invoice) => invoice.residents.length },
+    { key: 'residents', label: t('residents.family.members'), render: (invoice) => invoice.apartment?.residentCount ?? 0 },
     { key: 'month', label: t('finance.columns.month'), render: (invoice) => formatMonth(invoice.month) },
     { key: 'amount', label: t('finance.columns.amount'), render: (invoice) => formatCurrency(invoice.totalAmount) },
     {

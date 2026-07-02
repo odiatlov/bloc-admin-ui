@@ -314,7 +314,7 @@
                                         "family_member":  "Membru al familiei"
                                     },
                       "family":  {
-                                     "members":  "Locatari",
+                                     "members":  "Persoane în apartament",
                                      "residentCount":  "{{count}} locatari"
                                  },
                       "filters":  {
@@ -352,6 +352,7 @@
                   },
     "apartments":  {
                        "actions":  {
+                                      "assignResident":  "Alocă locatar",
                                        "delete":  "Șterge",
                                        "edit":  "Editează"
                                    },
@@ -359,19 +360,25 @@
                                        "setupStatus":  "Status configurare"
                                    },
                        "sections":  {
-                                        "residents":  "Locatari alocați"
+                                        "residents":  "Locatar alocat"
                                     },
                        "summary":  {
                                        "total":  "{{count}} apartamente"
                                    },
                        "tabs":  {
                                     "details":  "Detalii apartament",
+                                    "assignedResident":  "Locatar alocat ({{count}})",
                                     "residents":  "Locatari ({{count}})"
                                 },
                        "setup":  {
                                      "addApartment":  "Adaugă apartament",
+                                     "assignedResident":  "Locatar alocat",
+                                     "assignOwnerBeforeCount":  "Alocați un locatar înainte de a seta persoanele din apartament.",
                                      "description":  "Adaugă și configurează apartamentele pentru blocul și scara selectate.",
                                     "familyName":  "Nume familie",
+                                    "householdMembers":  "Persoane în apartament",
+                                    "householdMembersHelp":  "Includeți toate persoanele care locuiesc în apartament.",
+                                    "noAssignedResident":  "Niciun locatar alocat",
                                     "noOwner":  "-",
                                     "residentNames":  "Nume locatar",
                                      "indivisibleShare":  "Cotă indiviză",

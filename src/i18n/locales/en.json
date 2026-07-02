@@ -282,7 +282,7 @@
       "family_member": "Family member"
     },
     "family": {
-      "members": "Residents",
+      "members": "Household members",
       "residentCount": "{{count}} residents"
     },
     "filters": {
@@ -482,6 +482,7 @@
   },
   "apartments": {
     "actions": {
+      "assignResident": "Assign resident",
       "delete": "Delete",
       "edit": "Edit"
     },
@@ -500,19 +501,25 @@
     },
     "loading": "Loading apartments...",
     "sections": {
-      "residents": "Assigned residents"
+      "residents": "Assigned resident"
     },
     "summary": {
       "total": "{{count}} apartments"
     },
     "tabs": {
       "details": "Apartment Details",
+      "assignedResident": "Assigned resident ({{count}})",
       "residents": "Residents ({{count}})"
     },
     "setup": {
       "addApartment": "Add apartment",
+      "assignedResident": "Assigned resident",
+      "assignOwnerBeforeCount": "Assign a resident before setting household members.",
       "description": "Add and configure apartments for the selected block and staircase.",
       "familyName": "Family name",
+      "householdMembers": "Household members",
+      "householdMembersHelp": "Include all people living in the apartment.",
+      "noAssignedResident": "No assigned resident",
       "noOwner": "-",
       "residentNames": "Resident name",
       "indivisibleShare": "Indivisible share",

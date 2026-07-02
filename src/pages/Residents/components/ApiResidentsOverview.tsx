@@ -42,6 +42,7 @@ const emptyForm: FormState = {
 }
 
 const residentStatuses: ResidentStatus[] = ['active', 'inactive']
+const tableEmptyValue = '-'
 
 const normalizeFilterValue = (value: string | null | undefined) => value?.trim().toLowerCase() ?? ''
 
@@ -183,28 +184,28 @@ const ApiResidentsOverview: React.FC = () => {
 
   const columns: DataColumn<ResidentResponse>[] = [
     { key: 'name', label: t('residents.fields.name'), cardRole: 'primary', render: (resident) => resident.fullName },
-    { key: 'email', label: t('residents.fields.email'), render: (resident) => resident.email || t('residents.resident.noEmail') },
-    { key: 'phone', label: t('residents.fields.phone'), render: (resident) => resident.phone || t('common.notAvailable') },
+    { key: 'email', label: t('residents.fields.email'), render: (resident) => resident.email || tableEmptyValue },
+    { key: 'phone', label: t('residents.fields.phone'), render: (resident) => resident.phone || tableEmptyValue },
     {
       key: 'block',
       label: t('settings.fields.block'),
       render: (resident) => resident.apartmentCount === 0
-        ? t('residents.apartment.unassigned')
-        : getUniqueApartmentValues(resident, (apartment) => apartment.blockName),
+        ? tableEmptyValue
+        : getUniqueApartmentValues(resident, (apartment) => apartment.blockName) || tableEmptyValue,
     },
     {
       key: 'staircase',
       label: t('blocks.columns.staircase'),
       render: (resident) => resident.apartmentCount === 0
-        ? t('common.notAvailable')
-        : getUniqueApartmentValues(resident, (apartment) => apartment.staircaseName),
+        ? tableEmptyValue
+        : getUniqueApartmentValues(resident, (apartment) => apartment.staircaseName) || tableEmptyValue,
     },
     {
       key: 'apartment',
       label: t('apartments.setup.number'),
       render: (resident) => resident.apartmentCount === 0
-        ? t('common.notAvailable')
-        : getUniqueApartmentValues(resident, (apartment) => apartment.apartmentNumber),
+        ? tableEmptyValue
+        : getUniqueApartmentValues(resident, (apartment) => apartment.apartmentNumber) || tableEmptyValue,
     },
     {
       key: 'status',

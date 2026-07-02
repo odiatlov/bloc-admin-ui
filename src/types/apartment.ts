@@ -51,6 +51,7 @@ export type Apartment = {
   number: string
   familyName: string
   primaryOwnerId?: string
+  residentCount: number
   setupStatus?: ApartmentSetupStatus
   usableSurface: number
   totalSurface: number
