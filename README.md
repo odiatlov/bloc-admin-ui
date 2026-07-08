@@ -84,24 +84,35 @@ npm run build
 
 ## 📌 Status
 
-Currently in active development:
+### Current Backend Connection
 
- - Implemented
- - Layout system
- - Sidebar & Topbar
- - Translation system
- - Theme switching
- - Mobile responsiveness
- - Dashboard foundations
- - Planned
- - Backend integration
- - Authentication
- - Online payments
- - PDF / Excel exports
- - Notifications system
+The frontend is currently connected with the backend for:
 
- ---
+- Residents
+- Apartments
+- Blocks
+- Staircases
 
- ## 👨‍💻 Author
+### Implemented
+
+- Layout system
+- Sidebar & Topbar
+- Translation system
+- Theme switching
+- Mobile responsiveness
+- Dashboard foundations
+
+### Planned
+
+- Authentication
+- Online payments
+- Invoice feature
+- Bill export
+- Notifications system
+- Additional backend-connected modules currently in active development
+
+---
+
+## 👨‍💻 Author
 
 Developed as a modern apartment administration platform focused on usability, scalability and clean UI.
