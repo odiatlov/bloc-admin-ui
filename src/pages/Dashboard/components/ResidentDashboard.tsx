@@ -3,21 +3,35 @@ import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
+import CircularProgress from '@mui/material/CircularProgress'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import Divider from '@mui/material/Divider'
+import Paper from '@mui/material/Paper'
 import PaymentIcon from '@mui/icons-material/Payment'
 import OpacityIcon from '@mui/icons-material/Opacity'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { formatCurrency, formatMonth, formatNumber, formatSquareMeters, getBlockLabel, useResidentPortal, type WaterReadingRow } from '../../../hooks/useApartmentData'
+import EmptyState from '../../../components/shared/EmptyState'
+import LoadErrorState from '../../../components/shared/LoadErrorState'
+import { RoleContext } from '../../../contexts/RoleContext'
+import { blocksApi } from '../../../services/blocksApi'
+import { residentsApi } from '../../../services/residentsApi'
+import { formatCurrency, formatMonth, formatNumber, useResidentPortal, type WaterReadingRow } from '../../../hooks/useApartmentData'
+import type { BlockOverview } from '../../../types/block'
+import type { ResidentApartmentSummary, ResidentResponse } from '../../../types/management'
 import { ActionBar, ContentCard, DashboardHeader, DashboardPage, StatCard, StatGrid } from './DashboardSystem'
 
 const ResidentDashboard: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { apartmentsByBlock, currentBalance, resident, residentInvoices, residentReadings } = useResidentPortal()
+  const { account } = React.useContext(RoleContext)
+  const { currentBalance, resident, residentInvoices, residentReadings } = useResidentPortal()
+  const [databaseResident, setDatabaseResident] = React.useState<ResidentResponse | null>(null)
+  const [databaseBlocks, setDatabaseBlocks] = React.useState<BlockOverview[]>([])
+  const [isApartmentsLoading, setIsApartmentsLoading] = React.useState(Boolean(account.residentId))
+  const [apartmentsError, setApartmentsError] = React.useState<string | null>(null)
   const lastIndex = residentReadings.length ? residentReadings[0] : null
   const renderMeterTotal = (meter: WaterReadingRow['meters']['cold']) =>
     meter ? formatNumber(meter.usageValue) : t('common.notAvailable')
@@ -25,6 +39,134 @@ const ResidentDashboard: React.FC = () => {
     { id: 'A1', date: '2026-05-01', textKey: 'dashboard.resident.announcements.elevator' },
     { id: 'A2', date: '2026-04-20', textKey: 'dashboard.resident.announcements.water' },
   ]
+
+  const loadResidentApartments = React.useCallback(async () => {
+    if (!account.residentId) {
+      setDatabaseResident(null)
+      setDatabaseBlocks([])
+      setApartmentsError(null)
+      setIsApartmentsLoading(false)
+      return
+    }
+
+    setIsApartmentsLoading(true)
+    setApartmentsError(null)
+
+    try {
+      const [nextResident, nextBlocks] = await Promise.all([
+        residentsApi.getById(account.residentId),
+        blocksApi.getOverview(),
+      ])
+      setDatabaseResident(nextResident)
+      setDatabaseBlocks(nextBlocks)
+    } catch (nextError) {
+      setApartmentsError(nextError instanceof Error ? nextError.message : 'Unable to load apartments')
+    } finally {
+      setIsApartmentsLoading(false)
+    }
+  }, [account.residentId])
+
+  React.useEffect(() => {
+    void loadResidentApartments()
+  }, [loadResidentApartments])
+
+  const blocksById = React.useMemo(
+    () => new Map(databaseBlocks.map((block) => [block.id, block])),
+    [databaseBlocks],
+  )
+
+  const apartmentsByBlock = React.useMemo(
+    () =>
+      (databaseResident?.apartments ?? []).reduce<Record<string, ResidentApartmentSummary[]>>((acc, apartment) => {
+        acc[apartment.blockId] = [...(acc[apartment.blockId] ?? []), apartment]
+        return acc
+      }, {}),
+    [databaseResident],
+  )
+
+  const renderApartmentsPanel = () => {
+    if (isApartmentsLoading) {
+      return (
+        <Paper sx={{ alignItems: 'center', display: 'grid', gap: 1.5, justifyItems: 'center', mt: 1.5, p: 4 }}>
+          <CircularProgress size={32} />
+          <Typography color="text.secondary">{t('dashboard.resident.apartmentsLoading')}</Typography>
+        </Paper>
+      )
+    }
+
+    if (apartmentsError) {
+      return (
+        <Box sx={{ mt: 1.5 }}>
+          <LoadErrorState helperText={t('dashboard.resident.apartmentsLoadFailed')} onRetry={() => { void loadResidentApartments() }} />
+        </Box>
+      )
+    }
+
+    if (!databaseResident || databaseResident.apartments.length === 0) {
+      return (
+        <Box sx={{ mt: 1.5 }}>
+          <EmptyState
+            actionLabel={t('loadErrorState.retry')}
+            headline={t('dashboard.resident.noApartmentsHeadline')}
+            helperText={t('dashboard.resident.noApartmentsHelper')}
+            onAction={() => { void loadResidentApartments() }}
+          />
+        </Box>
+      )
+    }
+
+    return (
+      <Box sx={{ display: 'grid', gap: 1.25, mt: 1.5 }}>
+        {Object.entries(apartmentsByBlock).map(([blockId, apartments]) => {
+          const block = blocksById.get(blockId)
+          const administratorName = block?.administratorName?.trim()
+          const rawBlockLabel = block?.displayName ?? apartments[0]?.blockName ?? blockId
+          const blockLabel = /^block\b/i.test(rawBlockLabel)
+            ? rawBlockLabel
+            : t('common.blockValue', { block: rawBlockLabel })
+          return (
+            <Box key={blockId} sx={{ display: 'grid', gap: 1 }}>
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+                <Typography>{blockLabel}</Typography>
+                {administratorName && (
+                  <Chip
+                    size="small"
+                    label={administratorName}
+                    sx={{
+                      maxWidth: '100%',
+                      bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.18)' : 'rgba(79, 70, 229, 0.08)',
+                      border: '1px solid',
+                      borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.32)' : 'rgba(79, 70, 229, 0.18)',
+                      color: 'text.primary',
+                      '& .MuiChip-label': {
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      },
+                    }}
+                  />
+                )}
+              </Box>
+              <Box sx={{ display: 'grid', gap: 1 }}>
+                {apartments.map((apartment) => (
+                  <Box key={apartment.linkId} sx={{ p: 1.25, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                    <Typography sx={{ fontWeight: 500 }}>
+                      {t('dashboard.resident.apartmentTitle', { number: apartment.apartmentNumber, resident: databaseResident.fullName })}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
+                      {[
+                        apartment.staircaseName ? t('dashboard.resident.staircaseValue', { staircase: apartment.staircaseName }) : null,
+                        t('residents.ownership.owner'),
+                      ].filter(Boolean).join(' | ')}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          )
+        })}
+      </Box>
+    )
+  }
 
   return (
     <DashboardPage>
@@ -102,48 +244,7 @@ const ResidentDashboard: React.FC = () => {
         }}
       >
         <ContentCard title={t('dashboard.resident.myApartments')}>
-          <Box sx={{ display: 'grid', gap: 1.25, mt: 1.5 }}>
-            {Object.entries(apartmentsByBlock).map(([blockId, apartments]) => {
-              const activeAdmin = apartments[0]?.activeAdmin
-              return (
-                <Box key={blockId} sx={{ display: 'grid', gap: 1 }}>
-                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
-                    <Typography>{t('common.blockValue', { block: getBlockLabel(blockId) })}</Typography>
-                    {activeAdmin && (
-                      <Chip
-                        size="small"
-                        label={t('dashboard.resident.adminContact', { admin: activeAdmin.name, phone: activeAdmin.phone })}
-                        sx={{
-                          maxWidth: '100%',
-                          bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.18)' : 'rgba(79, 70, 229, 0.08)',
-                          border: '1px solid',
-                          borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.32)' : 'rgba(79, 70, 229, 0.18)',
-                          color: 'text.primary',
-                          '& .MuiChip-label': {
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                          },
-                        }}
-                      />
-                    )}
-                  </Box>
-                  <Box sx={{ display: 'grid', gap: 1 }}>
-                    {apartments.map((apartment) => (
-                      <Box key={apartment.id} sx={{ p: 1.25, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
-                        <Typography sx={{ fontWeight: 500 }}>Apt {apartment.number} - {apartment.familyName}</Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
-                          {t(`residents.ownership.${apartment.residentApartment?.ownershipType ?? 'owner'}`)}
-                          {apartment.residentApartment?.isPrimaryResidence ? ` - ${t('dashboard.resident.primaryResidence')}` : ''}
-                          {' | '}
-                          {t('dashboard.resident.surfaceSummary', { usable: formatSquareMeters(apartment.usableSurface), total: formatSquareMeters(apartment.totalSurface) })}
-                        </Typography>
-                      </Box>
-                    ))}
-                  </Box>
-                </Box>
-              )
-            })}
-          </Box>
+          {renderApartmentsPanel()}
         </ContentCard>
 
         <ContentCard title={t('dashboard.resident.recentAnnouncements')}>
