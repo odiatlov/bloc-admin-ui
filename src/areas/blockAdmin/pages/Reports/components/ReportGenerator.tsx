@@ -12,15 +12,56 @@ import PreviewIcon from '@mui/icons-material/Preview'
 import { useTranslation } from 'react-i18next'
 import FilterBar from '../../../../../components/shared/FilterBar'
 import { formatCurrency, formatMonth, formatNumber, formatSquareMeters, useReports } from '../../../../../hooks/useApartmentData'
+import { useBlocks } from '../../../../../hooks/useBlocks'
+import { apartmentsApi } from '../../../../../services/apartmentsApi'
+import type { ApartmentResponse } from '../../../../../types/management'
 
 const ReportGenerator: React.FC = () => {
   const { t } = useTranslation()
-  const { block, blocks, month, months, preview, setBlock, setMonth } = useReports()
+  const { month, months, preview, setMonth } = useReports()
+  const databaseBlocks = useBlocks()
+  const [block, setBlock] = React.useState('all')
+  const [databaseApartments, setDatabaseApartments] = React.useState<ApartmentResponse[]>([])
+
+  React.useEffect(() => {
+    let isMounted = true
+
+    const loadApartments = async () => {
+      try {
+        const nextApartments = await apartmentsApi.getAll()
+        if (isMounted) setDatabaseApartments(nextApartments)
+      } catch {
+        if (isMounted) setDatabaseApartments([])
+      }
+    }
+
+    void loadApartments()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  React.useEffect(() => {
+    if (block === 'all') return
+    if (databaseBlocks.blocks.length > 0 && !databaseBlocks.blocks.some((item) => item.id === block)) {
+      setBlock('all')
+    }
+  }, [block, databaseBlocks.blocks])
+
+  const surfaceTotal = React.useMemo(() => {
+    if (databaseApartments.length === 0) return preview.surfaceTotal
+
+    return databaseApartments
+      .filter((apartment) => block === 'all' || apartment.blockId === block)
+      .reduce((sum, apartment) => sum + (apartment.usableSqm ?? 0), 0)
+  }, [block, databaseApartments, preview.surfaceTotal])
+
   const metrics = [
     { key: 'invoices', label: t('reports.preview.invoices'), value: preview.invoiceCount },
     { key: 'revenue', label: t('reports.preview.revenue'), value: formatCurrency(preview.revenue) },
     { key: 'waterUsage', label: t('reports.preview.waterUsage'), value: `${formatNumber(preview.waterUsage)} ${t('reports.preview.units.water')}` },
-    { key: 'surfaceTotal', label: t('reports.preview.surfaceTotal'), value: formatSquareMeters(preview.surfaceTotal) },
+    { key: 'surfaceTotal', label: t('reports.preview.surfaceTotal'), value: formatSquareMeters(surfaceTotal) },
     { key: 'boilerTax', label: t('reports.preview.boilerTax'), value: formatCurrency(preview.boilerTax) },
   ]
 
@@ -52,7 +93,7 @@ const ReportGenerator: React.FC = () => {
           <InputLabel>{t('residents.filters.block')}</InputLabel>
           <Select label={t('residents.filters.block')} value={block} onChange={(event: SelectChangeEvent) => setBlock(event.target.value)}>
             <MenuItem value="all">{t('common.all')}</MenuItem>
-            {blocks.map((item) => (
+            {databaseBlocks.blocks.map((item) => (
               <MenuItem key={item.id} value={item.id}>
                 {t('common.blockValue', { block: item.name })}
               </MenuItem>

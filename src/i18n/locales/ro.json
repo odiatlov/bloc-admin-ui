@@ -318,9 +318,20 @@
                                      "lastName":  "Nume",
                                      "name":  "Nume",
                                      "phone":  "Telefon",
+                                     "registeredAccount":  "Cont înregistrat",
+                                     "roles":  "Roluri",
                                      "status":  "Status",
                                      "phoneOptional":  "Telefon (opțional)"
                                  },
+                      "account":  {
+                                      "registered":  "Înregistrat",
+                                      "unregistered":  "Neînregistrat"
+                                  },
+                      "roles":  {
+                                    "Admin":  "Administrator",
+                                    "Censor":  "Cenzor",
+                                    "Resident":  "Locatar"
+                                },
                       "resident":  {
                                        "noEmail":  "Fără email"
                                    },

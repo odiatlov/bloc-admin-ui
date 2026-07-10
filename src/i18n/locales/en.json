@@ -286,8 +286,19 @@
       "lastName": "Last name",
       "name": "Name",
       "phone": "Phone",
+      "registeredAccount": "Registered account",
+      "roles": "Roles",
       "status": "Status",
       "phoneOptional": "Phone (optional)"
+    },
+    "account": {
+      "registered": "Registered",
+      "unregistered": "Unregistered"
+    },
+    "roles": {
+      "Admin": "Admin",
+      "Censor": "Censor",
+      "Resident": "Resident"
     },
     "resident": {
       "noEmail": "No email"

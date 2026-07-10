@@ -57,6 +57,16 @@ const getUniqueApartmentValues = (
   return Array.from(new Set(values)).join(', ')
 }
 
+const getRoleLabel = (t: ReturnType<typeof useTranslation>['t'], role: string) => (
+  t(`residents.roles.${role}`, { defaultValue: role })
+)
+
+const getDisplayRoles = (resident: ResidentResponse) => {
+  const elevatedRoles = resident.roles.filter((role) => role === 'Admin' || role === 'Censor')
+
+  return elevatedRoles.length > 0 ? elevatedRoles : ['Resident']
+}
+
 const ApiResidentsOverview: React.FC = () => {
   const { t } = useTranslation()
   const databaseBlocks = useBlocks()
@@ -187,6 +197,11 @@ const ApiResidentsOverview: React.FC = () => {
     { key: 'email', label: t('residents.fields.email'), render: (resident) => resident.email || tableEmptyValue },
     { key: 'phone', label: t('residents.fields.phone'), render: (resident) => resident.phone || tableEmptyValue },
     {
+      key: 'roles',
+      label: t('residents.fields.roles'),
+      render: (resident) => getDisplayRoles(resident).map((role) => getRoleLabel(t, role)).join(', '),
+    },
+    {
       key: 'block',
       label: t('settings.fields.block'),
       render: (resident) => resident.apartmentCount === 0
@@ -212,6 +227,17 @@ const ApiResidentsOverview: React.FC = () => {
       label: t('residents.fields.status'),
       cardRole: 'status',
       render: (resident) => <StatusChip status={resident.status} label={translateResidentStatus(t, resident.status)} />,
+    },
+    {
+      key: 'registeredAccount',
+      label: t('residents.fields.registeredAccount'),
+      cardRole: 'status',
+      render: (resident) => (
+        <StatusChip
+          status={resident.hasRegisteredAccount ? 'active' : 'unregistered'}
+          label={resident.hasRegisteredAccount ? t('residents.account.registered') : t('residents.account.unregistered')}
+        />
+      ),
     },
     {
       key: 'actions',
@@ -305,7 +331,7 @@ const ApiResidentsOverview: React.FC = () => {
         <ResponsiveDataView
           ariaLabel={t('sidebar.residents')}
           columns={columns}
-          desktopTableMinWidth={1180}
+          desktopTableMinWidth={1400}
           getRowId={(resident) => resident.id}
           rows={filteredResidents}
         />

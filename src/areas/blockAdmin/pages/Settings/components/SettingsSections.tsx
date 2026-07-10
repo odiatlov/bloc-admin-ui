@@ -51,7 +51,7 @@ const allocationTypes: AllocationType[] = ['per_person', 'per_apartment', 'by_su
 const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
   const { t } = useTranslation()
   const { account, role } = React.useContext(RoleContext)
-  const shouldUseDatabaseBlocks = account.id === 'acct-demo'
+  const shouldUseDatabaseBlocks = mode === 'admin'
   const databaseOverview = useBlocks({ enabled: shouldUseDatabaseBlocks })
   const scopedBlocks = React.useMemo(
     () => filterBlocksForAccount(blocks, { ...account, role }, buildingAdminAssignments, residentApartments, apartments),
