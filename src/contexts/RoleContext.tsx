@@ -4,7 +4,7 @@ import type { AuthRole, MockAccount } from '../types/apartment'
 
 export type Role = AuthRole
 
-const defaultAccount = mockAccounts.find((item) => item.id === 'acct-demo') ?? mockAccounts[0]
+const defaultAccount = mockAccounts.find((item) => item.id === 'acct-block-admin') ?? mockAccounts[0]
 
 type RoleContextType = {
   role: Role

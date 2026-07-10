@@ -19,6 +19,11 @@ import Dashboard from './pages/Dashboard/Dashboard'
 import Blocks from './pages/Blocks/Blocks'
 import BlockContext from './pages/Blocks/BlockContext'
 import Login from './pages/Login/Login'
+import ExportData from './pages/SuperAdmin/ExportData'
+import ManageAdmins from './pages/SuperAdmin/ManageAdmins'
+import SuperAdminBlocks from './pages/SuperAdmin/SuperAdminBlocks'
+import SuperAdminDashboard from './pages/SuperAdmin/SuperAdminDashboard'
+import SuperAdminResidents from './pages/SuperAdmin/SuperAdminResidents'
 import { RoleContext } from './contexts/RoleContext'
 import { rolePermissions, type Permission } from './mocks/roles'
 
@@ -66,6 +71,11 @@ const RootApp: React.FC = () => {
               <Route path="reports" element={<ProtectedRoute permission="reports"><Reports /></ProtectedRoute>} />
               <Route path="settings" element={<ProtectedRoute permission="settings"><Settings /></ProtectedRoute>} />
               <Route path="blocks/:blockId/:section" element={<ProtectedRoute permission="blocks"><BlockContext /></ProtectedRoute>} />
+              <Route path="super/dashboard" element={<ProtectedRoute permission="superAdmin"><SuperAdminDashboard /></ProtectedRoute>} />
+              <Route path="super/manage-admins" element={<ProtectedRoute permission="superAdmin"><ManageAdmins /></ProtectedRoute>} />
+              <Route path="super/blocks" element={<ProtectedRoute permission="superAdmin"><SuperAdminBlocks /></ProtectedRoute>} />
+              <Route path="super/residents" element={<ProtectedRoute permission="superAdmin"><SuperAdminResidents /></ProtectedRoute>} />
+              <Route path="super/export" element={<ProtectedRoute permission="superAdmin"><ExportData /></ProtectedRoute>} />
             </Route>
           </Routes>
         </RoleProvider>

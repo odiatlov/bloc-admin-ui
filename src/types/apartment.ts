@@ -26,7 +26,9 @@ export type MaintenanceMonthStatus = 'draft' | 'published'
 export type ExpenseKind = 'utility' | 'administrative' | 'manual' | 'penalty' | 'historical_debt'
 export type CostScopeLevel = 'block' | 'staircase'
 export type HeatingType = 'central' | 'individual' | 'gas_boiler' | 'district'
-export type AuthRole = 'SuperAdmin' | 'Admin' | 'Resident' | 'Censor'
+export type SystemRole = 'None' | 'SuperAdmin'
+export type BlockRole = 'Admin' | 'Resident' | 'Censor'
+export type AuthRole = Exclude<SystemRole, 'None'> | BlockRole
 
 export type Block = {
   id: string
@@ -113,6 +115,8 @@ export type MockAccount = {
   id: string
   name: string
   email: string
+  systemRole: SystemRole
+  blockRoles: BlockRole[]
   roles: AuthRole[]
   defaultRole: AuthRole
   userId?: string
