@@ -20,7 +20,7 @@ const Login: React.FC = () => {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
     login(accountId)
-    navigate(selectedAccount.defaultRole === 'SuperAdmin' ? '/admin/super/dashboard' : '/admin/dashboard', { replace: true })
+    navigate(selectedAccount.defaultRole === 'SuperAdmin' ? '/superadmin/dashboard' : '/admin/dashboard', { replace: true })
   }
 
   return (

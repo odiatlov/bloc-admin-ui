@@ -46,11 +46,11 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ onNavigate, onClose, sh
 
   const navItems = role === 'SuperAdmin'
     ? [
-        { label: t('sidebar.superDashboard'), to: '/admin/super/dashboard', icon: <DashboardIcon />, permission: 'superAdmin' as const },
-        { label: t('sidebar.manageAdmins'), to: '/admin/super/manage-admins', icon: <AdminPanelSettingsIcon />, permission: 'superAdmin' as const },
-        { label: t('sidebar.superBlocks'), to: '/admin/super/blocks', icon: <HomeWorkIcon />, permission: 'superAdmin' as const },
-        { label: t('sidebar.superResidents'), to: '/admin/super/residents', icon: <PeopleIcon />, permission: 'superAdmin' as const },
-        { label: t('sidebar.exportData'), to: '/admin/super/export', icon: <FileDownloadIcon />, permission: 'superAdmin' as const },
+        { label: t('sidebar.superDashboard'), to: '/superadmin/dashboard', icon: <DashboardIcon />, permission: 'superAdmin' as const },
+        { label: t('sidebar.manageAdmins'), to: '/superadmin/manage-admins', icon: <AdminPanelSettingsIcon />, permission: 'superAdmin' as const },
+        { label: t('sidebar.superBlocks'), to: '/superadmin/blocks', icon: <HomeWorkIcon />, permission: 'superAdmin' as const },
+        { label: t('sidebar.superResidents'), to: '/superadmin/residents', icon: <PeopleIcon />, permission: 'superAdmin' as const },
+        { label: t('sidebar.exportData'), to: '/superadmin/export', icon: <FileDownloadIcon />, permission: 'superAdmin' as const },
       ]
     : role === 'Resident'
     ? [

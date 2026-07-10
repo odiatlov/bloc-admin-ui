@@ -35,7 +35,7 @@ import {
   type VerificationStatus,
   type WaterMeterType,
   type WaterReading,
-} from '../mocks/apartmentData'
+} from '../areas/blockAdmin/mocks/apartmentData'
 import { RoleContext } from '../contexts/RoleContext'
 import { filterApartmentsForAccount, filterBlocksForAccount } from '../application/accessScope'
 import { calculateWaterBalance, generateMonthlyMaintenance } from '../utils/maintenanceEngine'
