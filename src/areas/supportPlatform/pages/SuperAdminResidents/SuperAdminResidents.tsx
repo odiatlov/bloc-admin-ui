@@ -13,6 +13,7 @@ import { superAdminApi, type SuperAdminResidentResponse } from '../../../../serv
 
 const tableEmptyValue = '-'
 const statusKey = (status: string) => status.charAt(0).toLowerCase() + status.slice(1)
+const displayValue = (value?: string | null) => value?.trim() || tableEmptyValue
 
 const SuperAdminResidents: React.FC = () => {
   const { t } = useTranslation()
@@ -38,19 +39,19 @@ const SuperAdminResidents: React.FC = () => {
   }, [loadResidents])
 
   const columns: DataColumn<SuperAdminResidentResponse>[] = [
-    { key: 'name', label: t('superAdmin.residents.columns.name'), cardRole: 'primary', render: (resident) => resident.displayName },
-    { key: 'email', label: t('superAdmin.residents.columns.email'), render: (resident) => resident.email },
-    { key: 'phone', label: t('superAdmin.residents.columns.phone'), render: (resident) => resident.phone ?? tableEmptyValue },
+    { key: 'name', label: t('superAdmin.residents.columns.name'), cardRole: 'primary', render: (resident) => displayValue(resident.displayName) },
+    { key: 'email', label: t('superAdmin.residents.columns.email'), render: (resident) => displayValue(resident.email) },
+    { key: 'phone', label: t('superAdmin.residents.columns.phone'), render: (resident) => displayValue(resident.phone) },
     { key: 'block', label: t('superAdmin.residents.columns.block'), render: (resident) => resident.blockName ? t('common.blockValue', { block: resident.blockName }) : tableEmptyValue },
-    { key: 'apartment', label: t('superAdmin.residents.columns.apartment'), render: (resident) => resident.apartmentNumber ?? tableEmptyValue },
+    { key: 'apartment', label: t('superAdmin.residents.columns.apartment'), render: (resident) => displayValue(resident.apartmentNumber) },
     {
       key: 'accountStatus',
       label: t('superAdmin.residents.columns.accountStatus'),
       cardRole: 'status',
-      render: (resident) => <StatusChip status={resident.accountStatus.toLowerCase()} label={t(`superAdmin.status.${statusKey(resident.accountStatus)}`)} />,
+      render: (resident) => resident.accountStatus ? <StatusChip status={resident.accountStatus.toLowerCase()} label={t(`superAdmin.status.${statusKey(resident.accountStatus)}`)} /> : tableEmptyValue,
     },
-    { key: 'blockRole', label: t('superAdmin.residents.columns.blockRole'), render: (resident) => t(`superAdmin.residents.blockRole.${resident.role}`) },
-    { key: 'membershipStatus', label: t('superAdmin.residents.columns.membershipStatus'), render: (resident) => t(`superAdmin.status.${statusKey(resident.membershipStatus)}`) },
+    { key: 'blockRole', label: t('superAdmin.residents.columns.blockRole'), render: (resident) => resident.role ? t(`superAdmin.residents.blockRole.${resident.role}`) : tableEmptyValue },
+    { key: 'membershipStatus', label: t('superAdmin.residents.columns.membershipStatus'), render: (resident) => resident.membershipStatus ? t(`superAdmin.status.${statusKey(resident.membershipStatus)}`) : tableEmptyValue },
   ]
 
   return (

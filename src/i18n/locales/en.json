@@ -724,7 +724,8 @@
   },
   "superAdmin": {
     "common": {
-      "createdAt": "Created at"
+      "createdAt": "Created at",
+      "quickActions": "Quick Actions"
     },
     "status": {
       "active": "Active",
@@ -813,7 +814,7 @@
       }
     },
     "blocks": {
-      "title": "SuperAdmin Blocks",
+      "title": "Blocks list",
       "description": "All registered blocks in the platform database, without administrator scoping.",
       "loading": "Loading platform blocks...",
       "errors": {
@@ -839,7 +840,7 @@
       }
     },
     "residents": {
-      "title": "SuperAdmin Residents",
+      "title": "Residents List",
       "description": "All resident accounts and block roles visible at platform level.",
       "loading": "Loading platform residents...",
       "errors": {

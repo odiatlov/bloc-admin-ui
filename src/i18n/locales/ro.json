@@ -861,7 +861,8 @@
                    },
     "superAdmin":  {
                        "common":  {
-                                      "createdAt":  "Creat la"
+                                      "createdAt":  "Creat la",
+                                      "quickActions":  "Acțiuni rapide"
                                   },
                        "status":  {
                                       "active":  "Activ",
@@ -950,7 +951,7 @@
                                                        }
                                         },
                        "blocks":  {
-                                      "title":  "Blocuri SuperAdmin",
+                                      "title":  "Lista blocurilor",
                                       "description":  "Toate blocurile înregistrate în baza de date a platformei, fără filtrare după administrator.",
                                       "loading":  "Se încarcă blocurile platformei...",
                                       "errors":  {
@@ -976,7 +977,7 @@
                                                 }
                                   },
                        "residents":  {
-                                         "title":  "Locatari SuperAdmin",
+                                        "title":  "Lista locatarilor",
                                          "description":  "Toate conturile de locatari și rolurile pe bloc vizibile la nivel de platformă.",
                                          "loading":  "Se încarcă locatarii platformei...",
                                          "errors":  {

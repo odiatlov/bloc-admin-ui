@@ -153,12 +153,16 @@ const ManageAdmins: React.FC = () => {
       <PageHeader
         title={t('superAdmin.manageAdmins.title')}
         description={t('superAdmin.manageAdmins.description')}
-        actions={(
+      />
+
+      <Paper sx={{ alignItems: 'center', display: 'flex', gap: 2, justifyContent: 'space-between', mb: 2, p: 2 }}>
+        <Typography variant="h6">{t('superAdmin.common.quickActions')}</Typography>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'flex-end' }}>
           <Button startIcon={<AddIcon />} variant="contained" onClick={() => setIsDialogOpen(true)}>
             {t('superAdmin.manageAdmins.actions.addAdmin')}
           </Button>
-        )}
-      />
+        </Box>
+      </Paper>
 
       {isLoading ? (
         <Paper sx={{ alignItems: 'center', display: 'grid', gap: 1.5, justifyItems: 'center', p: 4 }}>
