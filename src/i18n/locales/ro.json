@@ -50,9 +50,12 @@
                                 "confirm":  "Da, deconectează-mă"
                             },
                  "login":  {
-                               "description":  "Autentificare demonstrativă cu sesiuni pentru platformă, administrator, cenzor și locatar.",
-                               "demoAccount":  "Cont demonstrativ",
-                               "password":  "Parolă",
+                              "description":  "Autentificare demonstrativă cu sesiuni pentru platformă, administrator, cenzor și locatar.",
+                              "demoAccount":  "Cont demonstrativ",
+                              "userAccount":  "Utilizator",
+                              "loadingAccounts":  "Se încarcă utilizatorii din baza de date...",
+                              "accountsFallback":  "Utilizatorii din baza de date nu au putut fi încărcați. Se afișează conturile demonstrative de rezervă.",
+                              "password":  "Parolă",
                                "submit":  "Autentificare"
                            }
              },
@@ -315,9 +318,20 @@
                                      "lastName":  "Nume",
                                      "name":  "Nume",
                                      "phone":  "Telefon",
+                                     "registeredAccount":  "Cont înregistrat",
+                                     "roles":  "Roluri",
                                      "status":  "Status",
                                      "phoneOptional":  "Telefon (opțional)"
                                  },
+                      "account":  {
+                                      "registered":  "Înregistrat",
+                                      "unregistered":  "Neînregistrat"
+                                  },
+                      "roles":  {
+                                    "Admin":  "Administrator",
+                                    "Censor":  "Cenzor",
+                                    "Resident":  "Locatar"
+                                },
                       "resident":  {
                                        "noEmail":  "Fără email"
                                    },
@@ -858,17 +872,32 @@
                    },
     "superAdmin":  {
                        "common":  {
-                                      "createdAt":  "Creat la"
+                                      "createdAt":  "Creat la",
+                                      "quickActions":  "Acțiuni rapide"
+                                  },
+                       "status":  {
+                                      "active":  "Activ",
+                                      "suspended":  "Suspendat",
+                                      "pendingDeletion":  "În așteptarea ștergerii",
+                                      "deleted":  "Șters",
+                                      "removed":  "Eliminat",
+                                      "noAccount":  "Fără cont"
                                   },
                        "dashboard":  {
                                          "title":  "Panou SuperAdmin",
                                          "description":  "Prezentare la nivel de platformă pentru suport și onboarding.",
+                                         "loading":  "Se încarcă panoul platformei...",
+                                         "errors":  {
+                                                        "loadFailed":  "Datele panoului platformei nu au putut fi încărcate. Încercați din nou."
+                                                    },
                                          "metrics":  {
                                                         "totalBlocks":  "Total blocuri înregistrate",
+                                                        "totalUsers":  "Total utilizatori",
                                                         "totalAdmins":  "Total administratori",
                                                         "totalResidents":  "Total locatari",
                                                         "totalCensors":  "Total cenzori",
                                                         "pendingAdminInvites":  "Invitații de administratori în așteptare",
+                                                        "suspendedAdminAccounts":  "Conturi de administratori suspendate",
                                                         "blocksWithoutAdmin":  "Blocuri fără administrator alocat"
                                                     },
                                          "columns":  {
@@ -887,7 +916,15 @@
                                      },
                        "manageAdmins":  {
                                             "title":  "Administrare administratori",
-                                            "description":  "Spațiu demonstrativ de onboarding pentru invitații și alocări de administratori de bloc.",
+                                            "description":  "Vedere din baza de date pentru conturi de administratori și invitații în așteptare.",
+                                            "loading":  "Se încarcă administratorii...",
+                                            "errors":  {
+                                                           "loadFailed":  "Conturile de administratori nu au putut fi încărcate. Încercați din nou."
+                                                       },
+                                            "empty":  {
+                                                          "headline":  "Nu există conturi sau invitații de administratori",
+                                                          "helperText":  "Conturile seeduite și invitațiile viitoare vor apărea aici."
+                                                      },
                                             "columns":  {
                                                           "name":  "Nume",
                                                           "email":  "Email",
@@ -899,6 +936,10 @@
                                             "status":  {
                                                          "active":  "Activ",
                                                          "invited":  "Invitat",
+                                                         "suspended":  "Suspendat",
+                                                         "past_due":  "Restant",
+                                                         "cancelled":  "Anulat",
+                                                         "expired":  "Expirat",
                                                          "noBlock":  "Fără bloc alocat"
                                                      },
                                             "actions":  {
@@ -921,8 +962,16 @@
                                                        }
                                         },
                        "blocks":  {
-                                      "title":  "Blocuri SuperAdmin",
-                                      "description":  "Toate blocurile înregistrate în platforma demonstrativă, fără filtrare după administrator.",
+                                      "title":  "Lista blocurilor",
+                                      "description":  "Toate blocurile înregistrate în baza de date a platformei, fără filtrare după administrator.",
+                                      "loading":  "Se încarcă blocurile platformei...",
+                                      "errors":  {
+                                                     "loadFailed":  "Blocurile platformei nu au putut fi încărcate. Încercați din nou."
+                                                 },
+                                      "empty":  {
+                                                    "headline":  "Nu există blocuri în platformă",
+                                                    "helperText":  "Blocurile create în baza de date vor apărea aici."
+                                                },
                                       "columns":  {
                                                     "name":  "Nume bloc",
                                                     "address":  "Adresă",
@@ -939,8 +988,16 @@
                                                 }
                                   },
                        "residents":  {
-                                         "title":  "Locatari SuperAdmin",
+                                        "title":  "Lista locatarilor",
                                          "description":  "Toate conturile de locatari și rolurile pe bloc vizibile la nivel de platformă.",
+                                         "loading":  "Se încarcă locatarii platformei...",
+                                         "errors":  {
+                                                        "loadFailed":  "Locatarii platformei nu au putut fi încărcați. Încercați din nou."
+                                                    },
+                                         "empty":  {
+                                                       "headline":  "Nu există locatari în platformă",
+                                                       "helperText":  "Utilizatorii cu roluri pe bloc vor apărea aici."
+                                                   },
                                          "columns":  {
                                                        "name":  "Nume locatar",
                                                        "email":  "Email",
@@ -948,7 +1005,8 @@
                                                        "block":  "Bloc",
                                                        "apartment":  "Apartament",
                                                        "accountStatus":  "Status cont",
-                                                       "blockRole":  "Rol pe bloc"
+                                                       "blockRole":  "Rol pe bloc",
+                                                       "membershipStatus":  "Status membru"
                                                    },
                                          "blockRole":  {
                                                            "Resident":  "Locatar",

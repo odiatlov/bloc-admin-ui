@@ -65,6 +65,8 @@ export type ResidentResponse = {
   phone: string | null
   email: string | null
   userId: string | null
+  hasRegisteredAccount: boolean
+  roles: string[]
   status: ResidentStatus
   apartmentCount: number
   apartments: ResidentApartmentSummary[]

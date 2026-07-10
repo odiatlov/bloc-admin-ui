@@ -52,6 +52,9 @@
     "login": {
       "description": "Mock authentication with scoped platform, administrator, censor, and resident sessions.",
       "demoAccount": "Demo account",
+      "userAccount": "User",
+      "loadingAccounts": "Loading users from database...",
+      "accountsFallback": "Database users could not be loaded. Showing fallback mock accounts.",
       "password": "Password",
       "submit": "Login"
     }
@@ -283,8 +286,19 @@
       "lastName": "Last name",
       "name": "Name",
       "phone": "Phone",
+      "registeredAccount": "Registered account",
+      "roles": "Roles",
       "status": "Status",
       "phoneOptional": "Phone (optional)"
+    },
+    "account": {
+      "registered": "Registered",
+      "unregistered": "Unregistered"
+    },
+    "roles": {
+      "Admin": "Admin",
+      "Censor": "Censor",
+      "Resident": "Resident"
     },
     "resident": {
       "noEmail": "No email"
@@ -721,17 +735,32 @@
   },
   "superAdmin": {
     "common": {
-      "createdAt": "Created at"
+      "createdAt": "Created at",
+      "quickActions": "Quick Actions"
+    },
+    "status": {
+      "active": "Active",
+      "suspended": "Suspended",
+      "pendingDeletion": "Pending deletion",
+      "deleted": "Deleted",
+      "removed": "Removed",
+      "noAccount": "No account"
     },
     "dashboard": {
       "title": "SuperAdmin Dashboard",
       "description": "Platform-level overview for support and onboarding.",
+      "loading": "Loading platform dashboard...",
+      "errors": {
+        "loadFailed": "Platform dashboard data could not be loaded. Please try again."
+      },
       "metrics": {
         "totalBlocks": "Total blocks registered",
+        "totalUsers": "Total users",
         "totalAdmins": "Total admins",
         "totalResidents": "Total residents",
         "totalCensors": "Total censors",
         "pendingAdminInvites": "Pending admin invites",
+        "suspendedAdminAccounts": "Suspended admin accounts",
         "blocksWithoutAdmin": "Blocks without assigned admin"
       },
       "columns": {
@@ -750,7 +779,15 @@
     },
     "manageAdmins": {
       "title": "Manage Admins",
-      "description": "Mock onboarding workspace for block administrator invitations and assignments.",
+      "description": "Database-backed view of admin accounts and pending administrator invitations.",
+      "loading": "Loading admin accounts...",
+      "errors": {
+        "loadFailed": "Admin accounts could not be loaded. Please try again."
+      },
+      "empty": {
+        "headline": "No admin accounts or invitations yet",
+        "helperText": "Seeded admin accounts and future invitations will appear here."
+      },
       "columns": {
         "name": "Name",
         "email": "Email",
@@ -762,6 +799,10 @@
       "status": {
         "active": "Active",
         "invited": "Invited",
+        "suspended": "Suspended",
+        "past_due": "Past due",
+        "cancelled": "Cancelled",
+        "expired": "Expired",
         "noBlock": "No block assigned"
       },
       "actions": {
@@ -784,8 +825,16 @@
       }
     },
     "blocks": {
-      "title": "SuperAdmin Blocks",
-      "description": "All registered blocks in the mock platform, without administrator scoping.",
+      "title": "Blocks list",
+      "description": "All registered blocks in the platform database, without administrator scoping.",
+      "loading": "Loading platform blocks...",
+      "errors": {
+        "loadFailed": "Platform blocks could not be loaded. Please try again."
+      },
+      "empty": {
+        "headline": "No platform blocks yet",
+        "helperText": "Blocks created in the database will appear here."
+      },
       "columns": {
         "name": "Block name",
         "address": "Address",
@@ -802,8 +851,16 @@
       }
     },
     "residents": {
-      "title": "SuperAdmin Residents",
+      "title": "Residents List",
       "description": "All resident accounts and block roles visible at platform level.",
+      "loading": "Loading platform residents...",
+      "errors": {
+        "loadFailed": "Platform residents could not be loaded. Please try again."
+      },
+      "empty": {
+        "headline": "No platform residents yet",
+        "helperText": "Users with block memberships will appear here."
+      },
       "columns": {
         "name": "Resident name",
         "email": "Email",
@@ -811,7 +868,8 @@
         "block": "Block",
         "apartment": "Apartment",
         "accountStatus": "Account status",
-        "blockRole": "Block role"
+        "blockRole": "Block role",
+        "membershipStatus": "Membership status"
       },
       "blockRole": {
         "Resident": "Resident",

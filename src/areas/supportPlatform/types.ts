@@ -2,15 +2,17 @@ import type { ResidentAccountStatus } from '../../types/apartment'
 
 export type SuperAdminMetricKey =
   | 'totalBlocks'
+  | 'totalUsers'
   | 'totalAdmins'
   | 'totalResidents'
   | 'totalCensors'
   | 'pendingAdminInvites'
+  | 'suspendedAdminAccounts'
   | 'blocksWithoutAdmin'
 
 export type SuperAdminStats = Record<SuperAdminMetricKey, number>
 
-export type AdminInviteStatus = 'active' | 'invited' | 'no_block'
+export type AdminInviteStatus = 'active' | 'invited' | 'suspended' | 'past_due' | 'cancelled' | 'expired' | 'no_block'
 
 export type PlatformAdminRow = {
   id: string

@@ -1,37 +1,100 @@
 import React from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
+import Paper from '@mui/material/Paper'
 import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import Snackbar from '@mui/material/Snackbar'
 import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
 import AddIcon from '@mui/icons-material/Add'
-import BlockIcon from '@mui/icons-material/Block'
 import CachedIcon from '@mui/icons-material/Cached'
-import LinkIcon from '@mui/icons-material/Link'
 import { useTranslation } from 'react-i18next'
 import AppDialog from '../../../../components/shared/AppDialog'
+import EmptyState from '../../../../components/shared/EmptyState'
+import LoadErrorState from '../../../../components/shared/LoadErrorState'
 import PageHeader from '../../../../components/shared/PageHeader'
 import ResponsiveDataView, { type DataColumn } from '../../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../../components/shared/StatusChip'
-import { blocks } from '../../../blockAdmin/mocks/blocks'
-import { mockAdminInvites } from '../../mocks/platformMockData'
+import {
+  superAdminApi,
+  type SuperAdminAdminAccountResponse,
+  type SuperAdminBlockResponse,
+  type SuperAdminInvitationResponse,
+} from '../../../../services/superAdminApi'
 import type { AdminInviteStatus, PlatformAdminRow } from '../../types'
 
 const tableEmptyValue = '-'
-
+const toDate = (value?: string) => value?.slice(0, 10)
 const statusKey = (status: AdminInviteStatus) => status === 'no_block' ? 'noBlock' : status
+
+const normalizeStatus = (status: string): AdminInviteStatus => {
+  const normalized = status.trim().toLowerCase()
+  if (normalized === 'pastdue') return 'past_due'
+  if (normalized === 'active' || normalized === 'invited' || normalized === 'suspended' || normalized === 'cancelled' || normalized === 'expired') {
+    return normalized
+  }
+  return 'no_block'
+}
+
+const mapAdminAccount = (adminAccount: SuperAdminAdminAccountResponse): PlatformAdminRow => ({
+  id: adminAccount.adminAccountId,
+  name: adminAccount.ownerName,
+  email: adminAccount.ownerEmail,
+  assignedBlockName: adminAccount.assignedBlocks.length > 0 ? adminAccount.assignedBlocks.map((block) => `Block ${block}`).join(', ') : undefined,
+  status: normalizeStatus(adminAccount.status),
+  createdAt: toDate(adminAccount.createdAt) ?? tableEmptyValue,
+  isActive: adminAccount.status === 'Active',
+})
+
+const mapInvitation = (invitation: SuperAdminInvitationResponse): PlatformAdminRow => ({
+  id: invitation.invitationId,
+  name: invitation.inviteeName,
+  email: invitation.email,
+  assignedBlockName: invitation.blockName ? `Block ${invitation.blockName}` : undefined,
+  status: normalizeStatus(invitation.status),
+  createdAt: toDate(invitation.createdAt) ?? tableEmptyValue,
+  lastInviteSentAt: toDate(invitation.lastSentAt),
+  isActive: invitation.status !== 'Cancelled' && invitation.status !== 'Expired',
+})
 
 const ManageAdmins: React.FC = () => {
   const { t } = useTranslation()
-  const [admins, setAdmins] = React.useState<PlatformAdminRow[]>(mockAdminInvites)
+  const [admins, setAdmins] = React.useState<PlatformAdminRow[]>([])
+  const [blocks, setBlocks] = React.useState<SuperAdminBlockResponse[]>([])
+  const [error, setError] = React.useState<string | null>(null)
+  const [isLoading, setIsLoading] = React.useState(true)
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
   const [snackbar, setSnackbar] = React.useState('')
   const [form, setForm] = React.useState({ name: '', email: '', blockId: '' })
 
-  const getBlockOption = (blockId: string) => blocks.find((block) => block.id === blockId)
+  const loadAdmins = React.useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const [adminAccounts, invitations, platformBlocks] = await Promise.all([
+        superAdminApi.getAdminAccounts(),
+        superAdminApi.getAdminInvitations(),
+        superAdminApi.getBlocks(),
+      ])
+      setAdmins([...adminAccounts.map(mapAdminAccount), ...invitations.map(mapInvitation)])
+      setBlocks(platformBlocks)
+    } catch (nextError) {
+      setError(nextError instanceof Error ? nextError.message : 'Unable to load platform administrators')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  React.useEffect(() => {
+    void loadAdmins()
+  }, [loadAdmins])
+
+  const getBlockOption = (blockId: string) => blocks.find((block) => block.blockId === blockId)
 
   const handleAddAdmin = () => {
     if (!form.name.trim() || !form.email.trim()) return
@@ -42,8 +105,8 @@ const ManageAdmins: React.FC = () => {
         id: crypto.randomUUID(),
         name: form.name.trim(),
         email: form.email.trim(),
-        assignedBlockId: block?.id,
-        assignedBlockName: block ? t('common.blockValue', { block: block.name }) : undefined,
+        assignedBlockId: block?.blockId,
+        assignedBlockName: block ? t('common.blockValue', { block: block.blockName }) : undefined,
         status: 'invited',
         createdAt: new Date().toISOString().slice(0, 10),
         lastInviteSentAt: new Date().toISOString().slice(0, 10),
@@ -56,28 +119,9 @@ const ManageAdmins: React.FC = () => {
     setSnackbar(t('superAdmin.manageAdmins.snackbar.invitationSent'))
   }
 
-  const handleAssignBlock = (admin: PlatformAdminRow) => {
-    const currentIndex = blocks.findIndex((block) => block.id === admin.assignedBlockId)
-    const nextBlock = blocks[(currentIndex + 1) % blocks.length]
-    setAdmins((current) => current.map((item) => item.id === admin.id
-      ? {
-          ...item,
-          assignedBlockId: nextBlock.id,
-          assignedBlockName: t('common.blockValue', { block: nextBlock.name }),
-          status: item.status === 'no_block' ? 'invited' : item.status,
-        }
-      : item))
-    setSnackbar(t('superAdmin.manageAdmins.snackbar.blockAssigned'))
-  }
-
   const handleResendInvite = (admin: PlatformAdminRow) => {
     setAdmins((current) => current.map((item) => item.id === admin.id ? { ...item, lastInviteSentAt: new Date().toISOString().slice(0, 10) } : item))
     setSnackbar(t('superAdmin.manageAdmins.snackbar.invitationSent'))
-  }
-
-  const handleDeactivate = (admin: PlatformAdminRow) => {
-    setAdmins((current) => current.map((item) => item.id === admin.id ? { ...item, isActive: false, status: 'no_block' } : item))
-    setSnackbar(t('superAdmin.manageAdmins.snackbar.deactivated'))
   }
 
   const columns: DataColumn<PlatformAdminRow>[] = [
@@ -97,17 +141,9 @@ const ManageAdmins: React.FC = () => {
       label: t('common.actions'),
       cardRole: 'actions',
       render: (admin) => (
-        <>
-          <Button size="small" startIcon={<LinkIcon />} onClick={() => handleAssignBlock(admin)}>
-            {admin.assignedBlockId ? t('superAdmin.manageAdmins.actions.reassignBlock') : t('superAdmin.manageAdmins.actions.assignBlock')}
-          </Button>
-          <Button size="small" startIcon={<CachedIcon />} onClick={() => handleResendInvite(admin)}>
-            {t('superAdmin.manageAdmins.actions.resendInvite')}
-          </Button>
-          <Button size="small" startIcon={<BlockIcon />} onClick={() => handleDeactivate(admin)} disabled={!admin.isActive}>
-            {t('superAdmin.manageAdmins.actions.deactivate')}
-          </Button>
-        </>
+        <Button size="small" startIcon={<CachedIcon />} onClick={() => handleResendInvite(admin)}>
+          {t('superAdmin.manageAdmins.actions.resendInvite')}
+        </Button>
       ),
     },
   ]
@@ -117,20 +153,40 @@ const ManageAdmins: React.FC = () => {
       <PageHeader
         title={t('superAdmin.manageAdmins.title')}
         description={t('superAdmin.manageAdmins.description')}
-        actions={(
+      />
+
+      <Paper sx={{ alignItems: 'center', display: 'flex', gap: 2, justifyContent: 'space-between', mb: 2, p: 2 }}>
+        <Typography variant="h6">{t('superAdmin.common.quickActions')}</Typography>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'flex-end' }}>
           <Button startIcon={<AddIcon />} variant="contained" onClick={() => setIsDialogOpen(true)}>
             {t('superAdmin.manageAdmins.actions.addAdmin')}
           </Button>
-        )}
-      />
+        </Box>
+      </Paper>
 
-      <ResponsiveDataView
-        ariaLabel={t('superAdmin.manageAdmins.title')}
-        columns={columns}
-        desktopTableMinWidth={1200}
-        getRowId={(admin) => admin.id}
-        rows={admins}
-      />
+      {isLoading ? (
+        <Paper sx={{ alignItems: 'center', display: 'grid', gap: 1.5, justifyItems: 'center', p: 4 }}>
+          <CircularProgress size={32} />
+          <Typography color="text.secondary">{t('superAdmin.manageAdmins.loading')}</Typography>
+        </Paper>
+      ) : error ? (
+        <LoadErrorState helperText={t('superAdmin.manageAdmins.errors.loadFailed')} onRetry={loadAdmins} />
+      ) : admins.length === 0 ? (
+        <EmptyState
+          actionLabel={t('superAdmin.manageAdmins.actions.addAdmin')}
+          headline={t('superAdmin.manageAdmins.empty.headline')}
+          helperText={t('superAdmin.manageAdmins.empty.helperText')}
+          onAction={() => setIsDialogOpen(true)}
+        />
+      ) : (
+        <ResponsiveDataView
+          ariaLabel={t('superAdmin.manageAdmins.title')}
+          columns={columns}
+          desktopTableMinWidth={1200}
+          getRowId={(admin) => admin.id}
+          rows={admins}
+        />
+      )}
 
       <AppDialog
         cancelLabel={t('common.cancel')}
@@ -149,8 +205,8 @@ const ManageAdmins: React.FC = () => {
           <Select label={t('superAdmin.manageAdmins.dialog.blockAssignment')} value={form.blockId} onChange={(event: SelectChangeEvent) => setForm((current) => ({ ...current, blockId: event.target.value }))}>
             <MenuItem value="">{t('superAdmin.manageAdmins.dialog.noBlock')}</MenuItem>
             {blocks.map((block) => (
-              <MenuItem key={block.id} value={block.id}>
-                {t('common.blockValue', { block: block.name })}
+              <MenuItem key={block.blockId} value={block.blockId}>
+                {t('common.blockValue', { block: block.blockName })}
               </MenuItem>
             ))}
           </Select>

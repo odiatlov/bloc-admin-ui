@@ -62,10 +62,12 @@ export const mockAdminInvites: PlatformAdminRow[] = [
 
 export const mockSuperAdminStats: SuperAdminStats = {
   totalBlocks: blocks.length,
+  totalUsers: administrators.length + 1,
   totalAdmins: administrators.filter((administrator) => administrator.role === 'Admin').length,
   totalResidents: residents.length,
   totalCensors: 1,
   pendingAdminInvites: mockAdminInvites.filter((administrator) => administrator.status === 'invited').length,
+  suspendedAdminAccounts: 0,
   blocksWithoutAdmin: blocks.filter((block) => !activeAdminAssignments.some((assignment) => assignment.blockId === block.id)).length,
 }
 
