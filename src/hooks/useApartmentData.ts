@@ -74,6 +74,11 @@ export const formatApartment = (apartment: Apartment) => {
 
 const today = new Date('2026-05-10T00:00:00')
 const toScope = (account: MockAccount, role: AuthRole) => ({ ...account, role })
+const toMockAdminScope = (account: MockAccount, role: AuthRole) => ({
+  ...account,
+  adminId: role === 'Admin' ? account.adminId ?? 'ADM-1' : account.adminId,
+  role,
+})
 
 const hasAssignedResident = (apartmentId: string, sourceLinks = residentApartments) =>
   sourceLinks.some((link) => link.apartmentId === apartmentId && !link.ownershipEndDate)
@@ -488,7 +493,7 @@ export const useFinance = () => {
   const [paymentMethodFilter, setPaymentMethodFilter] = React.useState<PaymentMethod | 'all'>('all')
   const [cashEntries, setCashEntries] = React.useState<CashPayment[]>(cashPayments)
   const scopedApartmentIds = React.useMemo(
-    () => new Set(filterApartmentsForAccount(apartments, toScope(account, role), buildingAdminAssignments, residentApartments).map((apartment) => apartment.id)),
+    () => new Set(filterApartmentsForAccount(apartments, toMockAdminScope(account, role), buildingAdminAssignments, residentApartments).map((apartment) => apartment.id)),
     [account, role],
   )
 
@@ -547,7 +552,7 @@ export const useFinance = () => {
     .filter((payment) => scopedApartmentIds.has(payment.apartmentId))
     .filter((payment) => payment.verificationStatus !== 'unverified')
     .reduce((sum, payment) => sum + payment.amount, 0)
-  const scopedBlocks = filterBlocksForAccount(blocks, toScope(account, role), buildingAdminAssignments, residentApartments, apartments)
+  const scopedBlocks = filterBlocksForAccount(blocks, toMockAdminScope(account, role), buildingAdminAssignments, residentApartments, apartments)
   const maintenanceRuns = scopedBlocks.map((block) => getMaintenanceRun(block.id, reportMonths[0]))
   const isEmptyDataAccount = account.dataMode === 'mock-empty-ui' || account.dataMode === 'backend-ready-empty' || account.dataMode === 'mock-configured-block'
 
@@ -569,8 +574,8 @@ export const useFinance = () => {
 export const useConsumption = () => {
   const { account, role } = React.useContext(RoleContext)
   const [blockFilter, setBlockFilter] = React.useState('all')
-  const scopedApartments = React.useMemo(() => filterApartmentsForAccount(apartments, toScope(account, role), buildingAdminAssignments, residentApartments), [account, role])
-  const scopedBlocks = React.useMemo(() => filterBlocksForAccount(blocks, toScope(account, role), buildingAdminAssignments, residentApartments, apartments), [account, role])
+  const scopedApartments = React.useMemo(() => filterApartmentsForAccount(apartments, toMockAdminScope(account, role), buildingAdminAssignments, residentApartments), [account, role])
+  const scopedBlocks = React.useMemo(() => filterBlocksForAccount(blocks, toMockAdminScope(account, role), buildingAdminAssignments, residentApartments, apartments), [account, role])
   const scopedApartmentIds = React.useMemo(() => new Set(scopedApartments.map((apartment) => apartment.id)), [scopedApartments])
 
   const readings = React.useMemo(
