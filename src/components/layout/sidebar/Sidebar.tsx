@@ -20,6 +20,8 @@ import HomeWorkIcon from '@mui/icons-material/HomeWork'
 import ApartmentIcon from '@mui/icons-material/Apartment'
 import StairsIcon from '@mui/icons-material/Stairs'
 import FactCheckIcon from '@mui/icons-material/FactCheck'
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
+import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import { NavLink } from 'react-router-dom'
 import { RoleContext } from '../../../contexts/RoleContext'
 import { useTranslation } from 'react-i18next'
@@ -42,7 +44,15 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ onNavigate, onClose, sh
   const { role } = React.useContext(RoleContext)
   const { t } = useTranslation()
 
-  const navItems = role === 'Resident'
+  const navItems = role === 'SuperAdmin'
+    ? [
+        { label: t('sidebar.superDashboard'), to: '/superadmin/dashboard', icon: <DashboardIcon />, permission: 'superAdmin' as const },
+        { label: t('sidebar.manageAdmins'), to: '/superadmin/manage-admins', icon: <AdminPanelSettingsIcon />, permission: 'superAdmin' as const },
+        { label: t('sidebar.superBlocks'), to: '/superadmin/blocks', icon: <HomeWorkIcon />, permission: 'superAdmin' as const },
+        { label: t('sidebar.superResidents'), to: '/superadmin/residents', icon: <PeopleIcon />, permission: 'superAdmin' as const },
+        { label: t('sidebar.exportData'), to: '/superadmin/export', icon: <FileDownloadIcon />, permission: 'superAdmin' as const },
+      ]
+    : role === 'Resident'
     ? [
         { label: t('sidebar.dashboard'), to: '/admin/dashboard', icon: <DashboardIcon />, permission: 'dashboard' as const },
         { label: t('sidebar.myBills'), to: '/admin/finance', icon: <MonetizationOnIcon />, permission: 'finance' as const },

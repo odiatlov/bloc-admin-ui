@@ -60,12 +60,13 @@ const Topbar: React.FC<Props> = ({
     if (value === 'Admin') return t('layout.topbar.role.admin')
     if (value === 'Resident') return t('layout.topbar.role.resident')
     if (value === 'Censor') return t('layout.topbar.role.censor')
-    return 'Support'
+    return t('layout.topbar.role.superAdmin')
   }
 
   const handleRoleChange = (e: SelectChangeEvent<string>) => {
-    setRole(e.target.value as AuthRole)
-    navigate('/admin/dashboard')
+    const nextRole = e.target.value as AuthRole
+    setRole(nextRole)
+    navigate(nextRole === 'SuperAdmin' ? '/superadmin/dashboard' : '/admin/dashboard')
   }
 
   return (

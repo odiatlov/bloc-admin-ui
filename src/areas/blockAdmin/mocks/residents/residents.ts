@@ -1,0 +1,21 @@
+import type { Resident, ResidentApartment } from '../../../../types/apartment'
+
+export const residents: Resident[] = [
+  { id: 'R-1001', name: 'Ana Popescu', status: 'active', accountStatus: 'active', email: 'ana.popescu@example.com', phone: '0740 100 001' },
+  { id: 'R-1002', name: 'Ion Popescu', status: 'active', accountStatus: 'no_account', phone: '0740 100 002' },
+  { id: 'R-1003', name: 'Mihai Ionescu', status: 'active', accountStatus: 'invited', email: 'mihai.ionescu@example.com', phone: '0740 100 003' },
+  { id: 'R-1004', name: 'Maria Ionescu', status: 'active', accountStatus: 'no_account', phone: '0740 100 004' },
+  { id: 'R-1005', name: 'Elena Marinescu', status: 'active', accountStatus: 'active', email: 'elena.marinescu@example.com', phone: '0740 100 005' },
+  { id: 'R-1006', name: 'Victor Stan', status: 'inactive', accountStatus: 'no_account', email: 'victor.stan@example.com', phone: '0740 100 006' },
+  { id: 'R-NEW-BLOCK', name: 'Resident Censor New Block', status: 'active', accountStatus: 'active', email: 'resident.censor.new.block@example.com', phone: '0740 000 010' },
+  { id: 'R-UNASSIGNED-1', name: 'Andrei Dima', status: 'active', accountStatus: 'no_account', phone: '0740 100 007' },
+]
+
+export const residentApartments: ResidentApartment[] = [
+  { id: 'RA-1001-A12', residentId: 'R-1001', apartmentId: 'apt-a-12', ownershipType: 'owner', ownershipStartDate: '2019-03-01', isPrimaryResidence: true },
+  { id: 'RA-1003-A18', residentId: 'R-1003', apartmentId: 'apt-a-18', ownershipType: 'owner', ownershipStartDate: '2021-06-10', isPrimaryResidence: false },
+  { id: 'RA-1004-A18', residentId: 'R-1004', apartmentId: 'apt-a-18', ownershipType: 'tenant', ownershipStartDate: '2025-09-01', ownershipEndDate: '2026-08-31', isPrimaryResidence: true },
+  { id: 'RA-1005-B41', residentId: 'R-1005', apartmentId: 'apt-b-41', ownershipType: 'owner', ownershipStartDate: '2017-11-20', isPrimaryResidence: true },
+  { id: 'RA-1006-C72', residentId: 'R-1006', apartmentId: 'apt-c-72', ownershipType: 'owner', ownershipStartDate: '2018-05-14', isPrimaryResidence: false },
+  { id: 'RA-NEW-BLOCK-1', residentId: 'R-NEW-BLOCK', apartmentId: 'apt-new-setup-1', ownershipType: 'owner', ownershipStartDate: '2026-05-01', isPrimaryResidence: true },
+]

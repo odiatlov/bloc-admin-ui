@@ -48,6 +48,12 @@
       "title": "Log out?",
       "body": "Are you sure you want to end this mock session?",
       "confirm": "Yes, log out"
+    },
+    "login": {
+      "description": "Mock authentication with scoped platform, administrator, censor, and resident sessions.",
+      "demoAccount": "Demo account",
+      "password": "Password",
+      "submit": "Login"
     }
   },
   "layout": {
@@ -55,7 +61,8 @@
       "role": {
         "admin": "Administrator",
         "resident": "Resident",
-        "censor": "Censor"
+        "censor": "Censor",
+        "superAdmin": "SuperAdmin"
       },
       "logout": "Logout",
       "language": "Language",
@@ -78,7 +85,13 @@
     "overview": "Overview",
     "searchBlocks": "Search blocks",
     "staircases": "Staircases",
-    "close": "Close sidebar"
+    "close": "Close sidebar",
+    "superAdmin": "SuperAdmin",
+    "superDashboard": "Platform dashboard",
+    "manageAdmins": "Manage admins",
+    "superBlocks": "Platform blocks",
+    "superResidents": "Platform residents",
+    "exportData": "Export data"
   },
   "status": {
     "invoice": {
@@ -703,6 +716,144 @@
       "units": {
         "surface": "m²",
         "water": "m³"
+      }
+    }
+  },
+  "superAdmin": {
+    "common": {
+      "createdAt": "Created at"
+    },
+    "dashboard": {
+      "title": "SuperAdmin Dashboard",
+      "description": "Platform-level overview for support and onboarding.",
+      "metrics": {
+        "totalBlocks": "Total blocks registered",
+        "totalAdmins": "Total admins",
+        "totalResidents": "Total residents",
+        "totalCensors": "Total censors",
+        "pendingAdminInvites": "Pending admin invites",
+        "blocksWithoutAdmin": "Blocks without assigned admin"
+      },
+      "columns": {
+        "activity": "Activity",
+        "description": "Description"
+      },
+      "activity": {
+        "title": "Recent platform activity",
+        "inviteSent": "Admin invite sent",
+        "inviteSentDescription": "A block administrator invitation was queued for onboarding.",
+        "blockConfigured": "Block configured",
+        "blockConfiguredDescription": "A new block setup was completed in the mock platform data.",
+        "exportGenerated": "Support export generated",
+        "exportGeneratedDescription": "A resident export was generated for a support review."
+      }
+    },
+    "manageAdmins": {
+      "title": "Manage Admins",
+      "description": "Mock onboarding workspace for block administrator invitations and assignments.",
+      "columns": {
+        "name": "Name",
+        "email": "Email",
+        "assignedBlock": "Assigned block",
+        "status": "Status",
+        "createdAt": "Created date",
+        "lastInviteSentAt": "Last invite sent"
+      },
+      "status": {
+        "active": "Active",
+        "invited": "Invited",
+        "noBlock": "No block assigned"
+      },
+      "actions": {
+        "addAdmin": "Add Admin",
+        "assignBlock": "Assign block",
+        "reassignBlock": "Reassign block",
+        "resendInvite": "Resend invite",
+        "deactivate": "Deactivate",
+        "sendInvite": "Send invite"
+      },
+      "dialog": {
+        "title": "Add admin invitation",
+        "blockAssignment": "Block assignment (optional)",
+        "noBlock": "No block assigned"
+      },
+      "snackbar": {
+        "invitationSent": "Invitation sent",
+        "blockAssigned": "Block assignment updated",
+        "deactivated": "Admin deactivated"
+      }
+    },
+    "blocks": {
+      "title": "SuperAdmin Blocks",
+      "description": "All registered blocks in the mock platform, without administrator scoping.",
+      "columns": {
+        "name": "Block name",
+        "address": "Address",
+        "activeAdmin": "Active admin",
+        "censor": "Censor",
+        "apartmentsCount": "Apartments count",
+        "staircasesCount": "Staircases count",
+        "residentsCount": "Residents count"
+      },
+      "actions": {
+        "viewDetails": "View details",
+        "assignAdmin": "Assign admin",
+        "exportBlockData": "Export block data"
+      }
+    },
+    "residents": {
+      "title": "SuperAdmin Residents",
+      "description": "All resident accounts and block roles visible at platform level.",
+      "columns": {
+        "name": "Resident name",
+        "email": "Email",
+        "phone": "Phone",
+        "block": "Block",
+        "apartment": "Apartment",
+        "accountStatus": "Account status",
+        "blockRole": "Block role"
+      },
+      "blockRole": {
+        "Resident": "Resident",
+        "Admin": "Admin",
+        "Censor": "Censor"
+      }
+    },
+    "export": {
+      "title": "Export Data",
+      "description": "Mock platform exports for support and reporting workflows.",
+      "history": "Export history",
+      "requestedBy": "SuperAdmin",
+      "allBlocks": "All blocks",
+      "fields": {
+        "exportType": "Export type",
+        "block": "Block",
+        "format": "Format"
+      },
+      "type": {
+        "all_data": "All data",
+        "blocks": "Blocks",
+        "residents": "Residents",
+        "apartments": "Apartments",
+        "finance_summary": "Finance summary"
+      },
+      "actions": {
+        "generate": "Generate export"
+      },
+      "columns": {
+        "exportType": "Export type",
+        "requestedBy": "Requested by",
+        "block": "Block",
+        "format": "Format",
+        "status": "Status"
+      },
+      "status": {
+        "completed": "Completed",
+        "processing": "Processing",
+        "failed": "Failed"
+      },
+      "snackbar": {
+        "generated": "Export generated"
       }
     }
   },

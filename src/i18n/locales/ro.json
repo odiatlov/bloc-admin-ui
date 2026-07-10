@@ -48,14 +48,21 @@
                                 "title":  "Vă deconectați?",
                                 "body":  "Sigur doriți să încheiați această sesiune demonstrativă?",
                                 "confirm":  "Da, deconectează-mă"
-                            }
+                            },
+                 "login":  {
+                               "description":  "Autentificare demonstrativă cu sesiuni pentru platformă, administrator, cenzor și locatar.",
+                               "demoAccount":  "Cont demonstrativ",
+                               "password":  "Parolă",
+                               "submit":  "Autentificare"
+                           }
              },
     "layout":  {
                    "topbar":  {
                                   "role":  {
                                                "admin":  "Administrator",
                                                "resident":  "Locatar",
-                                               "censor":  "Cenzor"
+                                               "censor":  "Cenzor",
+                                               "superAdmin":  "SuperAdmin"
                                            },
                                   "logout":  "Deconectare",
                                   "language":  "Limba",
@@ -110,7 +117,13 @@
                     "overview":  "Prezentare",
                     "searchBlocks":  "Caută blocuri",
                     "staircases":  "Scări",
-                    "close":  "Închide meniul"
+                    "close":  "Închide meniul",
+                    "superAdmin":  "SuperAdmin",
+                    "superDashboard":  "Panou platformă",
+                    "manageAdmins":  "Administrare administratori",
+                    "superBlocks":  "Blocuri platformă",
+                    "superResidents":  "Locatari platformă",
+                    "exportData":  "Export date"
                 },
     "status":  {
                    "invoice":  {
@@ -842,5 +855,143 @@
                                        "search":  "Caută scări"
                                    },
                        "loading":  "Se încarcă scările..."
+                   },
+    "superAdmin":  {
+                       "common":  {
+                                      "createdAt":  "Creat la"
+                                  },
+                       "dashboard":  {
+                                         "title":  "Panou SuperAdmin",
+                                         "description":  "Prezentare la nivel de platformă pentru suport și onboarding.",
+                                         "metrics":  {
+                                                        "totalBlocks":  "Total blocuri înregistrate",
+                                                        "totalAdmins":  "Total administratori",
+                                                        "totalResidents":  "Total locatari",
+                                                        "totalCensors":  "Total cenzori",
+                                                        "pendingAdminInvites":  "Invitații de administratori în așteptare",
+                                                        "blocksWithoutAdmin":  "Blocuri fără administrator alocat"
+                                                    },
+                                         "columns":  {
+                                                       "activity":  "Activitate",
+                                                       "description":  "Descriere"
+                                                   },
+                                         "activity":  {
+                                                        "title":  "Activitate recentă pe platformă",
+                                                        "inviteSent":  "Invitație administrator trimisă",
+                                                        "inviteSentDescription":  "O invitație pentru administrator de bloc a fost pregătită pentru onboarding.",
+                                                        "blockConfigured":  "Bloc configurat",
+                                                        "blockConfiguredDescription":  "O configurare de bloc nou a fost finalizată în datele demonstrative ale platformei.",
+                                                        "exportGenerated":  "Export de suport generat",
+                                                        "exportGeneratedDescription":  "Un export de locatari a fost generat pentru o verificare de suport."
+                                                    }
+                                     },
+                       "manageAdmins":  {
+                                            "title":  "Administrare administratori",
+                                            "description":  "Spațiu demonstrativ de onboarding pentru invitații și alocări de administratori de bloc.",
+                                            "columns":  {
+                                                          "name":  "Nume",
+                                                          "email":  "Email",
+                                                          "assignedBlock":  "Bloc alocat",
+                                                          "status":  "Status",
+                                                          "createdAt":  "Data creării",
+                                                          "lastInviteSentAt":  "Ultima invitație trimisă"
+                                                      },
+                                            "status":  {
+                                                         "active":  "Activ",
+                                                         "invited":  "Invitat",
+                                                         "noBlock":  "Fără bloc alocat"
+                                                     },
+                                            "actions":  {
+                                                          "addAdmin":  "Adaugă administrator",
+                                                          "assignBlock":  "Alocă bloc",
+                                                          "reassignBlock":  "Realocă bloc",
+                                                          "resendInvite":  "Retrimite invitația",
+                                                          "deactivate":  "Dezactivează",
+                                                          "sendInvite":  "Trimite invitația"
+                                                      },
+                                            "dialog":  {
+                                                         "title":  "Adaugă invitație administrator",
+                                                         "blockAssignment":  "Alocare bloc (opțional)",
+                                                         "noBlock":  "Fără bloc alocat"
+                                                     },
+                                            "snackbar":  {
+                                                           "invitationSent":  "Invitație trimisă",
+                                                           "blockAssigned":  "Alocarea blocului a fost actualizată",
+                                                           "deactivated":  "Administrator dezactivat"
+                                                       }
+                                        },
+                       "blocks":  {
+                                      "title":  "Blocuri SuperAdmin",
+                                      "description":  "Toate blocurile înregistrate în platforma demonstrativă, fără filtrare după administrator.",
+                                      "columns":  {
+                                                    "name":  "Nume bloc",
+                                                    "address":  "Adresă",
+                                                    "activeAdmin":  "Administrator activ",
+                                                    "censor":  "Cenzor",
+                                                    "apartmentsCount":  "Număr de apartamente",
+                                                    "staircasesCount":  "Număr de scări",
+                                                    "residentsCount":  "Număr de locatari"
+                                                },
+                                      "actions":  {
+                                                    "viewDetails":  "Vezi detalii",
+                                                    "assignAdmin":  "Alocă administrator",
+                                                    "exportBlockData":  "Exportă datele blocului"
+                                                }
+                                  },
+                       "residents":  {
+                                         "title":  "Locatari SuperAdmin",
+                                         "description":  "Toate conturile de locatari și rolurile pe bloc vizibile la nivel de platformă.",
+                                         "columns":  {
+                                                       "name":  "Nume locatar",
+                                                       "email":  "Email",
+                                                       "phone":  "Telefon",
+                                                       "block":  "Bloc",
+                                                       "apartment":  "Apartament",
+                                                       "accountStatus":  "Status cont",
+                                                       "blockRole":  "Rol pe bloc"
+                                                   },
+                                         "blockRole":  {
+                                                           "Resident":  "Locatar",
+                                                           "Admin":  "Administrator",
+                                                           "Censor":  "Cenzor"
+                                                       }
+                                     },
+                       "export":  {
+                                      "title":  "Export date",
+                                      "description":  "Exporturi demonstrative de platformă pentru fluxuri de suport și raportare.",
+                                      "history":  "Istoric exporturi",
+                                      "requestedBy":  "SuperAdmin",
+                                      "allBlocks":  "Toate blocurile",
+                                      "fields":  {
+                                                    "exportType":  "Tip export",
+                                                    "block":  "Bloc",
+                                                    "format":  "Format"
+                                                },
+                                      "type":  {
+                                                   "all_data":  "Toate datele",
+                                                   "blocks":  "Blocuri",
+                                                   "residents":  "Locatari",
+                                                   "apartments":  "Apartamente",
+                                                   "finance_summary":  "Sumar financiar"
+                                               },
+                                      "actions":  {
+                                                    "generate":  "Generează export"
+                                                },
+                                      "columns":  {
+                                                    "exportType":  "Tip export",
+                                                    "requestedBy":  "Solicitat de",
+                                                    "block":  "Bloc",
+                                                    "format":  "Format",
+                                                    "status":  "Status"
+                                                },
+                                      "status":  {
+                                                   "completed":  "Finalizat",
+                                                   "processing":  "În procesare",
+                                                   "failed":  "Eșuat"
+                                               },
+                                      "snackbar":  {
+                                                       "generated":  "Export generat"
+                                                   }
+                                  }
                    }
 }
