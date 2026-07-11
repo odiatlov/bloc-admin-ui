@@ -41,6 +41,11 @@ const Staircases: React.FC = () => {
   const [form, setForm] = React.useState({ blockId: '', name: '' })
 
   const blocks = databaseBlocks.blocks
+  const allowedBlockIds = React.useMemo(() => new Set(blocks.map((block) => block.id)), [blocks])
+  const scopedStaircases = React.useMemo(
+    () => staircases.filter((staircase) => allowedBlockIds.has(staircase.blockId)),
+    [allowedBlockIds, staircases],
+  )
 
   const loadStaircases = React.useCallback(async () => {
     setIsLoading(true)
@@ -62,12 +67,12 @@ const Staircases: React.FC = () => {
   const filteredRows = React.useMemo(() => {
     const query = search.trim().toLowerCase()
 
-    return staircases.filter((staircase) => {
+    return scopedStaircases.filter((staircase) => {
       const matchesBlock = selectedBlockId === 'all' || staircase.blockId === selectedBlockId
       const matchesSearch = !query || [staircase.name, staircase.blockName].some((value) => value.toLowerCase().includes(query))
       return matchesBlock && matchesSearch
     })
-  }, [staircases, search, selectedBlockId])
+  }, [scopedStaircases, search, selectedBlockId])
 
   const openCreateDialog = () => {
     setEditingStaircase(null)

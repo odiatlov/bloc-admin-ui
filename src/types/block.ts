@@ -3,6 +3,7 @@ export type BlockOverviewDto = {
   name: string
   displayName: string
   administratorName: string | null
+  adminAccountId: string | null
   hasStaircases: boolean
   address: string | null
   createdAt: string
@@ -18,7 +19,6 @@ export type BlockOverview = BlockOverviewDto
 
 export type CreateBlockRequest = {
   name: string
-  activeAdminName: string
   apartmentCount: number
   residentCount: number
   hasStaircases: boolean

@@ -11,7 +11,6 @@ import Snackbar from '@mui/material/Snackbar'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import AddIcon from '@mui/icons-material/Add'
-import CachedIcon from '@mui/icons-material/Cached'
 import { useTranslation } from 'react-i18next'
 import AppDialog from '../../../../components/shared/AppDialog'
 import EmptyState from '../../../../components/shared/EmptyState'
@@ -68,6 +67,7 @@ const ManageAdmins: React.FC = () => {
   const [error, setError] = React.useState<string | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
+  const [isCreatingAdmin, setIsCreatingAdmin] = React.useState(false)
   const [snackbar, setSnackbar] = React.useState('')
   const [form, setForm] = React.useState({ name: '', email: '', blockId: '' })
 
@@ -94,34 +94,27 @@ const ManageAdmins: React.FC = () => {
     void loadAdmins()
   }, [loadAdmins])
 
-  const getBlockOption = (blockId: string) => blocks.find((block) => block.blockId === blockId)
+  const handleAddAdmin = async () => {
+    if (!form.name.trim() || !form.email.trim() || isCreatingAdmin) return
 
-  const handleAddAdmin = () => {
-    if (!form.name.trim() || !form.email.trim()) return
-    const block = getBlockOption(form.blockId)
+    setIsCreatingAdmin(true)
+    setError(null)
 
-    setAdmins((current) => [
-      {
-        id: crypto.randomUUID(),
-        name: form.name.trim(),
-        email: form.email.trim(),
-        assignedBlockId: block?.blockId,
-        assignedBlockName: block ? t('common.blockValue', { block: block.blockName }) : undefined,
-        status: 'invited',
-        createdAt: new Date().toISOString().slice(0, 10),
-        lastInviteSentAt: new Date().toISOString().slice(0, 10),
-        isActive: true,
-      },
-      ...current,
-    ])
-    setForm({ name: '', email: '', blockId: '' })
-    setIsDialogOpen(false)
-    setSnackbar(t('superAdmin.manageAdmins.snackbar.invitationSent'))
-  }
-
-  const handleResendInvite = (admin: PlatformAdminRow) => {
-    setAdmins((current) => current.map((item) => item.id === admin.id ? { ...item, lastInviteSentAt: new Date().toISOString().slice(0, 10) } : item))
-    setSnackbar(t('superAdmin.manageAdmins.snackbar.invitationSent'))
+    try {
+      await superAdminApi.createAdminAccount({
+        ownerName: form.name.trim(),
+        ownerEmail: form.email.trim(),
+        blockId: form.blockId || null,
+      })
+      setForm({ name: '', email: '', blockId: '' })
+      setIsDialogOpen(false)
+      setSnackbar(t('superAdmin.manageAdmins.snackbar.created'))
+      await loadAdmins()
+    } catch (nextError) {
+      setSnackbar(nextError instanceof Error ? nextError.message : t('superAdmin.manageAdmins.errors.createFailed'))
+    } finally {
+      setIsCreatingAdmin(false)
+    }
   }
 
   const columns: DataColumn<PlatformAdminRow>[] = [
@@ -136,16 +129,6 @@ const ManageAdmins: React.FC = () => {
     },
     { key: 'createdAt', label: t('superAdmin.manageAdmins.columns.createdAt'), render: (admin) => admin.createdAt },
     { key: 'lastInviteSentAt', label: t('superAdmin.manageAdmins.columns.lastInviteSentAt'), render: (admin) => admin.lastInviteSentAt ?? tableEmptyValue },
-    {
-      key: 'actions',
-      label: t('common.actions'),
-      cardRole: 'actions',
-      render: (admin) => (
-        <Button size="small" startIcon={<CachedIcon />} onClick={() => handleResendInvite(admin)}>
-          {t('superAdmin.manageAdmins.actions.resendInvite')}
-        </Button>
-      ),
-    },
   ]
 
   return (
@@ -190,11 +173,11 @@ const ManageAdmins: React.FC = () => {
 
       <AppDialog
         cancelLabel={t('common.cancel')}
-        confirmDisabled={!form.name.trim() || !form.email.trim()}
-        confirmLabel={t('superAdmin.manageAdmins.actions.sendInvite')}
+        confirmDisabled={!form.name.trim() || !form.email.trim() || isCreatingAdmin}
+        confirmLabel={isCreatingAdmin ? t('superAdmin.manageAdmins.actions.creatingAdmin') : t('superAdmin.manageAdmins.actions.createAdmin')}
         contentSx={{ display: 'grid', gap: 2 }}
         onCancel={() => setIsDialogOpen(false)}
-        onConfirm={handleAddAdmin}
+        onConfirm={() => { void handleAddAdmin() }}
         open={isDialogOpen}
         title={t('superAdmin.manageAdmins.dialog.title')}
       >

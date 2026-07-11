@@ -170,7 +170,7 @@ const ResidentDashboard: React.FC = () => {
 
   return (
     <DashboardPage>
-      <DashboardHeader title={t('dashboard.resident.title')} context={resident.name} />
+      <DashboardHeader title={t('dashboard.resident.title')} context={databaseResident?.fullName ?? account.name ?? resident.name} />
 
       <ActionBar title={t('dashboard.resident.quickActions')}>
         {residentInvoices.length > 0 && (

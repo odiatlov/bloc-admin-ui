@@ -61,7 +61,6 @@ const AddBlockDialog: React.FC<AddBlockDialogProps> = ({
     try {
       await onSubmit({
         name: form.name.trim(),
-        activeAdminName: '',
         apartmentCount: block?.apartmentCount ?? 0,
         residentCount: block?.residentCount ?? 0,
         hasStaircases: block?.hasStaircases ?? false,

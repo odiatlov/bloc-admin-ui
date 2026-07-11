@@ -13,10 +13,12 @@ type ProblemDetails = {
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
 
 const apiRequest = async <T>(path: string, init?: RequestInit): Promise<T> => {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('mockJwt') : null
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...init?.headers,
     },
   })

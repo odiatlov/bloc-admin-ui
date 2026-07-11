@@ -25,6 +25,8 @@ import { filterBlocksForAccount } from '../../../../../application/accessScope'
 import { RoleContext } from '../../../../../contexts/RoleContext'
 import { useBlocks } from '../../../../../hooks/useBlocks'
 import { blocksApi } from '../../../../../services/blocksApi'
+import { residentsApi } from '../../../../../services/residentsApi'
+import type { ResidentResponse } from '../../../../../types/management'
 import type { CreateBlockRequest } from '../../../../../types/block'
 import {
   apartments,
@@ -78,6 +80,29 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
     message: string
     severity: 'success' | 'error'
   } | null>(null)
+  const [residentProfile, setResidentProfile] = React.useState<ResidentResponse | null>(null)
+
+  React.useEffect(() => {
+    if (mode !== 'resident' || !account.residentId) {
+      setResidentProfile(null)
+      return
+    }
+
+    let isActive = true
+
+    residentsApi.getById(account.residentId)
+      .then((resident) => {
+        if (isActive) setResidentProfile(resident)
+      })
+      .catch(() => {
+        if (isActive) setResidentProfile(null)
+      })
+
+    return () => {
+      isActive = false
+    }
+  }, [account.residentId, mode])
+
   React.useEffect(() => {
     if (!settingsBlocks.some((block) => block.id === selectedBlockId)) {
       setSelectedBlockId(settingsBlocks[0]?.id ?? '')
@@ -91,6 +116,8 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
     : null
   const selectedBlockStaircases = staircases.filter((staircase) => staircase.blockId === selectedBlock?.id)
   const selectedCustomCosts = customCosts.filter((cost) => cost.blockId === selectedBlock?.id)
+  const profileName = residentProfile?.fullName ?? account.name
+  const profileEmail = residentProfile?.email ?? account.email
 
   const handleStaircaseChange = (event: SelectChangeEvent) => {
     setSelectedStaircaseId(event.target.value)
@@ -180,8 +207,8 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
       >
         <Paper sx={{ p: 2, display: 'grid', gap: 2 }}>
           <Typography variant="h6">{t('settings.resident.profile')}</Typography>
-          <TextField label={t('settings.fields.name')} defaultValue="Ana Popescu" />
-          <TextField label={t('settings.fields.email')} defaultValue="ana.popescu@example.com" />
+          <TextField label={t('settings.fields.name')} value={profileName} slotProps={{ input: { readOnly: true } }} />
+          <TextField label={t('settings.fields.email')} value={profileEmail} slotProps={{ input: { readOnly: true } }} />
           <FormControl size="small">
             <InputLabel>{t('settings.fields.language')}</InputLabel>
             <Select label={t('settings.fields.language')} defaultValue="en">

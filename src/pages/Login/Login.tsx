@@ -9,11 +9,13 @@ import Typography from '@mui/material/Typography'
 import { useNavigate } from 'react-router-dom'
 import { RoleContext } from '../../contexts/RoleContext'
 import { useTranslation } from 'react-i18next'
+import EmptyState from '../../components/shared/EmptyState'
+import LoadErrorState from '../../components/shared/LoadErrorState'
 
 const Login: React.FC = () => {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const { account, accounts, accountsLoading, login } = React.useContext(RoleContext)
+  const { account, accounts, accountsError, accountsLoading, login, refreshAccounts } = React.useContext(RoleContext)
   const [accountId, setAccountId] = React.useState(account.id)
   const selectedAccount = accounts.find((item) => item.id === accountId) ?? accounts[0]
 
@@ -38,29 +40,38 @@ const Login: React.FC = () => {
             {t('auth.login.description')}
           </Typography>
         </Box>
-        <TextField
-          select
-          label={t('auth.login.userAccount')}
-          value={accountId}
-          onChange={(event) => {
-            const nextAccount = accounts.find((item) => item.id === event.target.value) ?? accounts[0]
-            setAccountId(nextAccount.id)
-          }}
-          fullWidth
-          disabled={accountsLoading}
-        >
-          {accounts.map((item) => (
-            <MenuItem key={item.id} value={item.id}>
-            {item.name}
-          </MenuItem>
-        ))}
-        </TextField>
         {accountsLoading ? (
           <Box sx={{ alignItems: 'center', display: 'flex', gap: 1 }}>
             <CircularProgress size={18} />
             <Typography variant="body2" color="text.secondary">{t('auth.login.loadingAccounts')}</Typography>
           </Box>
-        ) : null}
+        ) : accountsError ? (
+          <LoadErrorState helperText={t('auth.login.accountsFallback')} onRetry={() => { void refreshAccounts() }} />
+        ) : accounts.length === 0 ? (
+          <EmptyState
+            actionLabel={t('common.refresh')}
+            headline={t('emptyState.headline', { information: t('auth.login.userAccount') })}
+            helperText={t('emptyState.helper.dedicated', { information: t('auth.login.userAccount') })}
+            onAction={() => { void refreshAccounts() }}
+          />
+        ) : (
+          <TextField
+            select
+            label={t('auth.login.userAccount')}
+            value={accountId}
+            onChange={(event) => {
+              const nextAccount = accounts.find((item) => item.id === event.target.value) ?? accounts[0]
+              setAccountId(nextAccount.id)
+            }}
+            fullWidth
+          >
+            {accounts.map((item) => (
+              <MenuItem key={item.id} value={item.id}>
+                {item.name}
+              </MenuItem>
+            ))}
+          </TextField>
+        )}
         <TextField label={t('residents.fields.email')} value={selectedAccount?.email ?? ''} fullWidth disabled />
         <TextField label={t('auth.login.password')} type="password" value="demo-password" fullWidth disabled />
         <Button type="submit" variant="contained" size="large" disabled={accountsLoading || !selectedAccount}>

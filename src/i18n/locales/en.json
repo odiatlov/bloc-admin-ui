@@ -11,6 +11,7 @@
     "close": "Close",
     "at": "at",
     "notAvailable": "Not available",
+    "refresh": "Refresh",
     "save": "Save",
     "today": "Today"
   },
@@ -54,7 +55,7 @@
       "demoAccount": "Demo account",
       "userAccount": "User",
       "loadingAccounts": "Loading users from database...",
-      "accountsFallback": "Database users could not be loaded. Showing fallback mock accounts.",
+      "accountsFallback": "Database users could not be loaded.",
       "password": "Password",
       "submit": "Login"
     }
@@ -269,6 +270,7 @@
     "apartmentLabel": "Apartment {{apartment}}, floor {{floor}}",
     "loading": "Loading residents...",
     "errors": {
+      "invalidEmail": "Enter a valid email address.",
       "loadFailed": "Residents could not be loaded. Please try again."
     },
     "apartment": {
@@ -283,17 +285,20 @@
       "email": "Email",
       "emailOptional": "Email (optional)",
       "firstName": "First name",
+      "inviteResident": "Invite resident to create an account",
       "lastName": "Last name",
       "name": "Name",
       "phone": "Phone",
       "registeredAccount": "Registered account",
       "roles": "Roles",
       "status": "Status",
-      "phoneOptional": "Phone (optional)"
+      "phoneOptional": "Phone (optional)",
+      "userAccount": "User account"
     },
     "account": {
       "registered": "Registered",
-      "unregistered": "Unregistered"
+      "unregistered": "Unregistered",
+      "noLinkedAccount": "No linked user account"
     },
     "roles": {
       "Admin": "Admin",
@@ -344,6 +349,9 @@
       "deleteConfirmYes": "Yes, delete",
       "deleteTitle": "Delete resident",
       "deleting": "Deleting..."
+    },
+    "notifications": {
+      "existingLinked": "This resident already existed, so they were linked to the selected block."
     },
     "detail": {
       "invoices": "Invoice history",
@@ -782,7 +790,8 @@
       "description": "Database-backed view of admin accounts and pending administrator invitations.",
       "loading": "Loading admin accounts...",
       "errors": {
-        "loadFailed": "Admin accounts could not be loaded. Please try again."
+        "loadFailed": "Admin accounts could not be loaded. Please try again.",
+        "createFailed": "Admin account could not be created. Please try again."
       },
       "empty": {
         "headline": "No admin accounts or invitations yet",
@@ -811,17 +820,20 @@
         "reassignBlock": "Reassign block",
         "resendInvite": "Resend invite",
         "deactivate": "Deactivate",
-        "sendInvite": "Send invite"
+        "sendInvite": "Send invite",
+        "createAdmin": "Create admin",
+        "creatingAdmin": "Creating admin..."
       },
       "dialog": {
-        "title": "Add admin invitation",
+        "title": "Create admin account",
         "blockAssignment": "Block assignment (optional)",
         "noBlock": "No block assigned"
       },
       "snackbar": {
         "invitationSent": "Invitation sent",
         "blockAssigned": "Block assignment updated",
-        "deactivated": "Admin deactivated"
+        "deactivated": "Admin deactivated",
+        "created": "Admin account created and accepted"
       }
     },
     "blocks": {

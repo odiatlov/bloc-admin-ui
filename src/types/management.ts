@@ -69,14 +69,24 @@ export type ResidentResponse = {
   roles: string[]
   status: ResidentStatus
   apartmentCount: number
+  blocks: ResidentBlockSummary[]
   apartments: ResidentApartmentSummary[]
+  wasExistingIdentity: boolean
   createdAt: string
   updatedAt: string
+}
+
+export type ResidentBlockSummary = {
+  linkId: string
+  blockId: string
+  blockName: string
 }
 
 export type CreateResidentRequest = {
   firstName: string
   lastName: string
+  blockId: string
+  inviteResident: boolean
   phone?: string | null
   email?: string | null
   userId?: string | null

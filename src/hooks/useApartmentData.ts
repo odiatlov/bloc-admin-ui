@@ -554,10 +554,9 @@ export const useFinance = () => {
     .reduce((sum, payment) => sum + payment.amount, 0)
   const scopedBlocks = filterBlocksForAccount(blocks, toMockAdminScope(account, role), buildingAdminAssignments, residentApartments, apartments)
   const maintenanceRuns = scopedBlocks.map((block) => getMaintenanceRun(block.id, reportMonths[0]))
-  const isEmptyDataAccount = account.dataMode === 'mock-empty-ui' || account.dataMode === 'backend-ready-empty' || account.dataMode === 'mock-configured-block'
 
   return {
-    cashAwaitingVerification: (isEmptyDataAccount ? enrichedCashEntries : cashEntries).filter((entry) => entry.status === 'unverified').length,
+    cashAwaitingVerification: enrichedCashEntries.filter((entry) => entry.status === 'unverified').length,
     cashEntries: enrichedCashEntries,
     invoices: enrichedInvoices,
     monthlyRevenue,

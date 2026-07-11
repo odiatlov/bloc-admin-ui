@@ -64,7 +64,7 @@ export const RoleProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     try {
       const nextAccounts = await mockLoginApi.getAccounts()
       if (nextAccounts.length === 0) {
-        setAccounts(mockAccounts)
+        setAccounts([])
         setAccountsError('No database accounts are available yet.')
         return
       }
@@ -80,7 +80,7 @@ export const RoleProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
       setAccount(nextAccount)
       setActiveRole(nextRole)
     } catch (nextError) {
-      setAccounts(mockAccounts)
+      setAccounts([])
       setAccountsError(nextError instanceof Error ? nextError.message : 'Unable to load database accounts.')
     } finally {
       setAccountsLoading(false)
@@ -107,7 +107,10 @@ export const RoleProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
   }
 
   const login = (accountId: string, requestedRole?: Role) => {
-    persistAccount(accounts.find((item) => item.id === accountId) ?? getDefaultAccount(accounts), requestedRole)
+    const nextAccount = accounts.find((item) => item.id === accountId)
+    if (!nextAccount) return
+
+    persistAccount(nextAccount, requestedRole)
   }
 
   const logout = () => {

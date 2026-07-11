@@ -22,6 +22,14 @@ const ReportGenerator: React.FC = () => {
   const databaseBlocks = useBlocks()
   const [block, setBlock] = React.useState('all')
   const [databaseApartments, setDatabaseApartments] = React.useState<ApartmentResponse[]>([])
+  const allowedBlockIds = React.useMemo(
+    () => new Set(databaseBlocks.blocks.map((item) => item.id)),
+    [databaseBlocks.blocks],
+  )
+  const scopedApartments = React.useMemo(
+    () => databaseApartments.filter((apartment) => allowedBlockIds.has(apartment.blockId)),
+    [allowedBlockIds, databaseApartments],
+  )
 
   React.useEffect(() => {
     let isMounted = true
@@ -50,12 +58,12 @@ const ReportGenerator: React.FC = () => {
   }, [block, databaseBlocks.blocks])
 
   const surfaceTotal = React.useMemo(() => {
-    if (databaseApartments.length === 0) return preview.surfaceTotal
+    if (scopedApartments.length === 0) return 0
 
-    return databaseApartments
+    return scopedApartments
       .filter((apartment) => block === 'all' || apartment.blockId === block)
       .reduce((sum, apartment) => sum + (apartment.usableSqm ?? 0), 0)
-  }, [block, databaseApartments, preview.surfaceTotal])
+  }, [block, scopedApartments])
 
   const metrics = [
     { key: 'invoices', label: t('reports.preview.invoices'), value: preview.invoiceCount },
