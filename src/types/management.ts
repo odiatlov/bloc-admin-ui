@@ -95,6 +95,12 @@ export type CreateResidentRequest = {
 
 export type UpdateResidentRequest = CreateResidentRequest
 
+export type UpdateResidentProfileRequest = {
+  firstName: string
+  lastName: string
+  email: string
+}
+
 export type ApartmentResidentResponse = {
   id: string
   residentId: string

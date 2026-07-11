@@ -345,13 +345,22 @@
     },
     "dialog": {
       "addTitle": "Add resident",
-      "deleteConfirm": "Are you sure you want to delete {{resident}}?",
+      "deleteConfirm": "Are you sure you want to delete resident {{resident}}? The resident and its associated account will be deleted!",
       "deleteConfirmYes": "Yes, delete",
       "deleteTitle": "Delete resident",
       "deleting": "Deleting..."
     },
     "notifications": {
+      "censorAssigned": "Censor role assigned successfully.",
       "existingLinked": "This resident already existed, so they were linked to the selected block."
+    },
+    "censorAssignment": {
+      "assign": "Assign as censor",
+      "assigning": "Assigning...",
+      "helper": "This resident can be assigned as censor for {{block}}.",
+      "requiresAccount": "Only registered residents can be assigned as censor.",
+      "requiresApartment": "The resident must be assigned to an apartment in the selected block.",
+      "title": "Censor assignment"
     },
     "detail": {
       "invoices": "Invoice history",
@@ -878,10 +887,12 @@
         "email": "Email",
         "phone": "Phone",
         "block": "Block",
+        "staircase": "Staircase",
         "apartment": "Apartment",
         "accountStatus": "Account status",
         "blockRole": "Block role",
-        "membershipStatus": "Membership status"
+        "membershipStatus": "Membership status",
+        "quickAction": "Quick action"
       },
       "blockRole": {
         "Resident": "Resident",
@@ -934,7 +945,12 @@
     },
     "resident": {
       "description": "Manage profile, notifications, and language.",
-      "profile": "Profile"
+      "profile": "Profile",
+      "profileLoadFailed": "Resident profile could not be loaded. Please try again.",
+      "profileLoading": "Loading profile...",
+      "profileSaved": "Profile updated successfully.",
+      "profileSaveFailed": "Profile could not be saved. Please try again.",
+      "profileSaving": "Saving..."
     },
     "sections": {
       "costs": "Block costs",

@@ -26,6 +26,7 @@ import ResponsiveDataView, { type DataColumn } from '../../../../../components/s
 import StatusChip from '../../../../../components/shared/StatusChip'
 import { translateResidentStatus } from '../../../../../domain/displayLabels'
 import { useBlocks } from '../../../../../hooks/useBlocks'
+import { blocksApi } from '../../../../../services/blocksApi'
 import { residentsApi } from '../../../../../services/residentsApi'
 import type { ResidentResponse, ResidentStatus } from '../../../../../types/management'
 
@@ -88,6 +89,7 @@ const ApiResidentsOverview: React.FC = () => {
   const [editingResident, setEditingResident] = React.useState<ResidentResponse | null>(null)
   const [deletingResident, setDeletingResident] = React.useState<ResidentResponse | null>(null)
   const [isDeletingResident, setIsDeletingResident] = React.useState(false)
+  const [isAssigningCensor, setIsAssigningCensor] = React.useState(false)
   const [notification, setNotification] = React.useState('')
   const [form, setForm] = React.useState<FormState>(emptyForm)
   const allowedBlockIds = React.useMemo(
@@ -223,6 +225,23 @@ const ApiResidentsOverview: React.FC = () => {
     }
   }
 
+  const assignCensor = async () => {
+    if (!editingResident || !form.blockId || isAssigningCensor) return
+
+    setIsAssigningCensor(true)
+    setError(null)
+
+    try {
+      await blocksApi.assignCensor(form.blockId, { residentId: editingResident.id })
+      setNotification(t('residents.notifications.censorAssigned'))
+      await loadResidents()
+    } catch (nextError) {
+      setError(nextError instanceof Error ? nextError.message : 'Unable to assign censor')
+    } finally {
+      setIsAssigningCensor(false)
+    }
+  }
+
   const columns: DataColumn<ResidentResponse>[] = [
     { key: 'name', label: t('residents.fields.name'), cardRole: 'primary', render: (resident) => resident.fullName },
     { key: 'email', label: t('residents.fields.email'), render: (resident) => resident.email || tableEmptyValue },
@@ -304,6 +323,19 @@ const ApiResidentsOverview: React.FC = () => {
 
   const hasValidInviteEmail = !form.inviteResident || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())
   const canSave = Boolean(form.firstName.trim() && form.lastName.trim() && form.blockId && hasValidInviteEmail)
+  const selectedCensorBlockName = databaseBlocks.blocks.find((block) => block.id === form.blockId)?.displayName ?? ''
+  const canAssignCensor = Boolean(
+    editingResident?.hasRegisteredAccount
+    && form.blockId
+    && editingResident.apartments.some((apartment) => apartment.blockId === form.blockId),
+  )
+  const censorAssignmentHelper = !editingResident
+    ? ''
+    : !editingResident.hasRegisteredAccount
+      ? t('residents.censorAssignment.requiresAccount')
+      : !editingResident.apartments.some((apartment) => apartment.blockId === form.blockId)
+        ? t('residents.censorAssignment.requiresApartment')
+        : t('residents.censorAssignment.helper', { block: selectedCensorBlockName })
   const loadError = error || databaseBlocks.error
   const loading = isLoading || databaseBlocks.isLoading
 
@@ -464,6 +496,22 @@ const ApiResidentsOverview: React.FC = () => {
             ))}
           </Select>
         </FormControl>
+        {editingResident && (
+          <Paper variant="outlined" sx={{ gridColumn: '1 / -1', p: 1.5, display: 'grid', gap: 1 }}>
+            <Typography variant="subtitle2">{t('residents.censorAssignment.title')}</Typography>
+            <Typography variant="body2" color="text.secondary">
+              {censorAssignmentHelper}
+            </Typography>
+            <Button
+              disabled={!canAssignCensor || isAssigningCensor}
+              onClick={() => { void assignCensor() }}
+              sx={{ justifySelf: 'start' }}
+              variant="outlined"
+            >
+              {isAssigningCensor ? t('residents.censorAssignment.assigning') : t('residents.censorAssignment.assign')}
+            </Button>
+          </Paper>
+        )}
       </AppDialog>
 
       <ConfirmationDialog

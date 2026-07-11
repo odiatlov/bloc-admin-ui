@@ -377,14 +377,23 @@
                                   },
                       "dialog":  {
                                      "addTitle":  "Adaugă locatar",
-                                     "deleteConfirm":  "Sigur doriți să ștergeți locatarul {{resident}}?",
+                                     "deleteConfirm":  "Sigur doriți să ștergeți locatarul {{resident}}? Locatarul și contul asociat vor fi șterse!",
                                      "deleteConfirmYes":  "Da, șterge",
                                      "deleteTitle":  "Șterge locatar",
                                      "deleting":  "Se șterge..."
                                  },
                       "notifications":  {
+                                            "censorAssigned":  "Rolul de cenzor a fost alocat cu succes.",
                                             "existingLinked":  "Acest locatar exista deja, așa că a fost asociat cu blocul selectat."
                                         },
+                      "censorAssignment":  {
+                                               "assign":  "Alocă drept cenzor",
+                                               "assigning":  "Se alocă...",
+                                               "helper":  "Acest locatar poate fi alocat drept cenzor pentru {{block}}.",
+                                               "requiresAccount":  "Doar locatarii înregistrați pot fi alocați drept cenzor.",
+                                               "requiresApartment":  "Locatarul trebuie să fie alocat unui apartament din blocul selectat.",
+                                               "title":  "Alocare cenzor"
+                                           },
                       "detail":  {
                                      "invoices":  "Istoric facturi",
                                      "payments":  "Istoric plăți",
@@ -734,7 +743,12 @@
                                },
                      "resident":  {
                                       "description":  "Gestionați profilul, notificările și limba.",
-                                      "profile":  "Profil"
+                                      "profile":  "Profil",
+                                      "profileLoadFailed":  "Profilul locatarului nu a putut fi încărcat. Încercați din nou.",
+                                      "profileLoading":  "Se încarcă profilul...",
+                                      "profileSaved":  "Profilul a fost actualizat cu succes.",
+                                      "profileSaveFailed":  "Profilul nu a putut fi salvat. Încercați din nou.",
+                                      "profileSaving":  "Se salvează..."
                                   },
                      "sections":  {
                                       "costs":  "Costuri pe bloc",
@@ -1015,10 +1029,12 @@
                                                        "email":  "Email",
                                                        "phone":  "Telefon",
                                                        "block":  "Bloc",
+                                                       "staircase":  "Scară",
                                                        "apartment":  "Apartament",
                                                        "accountStatus":  "Status cont",
                                                        "blockRole":  "Rol pe bloc",
-                                                       "membershipStatus":  "Status membru"
+                                                       "membershipStatus":  "Status membru",
+                                                       "quickAction":  "Acțiune rapidă"
                                                    },
                                          "blockRole":  {
                                                            "Resident":  "Locatar",

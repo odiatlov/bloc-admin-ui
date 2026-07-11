@@ -27,3 +27,14 @@ export type CreateBlockRequest = {
 }
 
 export type UpdateBlockRequest = CreateBlockRequest
+
+export type AssignBlockCensorRequest = {
+  residentId: string
+}
+
+export type BlockRoleAssignmentResponse = {
+  blockId: string
+  residentId: string
+  userId: string
+  role: 'Censor'
+}
