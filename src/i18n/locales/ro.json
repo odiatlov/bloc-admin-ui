@@ -11,6 +11,7 @@
                    "close":  "Închide",
                    "at":  "la",
                    "notAvailable":  "indisponibil",
+                   "refresh":  "Reîmprospătează",
                    "save":  "Salvează",
                    "today":  "Astăzi"
                },
@@ -54,7 +55,7 @@
                               "demoAccount":  "Cont demonstrativ",
                               "userAccount":  "Utilizator",
                               "loadingAccounts":  "Se încarcă utilizatorii din baza de date...",
-                              "accountsFallback":  "Utilizatorii din baza de date nu au putut fi încărcați. Se afișează conturile demonstrative de rezervă.",
+                              "accountsFallback":  "Utilizatorii din baza de date nu au putut fi încărcați.",
                               "password":  "Parolă",
                                "submit":  "Autentificare"
                            }
@@ -301,6 +302,7 @@
                       "apartmentLabel":  "Apartament {{apartment}}, etaj {{floor}}",
                       "loading":  "Se încarcă locatarii...",
                       "errors":  {
+                                     "invalidEmail":  "Introduceți o adresă de email validă.",
                                      "loadFailed":  "Locatarii nu au putut fi încărcați. Încercați din nou."
                                  },
                       "apartment":  {
@@ -315,17 +317,20 @@
                                      "email":  "Email",
                                      "emailOptional":  "Email (opțional)",
                                      "firstName":  "Prenume",
+                                     "inviteResident":  "Invită locatarul să creeze un cont",
                                      "lastName":  "Nume",
                                      "name":  "Nume",
                                      "phone":  "Telefon",
                                      "registeredAccount":  "Cont înregistrat",
                                      "roles":  "Roluri",
                                      "status":  "Status",
-                                     "phoneOptional":  "Telefon (opțional)"
+                                     "phoneOptional":  "Telefon (opțional)",
+                                     "userAccount":  "Cont utilizator"
                                  },
                       "account":  {
                                       "registered":  "Înregistrat",
-                                      "unregistered":  "Neînregistrat"
+                                      "unregistered":  "Neînregistrat",
+                                      "noLinkedAccount":  "Fără cont de utilizator asociat"
                                   },
                       "roles":  {
                                     "Admin":  "Administrator",
@@ -372,11 +377,23 @@
                                   },
                       "dialog":  {
                                      "addTitle":  "Adaugă locatar",
-                                     "deleteConfirm":  "Sigur doriți să ștergeți locatarul {{resident}}?",
+                                     "deleteConfirm":  "Sigur doriți să ștergeți locatarul {{resident}}? Locatarul și contul asociat vor fi șterse!",
                                      "deleteConfirmYes":  "Da, șterge",
                                      "deleteTitle":  "Șterge locatar",
                                      "deleting":  "Se șterge..."
                                  },
+                      "notifications":  {
+                                            "censorAssigned":  "Rolul de cenzor a fost alocat cu succes.",
+                                            "existingLinked":  "Acest locatar exista deja, așa că a fost asociat cu blocul selectat."
+                                        },
+                      "censorAssignment":  {
+                                               "assign":  "Alocă drept cenzor",
+                                               "assigning":  "Se alocă...",
+                                               "helper":  "Acest locatar poate fi alocat drept cenzor pentru {{block}}.",
+                                               "requiresAccount":  "Doar locatarii înregistrați pot fi alocați drept cenzor.",
+                                               "requiresApartment":  "Locatarul trebuie să fie alocat unui apartament din blocul selectat.",
+                                               "title":  "Alocare cenzor"
+                                           },
                       "detail":  {
                                      "invoices":  "Istoric facturi",
                                      "payments":  "Istoric plăți",
@@ -726,7 +743,12 @@
                                },
                      "resident":  {
                                       "description":  "Gestionați profilul, notificările și limba.",
-                                      "profile":  "Profil"
+                                      "profile":  "Profil",
+                                      "profileLoadFailed":  "Profilul locatarului nu a putut fi încărcat. Încercați din nou.",
+                                      "profileLoading":  "Se încarcă profilul...",
+                                      "profileSaved":  "Profilul a fost actualizat cu succes.",
+                                      "profileSaveFailed":  "Profilul nu a putut fi salvat. Încercați din nou.",
+                                      "profileSaving":  "Se salvează..."
                                   },
                      "sections":  {
                                       "costs":  "Costuri pe bloc",
@@ -919,12 +941,19 @@
                                             "description":  "Vedere din baza de date pentru conturi de administratori și invitații în așteptare.",
                                             "loading":  "Se încarcă administratorii...",
                                             "errors":  {
-                                                           "loadFailed":  "Conturile de administratori nu au putut fi încărcate. Încercați din nou."
+                                                           "loadFailed":  "Conturile de administratori nu au putut fi încărcate. Încercați din nou.",
+                                                           "createFailed":  "Contul de administrator nu a putut fi creat. Încercați din nou."
                                                        },
                                             "empty":  {
                                                           "headline":  "Nu există conturi sau invitații de administratori",
                                                           "helperText":  "Conturile seeduite și invitațiile viitoare vor apărea aici."
                                                       },
+                                            "filters":  {
+                                                           "emptyHeadline":  "Niciun administrator nu corespunde filtrelor",
+                                                           "emptyHelper":  "Ajustați căutarea după numele administratorului sau după bloc pentru mai multe rezultate.",
+                                                           "searchAdmin":  "Caută administrator după nume",
+                                                           "searchBlock":  "Caută bloc"
+                                                       },
                                             "columns":  {
                                                           "name":  "Nume",
                                                           "email":  "Email",
@@ -948,17 +977,20 @@
                                                           "reassignBlock":  "Realocă bloc",
                                                           "resendInvite":  "Retrimite invitația",
                                                           "deactivate":  "Dezactivează",
-                                                          "sendInvite":  "Trimite invitația"
+                                                          "sendInvite":  "Trimite invitația",
+                                                          "createAdmin":  "Creează administrator",
+                                                          "creatingAdmin":  "Se creează administratorul..."
                                                       },
                                             "dialog":  {
-                                                         "title":  "Adaugă invitație administrator",
+                                                         "title":  "Creează cont de administrator",
                                                          "blockAssignment":  "Alocare bloc (opțional)",
                                                          "noBlock":  "Fără bloc alocat"
                                                      },
                                             "snackbar":  {
                                                            "invitationSent":  "Invitație trimisă",
                                                            "blockAssigned":  "Alocarea blocului a fost actualizată",
-                                                           "deactivated":  "Administrator dezactivat"
+                                                           "deactivated":  "Administrator dezactivat",
+                                                           "created":  "Contul de administrator a fost creat și acceptat"
                                                        }
                                         },
                        "blocks":  {
@@ -1003,10 +1035,12 @@
                                                        "email":  "Email",
                                                        "phone":  "Telefon",
                                                        "block":  "Bloc",
+                                                       "staircase":  "Scară",
                                                        "apartment":  "Apartament",
                                                        "accountStatus":  "Status cont",
                                                        "blockRole":  "Rol pe bloc",
-                                                       "membershipStatus":  "Status membru"
+                                                       "membershipStatus":  "Status membru",
+                                                       "quickAction":  "Acțiune rapidă"
                                                    },
                                          "blockRole":  {
                                                            "Resident":  "Locatar",

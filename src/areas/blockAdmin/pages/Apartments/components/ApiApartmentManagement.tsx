@@ -89,10 +89,21 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   const [form, setForm] = React.useState<FormState>(emptyForm)
 
   const blocks = databaseBlocks.blocks
+  const allowedBlockIds = React.useMemo(() => new Set(blocks.map((block) => block.id)), [blocks])
+  const scopedApartments = React.useMemo(
+    () => apartments.filter((apartment) => allowedBlockIds.has(apartment.blockId)),
+    [allowedBlockIds, apartments],
+  )
+  const scopedStaircases = React.useMemo(
+    () => staircases.filter((staircase) => allowedBlockIds.has(staircase.blockId)),
+    [allowedBlockIds, staircases],
+  )
   const selectedBlock = blocks.find((block) => block.id === selectedBlockId)
   const formBlock = blocks.find((block) => block.id === form.blockId)
-  const formBlockStaircases = staircases.filter((staircase) => staircase.blockId === form.blockId)
-  const selectedBlockStaircases = staircases.filter((staircase) => staircase.blockId === selectedBlockId)
+  const formBlockStaircases = scopedStaircases.filter((staircase) => staircase.blockId === form.blockId)
+  const selectedBlockStaircases = scopedStaircases.filter((staircase) => staircase.blockId === selectedBlockId)
+  const selectedBlockHasStaircases = Boolean(selectedBlock?.hasStaircases || selectedBlockStaircases.length > 0)
+  const formBlockHasStaircases = Boolean(formBlock?.hasStaircases || formBlockStaircases.length > 0)
   const hasAssignedResident = apartmentResidentLinks.length > 0
   const assignableResidents = React.useMemo(() => (
     hasAssignedResident ? [] : residentRecords
@@ -145,19 +156,19 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   }, [blocks, databaseBlocks.isLoading, selectedBlockId])
 
   React.useEffect(() => {
-    if (!selectedBlock?.hasStaircases) {
+    if (!selectedBlockHasStaircases) {
       setSelectedStaircaseId('all')
     }
-  }, [selectedBlock])
+  }, [selectedBlockHasStaircases])
 
   const filteredApartments = React.useMemo(() => (
-    apartments.filter((apartment) => {
+    scopedApartments.filter((apartment) => {
       const matchesBlock = selectedBlockId === 'all' || apartment.blockId === selectedBlockId
       const matchesStaircase = selectedStaircaseId === 'all' || apartment.staircaseId === selectedStaircaseId
       const matchesStatus = setupStatusFilter === 'all' || apartment.setupStatus === setupStatusFilter
       return matchesBlock && matchesStaircase && matchesStatus
     })
-  ), [apartments, selectedBlockId, selectedStaircaseId, setupStatusFilter])
+  ), [scopedApartments, selectedBlockId, selectedStaircaseId, setupStatusFilter])
 
   const openCreateDialog = () => {
     const blockId = selectedBlockId !== 'all' ? selectedBlockId : blocks[0]?.id ?? ''
@@ -166,8 +177,8 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
     setForm({
       ...emptyForm,
       blockId,
-      staircaseId: block?.hasStaircases && selectedStaircaseId !== 'all' ? selectedStaircaseId : '',
-      number: String(apartments.filter((apartment) => apartment.blockId === blockId).length + 1),
+      staircaseId: (block?.hasStaircases || scopedStaircases.some((staircase) => staircase.blockId === blockId)) && selectedStaircaseId !== 'all' ? selectedStaircaseId : '',
+      number: String(scopedApartments.filter((apartment) => apartment.blockId === blockId).length + 1),
     })
     setDialogMode('create')
   }
@@ -192,11 +203,11 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   const saveApartment = async () => {
     const block = blocks.find((item) => item.id === form.blockId)
     if (!block || !form.number.trim()) return
-    if (block.hasStaircases && !form.staircaseId) return
+    if (formBlockHasStaircases && !form.staircaseId) return
 
     const request = {
       blockId: form.blockId,
-      staircaseId: block.hasStaircases ? form.staircaseId : null,
+      staircaseId: formBlockHasStaircases ? form.staircaseId : null,
       number: form.number.trim(),
       residentCount: Math.max(0, Number(form.residentCount) || 0),
       floor: form.floor.trim() ? Number(form.floor) : null,
@@ -313,7 +324,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   const hasValidResidentCount = editingApartment
     ? (hasAssignedResident ? residentCountValue >= 1 : residentCountValue === 0)
     : residentCountValue === 0
-  const canSave = Boolean(form.blockId && form.number.trim() && (!formBlock?.hasStaircases || form.staircaseId) && hasValidResidentCount)
+  const canSave = Boolean(form.blockId && form.number.trim() && (!formBlockHasStaircases || form.staircaseId) && hasValidResidentCount)
 
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
@@ -334,7 +345,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
               ))}
             </Select>
           </FormControl>
-          <FormControl size="small" disabled={Boolean(loadError) || !selectedBlock?.hasStaircases} sx={{ minWidth: { sm: 180 } }}>
+          <FormControl size="small" disabled={Boolean(loadError) || !selectedBlockHasStaircases} sx={{ minWidth: { sm: 180 } }}>
             <InputLabel>{t('blocks.columns.staircase')}</InputLabel>
             <Select label={t('blocks.columns.staircase')} value={selectedStaircaseId} onChange={(event: SelectChangeEvent) => setSelectedStaircaseId(event.target.value)}>
               <MenuItem value="all">{t('common.all')}</MenuItem>
@@ -398,7 +409,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
             ))}
           </Select>
         </FormControl>
-        <FormControl fullWidth size="small" required={Boolean(formBlock?.hasStaircases)} disabled={!formBlock?.hasStaircases}>
+        <FormControl fullWidth size="small" required={formBlockHasStaircases} disabled={!formBlockHasStaircases}>
           <InputLabel>{t('blocks.columns.staircase')}</InputLabel>
           <Select label={t('blocks.columns.staircase')} value={form.staircaseId} onChange={(event: SelectChangeEvent) => setForm((value) => ({ ...value, staircaseId: event.target.value }))}>
             <MenuItem value="">{t('common.notAvailable')}</MenuItem>
@@ -461,7 +472,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                       ))}
                     </Select>
                   </FormControl>
-                  <FormControl fullWidth size="small" required={Boolean(formBlock?.hasStaircases)} disabled={!formBlock?.hasStaircases}>
+                  <FormControl fullWidth size="small" required={formBlockHasStaircases} disabled={!formBlockHasStaircases}>
                     <InputLabel>{t('blocks.columns.staircase')}</InputLabel>
                     <Select label={t('blocks.columns.staircase')} value={form.staircaseId} onChange={(event: SelectChangeEvent) => setForm((value) => ({ ...value, staircaseId: event.target.value }))}>
                       <MenuItem value="">{t('common.notAvailable')}</MenuItem>

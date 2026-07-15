@@ -11,6 +11,7 @@
     "close": "Close",
     "at": "at",
     "notAvailable": "Not available",
+    "refresh": "Refresh",
     "save": "Save",
     "today": "Today"
   },
@@ -54,7 +55,7 @@
       "demoAccount": "Demo account",
       "userAccount": "User",
       "loadingAccounts": "Loading users from database...",
-      "accountsFallback": "Database users could not be loaded. Showing fallback mock accounts.",
+      "accountsFallback": "Database users could not be loaded.",
       "password": "Password",
       "submit": "Login"
     }
@@ -269,6 +270,7 @@
     "apartmentLabel": "Apartment {{apartment}}, floor {{floor}}",
     "loading": "Loading residents...",
     "errors": {
+      "invalidEmail": "Enter a valid email address.",
       "loadFailed": "Residents could not be loaded. Please try again."
     },
     "apartment": {
@@ -283,17 +285,20 @@
       "email": "Email",
       "emailOptional": "Email (optional)",
       "firstName": "First name",
+      "inviteResident": "Invite resident to create an account",
       "lastName": "Last name",
       "name": "Name",
       "phone": "Phone",
       "registeredAccount": "Registered account",
       "roles": "Roles",
       "status": "Status",
-      "phoneOptional": "Phone (optional)"
+      "phoneOptional": "Phone (optional)",
+      "userAccount": "User account"
     },
     "account": {
       "registered": "Registered",
-      "unregistered": "Unregistered"
+      "unregistered": "Unregistered",
+      "noLinkedAccount": "No linked user account"
     },
     "roles": {
       "Admin": "Admin",
@@ -340,10 +345,22 @@
     },
     "dialog": {
       "addTitle": "Add resident",
-      "deleteConfirm": "Are you sure you want to delete {{resident}}?",
+      "deleteConfirm": "Are you sure you want to delete resident {{resident}}? The resident and its associated account will be deleted!",
       "deleteConfirmYes": "Yes, delete",
       "deleteTitle": "Delete resident",
       "deleting": "Deleting..."
+    },
+    "notifications": {
+      "censorAssigned": "Censor role assigned successfully.",
+      "existingLinked": "This resident already existed, so they were linked to the selected block."
+    },
+    "censorAssignment": {
+      "assign": "Assign as censor",
+      "assigning": "Assigning...",
+      "helper": "This resident can be assigned as censor for {{block}}.",
+      "requiresAccount": "Only registered residents can be assigned as censor.",
+      "requiresApartment": "The resident must be assigned to an apartment in the selected block.",
+      "title": "Censor assignment"
     },
     "detail": {
       "invoices": "Invoice history",
@@ -782,11 +799,18 @@
       "description": "Database-backed view of admin accounts and pending administrator invitations.",
       "loading": "Loading admin accounts...",
       "errors": {
-        "loadFailed": "Admin accounts could not be loaded. Please try again."
+        "loadFailed": "Admin accounts could not be loaded. Please try again.",
+        "createFailed": "Admin account could not be created. Please try again."
       },
       "empty": {
         "headline": "No admin accounts or invitations yet",
         "helperText": "Seeded admin accounts and future invitations will appear here."
+      },
+      "filters": {
+        "emptyHeadline": "No admins match these filters",
+        "emptyHelper": "Adjust the admin name or block search to widen the results.",
+        "searchAdmin": "Search admin by name",
+        "searchBlock": "Search block"
       },
       "columns": {
         "name": "Name",
@@ -811,17 +835,20 @@
         "reassignBlock": "Reassign block",
         "resendInvite": "Resend invite",
         "deactivate": "Deactivate",
-        "sendInvite": "Send invite"
+        "sendInvite": "Send invite",
+        "createAdmin": "Create admin",
+        "creatingAdmin": "Creating admin..."
       },
       "dialog": {
-        "title": "Add admin invitation",
+        "title": "Create admin account",
         "blockAssignment": "Block assignment (optional)",
         "noBlock": "No block assigned"
       },
       "snackbar": {
         "invitationSent": "Invitation sent",
         "blockAssigned": "Block assignment updated",
-        "deactivated": "Admin deactivated"
+        "deactivated": "Admin deactivated",
+        "created": "Admin account created and accepted"
       }
     },
     "blocks": {
@@ -866,10 +893,12 @@
         "email": "Email",
         "phone": "Phone",
         "block": "Block",
+        "staircase": "Staircase",
         "apartment": "Apartment",
         "accountStatus": "Account status",
         "blockRole": "Block role",
-        "membershipStatus": "Membership status"
+        "membershipStatus": "Membership status",
+        "quickAction": "Quick action"
       },
       "blockRole": {
         "Resident": "Resident",
@@ -922,7 +951,12 @@
     },
     "resident": {
       "description": "Manage profile, notifications, and language.",
-      "profile": "Profile"
+      "profile": "Profile",
+      "profileLoadFailed": "Resident profile could not be loaded. Please try again.",
+      "profileLoading": "Loading profile...",
+      "profileSaved": "Profile updated successfully.",
+      "profileSaveFailed": "Profile could not be saved. Please try again.",
+      "profileSaving": "Saving..."
     },
     "sections": {
       "costs": "Block costs",

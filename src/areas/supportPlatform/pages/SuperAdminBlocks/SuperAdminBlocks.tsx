@@ -43,7 +43,7 @@ const SuperAdminBlocks: React.FC = () => {
   const columns: DataColumn<SuperAdminBlockResponse>[] = [
     { key: 'name', label: t('superAdmin.blocks.columns.name'), cardRole: 'primary', render: (block) => block.blockName ? t('common.blockValue', { block: block.blockName }) : tableEmptyValue },
     { key: 'address', label: t('superAdmin.blocks.columns.address'), render: (block) => displayValue(block.address) },
-    { key: 'activeAdmin', label: t('superAdmin.blocks.columns.activeAdmin'), render: (block) => displayValue(block.managedByUserName) },
+    { key: 'activeAdmin', label: t('superAdmin.blocks.columns.activeAdmin'), render: (block) => displayValue(block.adminAccountName) },
     { key: 'censor', label: t('superAdmin.blocks.columns.censor'), render: (block) => displayValue(block.censorName) },
     { key: 'apartmentsCount', label: t('superAdmin.blocks.columns.apartmentsCount'), render: (block) => block.apartmentCount },
     { key: 'staircasesCount', label: t('superAdmin.blocks.columns.staircasesCount'), render: (block) => block.staircaseCount },

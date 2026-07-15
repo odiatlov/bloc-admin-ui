@@ -1,4 +1,5 @@
 import React from 'react'
+import { RoleContext } from '../contexts/RoleContext'
 import { fetchBlockOverview } from '../services/blocksApi'
 import type { BlockOverview } from '../types/block'
 
@@ -7,6 +8,7 @@ type UseBlocksOptions = {
 }
 
 export const useBlocks = ({ enabled = true }: UseBlocksOptions = {}) => {
+  const { account, role } = React.useContext(RoleContext)
   const [blocks, setBlocks] = React.useState<BlockOverview[]>([])
   const [error, setError] = React.useState<string | null>(null)
   const [isLoading, setIsLoading] = React.useState(enabled)
@@ -36,16 +38,23 @@ export const useBlocks = ({ enabled = true }: UseBlocksOptions = {}) => {
     void loadBlocks()
   }, [loadBlocks])
 
+  const scopedBlocks = React.useMemo(() => {
+    if (role !== 'Admin') return blocks
+    if (!account.adminId) return []
+
+    return blocks.filter((block) => block.adminAccountId === account.adminId)
+  }, [account.adminId, blocks, role])
+
   const filteredBlocks = React.useMemo(() => {
     const query = search.trim().toLowerCase()
-    if (!query) return blocks
+    if (!query) return scopedBlocks
 
-    return blocks.filter((block) =>
+    return scopedBlocks.filter((block) =>
       [block.name, block.displayName, block.administratorName]
         .filter(Boolean)
         .some((value) => value!.toLowerCase().includes(query)),
     )
-  }, [blocks, search])
+  }, [scopedBlocks, search])
 
   return {
     blocks: filteredBlocks,

@@ -3,6 +3,7 @@ export type BlockOverviewDto = {
   name: string
   displayName: string
   administratorName: string | null
+  adminAccountId: string | null
   hasStaircases: boolean
   address: string | null
   createdAt: string
@@ -18,7 +19,6 @@ export type BlockOverview = BlockOverviewDto
 
 export type CreateBlockRequest = {
   name: string
-  activeAdminName: string
   apartmentCount: number
   residentCount: number
   hasStaircases: boolean
@@ -27,3 +27,14 @@ export type CreateBlockRequest = {
 }
 
 export type UpdateBlockRequest = CreateBlockRequest
+
+export type AssignBlockCensorRequest = {
+  residentId: string
+}
+
+export type BlockRoleAssignmentResponse = {
+  blockId: string
+  residentId: string
+  userId: string
+  role: 'Censor'
+}

@@ -1,4 +1,4 @@
-import type { CreateResidentRequest, ResidentResponse, UpdateResidentRequest } from '../types/management'
+import type { CreateResidentRequest, ResidentResponse, UpdateResidentProfileRequest, UpdateResidentRequest } from '../types/management'
 import { apiDelete, apiGet, apiPatch, apiPost } from './apiClient'
 
 export const residentsApi = {
@@ -8,5 +8,7 @@ export const residentsApi = {
     apiPost<CreateResidentRequest, ResidentResponse>('/residents', request),
   update: (id: string, request: UpdateResidentRequest) =>
     apiPatch<UpdateResidentRequest, ResidentResponse>(`/residents/${id}`, request),
+  updateProfile: (id: string, request: UpdateResidentProfileRequest) =>
+    apiPatch<UpdateResidentProfileRequest, ResidentResponse>(`/residents/${id}/profile`, request),
   delete: (id: string) => apiDelete<string>(`/residents/${id}`),
 }

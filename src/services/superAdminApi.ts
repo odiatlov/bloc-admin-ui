@@ -1,4 +1,4 @@
-import { apiGet } from './apiClient'
+import { apiGet, apiPost } from './apiClient'
 
 export type SuperAdminDashboardResponse = {
   totalBlocks: number
@@ -29,8 +29,7 @@ export type SuperAdminBlockResponse = {
   blockName: string
   address: string
   adminAccountId?: string
-  managedByUserId?: string
-  managedByUserName?: string
+  adminAccountName?: string
   censorName?: string
   apartmentCount: number
   staircaseCount: number
@@ -38,6 +37,12 @@ export type SuperAdminBlockResponse = {
   createdAt: string
   adminAccountStatus?: string
   subscriptionStatus?: string
+}
+
+export type CreateSuperAdminAdminAccountRequest = {
+  ownerName: string
+  ownerEmail: string
+  blockId?: string | null
 }
 
 export type SuperAdminResidentResponse = {
@@ -68,6 +73,8 @@ export type SuperAdminInvitationResponse = {
 export const superAdminApi = {
   getDashboard: () => apiGet<SuperAdminDashboardResponse>('/super-admin/dashboard'),
   getAdminAccounts: () => apiGet<SuperAdminAdminAccountResponse[]>('/super-admin/admin-accounts'),
+  createAdminAccount: (request: CreateSuperAdminAdminAccountRequest) =>
+    apiPost<CreateSuperAdminAdminAccountRequest, SuperAdminAdminAccountResponse>('/super-admin/admin-accounts', request),
   getBlocks: () => apiGet<SuperAdminBlockResponse[]>('/super-admin/blocks'),
   getResidents: () => apiGet<SuperAdminResidentResponse[]>('/super-admin/residents'),
   getAdminInvitations: () => apiGet<SuperAdminInvitationResponse[]>('/super-admin/admin-invitations'),

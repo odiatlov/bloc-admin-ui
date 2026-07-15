@@ -4,6 +4,7 @@ import Autocomplete from '@mui/material/Autocomplete'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
+import CircularProgress from '@mui/material/CircularProgress'
 import Divider from '@mui/material/Divider'
 import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -21,10 +22,13 @@ import EditIcon from '@mui/icons-material/Edit'
 import { useTranslation } from 'react-i18next'
 import AppDatePicker from '../../../../../components/shared/AppDatePicker'
 import ConfirmationDialog from '../../../../../components/shared/ConfirmationDialog'
+import LoadErrorState from '../../../../../components/shared/LoadErrorState'
 import { filterBlocksForAccount } from '../../../../../application/accessScope'
 import { RoleContext } from '../../../../../contexts/RoleContext'
 import { useBlocks } from '../../../../../hooks/useBlocks'
 import { blocksApi } from '../../../../../services/blocksApi'
+import { residentsApi } from '../../../../../services/residentsApi'
+import type { ResidentResponse } from '../../../../../types/management'
 import type { CreateBlockRequest } from '../../../../../types/block'
 import {
   apartments,
@@ -50,7 +54,7 @@ const allocationTypes: AllocationType[] = ['per_person', 'per_apartment', 'by_su
 
 const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
   const { t } = useTranslation()
-  const { account, role } = React.useContext(RoleContext)
+  const { account, refreshAccounts, role } = React.useContext(RoleContext)
   const shouldUseDatabaseBlocks = mode === 'admin'
   const databaseOverview = useBlocks({ enabled: shouldUseDatabaseBlocks })
   const scopedBlocks = React.useMemo(
@@ -78,6 +82,52 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
     message: string
     severity: 'success' | 'error'
   } | null>(null)
+  const [residentProfile, setResidentProfile] = React.useState<ResidentResponse | null>(null)
+  const [residentProfileForm, setResidentProfileForm] = React.useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+  })
+  const [isResidentProfileLoading, setIsResidentProfileLoading] = React.useState(mode === 'resident' && Boolean(account.residentId))
+  const [residentProfileError, setResidentProfileError] = React.useState<string | null>(null)
+  const [isResidentProfileSaving, setIsResidentProfileSaving] = React.useState(false)
+
+  React.useEffect(() => {
+    if (mode !== 'resident' || !account.residentId) {
+      setResidentProfile(null)
+      setResidentProfileError(null)
+      setIsResidentProfileLoading(false)
+      return
+    }
+
+    let isActive = true
+    setIsResidentProfileLoading(true)
+    setResidentProfileError(null)
+
+    residentsApi.getById(account.residentId)
+      .then((resident) => {
+        if (!isActive) return
+        setResidentProfile(resident)
+        setResidentProfileForm({
+          firstName: resident.firstName,
+          lastName: resident.lastName,
+          email: resident.email ?? account.email,
+        })
+      })
+      .catch((error) => {
+        if (!isActive) return
+        setResidentProfile(null)
+        setResidentProfileError(error instanceof Error ? error.message : t('settings.resident.profileLoadFailed'))
+      })
+      .finally(() => {
+        if (isActive) setIsResidentProfileLoading(false)
+      })
+
+    return () => {
+      isActive = false
+    }
+  }, [account.email, account.residentId, mode, t])
+
   React.useEffect(() => {
     if (!settingsBlocks.some((block) => block.id === selectedBlockId)) {
       setSelectedBlockId(settingsBlocks[0]?.id ?? '')
@@ -91,6 +141,14 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
     : null
   const selectedBlockStaircases = staircases.filter((staircase) => staircase.blockId === selectedBlock?.id)
   const selectedCustomCosts = customCosts.filter((cost) => cost.blockId === selectedBlock?.id)
+  const hasValidResidentProfileEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(residentProfileForm.email.trim())
+  const canSaveResidentProfile = Boolean(
+    residentProfile
+    && residentProfileForm.firstName.trim()
+    && residentProfileForm.lastName.trim()
+    && hasValidResidentProfileEmail
+    && !isResidentProfileSaving,
+  )
 
   const handleStaircaseChange = (event: SelectChangeEvent) => {
     setSelectedStaircaseId(event.target.value)
@@ -168,6 +226,36 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
     }
   }
 
+  const saveResidentProfile = async () => {
+    if (!residentProfile || !canSaveResidentProfile) return
+
+    setIsResidentProfileSaving(true)
+    setResidentProfileError(null)
+
+    try {
+      const nextProfile = await residentsApi.updateProfile(residentProfile.id, {
+        firstName: residentProfileForm.firstName.trim(),
+        lastName: residentProfileForm.lastName.trim(),
+        email: residentProfileForm.email.trim(),
+      })
+      setResidentProfile(nextProfile)
+      setResidentProfileForm({
+        firstName: nextProfile.firstName,
+        lastName: nextProfile.lastName,
+        email: nextProfile.email ?? residentProfileForm.email.trim(),
+      })
+      await refreshAccounts()
+      setNotification({
+        message: t('settings.resident.profileSaved'),
+        severity: 'success',
+      })
+    } catch (error) {
+      setResidentProfileError(error instanceof Error ? error.message : t('settings.resident.profileSaveFailed'))
+    } finally {
+      setIsResidentProfileSaving(false)
+    }
+  }
+
   if (mode === 'resident') {
     return (
       <Box
@@ -180,8 +268,60 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
       >
         <Paper sx={{ p: 2, display: 'grid', gap: 2 }}>
           <Typography variant="h6">{t('settings.resident.profile')}</Typography>
-          <TextField label={t('settings.fields.name')} defaultValue="Ana Popescu" />
-          <TextField label={t('settings.fields.email')} defaultValue="ana.popescu@example.com" />
+          {isResidentProfileLoading ? (
+            <Box sx={{ alignItems: 'center', display: 'grid', gap: 1.5, justifyItems: 'center', py: 2 }}>
+              <CircularProgress size={28} />
+              <Typography color="text.secondary">{t('settings.resident.profileLoading')}</Typography>
+            </Box>
+          ) : residentProfileError && !residentProfile ? (
+            <LoadErrorState helperText={t('settings.resident.profileLoadFailed')} onRetry={() => {
+              if (account.residentId) {
+                setIsResidentProfileLoading(true)
+                setResidentProfileError(null)
+                residentsApi.getById(account.residentId)
+                  .then((resident) => {
+                    setResidentProfile(resident)
+                    setResidentProfileForm({
+                      firstName: resident.firstName,
+                      lastName: resident.lastName,
+                      email: resident.email ?? account.email,
+                    })
+                  })
+                  .catch((error) => setResidentProfileError(error instanceof Error ? error.message : t('settings.resident.profileLoadFailed')))
+                  .finally(() => setIsResidentProfileLoading(false))
+              }
+            }} />
+          ) : (
+            <>
+              {residentProfileError && <Alert severity="error">{residentProfileError}</Alert>}
+              <TextField
+                label={t('residents.fields.firstName')}
+                value={residentProfileForm.firstName}
+                onChange={(event) => setResidentProfileForm((value) => ({ ...value, firstName: event.target.value }))}
+              />
+              <TextField
+                label={t('residents.fields.lastName')}
+                value={residentProfileForm.lastName}
+                onChange={(event) => setResidentProfileForm((value) => ({ ...value, lastName: event.target.value }))}
+              />
+              <TextField
+                error={Boolean(residentProfileForm.email.trim()) && !hasValidResidentProfileEmail}
+                helperText={Boolean(residentProfileForm.email.trim()) && !hasValidResidentProfileEmail ? t('residents.errors.invalidEmail') : undefined}
+                label={t('settings.fields.email')}
+                type="email"
+                value={residentProfileForm.email}
+                onChange={(event) => setResidentProfileForm((value) => ({ ...value, email: event.target.value }))}
+              />
+              <Button
+                disabled={!canSaveResidentProfile}
+                onClick={() => { void saveResidentProfile() }}
+                sx={{ justifySelf: 'start' }}
+                variant="contained"
+              >
+                {isResidentProfileSaving ? t('settings.resident.profileSaving') : t('settings.actions.saveChanges')}
+              </Button>
+            </>
+          )}
           <FormControl size="small">
             <InputLabel>{t('settings.fields.language')}</InputLabel>
             <Select label={t('settings.fields.language')} defaultValue="en">
