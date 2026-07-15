@@ -76,7 +76,7 @@ const today = new Date('2026-05-10T00:00:00')
 const toScope = (account: MockAccount, role: AuthRole) => ({ ...account, role })
 const toMockAdminScope = (account: MockAccount, role: AuthRole) => ({
   ...account,
-  adminId: role === 'Admin' ? account.adminId ?? 'ADM-1' : account.adminId,
+  adminId: role === 'Admin' ? 'ADM-1' : account.adminId,
   role,
 })
 
