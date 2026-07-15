@@ -806,6 +806,12 @@
         "headline": "No admin accounts or invitations yet",
         "helperText": "Seeded admin accounts and future invitations will appear here."
       },
+      "filters": {
+        "emptyHeadline": "No admins match these filters",
+        "emptyHelper": "Adjust the admin name or block search to widen the results.",
+        "searchAdmin": "Search admin by name",
+        "searchBlock": "Search block"
+      },
       "columns": {
         "name": "Name",
         "email": "Email",

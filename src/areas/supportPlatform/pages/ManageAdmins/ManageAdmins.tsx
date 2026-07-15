@@ -43,7 +43,7 @@ const mapAdminAccount = (adminAccount: SuperAdminAdminAccountResponse): Platform
   id: adminAccount.adminAccountId,
   name: adminAccount.ownerName,
   email: adminAccount.ownerEmail,
-  assignedBlockName: adminAccount.assignedBlocks.length > 0 ? adminAccount.assignedBlocks.map((block) => `Block ${block}`).join(', ') : undefined,
+  assignedBlockName: adminAccount.assignedBlocks.length > 0 ? adminAccount.assignedBlocks.join(', ') : undefined,
   status: normalizeStatus(adminAccount.status),
   createdAt: toDate(adminAccount.createdAt) ?? tableEmptyValue,
   isActive: adminAccount.status === 'Active',
@@ -53,7 +53,7 @@ const mapInvitation = (invitation: SuperAdminInvitationResponse): PlatformAdminR
   id: invitation.invitationId,
   name: invitation.inviteeName,
   email: invitation.email,
-  assignedBlockName: invitation.blockName ? `Block ${invitation.blockName}` : undefined,
+  assignedBlockName: invitation.blockName,
   status: normalizeStatus(invitation.status),
   createdAt: toDate(invitation.createdAt) ?? tableEmptyValue,
   lastInviteSentAt: toDate(invitation.lastSentAt),
@@ -70,6 +70,8 @@ const ManageAdmins: React.FC = () => {
   const [isCreatingAdmin, setIsCreatingAdmin] = React.useState(false)
   const [snackbar, setSnackbar] = React.useState('')
   const [form, setForm] = React.useState({ name: '', email: '', blockId: '' })
+  const [adminNameFilter, setAdminNameFilter] = React.useState('')
+  const [blockFilter, setBlockFilter] = React.useState('')
 
   const loadAdmins = React.useCallback(async () => {
     setIsLoading(true)
@@ -117,6 +119,23 @@ const ManageAdmins: React.FC = () => {
     }
   }
 
+  const filteredAdmins = React.useMemo(() => {
+    const normalizedName = adminNameFilter.trim().toLowerCase()
+    const normalizedBlock = blockFilter.trim().toLowerCase()
+
+    return admins.filter((admin) => {
+      const matchesName = !normalizedName || admin.name.toLowerCase().includes(normalizedName)
+      const matchesBlock = !normalizedBlock || (admin.assignedBlockName ?? '').toLowerCase().includes(normalizedBlock)
+
+      return matchesName && matchesBlock
+    })
+  }, [adminNameFilter, admins, blockFilter])
+
+  const clearFilters = () => {
+    setAdminNameFilter('')
+    setBlockFilter('')
+  }
+
   const columns: DataColumn<PlatformAdminRow>[] = [
     { key: 'name', label: t('superAdmin.manageAdmins.columns.name'), cardRole: 'primary', render: (admin) => admin.name },
     { key: 'email', label: t('superAdmin.manageAdmins.columns.email'), render: (admin) => admin.email },
@@ -138,9 +157,36 @@ const ManageAdmins: React.FC = () => {
         description={t('superAdmin.manageAdmins.description')}
       />
 
-      <Paper sx={{ alignItems: 'center', display: 'flex', gap: 2, justifyContent: 'space-between', mb: 2, p: 2 }}>
-        <Typography variant="h6">{t('superAdmin.common.quickActions')}</Typography>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'flex-end' }}>
+      <Paper
+        sx={{
+          alignItems: { xs: 'stretch', md: 'center' },
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          gap: 1.5,
+          justifyContent: 'space-between',
+          mb: 2,
+          p: 2,
+        }}
+      >
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, width: { xs: '100%', md: 'auto' } }}>
+          <TextField
+            disabled={Boolean(error)}
+            label={t('superAdmin.manageAdmins.filters.searchAdmin')}
+            size="small"
+            value={adminNameFilter}
+            onChange={(event) => setAdminNameFilter(event.target.value)}
+            sx={{ width: { xs: '100%', sm: 240 } }}
+          />
+          <TextField
+            disabled={Boolean(error)}
+            label={t('superAdmin.manageAdmins.filters.searchBlock')}
+            size="small"
+            value={blockFilter}
+            onChange={(event) => setBlockFilter(event.target.value)}
+            sx={{ width: { xs: '100%', sm: 220 } }}
+          />
+        </Box>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'flex-end', width: { xs: '100%', md: 'auto' } }}>
           <Button startIcon={<AddIcon />} variant="contained" onClick={() => setIsDialogOpen(true)}>
             {t('superAdmin.manageAdmins.actions.addAdmin')}
           </Button>
@@ -161,13 +207,20 @@ const ManageAdmins: React.FC = () => {
           helperText={t('superAdmin.manageAdmins.empty.helperText')}
           onAction={() => setIsDialogOpen(true)}
         />
+      ) : filteredAdmins.length === 0 ? (
+        <EmptyState
+          actionLabel={t('common.clearFilters')}
+          headline={t('superAdmin.manageAdmins.filters.emptyHeadline')}
+          helperText={t('superAdmin.manageAdmins.filters.emptyHelper')}
+          onAction={clearFilters}
+        />
       ) : (
         <ResponsiveDataView
           ariaLabel={t('superAdmin.manageAdmins.title')}
           columns={columns}
           desktopTableMinWidth={1200}
           getRowId={(admin) => admin.id}
-          rows={admins}
+          rows={filteredAdmins}
         />
       )}
 

@@ -948,6 +948,12 @@
                                                           "headline":  "Nu există conturi sau invitații de administratori",
                                                           "helperText":  "Conturile seeduite și invitațiile viitoare vor apărea aici."
                                                       },
+                                            "filters":  {
+                                                           "emptyHeadline":  "Niciun administrator nu corespunde filtrelor",
+                                                           "emptyHelper":  "Ajustați căutarea după numele administratorului sau după bloc pentru mai multe rezultate.",
+                                                           "searchAdmin":  "Caută administrator după nume",
+                                                           "searchBlock":  "Caută bloc"
+                                                       },
                                             "columns":  {
                                                           "name":  "Nume",
                                                           "email":  "Email",
