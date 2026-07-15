@@ -47,12 +47,18 @@ import AddBlockDialog from './AddBlockDialog'
 
 type SettingsSectionsProps = {
   mode: 'admin' | 'resident'
+  residentSaveSignal?: number
+  onResidentSaveStateChange?: (state: { canSave: boolean; isSaving: boolean }) => void
 }
 
 const utilityCategories: UtilityCategory[] = ['gas', 'electricity', 'garbage', 'water', 'heating']
 const allocationTypes: AllocationType[] = ['per_person', 'per_apartment', 'by_surface', 'by_heating_area', 'individual_meter', 'equal_split', 'custom']
 
-const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
+const SettingsSections: React.FC<SettingsSectionsProps> = ({
+  mode,
+  residentSaveSignal = 0,
+  onResidentSaveStateChange,
+}) => {
   const { t } = useTranslation()
   const { account, refreshAccounts, role } = React.useContext(RoleContext)
   const shouldUseDatabaseBlocks = mode === 'admin'
@@ -149,6 +155,13 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
     && hasValidResidentProfileEmail
     && !isResidentProfileSaving,
   )
+
+  React.useEffect(() => {
+    onResidentSaveStateChange?.({
+      canSave: canSaveResidentProfile,
+      isSaving: isResidentProfileSaving,
+    })
+  }, [canSaveResidentProfile, isResidentProfileSaving, onResidentSaveStateChange])
 
   const handleStaircaseChange = (event: SelectChangeEvent) => {
     setSelectedStaircaseId(event.target.value)
@@ -256,6 +269,14 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
     }
   }
 
+  const lastResidentSaveSignal = React.useRef(residentSaveSignal)
+  React.useEffect(() => {
+    if (mode !== 'resident' || residentSaveSignal === lastResidentSaveSignal.current) return
+
+    lastResidentSaveSignal.current = residentSaveSignal
+    void saveResidentProfile()
+  }, [mode, residentSaveSignal])
+
   if (mode === 'resident') {
     return (
       <Box
@@ -312,14 +333,6 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({ mode }) => {
                 value={residentProfileForm.email}
                 onChange={(event) => setResidentProfileForm((value) => ({ ...value, email: event.target.value }))}
               />
-              <Button
-                disabled={!canSaveResidentProfile}
-                onClick={() => { void saveResidentProfile() }}
-                sx={{ justifySelf: 'start' }}
-                variant="contained"
-              >
-                {isResidentProfileSaving ? t('settings.resident.profileSaving') : t('settings.actions.saveChanges')}
-              </Button>
             </>
           )}
           <FormControl size="small">

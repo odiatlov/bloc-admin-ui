@@ -8,7 +8,6 @@ export type UserAccountResponse = {
 }
 
 export type CreateUserAccountRequest = {
-  displayName: string
   email: string
 }
 
