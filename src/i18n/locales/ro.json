@@ -118,6 +118,7 @@
                     "reviews":  "Revizii",
                     "reports":  "Rapoarte",
                     "settings":  "Setări",
+                    "notifications":  "Notificări",
                     "overview":  "Prezentare",
                     "searchBlocks":  "Caută blocuri",
                     "staircases":  "Scări",
@@ -129,6 +130,17 @@
                     "superResidents":  "Locatari platformă",
                     "exportData":  "Export date"
                 },
+    "notifications":  {
+                          "title":  "Notificări",
+                          "unreadCount":  "{{count}} necitite",
+                          "markAllAsRead":  "Marchează toate ca citite",
+                          "unknownDate":  "Dată necunoscută",
+                          "realDataOnly":  "Notificările folosesc doar date din baza de date.",
+                          "empty":  {
+                                        "headline":  "Nu există notificări încă",
+                                        "helperText":  "Avertizările necitite pentru indexul de apă și alte alerte vor apărea aici."
+                                    }
+                      },
     "status":  {
                    "invoice":  {
                                    "paid":  "Plătită",
@@ -437,6 +449,28 @@
                                      "setupStatus":  "Status configurare",
                                      "title":  "Configurare apartamente"
                                  },
+                       "waterIndex":  {
+                                          "addZone":  "Adaugă zonă",
+                                          "coldCount":  "Rece",
+                                          "coldTotal":  "Apă rece: {{count}}",
+                                          "empty":  "Nu sunt configurate locuri pentru indexul de apă în acest apartament.",
+                                          "helper":  "Configurați doar locurile unde se citesc indexurile. Câmpurile pentru apă rece și apă caldă sunt generate din aceste zone.",
+                                          "hasBoiler":  "Apartamentul are centrală",
+                                          "hotCount":  "Caldă",
+                                          "hotTotal":  "Apă caldă: {{count}}",
+                                          "loading":  "Se încarcă configurarea indexului de apă...",
+                                          "locationType":  "Loc",
+                                          "removeZone":  "Elimină zona",
+                                          "title":  "Index apă",
+                                          "zoneName":  "Nume zonă",
+                                          "locations":  {
+                                                            "Bathroom":  "Baie",
+                                                            "Kitchen":  "Bucătărie",
+                                                            "Other":  "Altă zonă",
+                                                            "SecondaryBathroom":  "Baie secundară",
+                                                            "ServiceToilet":  "Toaletă serviciu"
+                                                        }
+                                      },
                        "dialog":  {
                                       "deleteConfirm":  "Sigur doriți să ștergeți apartamentul {{apartment}}?",
                                       "deleteConfirmYes":  "Da, șterge",
@@ -622,9 +656,11 @@
                                            "minimumVisible":  "Cel puțin o secțiune trebuie să rămână vizibilă.",
                                            "visibleCount":  "{{count}} vizibile"
                                        },
-                        "columns":  {
+    "columns":  {
                                         "apartment":  "Apartament",
-                                        "waterType":  "Tip apa",
+                                        "waterType":  "Tip apă",
+                                        "location":  "Locație",
+                                        "meter":  "Contor",
                                         "previous":  "Index anterior",
                                         "current":  "Index curent",
                                         "usage":  "Consum",
@@ -633,22 +669,56 @@
                                         "anomaly":  "Anomalie",
                                         "mainMeter":  "Contor general",
                                         "apartmentMeters":  "Contoare apartamente",
-                                        "waterLoss":  "Diferența"
+                                        "waterLoss":  "Diferența",
+                                        "status":  "Status"
                                     },
                         "actions":  {
                                         "submitIndex":  "Trimite index",
-                                        "addReading":  "Adaugă citire"
+                                        "addReading":  "Adaugă citire",
+                                        "submitting":  "Se trimite..."
                                     },
                         "dialog":  {
                                        "submitTitle":  "Trimite index apă",
                                        "adminTitle":  "Adaugă citire apă",
                                        "coldWaterIndex":  "Index apă rece",
-                                       "hotWaterIndex":  "Index apă caldă"
+                                       "coldWaterReadings":  "Citiri apă rece",
+                                       "hotWaterIndex":  "Index apă caldă",
+                                       "hotWaterReadings":  "Citiri apă caldă",
+                                       "readingDate":  "Data citirii",
+                                       "total":  "Total",
+                                       "waterIndex":  "Index apă"
                                    },
                         "waterType":  {
                                           "cold":  "Apă rece",
                                           "hot":  "Apă caldă"
-                                      }
+                                      },
+                        "waterLocation":  {
+                                               "bathroom":  "Baie",
+                                               "kitchen":  "Bucătărie",
+                                               "secondaryBathroom":  "Baie secundară",
+                                               "serviceToilet":  "Grup sanitar de serviciu"
+                                           },
+                        "location":  {
+                                         "apartmentValue":  "Apartament {{apartment}}",
+                                         "staircaseValue":  "Scara {{staircase}}"
+                                     },
+                        "status":  {
+                                       "missing":  "Lipsește",
+                                       "partial":  "Trimis parțial",
+                                       "submitted":  "Trimis"
+                                   },
+                        "loading":  "Se încarcă indexurile de apă...",
+                        "empty":  {
+                                      "noApartmentsHeadline":  "Nu există apartamente asociate acestui locatar",
+                                      "noApartmentsHelper":  "Apartamentele atribuite în baza de date vor apărea aici automat.",
+                                      "noMetersHeadline":  "Nu sunt configurate contoare de apă",
+                                      "noMetersHelper":  "Administratorul trebuie să configureze mai întâi contoarele de apă rece și apă caldă pentru acest apartament."
+                                  },
+                        "errors":  {
+                                       "invalidReading":  "Introduceți un index de apă valid.",
+                                       "loadFailed":  "Datele pentru indexul de apă nu au putut fi încărcate. Încercați din nou.",
+                                       "submitFailed":  "Indexul de apă nu a putut fi trimis. Încercați din nou."
+                                   }
                     },
     "censor":  {
                    "actions":  {

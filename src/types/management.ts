@@ -28,6 +28,7 @@ export type ApartmentResponse = {
   floor: number | null
   usableSqm: number | null
   setupStatus: ApartmentSetupStatus
+  hasBoiler: boolean
   createdAt: string
   updatedAt: string
 }
@@ -40,6 +41,7 @@ export type CreateApartmentRequest = {
   floor?: number | null
   usableSqm?: number | null
   setupStatus: ApartmentSetupStatus
+  hasBoiler?: boolean
 }
 
 export type UpdateApartmentRequest = CreateApartmentRequest

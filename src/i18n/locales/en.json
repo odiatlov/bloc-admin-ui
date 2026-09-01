@@ -86,6 +86,7 @@
     "reviews": "Reviews",
     "reports": "Reports",
     "settings": "Settings",
+    "notifications": "Notifications",
     "overview": "Overview",
     "searchBlocks": "Search blocks",
     "staircases": "Staircases",
@@ -96,6 +97,17 @@
     "superBlocks": "Platform blocks",
     "superResidents": "Platform residents",
     "exportData": "Export data"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unreadCount": "{{count}} unread",
+    "markAllAsRead": "Mark all read",
+    "unknownDate": "Unknown date",
+    "realDataOnly": "Notifications use database data only.",
+    "empty": {
+      "headline": "No notifications yet",
+      "helperText": "Unread water index warnings and other alerts will appear here."
+    }
   },
   "status": {
     "invoice": {
@@ -577,6 +589,28 @@
       "number": "Apartment number",
       "setupStatus": "Setup status",
       "title": "Apartments setup"
+    },
+    "waterIndex": {
+      "addZone": "Add zone",
+      "coldCount": "Cold",
+      "coldTotal": "Cold water: {{count}}",
+      "empty": "No water index places are configured for this apartment.",
+      "helper": "Configure only the places where indexes are read. Cold and hot water fields are generated from these zones.",
+      "hasBoiler": "Apartment has boiler",
+      "hotCount": "Hot",
+      "hotTotal": "Hot water: {{count}}",
+      "loading": "Loading water index configuration...",
+      "locationType": "Place",
+      "removeZone": "Remove zone",
+      "title": "Water index",
+      "zoneName": "Zone name",
+      "locations": {
+        "Bathroom": "Bathroom",
+        "Kitchen": "Kitchen",
+        "Other": "Other",
+        "SecondaryBathroom": "Secondary bathroom",
+        "ServiceToilet": "Service toilet"
+      }
     }
   },
   "resident": {
@@ -638,6 +672,8 @@
     "columns": {
       "apartment": "Apartment",
       "waterType": "Water type",
+      "location": "Location",
+      "meter": "Meter",
       "previous": "Previous index",
       "current": "Current index",
       "usage": "Usage",
@@ -646,21 +682,55 @@
       "anomaly": "Anomaly",
       "mainMeter": "Main meter",
       "apartmentMeters": "Apartment meters",
-      "waterLoss": "Difference"
+      "waterLoss": "Difference",
+      "status": "Status"
     },
     "actions": {
       "submitIndex": "Submit index",
-      "addReading": "Add reading"
+      "addReading": "Add reading",
+      "submitting": "Submitting..."
     },
     "dialog": {
       "submitTitle": "Submit water index",
       "adminTitle": "Add water reading",
       "coldWaterIndex": "Cold water index",
-      "hotWaterIndex": "Hot water index"
+      "coldWaterReadings": "Cold water readings",
+      "hotWaterIndex": "Hot water index",
+      "hotWaterReadings": "Hot water readings",
+      "readingDate": "Reading date",
+      "total": "Total",
+      "waterIndex": "Water index"
     },
     "waterType": {
       "cold": "Cold water",
       "hot": "Hot water"
+    },
+    "waterLocation": {
+      "bathroom": "Bathroom",
+      "kitchen": "Kitchen",
+      "secondaryBathroom": "Secondary bathroom",
+      "serviceToilet": "Service toilet"
+    },
+    "location": {
+      "apartmentValue": "Apartment {{apartment}}",
+      "staircaseValue": "Staircase {{staircase}}"
+    },
+    "status": {
+      "missing": "Missing",
+      "partial": "Partially submitted",
+      "submitted": "Submitted"
+    },
+    "loading": "Loading water indexes...",
+    "empty": {
+      "noApartmentsHeadline": "There are no apartments linked to this resident",
+      "noApartmentsHelper": "Apartments assigned in the database will appear here automatically.",
+      "noMetersHeadline": "No water meters are configured",
+      "noMetersHelper": "The administrator must configure hot and cold water meters for this apartment first."
+    },
+    "errors": {
+      "invalidReading": "Enter a valid water index.",
+      "loadFailed": "Water index data could not be loaded. Please try again.",
+      "submitFailed": "The water index could not be submitted. Please try again."
     }
   },
   "censor": {
