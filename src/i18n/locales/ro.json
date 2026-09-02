@@ -711,6 +711,8 @@
                         "empty":  {
                                       "noApartmentsHeadline":  "Nu există apartamente asociate acestui locatar",
                                       "noApartmentsHelper":  "Apartamentele atribuite în baza de date vor apărea aici automat.",
+                                      "noSubmissionDateHeadline":  "Trimiterea indexului de apă nu este configurată",
+                                      "noSubmissionDateHelper":  "Administratorul trebuie să seteze prima dată de trimitere înainte ca locatarii să poată trimite indexurile de apă.",
                                       "noMetersHeadline":  "Nu sunt configurate contoare de apă",
                                       "noMetersHelper":  "Administratorul trebuie să configureze mai întâi contoarele de apă rece și apă caldă pentru acest apartament."
                                   },
@@ -809,7 +811,9 @@
     "settings":  {
                      "admin":  {
                                    "blockManagement":  "Administrare blocuri",
-                                   "financialSetup":  "Configurare financiară"
+                                   "financialSetup":  "Configurare financiară",
+                                   "saveFailed":  "Setările nu au putut fi salvate.",
+                                   "saveSuccess":  "Setările au fost salvate."
                                },
                      "resident":  {
                                       "description":  "Gestionați profilul, notificările și limba.",
@@ -836,6 +840,7 @@
                                     "blocks":  "Blocuri",
                                     "currency":  "Monedă",
                                     "deadline":  "Zi scadentă plată",
+                                    "waterIndexFirstSubmissionDate":  "Prima dată de trimitere index apă",
                                     "staircaseDeadline":  "Termen de plată scara {{staircase}}",
                                     "staircaseName":  "Scara {{staircase}}",
                                     "waterPrice":  "Preț apă",
@@ -852,6 +857,13 @@
                                      "editBlock":  "Editează bloc",
                                      "saveChanges":  "Salvează modificările"
                                  },
+                     "waterIndex":  {
+                                        "loadFailed":  "Setările pentru indexul de apă nu au putut fi încărcate.",
+                                        "save":  "Salvează data apei",
+                                        "saveFailed":  "Setările pentru indexul de apă nu au putut fi salvate.",
+                                        "saveSuccess":  "Setările pentru indexul de apă au fost salvate.",
+                                        "saving":  "Se salvează..."
+                                    },
                      "blockDialog":  {
                                          "address":  "Adresă",
                                          "administrator":  "Administrator",

@@ -17,6 +17,11 @@ const Settings: React.FC = () => {
     canSave: false,
     isSaving: false,
   })
+  const [adminSaveSignal, setAdminSaveSignal] = React.useState(0)
+  const [adminSaveState, setAdminSaveState] = React.useState({
+    canSave: false,
+    isSaving: false,
+  })
 
   return (
     <Box>
@@ -27,20 +32,23 @@ const Settings: React.FC = () => {
       <Box sx={{ display: 'grid', gap: 2 }}>
         <SettingsSections
           mode={isResident ? 'resident' : 'admin'}
+          adminSaveSignal={adminSaveSignal}
+          onAdminSaveStateChange={setAdminSaveState}
           residentSaveSignal={residentSaveSignal}
           onResidentSaveStateChange={setResidentSaveState}
         />
         <ActionBar title={t('settings.actions.saveChanges')}>
           <Button
-            disabled={isResident ? !residentSaveState.canSave : false}
+            disabled={isResident ? !residentSaveState.canSave : !adminSaveState.canSave}
             onClick={() => {
               if (isResident) setResidentSaveSignal((value) => value + 1)
+              else setAdminSaveSignal((value) => value + 1)
             }}
             startIcon={<SaveIcon />}
             variant="contained"
             sx={{ width: { xs: '100%', sm: 'auto' }, minWidth: { sm: 160 } }}
           >
-            {isResident && residentSaveState.isSaving ? t('settings.resident.profileSaving') : t('common.save')}
+            {(isResident ? residentSaveState.isSaving : adminSaveState.isSaving) ? t('settings.resident.profileSaving') : t('common.save')}
           </Button>
         </ActionBar>
       </Box>

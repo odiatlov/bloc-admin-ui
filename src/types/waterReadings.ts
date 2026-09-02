@@ -72,6 +72,21 @@ export type CreateWaterMeterReadingRequest = {
   note?: string | null
 }
 
+export type BlockWaterReadingSettingsResponse = {
+  id: string
+  blockId: string
+  firstSubmissionDate: string | null
+  monthlyDueDay: number
+  isEnabled: boolean
+  updatedAt: string
+}
+
+export type UpdateBlockWaterReadingSettingsRequest = {
+  firstSubmissionDate?: string | null
+  monthlyDueDay: number
+  isEnabled: boolean
+}
+
 export type ResidentWaterMeterRow = {
   id: string
   meterId: string

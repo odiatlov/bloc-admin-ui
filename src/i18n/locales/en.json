@@ -724,6 +724,8 @@
     "empty": {
       "noApartmentsHeadline": "There are no apartments linked to this resident",
       "noApartmentsHelper": "Apartments assigned in the database will appear here automatically.",
+      "noSubmissionDateHeadline": "Water index submission is not configured",
+      "noSubmissionDateHelper": "The administrator must set the first submission date before residents can submit water indexes.",
       "noMetersHeadline": "No water meters are configured",
       "noMetersHelper": "The administrator must configure hot and cold water meters for this apartment first."
     },
@@ -1017,7 +1019,9 @@
   "settings": {
     "admin": {
       "blockManagement": "Block management",
-      "financialSetup": "Financial setup"
+      "financialSetup": "Financial setup",
+      "saveFailed": "Settings could not be saved.",
+      "saveSuccess": "Settings saved."
     },
     "resident": {
       "description": "Manage profile, notifications, and language.",
@@ -1044,6 +1048,7 @@
       "blocks": "Blocks",
       "currency": "Currency",
       "deadline": "Payment deadline day",
+      "waterIndexFirstSubmissionDate": "Water index first submission date",
       "staircaseDeadline": "Staircase {{staircase}} payment deadline",
       "staircaseName": "Staircase {{staircase}}",
       "waterPrice": "Water price",
@@ -1059,6 +1064,13 @@
       "deleteBlock": "Delete block",
       "editBlock": "Edit block",
       "saveChanges": "Save changes"
+    },
+    "waterIndex": {
+      "loadFailed": "Water index settings could not be loaded.",
+      "save": "Save water date",
+      "saveFailed": "Water index settings could not be saved.",
+      "saveSuccess": "Water index settings saved.",
+      "saving": "Saving..."
     },
     "blockDialog": {
       "address": "Address",

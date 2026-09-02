@@ -47,6 +47,8 @@ const normalizeLocationKey = (locationType: string) => {
 type ApartmentWaterSummaryRow = {
   id: string
   apartmentId: string
+  year: number
+  month: number
   coldTotal: number | null
   hotTotal: number | null
   missingCount: number
@@ -59,6 +61,7 @@ const ResidentWaterIndexSection: React.FC = () => {
   const {
     apartments,
     error,
+    hasConfiguredSubmissionDate,
     loading,
     meters,
     month,
@@ -71,13 +74,18 @@ const ResidentWaterIndexSection: React.FC = () => {
   } = useResidentWaterIndex()
   const [submitOpen, setSubmitOpen] = React.useState(false)
   const [selectedApartmentId, setSelectedApartmentId] = React.useState('')
+  const [dialogPeriod, setDialogPeriod] = React.useState({ year, month })
   const [readingValues, setReadingValues] = React.useState<Record<string, string>>({})
   const [submitError, setSubmitError] = React.useState<string | null>(null)
 
   const effectiveApartmentId = selectedApartmentId || apartments[0]?.apartmentId || ''
   const selectedApartmentRows = React.useMemo(
-    () => rows.filter((row) => row.apartmentId === effectiveApartmentId),
-    [effectiveApartmentId, rows],
+    () => rows.filter((row) =>
+      row.apartmentId === effectiveApartmentId
+      && row.year === dialogPeriod.year
+      && row.month === dialogPeriod.month,
+    ),
+    [dialogPeriod.month, dialogPeriod.year, effectiveApartmentId, rows],
   )
   const coldRows = React.useMemo(
     () => selectedApartmentRows.filter((row) => normalizeUtilityKey(row.utilityType) === 'cold'),
@@ -104,31 +112,52 @@ const ResidentWaterIndexSection: React.FC = () => {
     return key === 'custom' ? locationType : t(`consumption.waterLocation.${key}`)
   }
 
-  const canSubmitIndex = meters.length > 0
+  const formatPeriod = (periodYear: number, periodMonth: number) => new Intl.DateTimeFormat(undefined, {
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(periodYear, periodMonth - 1, 1))
+
+  const canSubmitIndex = hasConfiguredSubmissionDate && meters.length > 0
   const hasMissingSelectedReadings = selectedApartmentRows.some((row) => row.value === null)
 
   const summaryRows = React.useMemo<ApartmentWaterSummaryRow[]>(() => (
-    apartments.map((apartment) => {
-      const apartmentRows = rows.filter((row) => row.apartmentId === apartment.apartmentId)
-      const coldValues = apartmentRows
-        .filter((row) => normalizeUtilityKey(row.utilityType) === 'cold' && row.value !== null)
-        .map((row) => row.value ?? 0)
-      const hotValues = apartmentRows
-        .filter((row) => normalizeUtilityKey(row.utilityType) === 'hot' && row.value !== null)
-        .map((row) => row.value ?? 0)
-      const submittedCount = apartmentRows.filter((row) => row.value !== null).length
+    apartments.flatMap((apartment) => {
+      const apartmentPeriods = Array.from(new Set(
+        rows
+          .filter((row) => row.apartmentId === apartment.apartmentId)
+          .map((row) => `${row.year}-${row.month}`),
+      ))
 
-      return {
-        id: `${apartment.apartmentId}-${year}-${month}`,
-        apartmentId: apartment.apartmentId,
-        coldTotal: coldValues.length === 0 ? null : coldValues.reduce((sum, value) => sum + value, 0),
-        hotTotal: hotValues.length === 0 ? null : hotValues.reduce((sum, value) => sum + value, 0),
-        missingCount: apartmentRows.length - submittedCount,
-        submittedCount,
-        totalCount: apartmentRows.length,
-      }
+      return apartmentPeriods.map((periodKey) => {
+        const [periodYear, periodMonth] = periodKey.split('-').map(Number)
+        const apartmentRows = rows.filter((row) =>
+          row.apartmentId === apartment.apartmentId
+          && row.year === periodYear
+          && row.month === periodMonth,
+        )
+        const coldValues = apartmentRows
+          .filter((row) => normalizeUtilityKey(row.utilityType) === 'cold' && row.value !== null)
+          .map((row) => row.value ?? 0)
+        const hotValues = apartmentRows
+          .filter((row) => normalizeUtilityKey(row.utilityType) === 'hot' && row.value !== null)
+          .map((row) => row.value ?? 0)
+        const submittedCount = apartmentRows.filter((row) => row.value !== null).length
+
+        return {
+          id: `${apartment.apartmentId}-${periodYear}-${periodMonth}`,
+          apartmentId: apartment.apartmentId,
+          year: periodYear,
+          month: periodMonth,
+          coldTotal: coldValues.length === 0 ? null : coldValues.reduce((sum, value) => sum + value, 0),
+          hotTotal: hotValues.length === 0 ? null : hotValues.reduce((sum, value) => sum + value, 0),
+          missingCount: apartmentRows.length - submittedCount,
+          submittedCount,
+          totalCount: apartmentRows.length,
+        }
+      })
     }).filter((row) => row.totalCount > 0)
-  ), [apartments, month, rows, year])
+      .sort((first, second) => second.year - first.year || second.month - first.month)
+  ), [apartments, rows])
 
   const dialogColdTotal = coldRows.reduce((sum, row) => sum + (Number(readingValues[row.meterId]) || 0), 0)
   const dialogHotTotal = hotRows.reduce((sum, row) => sum + (Number(readingValues[row.meterId]) || 0), 0)
@@ -143,8 +172,14 @@ const ResidentWaterIndexSection: React.FC = () => {
     if (!canSubmitIndex) return
     setSubmitError(null)
     const apartmentId = row?.apartmentId ?? effectiveApartmentId
-    const apartmentRows = rows.filter((item) => item.apartmentId === apartmentId)
+    const period = row ? { year: row.year, month: row.month } : { year, month }
+    const apartmentRows = rows.filter((item) =>
+      item.apartmentId === apartmentId
+      && item.year === period.year
+      && item.month === period.month,
+    )
     setSelectedApartmentId(apartmentId)
+    setDialogPeriod(period)
     setReadingValues(Object.fromEntries(apartmentRows.map((item) => [
       item.meterId,
       item.value === null ? '' : String(item.value),
@@ -153,7 +188,11 @@ const ResidentWaterIndexSection: React.FC = () => {
   }
 
   const handleApartmentChange = (apartmentId: string) => {
-    const apartmentRows = rows.filter((item) => item.apartmentId === apartmentId)
+    const apartmentRows = rows.filter((item) =>
+      item.apartmentId === apartmentId
+      && item.year === dialogPeriod.year
+      && item.month === dialogPeriod.month,
+    )
     setSelectedApartmentId(apartmentId)
     setSubmitError(null)
     setReadingValues(Object.fromEntries(apartmentRows.map((item) => [
@@ -174,7 +213,7 @@ const ResidentWaterIndexSection: React.FC = () => {
 
     try {
       setSubmitError(null)
-      await submitReadings(readingsToSubmit)
+      await submitReadings(readingsToSubmit, dialogPeriod)
       setSubmitOpen(false)
     } catch (nextError) {
       setSubmitError(nextError instanceof Error ? nextError.message : t('consumption.errors.submitFailed'))
@@ -206,6 +245,7 @@ const ResidentWaterIndexSection: React.FC = () => {
   )
 
   const columns: DataColumn<ApartmentWaterSummaryRow>[] = [
+    { key: 'month', label: t('finance.columns.month'), render: (row) => formatPeriod(row.year, row.month) },
     { key: 'apartment', label: t('consumption.columns.apartment'), cardRole: 'primary', render: (row) => formatApartmentLabel(row.apartmentId) },
     { key: 'coldWater', label: t('consumption.waterType.cold'), render: (row) => renderTotal(row.coldTotal) },
     { key: 'hotWater', label: t('consumption.waterType.hot'), render: (row) => renderTotal(row.hotTotal) },
@@ -264,7 +304,6 @@ const ResidentWaterIndexSection: React.FC = () => {
           </Button>
         )}
       >
-        <Typography variant="h6">{t('consumption.resident.history')}</Typography>
         <Box sx={{ minWidth: { xs: '100%', sm: 260 } }}>
           <AppDatePicker
             label={t('consumption.dialog.readingDate')}
@@ -282,8 +321,12 @@ const ResidentWaterIndexSection: React.FC = () => {
             ? (
               <EmptyState
                 actionLabel={t('common.refresh')}
-                headline={t('consumption.empty.noMetersHeadline')}
-                helperText={t('consumption.empty.noMetersHelper')}
+                headline={hasConfiguredSubmissionDate
+                  ? t('consumption.empty.noMetersHeadline')
+                  : t('consumption.empty.noSubmissionDateHeadline')}
+                helperText={hasConfiguredSubmissionDate
+                  ? t('consumption.empty.noMetersHelper')
+                  : t('consumption.empty.noSubmissionDateHelper')}
                 onAction={() => { void refresh() }}
               />
             )
