@@ -139,6 +139,15 @@
                           "empty":  {
                                         "headline":  "Nu există notificări încă",
                                         "helperText":  "Avertizările necitite pentru indexul de apă și alte alerte vor apărea aici."
+                                    },
+                          "types":  {
+                                        "waterReadingDeadlinePassed":  {
+                                                                         "adminMessage":  "{{resident}} nu a trimis indexul de apă pentru {{period}}.",
+                                                                         "context":  "Bloc {{block}}, Apartament {{apartment}}",
+                                                                         "contextWithStaircase":  "Bloc {{block}}, Scara {{staircase}}, Apartament {{apartment}}",
+                                                                         "residentMessage":  "Nu ați trimis indexul de apă pentru {{period}}.",
+                                                                         "title":  "Indexul de apă nu a fost trimis"
+                                                                     }
                                     }
                       },
     "status":  {
@@ -253,11 +262,16 @@
                                        "currentDue":  "Suma curentă datorată",
                                        "currentDueSubtitle":  "Scadență: 31 mai 2026",
                                        "pay":  "Plătește",
-                                       "lastSubmittedIndex":  "Ultimul index trimis",
+                                       "lastSubmittedIndex":  "Consumul de apă din ultima lună",
+                                       "lastMonthWaterConsumption":  "Consumul de apă din ultima lună",
                                        "indexValue":  "Index: {{value}}",
-                                       "coldWaterTotal":  "Apă rece (total)",
-                                       "hotWaterTotal":  "Apă caldă (total)",
+                                       "coldWaterIndex":  "Index apă rece",
+                                       "coldWaterConsumption":  "Consum apă rece",
+                                       "consumption":  "Consum",
+                                       "hotWaterIndex":  "Index apă caldă",
+                                       "hotWaterConsumption":  "Consum apă caldă",
                                        "noIndex":  "Nu a fost trimis niciun index.",
+                                       "noRegisteredIndexYet":  "Nu există index înregistrat încă",
                                        "recentAnnouncements":  "Anunțuri recente",
                                        "noAnnouncements":  "Nu există anunțuri",
                                        "lastPayment":  "Ultima plată: {{amount}}",
@@ -670,7 +684,8 @@
                                         "mainMeter":  "Contor general",
                                         "apartmentMeters":  "Contoare apartamente",
                                         "waterLoss":  "Diferența",
-                                        "status":  "Status"
+                                        "status":  "Status",
+                                        "waterConsumption":  "Consum {{water}}"
                                     },
                         "actions":  {
                                         "submitIndex":  "Trimite index",
@@ -685,6 +700,7 @@
                                        "hotWaterIndex":  "Index apă caldă",
                                        "hotWaterReadings":  "Citiri apă caldă",
                                        "readingDate":  "Data citirii",
+                                       "consumption":  "Consum",
                                        "total":  "Total",
                                        "waterIndex":  "Index apă"
                                    },
@@ -718,7 +734,9 @@
                                   },
                         "errors":  {
                                        "invalidReading":  "Introduceți un index de apă valid.",
+                                       "lowerThanPreviousReading":  "Indexul de apă nu poate fi mai mic decât citirea din luna precedentă.",
                                        "loadFailed":  "Datele pentru indexul de apă nu au putut fi încărcate. Încercați din nou.",
+                                       "previousReadingHelper":  "Luna precedentă: {{value}}",
                                        "submitFailed":  "Indexul de apă nu a putut fi trimis. Încercați din nou."
                                    }
                     },
@@ -840,7 +858,9 @@
                                     "blocks":  "Blocuri",
                                     "currency":  "Monedă",
                                     "deadline":  "Zi scadentă plată",
+                                    "blockDeadlineDay":  "Zi scadentă plată bloc",
                                     "waterIndexFirstSubmissionDate":  "Prima dată de trimitere index apă",
+                                    "dayOfMonth":  "Ziua {{day}}",
                                     "staircaseDeadline":  "Termen de plată scara {{staircase}}",
                                     "staircaseName":  "Scara {{staircase}}",
                                     "waterPrice":  "Preț apă",

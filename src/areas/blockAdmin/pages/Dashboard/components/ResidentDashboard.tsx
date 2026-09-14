@@ -34,19 +34,50 @@ const ResidentDashboard: React.FC = () => {
   const [databaseBlocks, setDatabaseBlocks] = React.useState<BlockOverview[]>([])
   const [isApartmentsLoading, setIsApartmentsLoading] = React.useState(Boolean(account.residentId))
   const [apartmentsError, setApartmentsError] = React.useState<string | null>(null)
-  const latestSubmittedAt = waterIndexRows
+  const latestSubmittedPeriod = waterIndexRows
     .filter((row) => row.value !== null && row.submittedAt)
-    .map((row) => row.submittedAt)
-    .sort()
+    .map((row) => ({ month: row.month, year: row.year }))
+    .sort((first, second) => first.year - second.year || first.month - second.month)
     .at(-1)
-  const latestIndexRows = latestSubmittedAt
-    ? waterIndexRows.filter((row) => row.submittedAt === latestSubmittedAt && row.value !== null)
+  const latestIndexRows = latestSubmittedPeriod
+    ? waterIndexRows.filter((row) =>
+        row.year === latestSubmittedPeriod.year
+        && row.month === latestSubmittedPeriod.month
+        && row.value !== null,
+      )
     : []
-  const renderLatestMeterValue = (utility: 'cold' | 'hot') => {
-    const matchingRows = latestIndexRows.filter((row) => row.utilityType.toLowerCase().includes(utility))
-    if (matchingRows.length === 0) return t('common.notAvailable')
+  const getWaterTotal = (utility: 'cold' | 'hot', period?: { year: number, month: number }) => {
+    if (!period) return null
+    const matchingRows = waterIndexRows.filter((row) =>
+      row.year === period.year
+      && row.month === period.month
+      && row.value !== null
+      && row.utilityType.toLowerCase().includes(utility),
+    )
 
-    return matchingRows.map((row) => formatNumber(row.value)).join(' / ')
+    return matchingRows.length === 0 ? null : matchingRows.reduce((sum, row) => sum + (row.value ?? 0), 0)
+  }
+  const previousSubmittedPeriod = latestSubmittedPeriod
+    ? {
+        month: new Date(latestSubmittedPeriod.year, latestSubmittedPeriod.month - 2, 1).getMonth() + 1,
+        year: new Date(latestSubmittedPeriod.year, latestSubmittedPeriod.month - 2, 1).getFullYear(),
+      }
+    : undefined
+  const buildWaterSummary = (utility: 'cold' | 'hot') => {
+    const currentTotal = getWaterTotal(utility, latestSubmittedPeriod)
+    const previousTotal = getWaterTotal(utility, previousSubmittedPeriod)
+    const consumption = currentTotal === null ? null : previousTotal === null ? 0 : currentTotal - previousTotal
+
+    return {
+      consumption,
+      currentTotal,
+      previousTotal,
+    }
+  }
+  const renderIndexMovement = (summary: ReturnType<typeof buildWaterSummary>) => {
+    if (summary.currentTotal === null) return t('dashboard.resident.noRegisteredIndexYet')
+    if (summary.previousTotal === null) return formatNumber(summary.currentTotal)
+    return `${formatNumber(summary.previousTotal)} \u2192 ${formatNumber(summary.currentTotal)}`
   }
   const announcements = [
     { id: 'A1', date: '2026-05-01', textKey: 'dashboard.resident.announcements.elevator' },
@@ -80,7 +111,11 @@ const ResidentDashboard: React.FC = () => {
   }, [account.residentId])
 
   React.useEffect(() => {
-    void loadResidentApartments()
+    const timeoutId = window.setTimeout(() => {
+      void loadResidentApartments()
+    }, 0)
+
+    return () => window.clearTimeout(timeoutId)
   }, [loadResidentApartments])
 
   const blocksById = React.useMemo(
@@ -203,42 +238,47 @@ const ResidentDashboard: React.FC = () => {
           secondary={t('dashboard.resident.currentDueSubtitle')}
         />
 
-        <StatCard label={t('dashboard.resident.lastSubmittedIndex')}>
+        <StatCard label={t('dashboard.resident.lastMonthWaterConsumption')}>
           {latestIndexRows.length > 0 ? (
             <Box
               sx={{
                 display: 'grid',
-                gridTemplateColumns: { xs: '1fr', sm: 'minmax(0, 1fr) minmax(180px, 0.9fr)' },
-                gap: 2,
-                alignItems: 'start',
+                gap: { xs: 1.5, sm: 2 },
+                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' },
               }}
             >
-              <Box>
-                <Typography variant="h4" sx={{ fontSize: { xs: '1.5rem', sm: '1.875rem' }, fontWeight: 700, lineHeight: 1.12 }}>
-                  {formatNumber(latestIndexRows[0].value)}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {t('consumption.dialog.waterIndex')}
-                </Typography>
+              <Box sx={{ display: 'grid', gap: 1 }}>
+                {([
+                  { label: t('dashboard.resident.coldWaterIndex'), summary: buildWaterSummary('cold') },
+                  { label: t('dashboard.resident.hotWaterIndex'), summary: buildWaterSummary('hot') },
+                ]).map((item) => (
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">{item.label}</Typography>
+                    <Typography sx={{ fontWeight: 700 }}>{renderIndexMovement(item.summary)}</Typography>
+                  </Box>
+                ))}
               </Box>
               <Box
                 sx={{
-                  display: 'grid',
-                  gap: 0.5,
-                  pl: { sm: 2 },
-                  pt: { xs: 1, sm: 0 },
                   borderLeft: { sm: '1px solid' },
                   borderTop: { xs: '1px solid', sm: 'none' },
                   borderColor: 'divider',
+                  display: 'grid',
+                  gap: 1,
+                  pl: { sm: 2 },
+                  pt: { xs: 1.5, sm: 0 },
                 }}
               >
-                {[ 
-                  { label: t('dashboard.resident.coldWaterTotal'), value: renderLatestMeterValue('cold') },
-                  { label: t('dashboard.resident.hotWaterTotal'), value: renderLatestMeterValue('hot') },
-                ].map((item) => (
-                  <Typography key={item.label} variant="body2" color="text.secondary">
-                    {item.label}: <Box component="span" sx={{ color: 'text.primary', fontWeight: 700 }}>{item.value}</Box>
-                  </Typography>
+                {([
+                  { label: t('dashboard.resident.coldWaterConsumption'), summary: buildWaterSummary('cold') },
+                  { label: t('dashboard.resident.hotWaterConsumption'), summary: buildWaterSummary('hot') },
+                ]).map((item) => (
+                  <Box key={item.label}>
+                    <Typography variant="body2" color="text.secondary">{item.label}</Typography>
+                    <Typography sx={{ fontWeight: 700 }}>
+                      {item.summary.consumption === null ? t('dashboard.resident.noRegisteredIndexYet') : formatNumber(item.summary.consumption)}
+                    </Typography>
+                  </Box>
                 ))}
               </Box>
             </Box>

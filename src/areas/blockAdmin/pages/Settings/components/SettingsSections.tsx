@@ -56,6 +56,13 @@ type SettingsSectionsProps = {
 
 const utilityCategories: UtilityCategory[] = ['gas', 'electricity', 'garbage', 'water', 'heating']
 const allocationTypes: AllocationType[] = ['per_person', 'per_apartment', 'by_surface', 'by_heating_area', 'individual_meter', 'equal_split', 'custom']
+const recurringDeadlineDays = Array.from({ length: 28 }, (_, index) => index + 1)
+
+const resolveRecurringDeadlineDay = (dateValue: string) => {
+  const [, , dayValue] = dateValue.split('-').map(Number)
+  if (!Number.isFinite(dayValue) || dayValue < 1) return 22
+  return Math.min(dayValue, 28)
+}
 
 const SettingsSections: React.FC<SettingsSectionsProps> = ({
   mode,
@@ -83,7 +90,8 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
   ), [databaseOverview.blocks, scopedBlocks, shouldUseDatabaseBlocks])
   const [selectedBlockId, setSelectedBlockId] = React.useState(settingsBlocks[0]?.id ?? '')
   const [selectedStaircaseId, setSelectedStaircaseId] = React.useState('all')
-  const [blockDeadline, setBlockDeadline] = React.useState('2026-05-15')
+  const blockDeadline = '2026-05-15'
+  const [blockDeadlineDay, setBlockDeadlineDay] = React.useState(() => resolveRecurringDeadlineDay('2026-05-15'))
   const [staircaseDeadlines, setStaircaseDeadlines] = React.useState<Record<string, string>>({})
   const [customCosts, setCustomCosts] = React.useState<CustomCostConfiguration[]>(customCostConfigurations)
   const [dialogMode, setDialogMode] = React.useState<'create' | 'edit' | null>(null)
@@ -320,11 +328,10 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
     setWaterIndexSettingsSaving(true)
 
     try {
-      const date = waterIndexFirstDate ? new Date(waterIndexFirstDate) : null
       await waterReadingsApi.updateBlockSettings(selectedDatabaseBlock.id, {
         firstSubmissionDate: waterIndexFirstDate || null,
         isEnabled: Boolean(waterIndexFirstDate),
-        monthlyDueDay: date ? date.getDate() : 22,
+        monthlyDueDay: waterIndexFirstDate ? resolveRecurringDeadlineDay(waterIndexFirstDate) : 22,
       })
       setAdminSettingsDirty(false)
       setNotification({
@@ -585,14 +592,23 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
 
         <Typography variant="subtitle1">{t('settings.sections.deadlines')}</Typography>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: selectedBlock?.hasStaircases ? 'repeat(2, minmax(0, 1fr))' : '1fr' }, gap: 2 }}>
-          <AppDatePicker
-            label={t('settings.fields.blockDeadline')}
-            value={blockDeadline}
-            onChange={(value) => {
-              setBlockDeadline(value)
-              markAdminSettingsDirty()
-            }}
-          />
+          <FormControl size="small">
+            <InputLabel>{t('settings.fields.blockDeadlineDay')}</InputLabel>
+            <Select
+              label={t('settings.fields.blockDeadlineDay')}
+              value={String(blockDeadlineDay)}
+              onChange={(event: SelectChangeEvent) => {
+                setBlockDeadlineDay(Number(event.target.value))
+                markAdminSettingsDirty()
+              }}
+            >
+              {recurringDeadlineDays.map((day) => (
+                <MenuItem key={day} value={String(day)}>
+                  {t('settings.fields.dayOfMonth', { day })}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           {selectedBlock?.hasStaircases && (
             <Box sx={{ display: 'grid', gap: 1.5 }}>
               {selectedBlockStaircases.map((staircase, index) => (

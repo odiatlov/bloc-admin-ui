@@ -107,6 +107,15 @@
     "empty": {
       "headline": "No notifications yet",
       "helperText": "Unread water index warnings and other alerts will appear here."
+    },
+    "types": {
+      "waterReadingDeadlinePassed": {
+        "adminMessage": "{{resident}} has not submitted the water index for {{period}}.",
+        "context": "Block {{block}}, Apartment {{apartment}}",
+        "contextWithStaircase": "Block {{block}}, Staircase {{staircase}}, Apartment {{apartment}}",
+        "residentMessage": "You have not submitted the water index for {{period}}.",
+        "title": "Water index not submitted"
+      }
     }
   },
   "status": {
@@ -221,11 +230,16 @@
       "currentDue": "Current amount due",
       "currentDueSubtitle": "Due date: May 31, 2026",
       "pay": "Pay",
-      "lastSubmittedIndex": "Last submitted index",
+      "lastSubmittedIndex": "Last month water consumption",
+      "lastMonthWaterConsumption": "Last month water consumption",
       "indexValue": "Index: {{value}}",
-      "coldWaterTotal": "Cold Water (Total)",
-      "hotWaterTotal": "Hot Water (Total)",
+      "coldWaterIndex": "Cold water index",
+      "coldWaterConsumption": "Cold water consumption",
+      "consumption": "Consumption",
+      "hotWaterIndex": "Hot water index",
+      "hotWaterConsumption": "Hot water consumption",
       "noIndex": "No index submitted yet.",
+      "noRegisteredIndexYet": "No registered index yet",
       "recentAnnouncements": "Recent announcements",
       "noAnnouncements": "No announcements",
       "lastPayment": "Last payment: {{amount}}",
@@ -683,7 +697,8 @@
       "mainMeter": "Main meter",
       "apartmentMeters": "Apartment meters",
       "waterLoss": "Difference",
-      "status": "Status"
+      "status": "Status",
+      "waterConsumption": "{{water}} consumption"
     },
     "actions": {
       "submitIndex": "Submit index",
@@ -698,6 +713,7 @@
       "hotWaterIndex": "Hot water index",
       "hotWaterReadings": "Hot water readings",
       "readingDate": "Reading date",
+      "consumption": "Consumption",
       "total": "Total",
       "waterIndex": "Water index"
     },
@@ -731,7 +747,9 @@
     },
     "errors": {
       "invalidReading": "Enter a valid water index.",
+      "lowerThanPreviousReading": "The water index cannot be lower than the previous month reading.",
       "loadFailed": "Water index data could not be loaded. Please try again.",
+      "previousReadingHelper": "Previous month: {{value}}",
       "submitFailed": "The water index could not be submitted. Please try again."
     }
   },
@@ -1048,7 +1066,9 @@
       "blocks": "Blocks",
       "currency": "Currency",
       "deadline": "Payment deadline day",
+      "blockDeadlineDay": "Block payment deadline day",
       "waterIndexFirstSubmissionDate": "Water index first submission date",
+      "dayOfMonth": "Day {{day}}",
       "staircaseDeadline": "Staircase {{staircase}} payment deadline",
       "staircaseName": "Staircase {{staircase}}",
       "waterPrice": "Water price",

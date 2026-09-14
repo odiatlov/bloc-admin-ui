@@ -22,7 +22,11 @@ import { formatNumber } from '../../../../../hooks/useApartmentData'
 import { useResidentWaterIndex } from '../../../../../hooks/useResidentWaterIndex'
 import type { ResidentWaterMeterRow } from '../../../../../types/waterReadings'
 
-const currentPeriodDate = (year: number, month: number) => `${year}-${String(month).padStart(2, '0')}-01`
+const getTodayDate = () => {
+  const today = new Date()
+  return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+}
+
 const parsePeriodDate = (value: string) => {
   const [year, month] = value.split('-').map(Number)
   return { year, month }
@@ -49,8 +53,12 @@ type ApartmentWaterSummaryRow = {
   apartmentId: string
   year: number
   month: number
+  coldPreviousTotal: number | null
   coldTotal: number | null
+  coldConsumption: number | null
+  hotPreviousTotal: number | null
   hotTotal: number | null
+  hotConsumption: number | null
   missingCount: number
   submittedCount: number
   totalCount: number
@@ -75,6 +83,7 @@ const ResidentWaterIndexSection: React.FC = () => {
   const [submitOpen, setSubmitOpen] = React.useState(false)
   const [selectedApartmentId, setSelectedApartmentId] = React.useState('')
   const [dialogPeriod, setDialogPeriod] = React.useState({ year, month })
+  const [selectedReadingDate, setSelectedReadingDate] = React.useState(getTodayDate)
   const [readingValues, setReadingValues] = React.useState<Record<string, string>>({})
   const [submitError, setSubmitError] = React.useState<string | null>(null)
 
@@ -95,6 +104,17 @@ const ResidentWaterIndexSection: React.FC = () => {
     () => selectedApartmentRows.filter((row) => normalizeUtilityKey(row.utilityType) === 'hot'),
     [selectedApartmentRows],
   )
+
+  const getPreviousMonthValue = React.useCallback((row: ResidentWaterMeterRow) => {
+    const previousPeriod = new Date(row.year, row.month - 2, 1)
+    const previousRow = rows.find((item) =>
+      item.meterId === row.meterId
+      && item.year === previousPeriod.getFullYear()
+      && item.month === previousPeriod.getMonth() + 1,
+    )
+
+    return previousRow?.value ?? null
+  }, [rows])
 
   const formatApartmentLabel = (apartmentId: string) => {
     const apartment = apartments.find((item) => item.apartmentId === apartmentId)
@@ -128,19 +148,32 @@ const ResidentWaterIndexSection: React.FC = () => {
           .map((row) => `${row.year}-${row.month}`),
       ))
 
+      const getApartmentTotal = (periodYear: number, periodMonth: number, utilityKey: 'cold' | 'hot') => {
+        const values = rows
+          .filter((row) =>
+            row.apartmentId === apartment.apartmentId
+            && row.year === periodYear
+            && row.month === periodMonth
+            && normalizeUtilityKey(row.utilityType) === utilityKey
+            && row.value !== null,
+          )
+          .map((row) => row.value ?? 0)
+
+        return values.length === 0 ? null : values.reduce((sum, value) => sum + value, 0)
+      }
+
       return apartmentPeriods.map((periodKey) => {
         const [periodYear, periodMonth] = periodKey.split('-').map(Number)
+        const previousPeriod = new Date(periodYear, periodMonth - 2, 1)
         const apartmentRows = rows.filter((row) =>
           row.apartmentId === apartment.apartmentId
           && row.year === periodYear
           && row.month === periodMonth,
         )
-        const coldValues = apartmentRows
-          .filter((row) => normalizeUtilityKey(row.utilityType) === 'cold' && row.value !== null)
-          .map((row) => row.value ?? 0)
-        const hotValues = apartmentRows
-          .filter((row) => normalizeUtilityKey(row.utilityType) === 'hot' && row.value !== null)
-          .map((row) => row.value ?? 0)
+        const coldTotal = getApartmentTotal(periodYear, periodMonth, 'cold')
+        const hotTotal = getApartmentTotal(periodYear, periodMonth, 'hot')
+        const coldPreviousTotal = getApartmentTotal(previousPeriod.getFullYear(), previousPeriod.getMonth() + 1, 'cold')
+        const hotPreviousTotal = getApartmentTotal(previousPeriod.getFullYear(), previousPeriod.getMonth() + 1, 'hot')
         const submittedCount = apartmentRows.filter((row) => row.value !== null).length
 
         return {
@@ -148,8 +181,12 @@ const ResidentWaterIndexSection: React.FC = () => {
           apartmentId: apartment.apartmentId,
           year: periodYear,
           month: periodMonth,
-          coldTotal: coldValues.length === 0 ? null : coldValues.reduce((sum, value) => sum + value, 0),
-          hotTotal: hotValues.length === 0 ? null : hotValues.reduce((sum, value) => sum + value, 0),
+          coldPreviousTotal,
+          coldTotal,
+          coldConsumption: coldTotal === null ? null : coldPreviousTotal === null ? 0 : coldTotal - coldPreviousTotal,
+          hotPreviousTotal,
+          hotTotal,
+          hotConsumption: hotTotal === null ? null : hotPreviousTotal === null ? 0 : hotTotal - hotPreviousTotal,
           missingCount: apartmentRows.length - submittedCount,
           submittedCount,
           totalCount: apartmentRows.length,
@@ -161,11 +198,24 @@ const ResidentWaterIndexSection: React.FC = () => {
 
   const dialogColdTotal = coldRows.reduce((sum, row) => sum + (Number(readingValues[row.meterId]) || 0), 0)
   const dialogHotTotal = hotRows.reduce((sum, row) => sum + (Number(readingValues[row.meterId]) || 0), 0)
+  const getDialogPreviousTotal = (sectionRows: ResidentWaterMeterRow[]) => {
+    const previousValues = sectionRows
+      .map((row) => getPreviousMonthValue(row))
+      .filter((value): value is number => value !== null)
+
+    return previousValues.length === 0 ? null : previousValues.reduce((sum, value) => sum + value, 0)
+  }
+  const dialogColdPreviousTotal = getDialogPreviousTotal(coldRows)
+  const dialogHotPreviousTotal = getDialogPreviousTotal(hotRows)
   const canConfirmSubmit = selectedApartmentRows
     .filter((row) => row.value === null)
     .every((row) => {
       const value = Number(readingValues[row.meterId])
-      return readingValues[row.meterId] !== '' && Number.isFinite(value) && value >= 0
+      const previousValue = getPreviousMonthValue(row)
+      return readingValues[row.meterId] !== ''
+        && Number.isFinite(value)
+        && value >= 0
+        && (previousValue === null || value >= previousValue)
     })
 
   const openSubmitDialog = (row?: ApartmentWaterSummaryRow) => {
@@ -211,6 +261,18 @@ const ResidentWaterIndexSection: React.FC = () => {
       return
     }
 
+    const lowerThanPreviousReading = selectedApartmentRows
+      .filter((row) => row.value === null)
+      .some((row) => {
+        const previousValue = getPreviousMonthValue(row)
+        return previousValue !== null && Number(readingValues[row.meterId]) < previousValue
+      })
+
+    if (lowerThanPreviousReading) {
+      setSubmitError(t('consumption.errors.lowerThanPreviousReading'))
+      return
+    }
+
     try {
       setSubmitError(null)
       await submitReadings(readingsToSubmit, dialogPeriod)
@@ -220,16 +282,45 @@ const ResidentWaterIndexSection: React.FC = () => {
     }
   }
 
-  const renderTotal = (value: number | null) => value === null ? t('common.notAvailable') : formatNumber(value)
+  const renderConsumption = (previousTotal: number | null, currentTotal: number | null, consumption: number | null) => {
+    if (currentTotal === null || consumption === null) return t('common.notAvailable')
+    if (previousTotal === null) return `${formatNumber(currentTotal)} (${formatNumber(consumption)})`
+    return `${formatNumber(previousTotal)} \u2192 ${formatNumber(currentTotal)} (${formatNumber(consumption)})`
+  }
 
-  const renderDialogSection = (title: string, sectionRows: ResidentWaterMeterRow[], total: number) => sectionRows.length === 0 ? null : (
+  const renderDialogSection = (
+    title: string,
+    sectionRows: ResidentWaterMeterRow[],
+    previousTotal: number | null,
+    currentTotal: number,
+  ) => sectionRows.length === 0 ? null : (
     <Box sx={{ display: 'grid', gap: 1 }}>
       <Typography variant="subtitle1">{title}</Typography>
       {sectionRows.map((row) => (
         <TextField
           key={row.meterId}
           disabled={row.value !== null}
+          error={(() => {
+            const previousValue = getPreviousMonthValue(row)
+            const value = Number(readingValues[row.meterId])
+            return row.value === null
+              && previousValue !== null
+              && readingValues[row.meterId] !== ''
+              && Number.isFinite(value)
+              && value < previousValue
+          })()}
           fullWidth
+          helperText={(() => {
+            const previousValue = getPreviousMonthValue(row)
+            const value = Number(readingValues[row.meterId])
+            return row.value === null
+              && previousValue !== null
+              && readingValues[row.meterId] !== ''
+              && Number.isFinite(value)
+              && value < previousValue
+              ? t('consumption.errors.previousReadingHelper', { value: formatNumber(previousValue) })
+              : undefined
+          })()}
           label={formatLocation(row.locationType)}
           onChange={(event) => setReadingValues((values) => ({ ...values, [row.meterId]: event.target.value }))}
           size="small"
@@ -237,9 +328,15 @@ const ResidentWaterIndexSection: React.FC = () => {
           value={readingValues[row.meterId] ?? ''}
         />
       ))}
-      <Box sx={{ alignItems: 'center', display: 'flex', justifyContent: 'space-between' }}>
-        <Typography variant="body1" sx={{ fontWeight: 700 }}>{t('consumption.dialog.total')}</Typography>
-        <Typography variant="body1" sx={{ fontWeight: 700 }}>{formatNumber(total)}</Typography>
+      <Box sx={{ alignItems: 'center', display: 'flex', gap: 2, justifyContent: 'space-between', flexWrap: 'wrap' }}>
+        <Typography variant="body1" sx={{ fontWeight: 700 }}>
+          {t('consumption.dialog.consumption')}: {previousTotal === null
+            ? formatNumber(currentTotal)
+            : `${formatNumber(previousTotal)} \u2192 ${formatNumber(currentTotal)}`}
+        </Typography>
+        <Typography variant="body1" sx={{ fontWeight: 700 }}>
+          {t('consumption.dialog.total')}: {formatNumber(previousTotal === null ? 0 : currentTotal - previousTotal)}
+        </Typography>
       </Box>
     </Box>
   )
@@ -247,8 +344,16 @@ const ResidentWaterIndexSection: React.FC = () => {
   const columns: DataColumn<ApartmentWaterSummaryRow>[] = [
     { key: 'month', label: t('finance.columns.month'), render: (row) => formatPeriod(row.year, row.month) },
     { key: 'apartment', label: t('consumption.columns.apartment'), cardRole: 'primary', render: (row) => formatApartmentLabel(row.apartmentId) },
-    { key: 'coldWater', label: t('consumption.waterType.cold'), render: (row) => renderTotal(row.coldTotal) },
-    { key: 'hotWater', label: t('consumption.waterType.hot'), render: (row) => renderTotal(row.hotTotal) },
+    {
+      key: 'coldWater',
+      label: t('consumption.columns.waterConsumption', { water: t('consumption.waterType.cold') }),
+      render: (row) => renderConsumption(row.coldPreviousTotal, row.coldTotal, row.coldConsumption),
+    },
+    {
+      key: 'hotWater',
+      label: t('consumption.columns.waterConsumption', { water: t('consumption.waterType.hot') }),
+      render: (row) => renderConsumption(row.hotPreviousTotal, row.hotTotal, row.hotConsumption),
+    },
     {
       key: 'status',
       label: t('consumption.columns.status'),
@@ -307,8 +412,11 @@ const ResidentWaterIndexSection: React.FC = () => {
         <Box sx={{ minWidth: { xs: '100%', sm: 260 } }}>
           <AppDatePicker
             label={t('consumption.dialog.readingDate')}
-            onChange={(value) => setPeriod(parsePeriodDate(value))}
-            value={currentPeriodDate(year, month)}
+            onChange={(value) => {
+              setSelectedReadingDate(value)
+              setPeriod(parsePeriodDate(value))
+            }}
+            value={selectedReadingDate}
           />
         </Box>
       </FilterBar>
@@ -370,9 +478,9 @@ const ResidentWaterIndexSection: React.FC = () => {
             ))}
           </Select>
         </FormControl>
-        {renderDialogSection(t('consumption.dialog.coldWaterReadings'), coldRows, dialogColdTotal)}
+        {renderDialogSection(t('consumption.dialog.coldWaterReadings'), coldRows, dialogColdPreviousTotal, dialogColdTotal)}
         {coldRows.length > 0 && hotRows.length > 0 && <Divider />}
-        {renderDialogSection(t('consumption.dialog.hotWaterReadings'), hotRows, dialogHotTotal)}
+        {renderDialogSection(t('consumption.dialog.hotWaterReadings'), hotRows, dialogHotPreviousTotal, dialogHotTotal)}
       </AppDialog>
     </Box>
   )

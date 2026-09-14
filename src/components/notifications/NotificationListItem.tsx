@@ -12,8 +12,78 @@ type Props = {
   onClick: (notification: NotificationResponse) => void
 }
 
+const formatNotificationPeriod = (
+  notification: NotificationResponse,
+  language: string,
+  fallbackMessage: string,
+) => {
+  if (notification.relatedYear && notification.relatedMonth) {
+    return new Intl.DateTimeFormat(language, {
+      month: 'long',
+      year: 'numeric',
+    }).format(new Date(notification.relatedYear, notification.relatedMonth - 1, 1))
+  }
+
+  const match = fallbackMessage.match(/for ([A-Za-z]+ \d{4})\./)
+  return match?.[1] ?? ''
+}
+
+const formatNotificationContext = (
+  notification: NotificationResponse,
+  t: ReturnType<typeof useTranslation>['t'],
+) => {
+  if (notification.type !== 'WaterReadingDeadlinePassed' || !notification.context) {
+    return notification.context
+  }
+
+  const staircaseMatch = notification.context.match(/^Block (.*), Staircase (.*), Apartment (.*)$/)
+  if (staircaseMatch) {
+    return t('notifications.types.waterReadingDeadlinePassed.contextWithStaircase', {
+      apartment: staircaseMatch[3],
+      block: staircaseMatch[1],
+      staircase: staircaseMatch[2],
+    })
+  }
+
+  const apartmentMatch = notification.context.match(/^Block (.*), Apartment (.*)$/)
+  if (apartmentMatch) {
+    return t('notifications.types.waterReadingDeadlinePassed.context', {
+      apartment: apartmentMatch[2],
+      block: apartmentMatch[1],
+    })
+  }
+
+  return notification.context
+}
+
+const getNotificationDisplay = (
+  notification: NotificationResponse,
+  t: ReturnType<typeof useTranslation>['t'],
+  language: string,
+) => {
+  if (notification.type !== 'WaterReadingDeadlinePassed') {
+    return {
+      context: notification.context,
+      message: notification.message,
+      title: notification.title,
+    }
+  }
+
+  const period = formatNotificationPeriod(notification, language, notification.message)
+  const residentName = notification.message.match(/^(.*) has not submitted the water index for /)?.[1]
+
+  return {
+    context: formatNotificationContext(notification, t),
+    message: residentName
+      ? t('notifications.types.waterReadingDeadlinePassed.adminMessage', { period, resident: residentName })
+      : t('notifications.types.waterReadingDeadlinePassed.residentMessage', { period }),
+    title: t('notifications.types.waterReadingDeadlinePassed.title'),
+  }
+}
+
 const NotificationListItem: React.FC<Props> = ({ notification, onClick }) => {
-  const { t } = useTranslation()
+  const { i18n, t } = useTranslation()
+  const display = getNotificationDisplay(notification, t, i18n.language)
 
   return (
     <ListItemButton
@@ -31,14 +101,14 @@ const NotificationListItem: React.FC<Props> = ({ notification, onClick }) => {
       </Box>
       <Box sx={{ minWidth: 0 }}>
         <Typography sx={{ fontWeight: notification.isRead ? 500 : 700 }} variant="subtitle2">
-          {notification.title}
+          {display.title}
         </Typography>
         <Typography color="text.secondary" variant="body2">
-          {notification.message}
+          {display.message}
         </Typography>
-        {notification.context && (
+        {display.context && (
           <Typography color="text.secondary" sx={{ mt: 0.5 }} variant="caption">
-            {notification.context}
+            {display.context}
           </Typography>
         )}
         <Typography color="text.secondary" sx={{ display: 'block', mt: 0.75 }} variant="caption">

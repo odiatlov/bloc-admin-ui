@@ -5,6 +5,8 @@ export type NotificationResponse = {
   recipientType: string
   type: string
   severity: NotificationSeverity
+  relatedYear?: number | null
+  relatedMonth?: number | null
   title: string
   message: string
   context?: string | null
