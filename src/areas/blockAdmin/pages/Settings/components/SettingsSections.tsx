@@ -28,6 +28,7 @@ import { RoleContext } from '../../../../../contexts/RoleContext'
 import { useBlocks } from '../../../../../hooks/useBlocks'
 import { blocksApi } from '../../../../../services/blocksApi'
 import { residentsApi } from '../../../../../services/residentsApi'
+import { waterReadingsApi } from '../../../../../services/waterReadingsApi'
 import type { ResidentResponse } from '../../../../../types/management'
 import type { CreateBlockRequest } from '../../../../../types/block'
 import {
@@ -47,15 +48,26 @@ import AddBlockDialog from './AddBlockDialog'
 
 type SettingsSectionsProps = {
   mode: 'admin' | 'resident'
+  adminSaveSignal?: number
+  onAdminSaveStateChange?: (state: { canSave: boolean; isSaving: boolean }) => void
   residentSaveSignal?: number
   onResidentSaveStateChange?: (state: { canSave: boolean; isSaving: boolean }) => void
 }
 
 const utilityCategories: UtilityCategory[] = ['gas', 'electricity', 'garbage', 'water', 'heating']
 const allocationTypes: AllocationType[] = ['per_person', 'per_apartment', 'by_surface', 'by_heating_area', 'individual_meter', 'equal_split', 'custom']
+const recurringDeadlineDays = Array.from({ length: 28 }, (_, index) => index + 1)
+
+const resolveRecurringDeadlineDay = (dateValue: string) => {
+  const [, , dayValue] = dateValue.split('-').map(Number)
+  if (!Number.isFinite(dayValue) || dayValue < 1) return 22
+  return Math.min(dayValue, 28)
+}
 
 const SettingsSections: React.FC<SettingsSectionsProps> = ({
   mode,
+  adminSaveSignal = 0,
+  onAdminSaveStateChange,
   residentSaveSignal = 0,
   onResidentSaveStateChange,
 }) => {
@@ -78,7 +90,8 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
   ), [databaseOverview.blocks, scopedBlocks, shouldUseDatabaseBlocks])
   const [selectedBlockId, setSelectedBlockId] = React.useState(settingsBlocks[0]?.id ?? '')
   const [selectedStaircaseId, setSelectedStaircaseId] = React.useState('all')
-  const [blockDeadline, setBlockDeadline] = React.useState('2026-05-15')
+  const blockDeadline = '2026-05-15'
+  const [blockDeadlineDay, setBlockDeadlineDay] = React.useState(() => resolveRecurringDeadlineDay('2026-05-15'))
   const [staircaseDeadlines, setStaircaseDeadlines] = React.useState<Record<string, string>>({})
   const [customCosts, setCustomCosts] = React.useState<CustomCostConfiguration[]>(customCostConfigurations)
   const [dialogMode, setDialogMode] = React.useState<'create' | 'edit' | null>(null)
@@ -94,21 +107,33 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
     lastName: '',
     email: '',
   })
+  const [waterIndexFirstDate, setWaterIndexFirstDate] = React.useState('')
+  const [waterIndexSettingsLoading, setWaterIndexSettingsLoading] = React.useState(false)
+  const [waterIndexSettingsSaving, setWaterIndexSettingsSaving] = React.useState(false)
+  const [adminSettingsDirty, setAdminSettingsDirty] = React.useState(false)
+  const [currency, setCurrency] = React.useState('EUR')
+  const [overdueAlertsEnabled, setOverdueAlertsEnabled] = React.useState(true)
+  const [cashAlertsEnabled, setCashAlertsEnabled] = React.useState(true)
   const [isResidentProfileLoading, setIsResidentProfileLoading] = React.useState(mode === 'resident' && Boolean(account.residentId))
   const [residentProfileError, setResidentProfileError] = React.useState<string | null>(null)
   const [isResidentProfileSaving, setIsResidentProfileSaving] = React.useState(false)
 
   React.useEffect(() => {
     if (mode !== 'resident' || !account.residentId) {
-      setResidentProfile(null)
-      setResidentProfileError(null)
-      setIsResidentProfileLoading(false)
+      window.setTimeout(() => {
+        setResidentProfile(null)
+        setResidentProfileError(null)
+        setIsResidentProfileLoading(false)
+      }, 0)
       return
     }
 
     let isActive = true
-    setIsResidentProfileLoading(true)
-    setResidentProfileError(null)
+    window.setTimeout(() => {
+      if (!isActive) return
+      setIsResidentProfileLoading(true)
+      setResidentProfileError(null)
+    }, 0)
 
     residentsApi.getById(account.residentId)
       .then((resident) => {
@@ -136,8 +161,10 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
 
   React.useEffect(() => {
     if (!settingsBlocks.some((block) => block.id === selectedBlockId)) {
-      setSelectedBlockId(settingsBlocks[0]?.id ?? '')
-      setSelectedStaircaseId('all')
+      window.setTimeout(() => {
+        setSelectedBlockId(settingsBlocks[0]?.id ?? '')
+        setSelectedStaircaseId('all')
+      }, 0)
     }
   }, [settingsBlocks, selectedBlockId])
 
@@ -163,11 +190,66 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
     })
   }, [canSaveResidentProfile, isResidentProfileSaving, onResidentSaveStateChange])
 
+  React.useEffect(() => {
+    onAdminSaveStateChange?.({
+      canSave: Boolean(selectedDatabaseBlock && adminSettingsDirty && !waterIndexSettingsLoading && !waterIndexSettingsSaving),
+      isSaving: waterIndexSettingsSaving,
+    })
+  }, [
+    adminSettingsDirty,
+    onAdminSaveStateChange,
+    selectedDatabaseBlock,
+    waterIndexSettingsLoading,
+    waterIndexSettingsSaving,
+  ])
+
+  React.useEffect(() => {
+    if (!selectedDatabaseBlock) {
+      window.setTimeout(() => {
+        setWaterIndexFirstDate('')
+        setWaterIndexSettingsLoading(false)
+      }, 0)
+      return
+    }
+
+    let isActive = true
+    window.setTimeout(() => {
+      if (isActive) setWaterIndexSettingsLoading(true)
+    }, 0)
+
+    waterReadingsApi.getBlockSettings(selectedDatabaseBlock.id)
+      .then((settings) => {
+        if (!isActive) return
+        setWaterIndexFirstDate(settings.firstSubmissionDate?.slice(0, 10) ?? '')
+        setAdminSettingsDirty(false)
+      })
+      .catch((error) => {
+        if (!isActive) return
+        setWaterIndexFirstDate('')
+        setNotification({
+          message: error instanceof Error ? error.message : t('settings.waterIndex.loadFailed'),
+          severity: 'error',
+        })
+      })
+      .finally(() => {
+        if (isActive) setWaterIndexSettingsLoading(false)
+      })
+
+    return () => {
+      isActive = false
+    }
+  }, [selectedDatabaseBlock, t])
+
   const handleStaircaseChange = (event: SelectChangeEvent) => {
     setSelectedStaircaseId(event.target.value)
   }
 
+  const markAdminSettingsDirty = () => {
+    if (mode === 'admin') setAdminSettingsDirty(true)
+  }
+
   const updateCustomCost = (id: string, updates: Partial<CustomCostConfiguration>) => {
+    markAdminSettingsDirty()
     setCustomCosts((costs) => costs.map((cost) => (cost.id === id ? { ...cost, ...updates } : cost)))
   }
 
@@ -187,6 +269,7 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
       ...(fallbackStaircase ? { staircaseId: fallbackStaircase.id } : {}),
     }
 
+    markAdminSettingsDirty()
     setCustomCosts((costs) => [nextCost, ...costs])
   }
 
@@ -239,7 +322,33 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
     }
   }
 
-  const saveResidentProfile = async () => {
+  const saveAdminSettings = React.useCallback(async () => {
+    if (!selectedDatabaseBlock || !adminSettingsDirty || waterIndexSettingsSaving) return
+
+    setWaterIndexSettingsSaving(true)
+
+    try {
+      await waterReadingsApi.updateBlockSettings(selectedDatabaseBlock.id, {
+        firstSubmissionDate: waterIndexFirstDate || null,
+        isEnabled: Boolean(waterIndexFirstDate),
+        monthlyDueDay: waterIndexFirstDate ? resolveRecurringDeadlineDay(waterIndexFirstDate) : 22,
+      })
+      setAdminSettingsDirty(false)
+      setNotification({
+        message: t('settings.admin.saveSuccess'),
+        severity: 'success',
+      })
+    } catch (error) {
+      setNotification({
+        message: error instanceof Error ? error.message : t('settings.admin.saveFailed'),
+        severity: 'error',
+      })
+    } finally {
+      setWaterIndexSettingsSaving(false)
+    }
+  }, [adminSettingsDirty, selectedDatabaseBlock, t, waterIndexFirstDate, waterIndexSettingsSaving])
+
+  const saveResidentProfile = React.useCallback(async () => {
     if (!residentProfile || !canSaveResidentProfile) return
 
     setIsResidentProfileSaving(true)
@@ -267,7 +376,15 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
     } finally {
       setIsResidentProfileSaving(false)
     }
-  }
+  }, [
+    canSaveResidentProfile,
+    refreshAccounts,
+    residentProfile,
+    residentProfileForm.email,
+    residentProfileForm.firstName,
+    residentProfileForm.lastName,
+    t,
+  ])
 
   const lastResidentSaveSignal = React.useRef(residentSaveSignal)
   React.useEffect(() => {
@@ -275,7 +392,15 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
 
     lastResidentSaveSignal.current = residentSaveSignal
     void saveResidentProfile()
-  }, [mode, residentSaveSignal])
+  }, [mode, residentSaveSignal, saveResidentProfile])
+
+  const lastAdminSaveSignal = React.useRef(adminSaveSignal)
+  React.useEffect(() => {
+    if (mode !== 'admin' || adminSaveSignal === lastAdminSaveSignal.current) return
+
+    lastAdminSaveSignal.current = adminSaveSignal
+    void saveAdminSettings()
+  }, [adminSaveSignal, mode, saveAdminSettings])
 
   if (mode === 'resident') {
     return (
@@ -449,7 +574,14 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
         <Typography variant="h6">{t('settings.admin.financialSetup')}</Typography>
         <FormControl size="small" sx={{ maxWidth: 240 }}>
           <InputLabel>{t('settings.fields.currency')}</InputLabel>
-          <Select label={t('settings.fields.currency')} defaultValue="EUR">
+          <Select
+            label={t('settings.fields.currency')}
+            value={currency}
+            onChange={(event: SelectChangeEvent) => {
+              setCurrency(event.target.value)
+              markAdminSettingsDirty()
+            }}
+          >
             <MenuItem value="EUR">EUR</MenuItem>
             <MenuItem value="RON">RON</MenuItem>
             <MenuItem value="USD">USD</MenuItem>
@@ -460,7 +592,23 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
 
         <Typography variant="subtitle1">{t('settings.sections.deadlines')}</Typography>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: selectedBlock?.hasStaircases ? 'repeat(2, minmax(0, 1fr))' : '1fr' }, gap: 2 }}>
-          <AppDatePicker label={t('settings.fields.blockDeadline')} value={blockDeadline} onChange={setBlockDeadline} />
+          <FormControl size="small">
+            <InputLabel>{t('settings.fields.blockDeadlineDay')}</InputLabel>
+            <Select
+              label={t('settings.fields.blockDeadlineDay')}
+              value={String(blockDeadlineDay)}
+              onChange={(event: SelectChangeEvent) => {
+                setBlockDeadlineDay(Number(event.target.value))
+                markAdminSettingsDirty()
+              }}
+            >
+              {recurringDeadlineDays.map((day) => (
+                <MenuItem key={day} value={String(day)}>
+                  {t('settings.fields.dayOfMonth', { day })}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           {selectedBlock?.hasStaircases && (
             <Box sx={{ display: 'grid', gap: 1.5 }}>
               {selectedBlockStaircases.map((staircase, index) => (
@@ -468,11 +616,25 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
                   key={staircase.id}
                   label={t('settings.fields.staircaseDeadline', { staircase: staircase.name })}
                   value={staircaseDeadlines[staircase.id] ?? `2026-05-${String(15 + index).padStart(2, '0')}`}
-                  onChange={(value) => setStaircaseDeadlines((deadlines) => ({ ...deadlines, [staircase.id]: value }))}
+                  onChange={(value) => {
+                    setStaircaseDeadlines((deadlines) => ({ ...deadlines, [staircase.id]: value }))
+                    markAdminSettingsDirty()
+                  }}
                 />
               ))}
             </Box>
           )}
+        </Box>
+
+        <Box sx={{ alignItems: 'center', display: 'grid', gap: 1.5, gridTemplateColumns: '1fr' }}>
+          <AppDatePicker
+            label={t('settings.fields.waterIndexFirstSubmissionDate')}
+            value={waterIndexFirstDate}
+            onChange={(value) => {
+              setWaterIndexFirstDate(value)
+              markAdminSettingsDirty()
+            }}
+          />
         </Box>
 
         <Divider />
@@ -488,6 +650,7 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
                   label={t(`settings.costs.${category}`)}
                   type="number"
                   defaultValue={value}
+                  onChange={markAdminSettingsDirty}
                 />
               )
             })}
@@ -508,6 +671,7 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
                         label={t(`settings.costs.${category}`)}
                         type="number"
                         defaultValue={0}
+                        onChange={markAdminSettingsDirty}
                       />
                     ))}
                   </Box>
@@ -630,6 +794,7 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
                 defaultValue={cost.notesKey ? t(cost.notesKey) : ''}
                 multiline
                 minRows={2}
+                onChange={markAdminSettingsDirty}
               />
             </Paper>
           ))}
@@ -638,8 +803,30 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
 
       <Paper sx={{ p: 2 }}>
         <Typography variant="h6">{t('settings.sections.notifications')}</Typography>
-        <FormControlLabel control={<Checkbox defaultChecked />} label={t('settings.fields.overdueAlerts')} />
-        <FormControlLabel control={<Checkbox defaultChecked />} label={t('settings.fields.cashAlerts')} />
+        <FormControlLabel
+          control={(
+            <Checkbox
+              checked={overdueAlertsEnabled}
+              onChange={(event) => {
+                setOverdueAlertsEnabled(event.target.checked)
+                markAdminSettingsDirty()
+              }}
+            />
+          )}
+          label={t('settings.fields.overdueAlerts')}
+        />
+        <FormControlLabel
+          control={(
+            <Checkbox
+              checked={cashAlertsEnabled}
+              onChange={(event) => {
+                setCashAlertsEnabled(event.target.checked)
+                markAdminSettingsDirty()
+              }}
+            />
+          )}
+          label={t('settings.fields.cashAlerts')}
+        />
       </Paper>
 
       <AddBlockDialog

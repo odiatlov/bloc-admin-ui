@@ -86,6 +86,7 @@
     "reviews": "Reviews",
     "reports": "Reports",
     "settings": "Settings",
+    "notifications": "Notifications",
     "overview": "Overview",
     "searchBlocks": "Search blocks",
     "staircases": "Staircases",
@@ -96,6 +97,26 @@
     "superBlocks": "Platform blocks",
     "superResidents": "Platform residents",
     "exportData": "Export data"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unreadCount": "{{count}} unread",
+    "markAllAsRead": "Mark all read",
+    "unknownDate": "Unknown date",
+    "realDataOnly": "Notifications use database data only.",
+    "empty": {
+      "headline": "No notifications yet",
+      "helperText": "Unread water index warnings and other alerts will appear here."
+    },
+    "types": {
+      "waterReadingDeadlinePassed": {
+        "adminMessage": "{{resident}} has not submitted the water index for {{period}}.",
+        "context": "Block {{block}}, Apartment {{apartment}}",
+        "contextWithStaircase": "Block {{block}}, Staircase {{staircase}}, Apartment {{apartment}}",
+        "residentMessage": "You have not submitted the water index for {{period}}.",
+        "title": "Water index not submitted"
+      }
+    }
   },
   "status": {
     "invoice": {
@@ -209,11 +230,16 @@
       "currentDue": "Current amount due",
       "currentDueSubtitle": "Due date: May 31, 2026",
       "pay": "Pay",
-      "lastSubmittedIndex": "Last submitted index",
+      "lastSubmittedIndex": "Last month water consumption",
+      "lastMonthWaterConsumption": "Last month water consumption",
       "indexValue": "Index: {{value}}",
-      "coldWaterTotal": "Cold Water (Total)",
-      "hotWaterTotal": "Hot Water (Total)",
+      "coldWaterIndex": "Cold water index",
+      "coldWaterConsumption": "Cold water consumption",
+      "consumption": "Consumption",
+      "hotWaterIndex": "Hot water index",
+      "hotWaterConsumption": "Hot water consumption",
       "noIndex": "No index submitted yet.",
+      "noRegisteredIndexYet": "No registered index yet",
       "recentAnnouncements": "Recent announcements",
       "noAnnouncements": "No announcements",
       "lastPayment": "Last payment: {{amount}}",
@@ -577,6 +603,28 @@
       "number": "Apartment number",
       "setupStatus": "Setup status",
       "title": "Apartments setup"
+    },
+    "waterIndex": {
+      "addZone": "Add zone",
+      "coldCount": "Cold",
+      "coldTotal": "Cold water: {{count}}",
+      "empty": "No water index places are configured for this apartment.",
+      "helper": "Configure only the places where indexes are read. Cold and hot water fields are generated from these zones.",
+      "hasBoiler": "Apartment has boiler",
+      "hotCount": "Hot",
+      "hotTotal": "Hot water: {{count}}",
+      "loading": "Loading water index configuration...",
+      "locationType": "Place",
+      "removeZone": "Remove zone",
+      "title": "Water index",
+      "zoneName": "Zone name",
+      "locations": {
+        "Bathroom": "Bathroom",
+        "Kitchen": "Kitchen",
+        "Other": "Other",
+        "SecondaryBathroom": "Secondary bathroom",
+        "ServiceToilet": "Service toilet"
+      }
     }
   },
   "resident": {
@@ -638,6 +686,8 @@
     "columns": {
       "apartment": "Apartment",
       "waterType": "Water type",
+      "location": "Location",
+      "meter": "Meter",
       "previous": "Previous index",
       "current": "Current index",
       "usage": "Usage",
@@ -646,21 +696,61 @@
       "anomaly": "Anomaly",
       "mainMeter": "Main meter",
       "apartmentMeters": "Apartment meters",
-      "waterLoss": "Difference"
+      "waterLoss": "Difference",
+      "status": "Status",
+      "waterConsumption": "{{water}} consumption"
     },
     "actions": {
       "submitIndex": "Submit index",
-      "addReading": "Add reading"
+      "addReading": "Add reading",
+      "submitting": "Submitting..."
     },
     "dialog": {
       "submitTitle": "Submit water index",
       "adminTitle": "Add water reading",
       "coldWaterIndex": "Cold water index",
-      "hotWaterIndex": "Hot water index"
+      "coldWaterReadings": "Cold water readings",
+      "hotWaterIndex": "Hot water index",
+      "hotWaterReadings": "Hot water readings",
+      "readingDate": "Reading date",
+      "consumption": "Consumption",
+      "total": "Total",
+      "waterIndex": "Water index"
     },
     "waterType": {
       "cold": "Cold water",
       "hot": "Hot water"
+    },
+    "waterLocation": {
+      "bathroom": "Bathroom",
+      "kitchen": "Kitchen",
+      "secondaryBathroom": "Secondary bathroom",
+      "serviceToilet": "Service toilet"
+    },
+    "location": {
+      "apartmentValue": "Apartment {{apartment}}",
+      "staircaseValue": "Staircase {{staircase}}"
+    },
+    "status": {
+      "missing": "Missing",
+      "partial": "Partially submitted",
+      "submitted": "Submitted"
+    },
+    "loading": "Loading water indexes...",
+    "empty": {
+      "noApartmentsHeadline": "There are no apartments linked to this resident",
+      "noApartmentsHelper": "Apartments assigned in the database will appear here automatically.",
+      "noSubmissionDateHeadline": "Water index submission is not configured",
+      "noSubmissionDateHelper": "The administrator must set the first submission date before residents can submit water indexes.",
+      "noMetersHeadline": "No water meters are configured",
+      "noMetersHelper": "The administrator must configure hot and cold water meters for this apartment first."
+    },
+    "errors": {
+      "invalidReading": "Enter a valid water index.",
+      "lowerThanPreviousReading": "The water index cannot be lower than the previous month reading.",
+      "loadFailed": "Water index data could not be loaded. Please try again.",
+      "previousReadingHelper": "Previous month: {{value}}",
+      "submitFailed": "The water index could not be submitted. Please try again."
     }
   },
   "censor": {
@@ -947,7 +1037,9 @@
   "settings": {
     "admin": {
       "blockManagement": "Block management",
-      "financialSetup": "Financial setup"
+      "financialSetup": "Financial setup",
+      "saveFailed": "Settings could not be saved.",
+      "saveSuccess": "Settings saved."
     },
     "resident": {
       "description": "Manage profile, notifications, and language.",
@@ -974,6 +1066,9 @@
       "blocks": "Blocks",
       "currency": "Currency",
       "deadline": "Payment deadline day",
+      "blockDeadlineDay": "Block payment deadline day",
+      "waterIndexFirstSubmissionDate": "Water index first submission date",
+      "dayOfMonth": "Day {{day}}",
       "staircaseDeadline": "Staircase {{staircase}} payment deadline",
       "staircaseName": "Staircase {{staircase}}",
       "waterPrice": "Water price",
@@ -989,6 +1084,13 @@
       "deleteBlock": "Delete block",
       "editBlock": "Edit block",
       "saveChanges": "Save changes"
+    },
+    "waterIndex": {
+      "loadFailed": "Water index settings could not be loaded.",
+      "save": "Save water date",
+      "saveFailed": "Water index settings could not be saved.",
+      "saveSuccess": "Water index settings saved.",
+      "saving": "Saving..."
     },
     "blockDialog": {
       "address": "Address",

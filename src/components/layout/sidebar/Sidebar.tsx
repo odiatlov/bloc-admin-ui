@@ -27,6 +27,7 @@ import { RoleContext } from '../../../contexts/RoleContext'
 import { useTranslation } from 'react-i18next'
 import { rolePermissions } from '../../../mocks/roles'
 import LogoutConfirmButton from '../../shared/LogoutConfirmButton'
+import NotificationsButton from '../../notifications/NotificationsButton'
 
 type Props = {
   drawerWidth: number
@@ -105,6 +106,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ onNavigate, onClose, sh
       </Box>
       <Divider />
       <Box sx={{ p: 2 }}>
+        <NotificationsButton />
         <LogoutConfirmButton fullWidth sidebar />
       </Box>
     </Box>

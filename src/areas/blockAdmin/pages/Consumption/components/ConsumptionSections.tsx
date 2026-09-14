@@ -15,6 +15,7 @@ import ResponsiveDataView, { type DataColumn } from '../../../../../components/s
 import SectionVisibilitySelector, { type SectionVisibilityOption } from '../../../../../components/shared/SectionVisibilitySelector'
 import StatusChip from '../../../../../components/shared/StatusChip'
 import { formatApartment, formatMonth, formatNumber, useConsumption, useResidentPortal, type WaterReadingRow } from '../../../../../hooks/useApartmentData'
+import ResidentWaterIndexSection from './ResidentWaterIndexSection'
 
 type ConsumptionSectionsProps = {
   mode: 'admin' | 'resident' | 'censor'
@@ -24,6 +25,12 @@ type ConsumptionSectionId = 'readings' | 'anomalies' | 'waterBalance'
 const tableEmptyValue = '-'
 
 const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
+  if (mode === 'resident') return <ResidentWaterIndexSection />
+
+  return <AdminConsumptionSections mode={mode} />
+}
+
+const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
   const { t } = useTranslation()
   const { blockFilter, blocks, readings, setBlockFilter, summaries, waterBalances } = useConsumption()
   const { apartments, residentReadings } = useResidentPortal()
