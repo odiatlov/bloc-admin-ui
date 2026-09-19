@@ -116,6 +116,6 @@ export type WaterConsumptionRow = {
 }
 
 export type WaterConsumptionReportResponse = {
-  blocks: Array<{ id: string, name: string, firstReadingPeriod: number | null }>
+  blocks: Array<{ id: string, name: string, firstReadingPeriod: number | null, firstSubmissionPeriod: number | null }>
   rows: WaterConsumptionRow[]
 }

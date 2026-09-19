@@ -33,7 +33,7 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => mo
 
 const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
   const { t, i18n } = useTranslation()
-  const { blocks, blockFilter, setBlockFilter, period, setPeriod, rows, loading, error, refresh } = useWaterConsumptions()
+  const { blocks, blockFilter, setBlockFilter, period, setPeriod, minimumPeriod, rows, loading, error, refresh } = useWaterConsumptions({ submissionPeriodsOnly: true })
   const [open, setOpen] = React.useState(false)
   const apartmentLabel = (row: WaterConsumptionRow) => [
     t('consumption.location.apartmentValue', { apartment: row.apartment.number }),
@@ -74,8 +74,8 @@ const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) 
         <MenuItem value="all">{t('common.all')}</MenuItem>
         {blocks.map((block) => <MenuItem key={block.id} value={block.id}>{t('common.blockValue', { block: block.name })}</MenuItem>)}
       </TextField>
-      <AppDatePicker monthOnly confirmOnAccept disabled={!!error} label={t('finance.columns.month')} value={period}
-        minDate="2000-01-01" maxDate="2100-12-31" onChange={setPeriod} />
+      <AppDatePicker monthOnly confirmOnAccept disabled={loading || !!error} label={t('finance.columns.month')} value={period}
+        minDate={`${minimumPeriod ?? period}-01`} maxDate="2100-12-31" onChange={setPeriod} />
     </FilterBar>
     {loading ? <Box role="status" sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><CircularProgress size={24} />{t('consumption.loading')}</Box>
       : error ? <LoadErrorState helperText={t('consumption.errors.loadFailed')} onRetry={refresh} />

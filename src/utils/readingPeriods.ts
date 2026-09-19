@@ -1,3 +1,14 @@
+export const getConsumptionStart = (blocks: ReadonlyArray<{
+  id: string, firstReadingPeriod: number | null, firstSubmissionPeriod: number | null,
+}>, blockId: string): string | null => {
+  const starts = blocks.filter((block) => blockId === 'all' || block.id === blockId)
+    .map((block) => Math.max(block.firstReadingPeriod ?? 0, block.firstSubmissionPeriod ?? 0))
+    .filter((period) => period > 0)
+  if (starts.length === 0) return null
+  const first = Math.min(...starts)
+  return `${Math.floor(first / 100)}-${String(first % 100).padStart(2, '0')}`
+}
+
 export const getReadingPeriods = (
   blocks: ReadonlyArray<{ id: string, firstReadingPeriod: number | null }>,
   blockId: string,
