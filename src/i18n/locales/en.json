@@ -668,6 +668,16 @@
     }
   },
   "consumption": {
+    "report": {
+      "description": "Water meter indexes and monthly consumption.",
+      "complete": "Complete",
+      "incomplete": "Incomplete",
+      "invalid": "Invalid indexes",
+      "noMeters": "No meters",
+      "empty": "No apartments found for the selected block and period.",
+      "emptyHelper": "Check the selected block or ask your administrator to check apartment setup and block assignments.",
+      "noPendingMeters": "No active meters are awaiting a reading for this month."
+    },
     "resident": {
       "description": "Submit water indexes and review previous readings.",
       "history": "Reading history"

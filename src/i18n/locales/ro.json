@@ -655,6 +655,16 @@
                                }
                  },
     "consumption":  {
+                        "report": {
+                            "description": "Indexuri de apă și consum lunar.",
+                            "complete": "Complet",
+                            "incomplete": "Incomplet",
+                            "invalid": "Indexuri invalide",
+                            "noMeters": "Fără contoare",
+                            "empty": "Nu există apartamente pentru blocul și perioada selectate.",
+                            "emptyHelper": "Verificați blocul selectat sau cereți administratorului să verifice apartamentele și atribuirile de blocuri.",
+                            "noPendingMeters": "Nu există contoare active fără citire pentru această lună."
+                        },
                         "resident":  {
                                          "description":  "Trimiteți indexul de apă și vedeți citirile anterioare.",
                                          "history":  "Istoric citiri"

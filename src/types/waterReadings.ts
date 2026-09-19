@@ -103,3 +103,19 @@ export type ResidentWaterMeterRow = {
   value: number | null
   submittedAt: string | null
 }
+
+export type WaterConsumptionRow = {
+  id: string
+  apartment: { id: string, blockId: string, blockName: string, staircaseName: string | null, number: string }
+  meters: Array<{
+    id: string, name: string, utilityType: string, isActive: boolean,
+    previous: number | null, current: number | null, usage: number | null,
+  }>
+  usage: number | null
+  status: 'complete' | 'incomplete' | 'invalid' | 'noMeters'
+}
+
+export type WaterConsumptionReportResponse = {
+  blocks: Array<{ id: string, name: string }>
+  rows: WaterConsumptionRow[]
+}
