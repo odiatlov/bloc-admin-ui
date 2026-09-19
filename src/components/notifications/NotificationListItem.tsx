@@ -32,7 +32,7 @@ const formatNotificationContext = (
   notification: NotificationResponse,
   t: ReturnType<typeof useTranslation>['t'],
 ) => {
-  if (notification.type !== 'WaterReadingDeadlinePassed' || !notification.context) {
+  if (!['WaterReadingDeadlinePassed', 'WaterReadingAddedByAdmin', 'WaterReadingReminder'].includes(notification.type) || !notification.context) {
     return notification.context
   }
 
@@ -61,6 +61,13 @@ const getNotificationDisplay = (
   t: ReturnType<typeof useTranslation>['t'],
   language: string,
 ) => {
+  const waterType = notification.type === 'WaterReadingAddedByAdmin' ? 'waterReadingAddedByAdmin'
+    : notification.type === 'WaterReadingReminder' ? 'waterReadingReminder' : null
+  if (waterType) return {
+    context: formatNotificationContext(notification, t),
+    message: t(`notifications.types.${waterType}.message`, { period: formatNotificationPeriod(notification, language, notification.message) }),
+    title: t(`notifications.types.${waterType}.title`),
+  }
   if (notification.type !== 'WaterReadingDeadlinePassed') {
     return {
       context: notification.context,

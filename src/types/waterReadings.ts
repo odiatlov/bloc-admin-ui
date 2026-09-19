@@ -106,6 +106,8 @@ export type ResidentWaterMeterRow = {
 
 export type WaterConsumptionRow = {
   id: string
+  canRemind: boolean
+  reminderSent: boolean
   apartment: { id: string, blockId: string, blockName: string, staircaseName: string | null, number: string }
   meters: Array<{
     id: string, name: string, utilityType: string, isActive: boolean,

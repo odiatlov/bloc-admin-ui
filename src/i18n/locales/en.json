@@ -109,6 +109,14 @@
       "helperText": "Unread water index warnings and other alerts will appear here."
     },
     "types": {
+      "waterReadingAddedByAdmin": {
+        "title": "Water reading added by administrator",
+        "message": "Your administrator added water readings for {{period}}."
+      },
+      "waterReadingReminder": {
+        "title": "Water reading reminder",
+        "message": "Please submit your missing water readings for {{period}}."
+      },
       "waterReadingDeadlinePassed": {
         "adminMessage": "{{resident}} has not submitted the water index for {{period}}.",
         "context": "Block {{block}}, Apartment {{apartment}}",
@@ -668,6 +676,14 @@
     }
   },
   "consumption": {
+    "reminder": {
+      "caption": "Sent Reminder",
+      "column": "Reminder",
+      "send": "Send reading reminder",
+      "sending": "Sending reminder...",
+      "sent": "Reminder sent",
+      "failed": "The reminder could not be sent. Please try again."
+    },
     "report": {
       "description": "Water meter indexes and monthly consumption.",
       "complete": "Complete",

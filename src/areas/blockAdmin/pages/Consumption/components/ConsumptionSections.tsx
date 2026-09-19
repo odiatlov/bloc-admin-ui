@@ -1,5 +1,8 @@
 import React from 'react'
 import Box from '@mui/material/Box'
+import Alert from '@mui/material/Alert'
+import Tooltip from '@mui/material/Tooltip'
+import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import MenuItem from '@mui/material/MenuItem'
@@ -18,6 +21,7 @@ import type { WaterConsumptionRow } from '../../../../../types/waterReadings'
 import { formatNumber as format } from '../../../../../utils/formatters'
 import ResidentWaterIndexSection from './ResidentWaterIndexSection'
 import WaterReadingDialog from './WaterReadingDialog'
+import { waterReadingsApi } from '../../../../../services/waterReadingsApi'
 
 type ConsumptionSectionsProps = { mode: 'admin' | 'resident' | 'censor' }
 
@@ -35,6 +39,24 @@ const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) 
   const { t, i18n } = useTranslation()
   const { blocks, blockFilter, setBlockFilter, period, setPeriod, minimumPeriod, rows, loading, error, refresh } = useWaterConsumptions({ submissionPeriodsOnly: true })
   const [open, setOpen] = React.useState(false)
+  const [reminderStates, setReminderStates] = React.useState<Record<string, 'sending' | 'sent' | 'error'>>({})
+  const reminderRequests = React.useRef(new Set<string>())
+  const sendReminder = async (row: WaterConsumptionRow) => {
+    const key = `${period}:${row.id}`
+    if (mode !== 'admin' || !row.canRemind || row.reminderSent || reminderRequests.current.has(key)) return
+    reminderRequests.current.add(key)
+    setReminderStates((states) => ({ ...states, [key]: 'sending' }))
+    try {
+      const [year, month] = period.split('-').map(Number)
+      await waterReadingsApi.sendReminder(row.id, year, month)
+      setReminderStates((states) => ({ ...states, [key]: 'sent' }))
+      refresh()
+    } catch {
+      setReminderStates((states) => ({ ...states, [key]: 'error' }))
+    } finally {
+      reminderRequests.current.delete(key)
+    }
+  }
   const apartmentLabel = (row: WaterConsumptionRow) => [
     t('consumption.location.apartmentValue', { apartment: row.apartment.number }),
     row.apartment.staircaseName && t('consumption.location.staircaseValue', { staircase: row.apartment.staircaseName }),
@@ -64,9 +86,23 @@ const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) 
     { key: 'total', label: `${t('consumption.columns.totalUsage')} (m\u00b3)`, render: (row) => row.usage === null ? '-' : format(row.usage) },
     { key: 'status', label: t('consumption.columns.status'), cardRole: 'status', render: (row) => <StatusChip status={consumptionChipStatus[row.status]} label={t(`consumption.report.${row.status}`)} /> },
   ]
+  if (mode === 'admin') columns.push({
+    key: 'reminder', label: t('consumption.reminder.column'), cardRole: 'actions',
+    render: (row) => {
+      if (row.status !== 'incomplete' || !row.canRemind) return null
+      const state = reminderStates[`${period}:${row.id}`]
+      const sent = row.reminderSent || state === 'sent'
+      const title = t(sent ? 'consumption.reminder.sent' : state === 'sending' ? 'consumption.reminder.sending' : 'consumption.reminder.send')
+      return <Tooltip title={title}><span><Button size="small" startIcon={<NotificationsActiveOutlinedIcon />} aria-label={title} color="primary"
+        disabled={sent || state === 'sending'} onClick={() => { void sendReminder(row) }}>
+        {t('consumption.reminder.caption')}
+      </Button></span></Tooltip>
+    },
+  })
   const incompleteApartments = rows.filter((row) => row.meters.some((meter) => meter.isActive && meter.current === null))
 
   return <Box sx={{ display: 'grid', gap: 2 }}>
+    {rows.some((row) => reminderStates[`${period}:${row.id}`] === 'error') && <Alert severity="error">{t('consumption.reminder.failed')}</Alert>}
     <FilterBar actions={mode === 'admin' ? <Button startIcon={<AddIcon />} variant="contained" disabled={loading || !!error || incompleteApartments.length === 0} onClick={() => {
       setOpen(true)
     }}>{t('consumption.actions.addReading')}</Button> : undefined}>

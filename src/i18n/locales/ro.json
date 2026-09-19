@@ -141,6 +141,14 @@
                                         "helperText":  "Avertizările necitite pentru indexul de apă și alte alerte vor apărea aici."
                                     },
                           "types":  {
+                                        "waterReadingAddedByAdmin": {
+                                            "title": "Citire de apă adăugată de administrator",
+                                            "message": "Administratorul a adăugat citiri de apă pentru {{period}}."
+                                        },
+                                        "waterReadingReminder": {
+                                            "title": "Memento pentru citirea apei",
+                                            "message": "Vă rugăm să trimiteți citirile de apă lipsă pentru {{period}}."
+                                        },
                                         "waterReadingDeadlinePassed":  {
                                                                          "adminMessage":  "{{resident}} nu a trimis indexul de apă pentru {{period}}.",
                                                                          "context":  "Bloc {{block}}, Apartament {{apartment}}",
@@ -655,6 +663,14 @@
                                }
                  },
     "consumption":  {
+                        "reminder": {
+                            "caption": "Trimite memento",
+                            "column": "Memento",
+                            "send": "Trimite memento pentru citire",
+                            "sending": "Se trimite mementoul...",
+                            "sent": "Memento trimis",
+                            "failed": "Mementoul nu a putut fi trimis. Încercați din nou."
+                        },
                         "report": {
                             "description": "Indexuri de apă și consum lunar.",
                             "complete": "Complet",
