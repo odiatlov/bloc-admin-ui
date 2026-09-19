@@ -346,12 +346,12 @@ const ResidentWaterIndexSection: React.FC = () => {
     { key: 'apartment', label: t('consumption.columns.apartment'), cardRole: 'primary', render: (row) => formatApartmentLabel(row.apartmentId) },
     {
       key: 'coldWater',
-      label: t('consumption.columns.waterConsumption', { water: t('consumption.waterType.cold') }),
+      label: `${t('consumption.columns.waterConsumption', { water: t('consumption.waterType.cold') })} (m\u00b3)`,
       render: (row) => renderConsumption(row.coldPreviousTotal, row.coldTotal, row.coldConsumption),
     },
     {
       key: 'hotWater',
-      label: t('consumption.columns.waterConsumption', { water: t('consumption.waterType.hot') }),
+      label: `${t('consumption.columns.waterConsumption', { water: t('consumption.waterType.hot') })} (m\u00b3)`,
       render: (row) => renderConsumption(row.hotPreviousTotal, row.hotTotal, row.hotConsumption),
     },
     {

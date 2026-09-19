@@ -13,8 +13,8 @@ import type {
 import { apiDelete, apiGet, apiPost, apiPut } from './apiClient'
 
 export const waterReadingsApi = {
-  getConsumptions: (year: number, month: number, role: 'Admin' | 'Censor') =>
-    apiGet<WaterConsumptionReportResponse>(`/water-consumptions?year=${year}&month=${month}&role=${role}`),
+  getConsumptions: (year: number | null, month: number | null, role: 'Admin' | 'Censor') =>
+    apiGet<WaterConsumptionReportResponse>(`/water-consumptions?role=${role}${year !== null && month !== null ? `&year=${year}&month=${month}` : ''}`),
   getMetersByApartment: (apartmentId: string) =>
     apiGet<ApartmentWaterMeterResponse[]>(`/apartments/${apartmentId}/water-meters`),
   getApartmentConfiguration: (apartmentId: string) =>

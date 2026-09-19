@@ -42,7 +42,7 @@ const AppDatePicker: React.FC<AppDatePickerProps> = ({ label, onChange, value, m
         openTo={monthOnly ? 'month' : undefined}
         minDate={minDate ? dayjs(minDate) : undefined}
         maxDate={maxDate ? dayjs(maxDate) : undefined}
-        value={confirmOnAccept && draft !== undefined ? draft : dayjs(value)}
+        value={confirmOnAccept && draft !== undefined ? draft : value ? dayjs(value) : null}
         onChange={confirmOnAccept ? setDraft : handleChange}
         onAccept={confirmOnAccept ? handleChange : undefined}
         onClose={confirmOnAccept ? () => setDraft(undefined) : undefined}
