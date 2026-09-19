@@ -50,7 +50,6 @@ export const useResidentWaterIndex = () => {
   const [rows, setRows] = React.useState<ResidentWaterMeterRow[]>([])
   const [hasConfiguredSubmissionDate, setHasConfiguredSubmissionDate] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
-  const [submitting, setSubmitting] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
 
   const load = React.useCallback(async () => {
@@ -127,45 +126,6 @@ export const useResidentWaterIndex = () => {
     }
   }, [account.residentId])
 
-  const submitReading = React.useCallback(async (
-    meterId: string,
-    value: number,
-    period: { year: number, month: number } = { year, month },
-  ) => {
-    setSubmitting(true)
-    try {
-      await waterReadingsApi.createReading({
-        apartmentWaterMeterId: meterId,
-        month: period.month,
-        value,
-        year: period.year,
-      })
-      await load()
-    } finally {
-      setSubmitting(false)
-    }
-  }, [load, month, year])
-
-  const submitReadings = React.useCallback(async (
-    readings: Array<{ meterId: string, value: number }>,
-    period: { year: number, month: number } = { year, month },
-  ) => {
-    setSubmitting(true)
-    try {
-      for (const reading of readings) {
-        await waterReadingsApi.createReading({
-          apartmentWaterMeterId: reading.meterId,
-          month: period.month,
-          value: reading.value,
-          year: period.year,
-        })
-      }
-      await load()
-    } finally {
-      setSubmitting(false)
-    }
-  }, [load, month, year])
-
   React.useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       void load()
@@ -185,9 +145,6 @@ export const useResidentWaterIndex = () => {
     resident,
     rows,
     setPeriod,
-    submitReading,
-    submitReadings,
-    submitting,
     year,
   }
 }
