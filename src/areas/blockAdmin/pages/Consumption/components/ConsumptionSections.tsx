@@ -1,194 +1,130 @@
 import React from 'react'
 import Box from '@mui/material/Box'
+import Alert from '@mui/material/Alert'
+import Tooltip from '@mui/material/Tooltip'
+import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined'
 import Button from '@mui/material/Button'
-import FormControl from '@mui/material/FormControl'
-import InputLabel from '@mui/material/InputLabel'
+import CircularProgress from '@mui/material/CircularProgress'
 import MenuItem from '@mui/material/MenuItem'
-import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+import AddIcon from '@mui/icons-material/Add'
 import { useTranslation } from 'react-i18next'
-import AppDialog from '../../../../../components/shared/AppDialog'
+import AppDatePicker from '../../../../../components/shared/AppDatePicker'
+import StatusChip from '../../../../../components/shared/StatusChip'
 import EmptyState from '../../../../../components/shared/EmptyState'
 import FilterBar from '../../../../../components/shared/FilterBar'
+import LoadErrorState from '../../../../../components/shared/LoadErrorState'
 import ResponsiveDataView, { type DataColumn } from '../../../../../components/shared/ResponsiveDataView'
-import SectionVisibilitySelector, { type SectionVisibilityOption } from '../../../../../components/shared/SectionVisibilitySelector'
-import StatusChip from '../../../../../components/shared/StatusChip'
-import { formatApartment, formatMonth, formatNumber, useConsumption, useResidentPortal, type WaterReadingRow } from '../../../../../hooks/useApartmentData'
+import { useWaterConsumptions } from '../../../../../hooks/useWaterConsumptions'
+import type { WaterConsumptionRow } from '../../../../../types/waterReadings'
+import { formatNumber as format } from '../../../../../utils/formatters'
 import ResidentWaterIndexSection from './ResidentWaterIndexSection'
+import WaterReadingDialog from './WaterReadingDialog'
+import { waterReadingsApi } from '../../../../../services/waterReadingsApi'
 
-type ConsumptionSectionsProps = {
-  mode: 'admin' | 'resident' | 'censor'
+type ConsumptionSectionsProps = { mode: 'admin' | 'resident' | 'censor' }
+
+const consumptionChipStatus: Record<WaterConsumptionRow['status'], string> = {
+  complete: 'completed',
+  incomplete: 'warning',
+  noMeters: 'critical',
+  invalid: 'critical',
 }
 
-type ConsumptionSectionId = 'readings' | 'anomalies' | 'waterBalance'
-const tableEmptyValue = '-'
-
-const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
-  if (mode === 'resident') return <ResidentWaterIndexSection />
-
-  return <AdminConsumptionSections mode={mode} />
-}
+const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => mode === 'resident'
+  ? <ResidentWaterIndexSection /> : <AdminConsumptionSections mode={mode} />
 
 const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
-  const { t } = useTranslation()
-  const { blockFilter, blocks, readings, setBlockFilter, summaries, waterBalances } = useConsumption()
-  const { apartments, residentReadings } = useResidentPortal()
-  const [submitOpen, setSubmitOpen] = React.useState(false)
-  const [selectedApartmentId, setSelectedApartmentId] = React.useState(apartments[0]?.id ?? '')
-  const [visibleSectionIds, setVisibleSectionIds] = React.useState<ConsumptionSectionId[]>(['readings', 'anomalies', 'waterBalance'])
-  const visibleReadings = mode === 'resident' ? residentReadings : readings
-  const canEditReadings = mode !== 'censor'
-  const dedicatedEmptyStateAction = canEditReadings ? { onAction: () => setSubmitOpen(true) } : { actionTo: '/admin/finance' }
-  const dedicatedEmptyStateActionLabel = canEditReadings
-    ? mode === 'resident' ? t('consumption.actions.submitIndex') : t('consumption.actions.addReading')
-    : t('censor.actions.openQueue')
-  const renderMeter = (meter: WaterReadingRow['meters']['cold']) =>
-    meter ? t('consumption.columns.meterValue', { previous: formatNumber(meter.previousValue), current: formatNumber(meter.currentValue), usage: formatNumber(meter.usageValue) }) : tableEmptyValue
-
-  const sectionVisibilityOptions: SectionVisibilityOption<ConsumptionSectionId>[] = [
-    { id: 'readings', label: t('consumption.sections.readings') },
-    { id: 'anomalies', label: t('consumption.sections.anomalies') },
-    { id: 'waterBalance', label: t('consumption.sections.waterBalance') },
-  ]
-
-  const isSectionVisible = (sectionId: ConsumptionSectionId) => visibleSectionIds.includes(sectionId)
-
-  const handleSectionVisibilityToggle = (sectionId: ConsumptionSectionId) => {
-    setVisibleSectionIds((currentSectionIds) => {
-      if (currentSectionIds.includes(sectionId)) {
-        return currentSectionIds.length > 1 ? currentSectionIds.filter((currentSectionId) => currentSectionId !== sectionId) : currentSectionIds
-      }
-
-      return [...currentSectionIds, sectionId]
-    })
+  const { t, i18n } = useTranslation()
+  const { blocks, blockFilter, setBlockFilter, period, setPeriod, minimumPeriod, rows, loading, error, refresh } = useWaterConsumptions({ submissionPeriodsOnly: true })
+  const [open, setOpen] = React.useState(false)
+  const [reminderStates, setReminderStates] = React.useState<Record<string, 'sending' | 'sent' | 'error'>>({})
+  const reminderRequests = React.useRef(new Set<string>())
+  const sendReminder = async (row: WaterConsumptionRow) => {
+    const key = `${period}:${row.id}`
+    if (mode !== 'admin' || !row.canRemind || row.reminderSent || reminderRequests.current.has(key)) return
+    reminderRequests.current.add(key)
+    setReminderStates((states) => ({ ...states, [key]: 'sending' }))
+    try {
+      const [year, month] = period.split('-').map(Number)
+      await waterReadingsApi.sendReminder(row.id, year, month)
+      setReminderStates((states) => ({ ...states, [key]: 'sent' }))
+      refresh()
+    } catch {
+      setReminderStates((states) => ({ ...states, [key]: 'error' }))
+    } finally {
+      reminderRequests.current.delete(key)
+    }
   }
-
-  const readingColumns: DataColumn<(typeof visibleReadings)[number]>[] = [
-    { key: 'apartment', label: t('consumption.columns.apartment'), cardRole: 'primary', render: (reading) => formatApartment(reading.apartment) },
-    { key: 'month', label: t('finance.columns.month'), render: (reading) => formatMonth(reading.month) },
-    { key: 'coldWater', label: t('consumption.waterType.cold'), render: (reading) => renderMeter(reading.meters.cold) },
-    { key: 'hotWater', label: t('consumption.waterType.hot'), render: (reading) => renderMeter(reading.meters.hot) },
-    { key: 'usage', label: t('consumption.columns.totalUsage'), render: (reading) => formatNumber(reading.usageValue) },
+  const apartmentLabel = (row: WaterConsumptionRow) => [
+    t('consumption.location.apartmentValue', { apartment: row.apartment.number }),
+    row.apartment.staircaseName && t('consumption.location.staircaseValue', { staircase: row.apartment.staircaseName }),
+  ].filter(Boolean).join(' - ')
+  const label = (row: WaterConsumptionRow) => [
+    apartmentLabel(row),
+    t('common.blockValue', { block: row.apartment.blockName }),
+  ].filter(Boolean).join(' - ')
+  const renderMeters = (row: WaterConsumptionRow, utility: string) => {
+    const meters = row.meters.filter((meter) => meter.utilityType === utility)
+    return meters.length === 0 ? '-' : <Box sx={{ display: 'grid', gap: 0.5 }}>{meters.map((meter) => (
+      <Typography key={meter.id} variant="body2">
+        {meter.name}: {t('consumption.columns.meterValue', {
+          previous: meter.previous === null ? '-' : format(meter.previous),
+          current: meter.current === null ? '-' : format(meter.current),
+          usage: meter.usage === null ? '-' : `${format(meter.usage)} m\u00b3`,
+        })}
+      </Typography>
+    ))}</Box>
+  }
+  const columns: DataColumn<WaterConsumptionRow>[] = [
+    { key: 'apartment', label: t('consumption.columns.apartment'), cardRole: 'primary', render: apartmentLabel },
+    { key: 'block', label: t('residents.filters.block'), render: (row) => row.apartment.blockName },
+    { key: 'month', label: t('finance.columns.month'), render: () => new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' }).format(new Date(`${period}-01T12:00:00`)) },
+    { key: 'cold', label: t('consumption.waterType.cold'), render: (row) => renderMeters(row, 'ColdWater') },
+    { key: 'hot', label: t('consumption.waterType.hot'), render: (row) => renderMeters(row, 'HotWater') },
+    { key: 'total', label: `${t('consumption.columns.totalUsage')} (m\u00b3)`, render: (row) => row.usage === null ? '-' : format(row.usage) },
+    { key: 'status', label: t('consumption.columns.status'), cardRole: 'status', render: (row) => <StatusChip status={consumptionChipStatus[row.status]} label={t(`consumption.report.${row.status}`)} /> },
   ]
+  if (mode === 'admin') columns.push({
+    key: 'reminder', label: t('consumption.reminder.column'), cardRole: 'actions',
+    render: (row) => {
+      if (row.status !== 'incomplete' || !row.canRemind) return null
+      const state = reminderStates[`${period}:${row.id}`]
+      const sent = row.reminderSent || state === 'sent'
+      const title = t(sent ? 'consumption.reminder.sent' : state === 'sending' ? 'consumption.reminder.sending' : 'consumption.reminder.send')
+      return <Tooltip title={title}><span><Button size="small" startIcon={<NotificationsActiveOutlinedIcon />} aria-label={title} color="primary"
+        disabled={sent || state === 'sending'} onClick={() => { void sendReminder(row) }}>
+        {t('consumption.reminder.caption')}
+      </Button></span></Tooltip>
+    },
+  })
+  const incompleteApartments = rows.filter((row) => row.meters.some((meter) => meter.isActive && meter.current === null))
 
-  const summaryColumns: DataColumn<(typeof summaries)[number]>[] = [
-    { key: 'apartment', label: t('consumption.columns.apartment'), cardRole: 'primary', render: (summary) => formatApartment(summary.apartment) },
-    { key: 'month', label: t('finance.columns.month'), render: (summary) => formatMonth(summary.month) },
-    { key: 'usage', label: t('consumption.columns.totalUsage'), render: (summary) => formatNumber(summary.usageValue) },
-    { key: 'anomaly', label: t('consumption.columns.anomaly'), cardRole: 'status', render: (summary) => <StatusChip status={summary.anomaly} label={t(`status.anomaly.${summary.anomaly}`)} /> },
-  ]
-
-  const waterBalanceColumns: DataColumn<(typeof waterBalances)[number]>[] = [
-    { key: 'block', label: t('residents.filters.block'), cardRole: 'primary', render: (balance) => balance.block.name || tableEmptyValue },
-    { key: 'month', label: t('finance.columns.month'), render: (balance) => formatMonth(balance.month) },
-    { key: 'main', label: t('consumption.columns.mainMeter'), render: (balance) => formatNumber(balance.mainUsage) },
-    { key: 'apartments', label: t('consumption.columns.apartmentMeters'), render: (balance) => formatNumber(balance.apartmentUsage) },
-    { key: 'difference', label: t('consumption.columns.waterLoss'), render: (balance) => formatNumber(balance.difference) },
-  ]
-
-  return (
-    <Box sx={{ display: 'grid', gap: 2 }}>
-      <FilterBar
-        actions={canEditReadings ? (
-          <Button variant="contained" onClick={() => setSubmitOpen(true)}>
-            {mode === 'resident' ? t('consumption.actions.submitIndex') : t('consumption.actions.addReading')}
-          </Button>
-        ) : undefined}
-      >
-        {mode !== 'resident' ? (
-          <FormControl size="small" sx={{ minWidth: { sm: 180 } }}>
-            <InputLabel>{t('residents.filters.block')}</InputLabel>
-            <Select label={t('residents.filters.block')} value={blockFilter} onChange={(event: SelectChangeEvent) => setBlockFilter(event.target.value)}>
-              <MenuItem value="all">{t('common.all')}</MenuItem>
-              {blocks.map((block) => (
-                <MenuItem key={block.id} value={block.id}>
-                  {t('common.blockValue', { block: block.name })}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        ) : (
-          <Typography variant="h6">{t('consumption.resident.history')}</Typography>
-        )}
-        {mode !== 'resident' && (
-          <SectionVisibilitySelector
-            ariaLabel={t('consumption.visibility.ariaLabel')}
-            label={t('consumption.visibility.label')}
-            minimumVisibleMessage={t('consumption.visibility.minimumVisible')}
-            onToggle={handleSectionVisibilityToggle}
-            options={sectionVisibilityOptions}
-            visibleCountLabel={t('consumption.visibility.visibleCount', { count: visibleSectionIds.length })}
-            visibleIds={visibleSectionIds}
-          />
-        )}
-      </FilterBar>
-
-      {(mode === 'resident' || isSectionVisible('readings')) && (
-        <Box sx={{ display: 'grid', gap: 1 }}>
-          <ResponsiveDataView
-            ariaLabel={t('consumption.sections.readings')}
-            columns={readingColumns}
-            emptyState={(
-              <EmptyState
-                actionLabel={dedicatedEmptyStateActionLabel}
-                headline={t('emptyState.headline', { information: t(mode === 'resident' ? 'emptyState.information.waterIndex' : 'emptyState.information.consumption') })}
-                helperText={t('emptyState.helper.dedicated', { information: t(mode === 'resident' ? 'emptyState.information.waterIndex' : 'emptyState.information.consumption') })}
-                {...dedicatedEmptyStateAction}
-              />
-            )}
-            getRowId={(reading) => reading.id}
-            rows={visibleReadings}
-          />
-        </Box>
-      )}
-
-      {mode !== 'resident' && visibleReadings.length > 0 && (
-        <Box sx={{ display: 'grid', gap: 1 }}>
-          {isSectionVisible('anomalies') && (
-            <>
-              <Typography variant="h6">{t('consumption.sections.anomalies')}</Typography>
-              <ResponsiveDataView ariaLabel={t('consumption.sections.anomalies')} columns={summaryColumns} getRowId={(summary) => `${summary.apartment.id}-${summary.month}`} rows={summaries} />
-            </>
-          )}
-          {isSectionVisible('waterBalance') && (
-            <>
-              <Typography variant="h6">{t('consumption.sections.waterBalance')}</Typography>
-              <ResponsiveDataView ariaLabel={t('consumption.sections.waterBalance')} columns={waterBalanceColumns} getRowId={(balance) => `${balance.block.id}-${balance.month}`} rows={waterBalances} />
-            </>
-          )}
-        </Box>
-      )}
-
-      <AppDialog
-        cancelLabel={t('common.cancel')}
-        confirmLabel={t('common.save')}
-        contentSx={{ display: 'grid', gap: 2 }}
-        onCancel={() => setSubmitOpen(false)}
-        onConfirm={() => setSubmitOpen(false)}
-        open={submitOpen}
-        title={mode === 'resident' ? t('consumption.dialog.submitTitle') : t('consumption.dialog.adminTitle')}
-      >
-          {mode === 'resident' && (
-            <FormControl fullWidth>
-              <InputLabel>{t('consumption.columns.apartment')}</InputLabel>
-              <Select label={t('consumption.columns.apartment')} value={selectedApartmentId} onChange={(event: SelectChangeEvent) => setSelectedApartmentId(event.target.value)}>
-                {apartments.map((apartment) => (
-                  <MenuItem key={apartment.id} value={apartment.id}>
-                    {formatApartment(apartment)}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          )}
-          <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' } }}>
-            <TextField label={t('consumption.dialog.coldWaterIndex')} type="number" fullWidth />
-            <TextField label={t('consumption.dialog.hotWaterIndex')} type="number" fullWidth />
-          </Box>
-          <TextField label={t('finance.columns.month')} fullWidth defaultValue="05-2026" />
-      </AppDialog>
-    </Box>
-  )
+  return <Box sx={{ display: 'grid', gap: 2 }}>
+    {rows.some((row) => reminderStates[`${period}:${row.id}`] === 'error') && <Alert severity="error">{t('consumption.reminder.failed')}</Alert>}
+    <FilterBar actions={mode === 'admin' ? <Button startIcon={<AddIcon />} variant="contained" disabled={loading || !!error || incompleteApartments.length === 0} onClick={() => {
+      setOpen(true)
+    }}>{t('consumption.actions.addReading')}</Button> : undefined}>
+      <TextField select size="small" disabled={loading || !!error} label={t('residents.filters.block')} value={blockFilter} onChange={(event) => setBlockFilter(event.target.value)} sx={{ minWidth: 180 }}>
+        <MenuItem value="all">{t('common.all')}</MenuItem>
+        {blocks.map((block) => <MenuItem key={block.id} value={block.id}>{t('common.blockValue', { block: block.name })}</MenuItem>)}
+      </TextField>
+      <AppDatePicker monthOnly confirmOnAccept disabled={loading || !!error} label={t('finance.columns.month')} value={period}
+        minDate={`${minimumPeriod ?? period}-01`} maxDate="2100-12-31" onChange={setPeriod} />
+    </FilterBar>
+    {loading ? <Box role="status" sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><CircularProgress size={24} />{t('consumption.loading')}</Box>
+      : error ? <LoadErrorState helperText={t('consumption.errors.loadFailed')} onRetry={refresh} />
+        : rows.length === 0 ? <EmptyState headline={t('consumption.report.empty')} helperText={t('consumption.report.emptyHelper')}
+          actionLabel={t('common.retry')} onAction={refresh} />
+          : <ResponsiveDataView ariaLabel={t('consumption.sections.readings')} columns={columns} getRowId={(row) => row.id} rows={rows} />}
+    {mode === 'admin' && open && <WaterReadingDialog
+      title={t('consumption.dialog.adminTitle')} year={Number(period.split('-')[0])} month={Number(period.split('-')[1])}
+      apartments={incompleteApartments.map((row) => ({ id: row.id, label: label(row),
+        meters: row.meters.filter((meter) => meter.isActive || meter.current !== null),
+      }))}
+      onClose={(changed) => { setOpen(false); if (changed) refresh() }} />}
+  </Box>
 }
 
 export default ConsumptionSections

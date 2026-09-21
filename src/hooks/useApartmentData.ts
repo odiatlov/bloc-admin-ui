@@ -614,9 +614,10 @@ export const useConsumption = () => {
   }
 }
 
-export const useReports = () => {
+export const useReports = (selectedMonth?: string) => {
   const { account, role } = React.useContext(RoleContext)
-  const [month, setMonth] = React.useState(reportMonths[0])
+  const [storedMonth, setMonth] = React.useState(reportMonths[0])
+  const month = selectedMonth ?? storedMonth
   const [block, setBlock] = React.useState('all')
   const scopedApartments = React.useMemo(() => filterApartmentsForAccount(apartments, toScope(account, role), buildingAdminAssignments, residentApartments), [account, role])
   const scopedBlocks = React.useMemo(() => filterBlocksForAccount(blocks, toScope(account, role), buildingAdminAssignments, residentApartments, apartments), [account, role])
@@ -625,7 +626,7 @@ export const useReports = () => {
   const filteredInvoices = invoices
     .filter((invoice) => scopedApartmentIds.has(invoice.apartmentId))
     .map(enrichInvoice)
-    .filter((invoice) => invoice.month === month && (block === 'all' || invoice.apartment?.blockId === block))
+    .filter((invoice) => (month === 'all' || invoice.month === month) && (block === 'all' || invoice.apartment?.blockId === block))
   const filteredReadings = waterReadings
     .map((reading) => ({
       ...reading,
@@ -634,7 +635,8 @@ export const useReports = () => {
     }))
     .filter((reading) => scopedApartmentIds.has(reading.apartmentId) && reading.month === month && (block === 'all' || reading.apartment.blockId === block))
   const reportApartments = scopedApartments.filter((apartment) => block === 'all' || apartment.blockId === block)
-  const reportRuns = (block === 'all' ? scopedBlocks : scopedBlocks.filter((item) => item.id === block)).map((item) => getMaintenanceRun(item.id, month))
+  const reportRuns = (block === 'all' ? scopedBlocks : scopedBlocks.filter((item) => item.id === block))
+    .flatMap((item) => (month === 'all' ? reportMonths : [month]).map((period) => getMaintenanceRun(item.id, period)))
 
   return {
     block,

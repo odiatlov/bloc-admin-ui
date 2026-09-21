@@ -2,17 +2,10 @@ import React from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
-import Divider from '@mui/material/Divider'
-import FormControl from '@mui/material/FormControl'
-import InputLabel from '@mui/material/InputLabel'
-import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
-import Select, { type SelectChangeEvent } from '@mui/material/Select'
-import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import AppDatePicker from '../../../../../components/shared/AppDatePicker'
-import AppDialog from '../../../../../components/shared/AppDialog'
 import EmptyState from '../../../../../components/shared/EmptyState'
 import FilterBar from '../../../../../components/shared/FilterBar'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
@@ -21,6 +14,7 @@ import StatusChip from '../../../../../components/shared/StatusChip'
 import { formatNumber } from '../../../../../hooks/useApartmentData'
 import { useResidentWaterIndex } from '../../../../../hooks/useResidentWaterIndex'
 import type { ResidentWaterMeterRow } from '../../../../../types/waterReadings'
+import WaterReadingDialog from './WaterReadingDialog'
 
 const getTodayDate = () => {
   const today = new Date()
@@ -76,35 +70,14 @@ const ResidentWaterIndexSection: React.FC = () => {
     refresh,
     rows,
     setPeriod,
-    submitReadings,
-    submitting,
     year,
   } = useResidentWaterIndex()
   const [submitOpen, setSubmitOpen] = React.useState(false)
   const [selectedApartmentId, setSelectedApartmentId] = React.useState('')
   const [dialogPeriod, setDialogPeriod] = React.useState({ year, month })
   const [selectedReadingDate, setSelectedReadingDate] = React.useState(getTodayDate)
-  const [readingValues, setReadingValues] = React.useState<Record<string, string>>({})
-  const [submitError, setSubmitError] = React.useState<string | null>(null)
 
   const effectiveApartmentId = selectedApartmentId || apartments[0]?.apartmentId || ''
-  const selectedApartmentRows = React.useMemo(
-    () => rows.filter((row) =>
-      row.apartmentId === effectiveApartmentId
-      && row.year === dialogPeriod.year
-      && row.month === dialogPeriod.month,
-    ),
-    [dialogPeriod.month, dialogPeriod.year, effectiveApartmentId, rows],
-  )
-  const coldRows = React.useMemo(
-    () => selectedApartmentRows.filter((row) => normalizeUtilityKey(row.utilityType) === 'cold'),
-    [selectedApartmentRows],
-  )
-  const hotRows = React.useMemo(
-    () => selectedApartmentRows.filter((row) => normalizeUtilityKey(row.utilityType) === 'hot'),
-    [selectedApartmentRows],
-  )
-
   const getPreviousMonthValue = React.useCallback((row: ResidentWaterMeterRow) => {
     const previousPeriod = new Date(row.year, row.month - 2, 1)
     const previousRow = rows.find((item) =>
@@ -138,7 +111,6 @@ const ResidentWaterIndexSection: React.FC = () => {
   }).format(new Date(periodYear, periodMonth - 1, 1))
 
   const canSubmitIndex = hasConfiguredSubmissionDate && meters.length > 0
-  const hasMissingSelectedReadings = selectedApartmentRows.some((row) => row.value === null)
 
   const summaryRows = React.useMemo<ApartmentWaterSummaryRow[]>(() => (
     apartments.flatMap((apartment) => {
@@ -196,90 +168,11 @@ const ResidentWaterIndexSection: React.FC = () => {
       .sort((first, second) => second.year - first.year || second.month - first.month)
   ), [apartments, rows])
 
-  const dialogColdTotal = coldRows.reduce((sum, row) => sum + (Number(readingValues[row.meterId]) || 0), 0)
-  const dialogHotTotal = hotRows.reduce((sum, row) => sum + (Number(readingValues[row.meterId]) || 0), 0)
-  const getDialogPreviousTotal = (sectionRows: ResidentWaterMeterRow[]) => {
-    const previousValues = sectionRows
-      .map((row) => getPreviousMonthValue(row))
-      .filter((value): value is number => value !== null)
-
-    return previousValues.length === 0 ? null : previousValues.reduce((sum, value) => sum + value, 0)
-  }
-  const dialogColdPreviousTotal = getDialogPreviousTotal(coldRows)
-  const dialogHotPreviousTotal = getDialogPreviousTotal(hotRows)
-  const canConfirmSubmit = selectedApartmentRows
-    .filter((row) => row.value === null)
-    .every((row) => {
-      const value = Number(readingValues[row.meterId])
-      const previousValue = getPreviousMonthValue(row)
-      return readingValues[row.meterId] !== ''
-        && Number.isFinite(value)
-        && value >= 0
-        && (previousValue === null || value >= previousValue)
-    })
-
   const openSubmitDialog = (row?: ApartmentWaterSummaryRow) => {
     if (!canSubmitIndex) return
-    setSubmitError(null)
-    const apartmentId = row?.apartmentId ?? effectiveApartmentId
-    const period = row ? { year: row.year, month: row.month } : { year, month }
-    const apartmentRows = rows.filter((item) =>
-      item.apartmentId === apartmentId
-      && item.year === period.year
-      && item.month === period.month,
-    )
-    setSelectedApartmentId(apartmentId)
-    setDialogPeriod(period)
-    setReadingValues(Object.fromEntries(apartmentRows.map((item) => [
-      item.meterId,
-      item.value === null ? '' : String(item.value),
-    ])))
+    setSelectedApartmentId(row?.apartmentId ?? effectiveApartmentId)
+    setDialogPeriod(row ? { year: row.year, month: row.month } : { year, month })
     setSubmitOpen(true)
-  }
-
-  const handleApartmentChange = (apartmentId: string) => {
-    const apartmentRows = rows.filter((item) =>
-      item.apartmentId === apartmentId
-      && item.year === dialogPeriod.year
-      && item.month === dialogPeriod.month,
-    )
-    setSelectedApartmentId(apartmentId)
-    setSubmitError(null)
-    setReadingValues(Object.fromEntries(apartmentRows.map((item) => [
-      item.meterId,
-      item.value === null ? '' : String(item.value),
-    ])))
-  }
-
-  const handleSubmit = async () => {
-    const readingsToSubmit = selectedApartmentRows
-      .filter((row) => row.value === null)
-      .map((row) => ({ meterId: row.meterId, value: Number(readingValues[row.meterId]) }))
-
-    if (readingsToSubmit.length === 0 || readingsToSubmit.some((reading) => !Number.isFinite(reading.value) || reading.value < 0)) {
-      setSubmitError(t('consumption.errors.invalidReading'))
-      return
-    }
-
-    const lowerThanPreviousReading = selectedApartmentRows
-      .filter((row) => row.value === null)
-      .some((row) => {
-        const previousValue = getPreviousMonthValue(row)
-        return previousValue !== null && Number(readingValues[row.meterId]) < previousValue
-      })
-
-    if (lowerThanPreviousReading) {
-      setSubmitError(t('consumption.errors.lowerThanPreviousReading'))
-      return
-    }
-
-    try {
-      setSubmitError(null)
-      await submitReadings(readingsToSubmit, dialogPeriod)
-      setSubmitOpen(false)
-    } catch (nextError) {
-      setSubmitError(nextError instanceof Error ? nextError.message : t('consumption.errors.submitFailed'))
-    }
   }
 
   const renderConsumption = (previousTotal: number | null, currentTotal: number | null, consumption: number | null) => {
@@ -288,70 +181,17 @@ const ResidentWaterIndexSection: React.FC = () => {
     return `${formatNumber(previousTotal)} \u2192 ${formatNumber(currentTotal)} (${formatNumber(consumption)})`
   }
 
-  const renderDialogSection = (
-    title: string,
-    sectionRows: ResidentWaterMeterRow[],
-    previousTotal: number | null,
-    currentTotal: number,
-  ) => sectionRows.length === 0 ? null : (
-    <Box sx={{ display: 'grid', gap: 1 }}>
-      <Typography variant="subtitle1">{title}</Typography>
-      {sectionRows.map((row) => (
-        <TextField
-          key={row.meterId}
-          disabled={row.value !== null}
-          error={(() => {
-            const previousValue = getPreviousMonthValue(row)
-            const value = Number(readingValues[row.meterId])
-            return row.value === null
-              && previousValue !== null
-              && readingValues[row.meterId] !== ''
-              && Number.isFinite(value)
-              && value < previousValue
-          })()}
-          fullWidth
-          helperText={(() => {
-            const previousValue = getPreviousMonthValue(row)
-            const value = Number(readingValues[row.meterId])
-            return row.value === null
-              && previousValue !== null
-              && readingValues[row.meterId] !== ''
-              && Number.isFinite(value)
-              && value < previousValue
-              ? t('consumption.errors.previousReadingHelper', { value: formatNumber(previousValue) })
-              : undefined
-          })()}
-          label={formatLocation(row.locationType)}
-          onChange={(event) => setReadingValues((values) => ({ ...values, [row.meterId]: event.target.value }))}
-          size="small"
-          type="number"
-          value={readingValues[row.meterId] ?? ''}
-        />
-      ))}
-      <Box sx={{ alignItems: 'center', display: 'flex', gap: 2, justifyContent: 'space-between', flexWrap: 'wrap' }}>
-        <Typography variant="body1" sx={{ fontWeight: 700 }}>
-          {t('consumption.dialog.consumption')}: {previousTotal === null
-            ? formatNumber(currentTotal)
-            : `${formatNumber(previousTotal)} \u2192 ${formatNumber(currentTotal)}`}
-        </Typography>
-        <Typography variant="body1" sx={{ fontWeight: 700 }}>
-          {t('consumption.dialog.total')}: {formatNumber(previousTotal === null ? 0 : currentTotal - previousTotal)}
-        </Typography>
-      </Box>
-    </Box>
-  )
-
   const columns: DataColumn<ApartmentWaterSummaryRow>[] = [
     { key: 'month', label: t('finance.columns.month'), render: (row) => formatPeriod(row.year, row.month) },
     { key: 'apartment', label: t('consumption.columns.apartment'), cardRole: 'primary', render: (row) => formatApartmentLabel(row.apartmentId) },
     {
       key: 'coldWater',
-      label: t('consumption.columns.waterConsumption', { water: t('consumption.waterType.cold') }),
+      label: `${t('consumption.columns.waterConsumption', { water: t('consumption.waterType.cold') })} (m\u00b3)`,
       render: (row) => renderConsumption(row.coldPreviousTotal, row.coldTotal, row.coldConsumption),
     },
     {
       key: 'hotWater',
-      label: t('consumption.columns.waterConsumption', { water: t('consumption.waterType.hot') }),
+      label: `${t('consumption.columns.waterConsumption', { water: t('consumption.waterType.hot') })} (m\u00b3)`,
       render: (row) => renderConsumption(row.hotPreviousTotal, row.hotTotal, row.hotConsumption),
     },
     {
@@ -451,37 +291,17 @@ const ResidentWaterIndexSection: React.FC = () => {
         rows={summaryRows}
       />
 
-      <AppDialog
-        cancelLabel={t('common.cancel')}
-        confirmDisabled={submitting || !hasMissingSelectedReadings || !canConfirmSubmit}
-        confirmLabel={submitting ? t('consumption.actions.submitting') : t('common.save')}
-        contentSx={{ display: 'grid', gap: 2, pt: 1 }}
-        onCancel={() => setSubmitOpen(false)}
-        onConfirm={() => { void handleSubmit() }}
-        open={submitOpen}
-        title={t('consumption.dialog.submitTitle')}
-      >
-        {submitError && (
-          <Typography color="error" variant="body2">{submitError}</Typography>
-        )}
-        <FormControl fullWidth>
-          <InputLabel>{t('consumption.columns.apartment')}</InputLabel>
-          <Select
-            label={t('consumption.columns.apartment')}
-            value={effectiveApartmentId}
-            onChange={(event: SelectChangeEvent) => handleApartmentChange(event.target.value)}
-          >
-            {apartments.map((apartment) => (
-              <MenuItem key={apartment.apartmentId} value={apartment.apartmentId}>
-                {formatApartmentLabel(apartment.apartmentId)}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        {renderDialogSection(t('consumption.dialog.coldWaterReadings'), coldRows, dialogColdPreviousTotal, dialogColdTotal)}
-        {coldRows.length > 0 && hotRows.length > 0 && <Divider />}
-        {renderDialogSection(t('consumption.dialog.hotWaterReadings'), hotRows, dialogHotPreviousTotal, dialogHotTotal)}
-      </AppDialog>
+      {submitOpen && <WaterReadingDialog
+        title={t('consumption.dialog.submitTitle')} initialApartmentId={effectiveApartmentId}
+        year={dialogPeriod.year} month={dialogPeriod.month}
+        apartments={apartments.map((apartment) => ({
+          id: apartment.apartmentId, label: formatApartmentLabel(apartment.apartmentId),
+          meters: rows.filter((row) => row.apartmentId === apartment.apartmentId
+            && row.year === dialogPeriod.year && row.month === dialogPeriod.month)
+            .map((row) => ({ id: row.meterId, name: formatLocation(row.locationType), utilityType: row.utilityType,
+              previous: getPreviousMonthValue(row), current: row.value })),
+        }))}
+        onClose={(changed) => { setSubmitOpen(false); if (changed) void refresh() }} />}
     </Box>
   )
 }

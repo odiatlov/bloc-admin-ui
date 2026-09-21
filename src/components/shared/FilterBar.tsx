@@ -41,7 +41,7 @@ const FilterBar = ({ actions, children }: FilterBarProps) => (
           minWidth: { xs: '100%', sm: 160 },
           width: { xs: '100%', sm: 180 },
         },
-        '& .MuiTextField-root': {
+        '& .MuiTextField-root, & .MuiPickersTextField-root': {
           flex: { sm: '0 0 280px' },
           maxWidth: { xs: '100%', sm: 280 },
           width: { xs: '100%', sm: 280 },

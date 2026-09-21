@@ -8,10 +8,15 @@ import type {
   UpdateApartmentWaterMeterRequest,
   UpdateBlockWaterReadingSettingsRequest,
   WaterMeterReadingResponse,
+  WaterConsumptionReportResponse,
 } from '../types/waterReadings'
 import { apiDelete, apiGet, apiPost, apiPut } from './apiClient'
 
 export const waterReadingsApi = {
+  sendReminder: (apartmentId: string, year: number, month: number) =>
+    apiPost<Record<string, never>, boolean>(`/water-consumptions/${apartmentId}/reminder?year=${year}&month=${month}`, {}),
+  getConsumptions: (year: number | null, month: number | null, role: 'Admin' | 'Censor') =>
+    apiGet<WaterConsumptionReportResponse>(`/water-consumptions?role=${role}${year !== null && month !== null ? `&year=${year}&month=${month}` : ''}`),
   getMetersByApartment: (apartmentId: string) =>
     apiGet<ApartmentWaterMeterResponse[]>(`/apartments/${apartmentId}/water-meters`),
   getApartmentConfiguration: (apartmentId: string) =>
