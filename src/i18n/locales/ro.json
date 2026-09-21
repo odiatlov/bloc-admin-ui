@@ -1021,6 +1021,25 @@
                        "loading":  "Se încarcă scările..."
                    },
     "superAdmin":  {
+                       "water": {
+                           "description": "Consumul de apă din toate blocurile.",
+                           "admin": "Administrator",
+                           "unassigned": "Fără administrator",
+                           "viewMeters": "Vezi contoarele",
+                           "meter": "Contor",
+                           "inactive": "Inactiv",
+                           "from": "Din luna",
+                           "to": "Până în luna",
+                           "index": "Indexul contorului (m³)",
+                           "registeredAt": "Data și ora înregistrării",
+                           "submittedBy": "Înregistrat de",
+                           "history": "Istoricul citirilor",
+                           "noMeters": "Nu există contoare asociate",
+                           "noMetersHelper": "Acest apartament nu are contoare de apă asociate.",
+                           "noReadings": "Nu există citiri înregistrate",
+                           "noReadingsHelper": "Nu există citiri pentru acest contor în perioada selectată.",
+                           "loadHistoryFailed": "Istoricul contorului nu a putut fi încărcat. Încercați din nou."
+                       },
                        "common":  {
                                       "createdAt":  "Creat la",
                                       "quickActions":  "Acțiuni rapide"

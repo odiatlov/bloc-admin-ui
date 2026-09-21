@@ -51,6 +51,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ onNavigate, onClose, sh
         { label: t('sidebar.manageAdmins'), to: '/superadmin/manage-admins', icon: <AdminPanelSettingsIcon />, permission: 'superAdmin' as const },
         { label: t('sidebar.superBlocks'), to: '/superadmin/blocks', icon: <HomeWorkIcon />, permission: 'superAdmin' as const },
         { label: t('sidebar.superResidents'), to: '/superadmin/residents', icon: <PeopleIcon />, permission: 'superAdmin' as const },
+        { label: t('sidebar.consumption'), to: '/superadmin/consumption', icon: <OpacityIcon />, permission: 'superAdmin' as const },
         { label: t('sidebar.exportData'), to: '/superadmin/export', icon: <FileDownloadIcon />, permission: 'superAdmin' as const },
       ]
     : role === 'Resident'
