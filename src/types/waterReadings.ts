@@ -104,10 +104,9 @@ export type ResidentWaterMeterRow = {
   submittedAt: string | null
 }
 
-export type WaterConsumptionRow = {
+export type WaterConsumptionData = {
+  hasMeters: boolean
   id: string
-  canRemind: boolean
-  reminderSent: boolean
   apartment: { id: string, blockId: string, blockName: string, staircaseName: string | null, number: string }
   meters: Array<{
     id: string, name: string, utilityType: string, isActive: boolean,
@@ -116,6 +115,8 @@ export type WaterConsumptionRow = {
   usage: number | null
   status: 'complete' | 'incomplete' | 'invalid' | 'noMeters'
 }
+
+export type WaterConsumptionRow = WaterConsumptionData & { canRemind: boolean, reminderSent: boolean }
 
 export type WaterConsumptionReportResponse = {
   blocks: Array<{ id: string, name: string, firstReadingPeriod: number | null, firstSubmissionPeriod: number | null }>

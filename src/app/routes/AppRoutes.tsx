@@ -15,6 +15,7 @@ import ManageAdmins from '../../areas/supportPlatform/pages/ManageAdmins/ManageA
 import SuperAdminBlocks from '../../areas/supportPlatform/pages/SuperAdminBlocks/SuperAdminBlocks'
 import SuperAdminDashboard from '../../areas/supportPlatform/pages/SuperAdminDashboard/SuperAdminDashboard'
 import SuperAdminResidents from '../../areas/supportPlatform/pages/SuperAdminResidents/SuperAdminResidents'
+import SuperAdminConsumption from '../../areas/supportPlatform/pages/SuperAdminConsumption/SuperAdminConsumption'
 import { RoleContext } from '../../contexts/RoleContext'
 import AppLayout from '../../layouts/AppLayout'
 import Login from '../../pages/Login/Login'
@@ -58,6 +59,7 @@ const AppRoutes: React.FC<AppRoutesProps> = ({ themeMode, toggleTheme }) => (
       <Route path="manage-admins" element={<ProtectedRoute permission="superAdmin"><ManageAdmins /></ProtectedRoute>} />
       <Route path="blocks" element={<ProtectedRoute permission="superAdmin"><SuperAdminBlocks /></ProtectedRoute>} />
       <Route path="residents" element={<ProtectedRoute permission="superAdmin"><SuperAdminResidents /></ProtectedRoute>} />
+      <Route path="consumption" element={<ProtectedRoute permission="superAdmin"><SuperAdminConsumption /></ProtectedRoute>} />
       <Route path="export" element={<ProtectedRoute permission="superAdmin"><ExportData /></ProtectedRoute>} />
     </Route>
   </Routes>

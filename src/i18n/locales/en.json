@@ -867,6 +867,25 @@
     }
   },
   "superAdmin": {
+    "water": {
+      "description": "Water consumption across all blocks.",
+      "admin": "Administrator",
+      "unassigned": "Unassigned",
+      "viewMeters": "View meters",
+      "meter": "Meter",
+      "inactive": "Inactive",
+      "from": "From month",
+      "to": "To month",
+      "index": "Meter index (m³)",
+      "registeredAt": "Registration date and time",
+      "submittedBy": "Submitted by",
+      "history": "Reading history",
+      "noMeters": "No associated meters",
+      "noMetersHelper": "This apartment has no associated water meters.",
+      "noReadings": "No recorded readings",
+      "noReadingsHelper": "There are no readings for this meter in the selected period.",
+      "loadHistoryFailed": "Meter history could not be loaded. Please try again."
+    },
     "common": {
       "createdAt": "Created at",
       "quickActions": "Quick Actions"
