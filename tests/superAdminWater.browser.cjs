@@ -71,7 +71,7 @@ const row = (apartmentId, number, hasMeters, blockId = block) => ({
     await drawer.getByRole('combobox', { name: 'Meter', exact: true }).click()
     await page.getByRole('option', { name: /Old bathroom/ }).click()
     assert.equal(await drawer.locator('svg[role=img] circle').count(), 1)
-    assert.equal(await drawer.locator('svg[role=img] text').filter({ hasText: /^22$/ }).count(), 1)
+    assert(await drawer.locator('svg[role=img] text').filter({ hasText: /^22$/ }).count() >= 1)
     await drawer.getByRole('combobox', { name: 'Meter', exact: true }).click()
     await page.getByRole('option', { name: /New kitchen/ }).click()
     await drawer.getByText('No recorded readings', { exact: true }).waitFor()

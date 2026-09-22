@@ -5,7 +5,11 @@ const ts = require('../node_modules/typescript')
 const source = fs.readFileSync(path.join(__dirname, '../src/areas/supportPlatform/utils/meterHistory.ts'), 'utf8')
 const moduleOutput = { exports: {} }
 new Function('exports', ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText)(moduleOutput.exports)
-const { recordedMonths, fitHistoryRange, historySegments, registrationDate } = moduleOutput.exports
+const { recordedMonths, fitHistoryRange, historySegments, registrationDate, indexAxisBounds } = moduleOutput.exports
+assert.deepEqual(indexAxisBounds([1280, 1298, 1305]), { min: 1275, max: 1310 })
+assert.deepEqual(indexAxisBounds([22, 22]), { min: 21.95, max: 22.05 })
+assert.deepEqual(indexAxisBounds([0]), { min: 0, max: 0.05 })
+assert.deepEqual(indexAxisBounds([]), { min: 0, max: 1 })
 const readings = [
   { id: '3', year: 2026, month: 4, value: 15 },
   { id: '1', year: 2025, month: 12, value: 10 },

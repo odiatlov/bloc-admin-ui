@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import Box from '@mui/material/Box'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
@@ -6,11 +6,12 @@ import { useTheme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 import { formatNumber } from '../../../../../utils/formatters'
 import type { IndexReading } from '../../../services/superAdminWaterApi'
-import { historySegments, readingPeriod, registrationDate } from '../../../utils/meterHistory'
+import { historySegments, indexAxisBounds, readingPeriod, registrationDate } from '../../../utils/meterHistory'
 
 const MeterIndexChart = ({ readings }: { readings: IndexReading[] }) => {
   const { t, i18n } = useTranslation()
   const theme = useTheme()
+  const shadeId = useId().replace(/:/g, '')
   const container = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(600)
   useEffect(() => {
@@ -25,21 +26,30 @@ const MeterIndexChart = ({ readings }: { readings: IndexReading[] }) => {
   const first = sorted[0]
   const last = sorted[sorted.length - 1]
   const ordinal = (reading: IndexReading) => reading.year * 12 + reading.month
-  const max = Math.max(1, ...sorted.map((reading) => reading.value)) * 1.1
+  const { min, max } = indexAxisBounds(sorted.map((reading) => reading.value))
   const left = Math.max(64, formatNumber(max).length * 8 + 12)
   const right = width - 24
   const x = (reading: IndexReading) => first === last ? (left + right) / 2
     : left + (ordinal(reading) - ordinal(first)) / (ordinal(last) - ordinal(first)) * (right - left)
-  const y = (reading: IndexReading) => 216 - reading.value / max * 188
+  const y = (reading: IndexReading) => 216 - (reading.value - min) / (max - min) * 188
   const periodLabel = (reading: IndexReading) => new Intl.DateTimeFormat(i18n.language, { month: 'short', year: 'numeric' })
     .format(new Date(`${readingPeriod(reading)}-01T12:00:00`))
   return <Box ref={container} sx={{ minWidth: 0 }}>
     <Typography variant="subtitle1">{t('superAdmin.water.index')}</Typography>
     <Box component="svg" role="img" aria-label={t('superAdmin.water.index')} viewBox={`0 0 ${width} 260`} sx={{ display: 'block', width: '100%', height: 260, overflow: 'visible' }}>
+      <defs>
+        <linearGradient id={shadeId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={theme.palette.primary.main} stopOpacity={0.3} />
+          <stop offset="100%" stopColor={theme.palette.primary.main} stopOpacity={0.02} />
+        </linearGradient>
+      </defs>
       {[0, 0.5, 1].map((ratio) => <g key={ratio}>
         <Box component="line" x1={left} x2={right} y1={216 - ratio * 188} y2={216 - ratio * 188} stroke={theme.palette.divider} />
-        <Box component="text" x={left - 8} y={220 - ratio * 188} textAnchor="end" sx={{ fill: theme.palette.text.secondary, fontSize: 12 }}>{formatNumber(max * ratio)}</Box>
+        <Box component="text" x={left - 8} y={220 - ratio * 188} textAnchor="end" sx={{ fill: theme.palette.text.secondary, fontSize: 12 }}>{formatNumber(min + (max - min) * ratio)}</Box>
       </g>)}
+      {segments.filter((segment) => segment.length > 1).map((segment) => <polygon key={`shade-${segment[0].id}`}
+        points={`${x(segment[0])},216 ${segment.map((reading) => `${x(reading)},${y(reading)}`).join(' ')} ${x(segment[segment.length - 1])},216`}
+        fill={`url(#${shadeId})`} />)}
       {segments.map((segment) => <Box component="polyline" key={segment[0].id} points={segment.map((reading) => `${x(reading)},${y(reading)}`).join(' ')}
         fill="none" strokeWidth={2} stroke={theme.palette.primary.main} />)}
       {sorted.map((reading) => {

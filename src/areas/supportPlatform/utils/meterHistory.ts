@@ -5,6 +5,16 @@ export const readingPeriod = (reading: Pick<IndexReading, 'year' | 'month'>) =>
 
 export const recordedMonths = (readings: IndexReading[]) => [...new Set(readings.map(readingPeriod))].sort()
 
+export const indexAxisBounds = (values: number[]) => {
+  if (!values.length) return { min: 0, max: 1 }
+  const low = Math.min(...values)
+  const high = Math.max(...values)
+  const padding = Math.max((high - low) * 0.2, 0.05)
+  const min = Math.max(0, Math.floor((low - padding) * 100) / 100)
+  const max = Math.ceil((high + padding) * 100) / 100
+  return { min, max }
+}
+
 export const fitHistoryRange = (months: string[], range?: { from: string, to: string }) => {
   if (!months.length) return { from: '', to: '' }
   return range && months.includes(range.from) && months.includes(range.to) && range.from <= range.to
