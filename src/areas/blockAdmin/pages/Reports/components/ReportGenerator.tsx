@@ -79,8 +79,8 @@ const ReportGenerator: React.FC = () => {
     : t('reports.preview.waterUsage')
   const waterValue = water.loading ? <CircularProgress size={24} aria-label={t('consumption.loading')} />
     : water.error ? <LoadErrorState helperText={t('consumption.errors.loadFailed')} onRetry={water.refresh} />
-      : water.rows.length === 0 ? `0 ${t('reports.preview.units.water')}`
-        : knownMeters.length > 0 ? `${formatNumber(waterTotal)} ${t('reports.preview.units.water')}` : t('common.notAvailable')
+      : knownMeters.length === 0 ? `0 ${t('reports.preview.units.water')}`
+        : `${formatNumber(waterTotal)} ${t('reports.preview.units.water')}`
 
   const metrics = [
     { key: 'invoices', label: t('reports.preview.invoices'), value: preview.invoiceCount },
