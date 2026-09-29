@@ -15,7 +15,6 @@ import { useTranslation } from 'react-i18next'
 import FilterBar from '../../../../../components/shared/FilterBar'
 import { formatCurrency, formatNumber, formatSquareMeters, useReports } from '../../../../../hooks/useApartmentData'
 import { useWaterConsumptions } from '../../../../../hooks/useWaterConsumptions'
-import LoadErrorState from '../../../../../components/shared/LoadErrorState'
 import { apartmentsApi } from '../../../../../services/apartmentsApi'
 import type { ApartmentResponse } from '../../../../../types/management'
 
@@ -78,9 +77,8 @@ const ReportGenerator: React.FC = () => {
     ? `${t('reports.preview.waterUsage')} (${t(`consumption.report.${readingStatus}`)})`
     : t('reports.preview.waterUsage')
   const waterValue = water.loading ? <CircularProgress size={24} aria-label={t('consumption.loading')} />
-    : water.error ? <LoadErrorState helperText={t('consumption.errors.loadFailed')} onRetry={water.refresh} />
-      : knownMeters.length === 0 ? `0 ${t('reports.preview.units.water')}`
-        : `${formatNumber(waterTotal)} ${t('reports.preview.units.water')}`
+    : knownMeters.length === 0 || water.error ? `0 ${t('reports.preview.units.water')}`
+      : `${formatNumber(waterTotal)} ${t('reports.preview.units.water')}`
 
   const metrics = [
     { key: 'invoices', label: t('reports.preview.invoices'), value: preview.invoiceCount },
