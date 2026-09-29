@@ -16,7 +16,6 @@ import FilterBar from '../../../../../components/shared/FilterBar'
 import { formatCurrency, formatNumber, formatSquareMeters, useReports } from '../../../../../hooks/useApartmentData'
 import { useWaterConsumptions } from '../../../../../hooks/useWaterConsumptions'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
-import EmptyState from '../../../../../components/shared/EmptyState'
 import { apartmentsApi } from '../../../../../services/apartmentsApi'
 import type { ApartmentResponse } from '../../../../../types/management'
 
@@ -80,8 +79,7 @@ const ReportGenerator: React.FC = () => {
     : t('reports.preview.waterUsage')
   const waterValue = water.loading ? <CircularProgress size={24} aria-label={t('consumption.loading')} />
     : water.error ? <LoadErrorState helperText={t('consumption.errors.loadFailed')} onRetry={water.refresh} />
-      : water.rows.length === 0 ? <EmptyState headline={t('consumption.report.empty')} helperText={t('consumption.report.emptyHelper')}
-        actionLabel={t('common.retry')} onAction={water.refresh} />
+      : water.rows.length === 0 ? `0 ${t('reports.preview.units.water')}`
         : knownMeters.length > 0 ? `${formatNumber(waterTotal)} ${t('reports.preview.units.water')}` : t('common.notAvailable')
 
   const metrics = [
