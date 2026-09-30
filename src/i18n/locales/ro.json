@@ -1131,7 +1131,8 @@
                                             "dialog":  {
                                                          "title":  "Creează cont de administrator",
                                                          "blockAssignment":  "Alocare bloc (opțional)",
-                                                         "noBlock":  "Fără bloc alocat"
+                                                         "noBlock":  "Fără bloc alocat",
+                                                         "noUnassignedBlocks":  "Nu există blocuri nealocate"
                                                      },
                                             "snackbar":  {
                                                            "invitationSent":  "Invitație trimisă",

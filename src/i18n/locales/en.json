@@ -977,7 +977,8 @@
       "dialog": {
         "title": "Create admin account",
         "blockAssignment": "Block assignment (optional)",
-        "noBlock": "No block assigned"
+        "noBlock": "No block assigned",
+        "noUnassignedBlocks": "No unassigned blocks available"
       },
       "snackbar": {
         "invitationSent": "Invitation sent",
