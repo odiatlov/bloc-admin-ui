@@ -136,6 +136,11 @@ const ManageAdmins: React.FC = () => {
     setBlockFilter('')
   }
 
+  const availableBlocks = React.useMemo(
+    () => blocks.filter((block) => !block.adminAccountId),
+    [blocks],
+  )
+
   const columns: DataColumn<PlatformAdminRow>[] = [
     { key: 'name', label: t('superAdmin.manageAdmins.columns.name'), cardRole: 'primary', render: (admin) => admin.name },
     { key: 'email', label: t('superAdmin.manageAdmins.columns.email'), render: (admin) => admin.email },
@@ -240,11 +245,16 @@ const ManageAdmins: React.FC = () => {
           <InputLabel>{t('superAdmin.manageAdmins.dialog.blockAssignment')}</InputLabel>
           <Select label={t('superAdmin.manageAdmins.dialog.blockAssignment')} value={form.blockId} onChange={(event: SelectChangeEvent) => setForm((current) => ({ ...current, blockId: event.target.value }))}>
             <MenuItem value="">{t('superAdmin.manageAdmins.dialog.noBlock')}</MenuItem>
-            {blocks.map((block) => (
+            {availableBlocks.map((block) => (
               <MenuItem key={block.blockId} value={block.blockId}>
                 {t('common.blockValue', { block: block.blockName })}
               </MenuItem>
             ))}
+            {availableBlocks.length === 0 && (
+              <MenuItem disabled value="__no_unassigned_blocks__">
+                {t('superAdmin.manageAdmins.dialog.noUnassignedBlocks')}
+              </MenuItem>
+            )}
           </Select>
         </FormControl>
       </AppDialog>
