@@ -1,4 +1,5 @@
 import React from 'react'
+import ApartmentSetupFields from './ApartmentSetupFields'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -510,18 +511,8 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
             ))}
           </Select>
         </FormControl>
-        <TextField fullWidth required size="small" label={t('apartments.setup.number')} value={form.number} onChange={(event) => setForm((value) => ({ ...value, number: event.target.value }))} />
+        <ApartmentSetupFields value={form} onChange={patch => setForm(value => ({ ...value, ...patch }))} />
         <TextField fullWidth size="small" type="number" label={t('apartments.setup.householdMembers')} value={form.residentCount} disabled helperText={t('apartments.setup.assignOwnerBeforeCount')} />
-        <TextField fullWidth size="small" type="number" label={t('blocks.columns.floor')} value={form.floor} onChange={(event) => setForm((value) => ({ ...value, floor: event.target.value }))} />
-        <TextField fullWidth size="small" type="number" label={t('blocks.columns.usableSurface')} value={form.usableSqm} onChange={(event) => setForm((value) => ({ ...value, usableSqm: event.target.value }))} />
-        <FormControl fullWidth size="small" required>
-          <InputLabel>{t('apartments.setup.setupStatus')}</InputLabel>
-          <Select label={t('apartments.setup.setupStatus')} value={form.setupStatus} onChange={(event: SelectChangeEvent) => setForm((value) => ({ ...value, setupStatus: event.target.value as ApartmentSetupStatus }))}>
-            {setupStatuses.map((status) => (
-              <MenuItem key={status} value={status}>{translateApartmentSetupStatus(t, status)}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
       </AppDialog>
 
       <Drawer

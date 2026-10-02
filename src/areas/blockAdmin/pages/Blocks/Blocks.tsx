@@ -31,6 +31,8 @@ import { formatCurrency } from '../../../../hooks/useApartmentData'
 import { blocksApi } from '../../../../services/blocksApi'
 import type { BlockOverview, CreateBlockRequest } from '../../../../types/block'
 import BlockDialog from './BlockDialog'
+import BlockSetupWizard from './BlockSetupWizard'
+import type { BlockSetupRequest } from '../../../../types/block'
 
 const tableEmptyValue = '-'
 
@@ -177,7 +179,7 @@ const Blocks: React.FC = () => {
         await blocksApi.createBlock(request)
       }
 
-      const refreshed = await refreshAfterMutation()
+      const refreshed = await refreshAfterMutation().catch(() => false)
       setDialogMode(null)
       setSelectedBlock(null)
       setNotification({
@@ -191,6 +193,14 @@ const Blocks: React.FC = () => {
       setNotification({ message, severity: 'error' })
       throw submitError
     }
+  }
+
+  const saveSetup = async (request: BlockSetupRequest) => {
+    await blocksApi.createSetup(request)
+    setDialogMode(null)
+    setSelectedBlock(null)
+    const refreshed = await refreshAfterMutation().catch(() => false)
+    setNotification({ message: refreshed ? t('settings.blockDialog.createSuccess') : t('blocks.errors.refreshAfterSave'), severity: refreshed ? 'success' : 'error' })
   }
 
   const deleteBlock = async () => {
@@ -317,13 +327,14 @@ const Blocks: React.FC = () => {
       </Box>
       <BlockDialog
         block={dialogMode === 'edit' ? selectedBlock : null}
-        open={dialogMode !== null}
+        open={dialogMode === 'edit'}
         onClose={() => {
           setDialogMode(null)
           setSelectedBlock(null)
         }}
         onSubmit={saveBlock}
       />
+      {dialogMode === 'create' && <BlockSetupWizard onClose={() => setDialogMode(null)} onSimple={saveBlock} onSetup={saveSetup} />}
       <ConfirmationDialog
         cancelLabel={t('common.cancel')}
         confirmDisabled={isDeletingBlock}

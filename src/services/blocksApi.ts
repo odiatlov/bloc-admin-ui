@@ -3,11 +3,14 @@ import type {
   BlockRoleAssignmentResponse,
   BlockOverviewDto,
   CreateBlockRequest,
+  BlockSetupRequest,
   UpdateBlockRequest,
 } from '../types/block'
 import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from './apiClient'
 
 export const blocksApi = {
+  createSetup: (request: BlockSetupRequest) =>
+    apiPost<BlockSetupRequest, BlockOverviewDto>('/blocks/setup', request),
   getOverview: () => apiGet<BlockOverviewDto[]>('/blocks/overview'),
   createBlock: (request: CreateBlockRequest) =>
     apiPost<CreateBlockRequest, BlockOverviewDto>('/blocks', request),

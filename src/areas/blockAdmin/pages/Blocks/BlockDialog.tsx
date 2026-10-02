@@ -1,6 +1,6 @@
 import React from 'react'
 import Alert from '@mui/material/Alert'
-import TextField from '@mui/material/TextField'
+import BlockFields from './BlockFields'
 import { useTranslation } from 'react-i18next'
 import AppDialog from '../../../../components/shared/AppDialog'
 import type {
@@ -95,19 +95,7 @@ const BlockDialog: React.FC<BlockDialogProps> = ({
       title={t(isEditMode ? 'settings.blockDialog.editTitle' : 'settings.blockDialog.createTitle')}
     >
       {error && <Alert severity="error">{error}</Alert>}
-      <TextField
-        required
-        fullWidth
-        label={t('settings.fields.blockName')}
-        value={form.name}
-        onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
-      />
-      <TextField
-        fullWidth
-        label={t('settings.blockDialog.address')}
-        value={form.address}
-        onChange={(event) => setForm((current) => ({ ...current, address: event.target.value }))}
-      />
+      <BlockFields {...form} onChange={(field, value) => setForm(current => ({ ...current, [field]: value }))} />
     </AppDialog>
   )
 }
