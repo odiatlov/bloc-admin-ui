@@ -17,20 +17,15 @@ import Snackbar from '@mui/material/Snackbar'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import AddIcon from '@mui/icons-material/Add'
-import DeleteIcon from '@mui/icons-material/Delete'
-import EditIcon from '@mui/icons-material/Edit'
 import { useTranslation } from 'react-i18next'
 import AppDatePicker from '../../../../../components/shared/AppDatePicker'
-import ConfirmationDialog from '../../../../../components/shared/ConfirmationDialog'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
 import { filterBlocksForAccount } from '../../../../../application/accessScope'
 import { RoleContext } from '../../../../../contexts/RoleContext'
 import { useBlocks } from '../../../../../hooks/useBlocks'
-import { blocksApi } from '../../../../../services/blocksApi'
 import { residentsApi } from '../../../../../services/residentsApi'
 import { waterReadingsApi } from '../../../../../services/waterReadingsApi'
 import type { ResidentResponse } from '../../../../../types/management'
-import type { CreateBlockRequest } from '../../../../../types/block'
 import {
   apartments,
   blocks,
@@ -44,7 +39,6 @@ import {
   type CustomCostConfiguration,
   type UtilityCategory,
 } from '../../../mocks/apartmentData'
-import AddBlockDialog from './AddBlockDialog'
 
 type SettingsSectionsProps = {
   mode: 'admin' | 'resident'
@@ -94,9 +88,6 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
   const [blockDeadlineDay, setBlockDeadlineDay] = React.useState(() => resolveRecurringDeadlineDay('2026-05-15'))
   const [staircaseDeadlines, setStaircaseDeadlines] = React.useState<Record<string, string>>({})
   const [customCosts, setCustomCosts] = React.useState<CustomCostConfiguration[]>(customCostConfigurations)
-  const [dialogMode, setDialogMode] = React.useState<'create' | 'edit' | null>(null)
-  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
-  const [isDeletingBlock, setIsDeletingBlock] = React.useState(false)
   const [notification, setNotification] = React.useState<{
     message: string
     severity: 'success' | 'error'
@@ -273,55 +264,6 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
     setCustomCosts((costs) => [nextCost, ...costs])
   }
 
-  const saveBlock = async (request: CreateBlockRequest) => {
-    if (!shouldUseDatabaseBlocks) return
-
-    try {
-      if (dialogMode === 'edit' && selectedDatabaseBlock) {
-        await blocksApi.updateBlock(selectedDatabaseBlock.id, request)
-      } else {
-        await blocksApi.createBlock(request)
-      }
-
-      await databaseOverview.refresh()
-      setDialogMode(null)
-      setNotification({
-        message: t(dialogMode === 'edit'
-          ? 'settings.blockDialog.updateSuccess'
-          : 'settings.blockDialog.createSuccess'),
-        severity: 'success',
-      })
-    } catch (error) {
-      setNotification({
-        message: error instanceof Error ? error.message : t('settings.blockDialog.serverError'),
-        severity: 'error',
-      })
-    }
-  }
-
-  const deleteBlock = async () => {
-    if (!selectedDatabaseBlock || isDeletingBlock) return
-
-    setIsDeletingBlock(true)
-
-    try {
-      await blocksApi.deleteBlock(selectedDatabaseBlock.id)
-      await databaseOverview.refresh()
-      setDeleteDialogOpen(false)
-      setNotification({
-        message: t('settings.blockDialog.deleteSuccess'),
-        severity: 'success',
-      })
-    } catch (error) {
-      setNotification({
-        message: error instanceof Error ? error.message : t('settings.blockDialog.deleteError'),
-        severity: 'error',
-      })
-    } finally {
-      setIsDeletingBlock(false)
-    }
-  }
-
   const saveAdminSettings = React.useCallback(async () => {
     if (!selectedDatabaseBlock || !adminSettingsDirty || waterIndexSettingsSaving) return
 
@@ -481,13 +423,13 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
       <Paper sx={{ p: 2, display: 'grid', gap: 2 }}>
-        <Typography variant="h6">{t('settings.admin.blockManagement')}</Typography>
+        <Typography variant="h6">{t('settings.admin.scopeSelection')}</Typography>
         <Box
           sx={{
             alignItems: 'center',
             display: 'grid',
             gap: 2,
-            gridTemplateColumns: { xs: '1fr', lg: 'minmax(0, 1fr) auto' },
+            gridTemplateColumns: '1fr',
           }}
         >
           <Box
@@ -524,48 +466,6 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
                 ))}
               </Select>
             </FormControl>
-          </Box>
-          <Box
-            sx={{
-              display: 'grid',
-              gap: 1,
-              gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, minmax(0, 1fr))' },
-              justifyContent: { lg: 'end' },
-              width: { xs: '100%', lg: 'auto' },
-            }}
-          >
-            <Button
-              startIcon={<EditIcon />}
-              variant="contained"
-              disabled={isDeletingBlock || (shouldUseDatabaseBlocks && !selectedDatabaseBlock)}
-              onClick={() => {
-                if (shouldUseDatabaseBlocks && selectedDatabaseBlock) setDialogMode('edit')
-              }}
-              sx={{ justifyContent: 'center', width: { xs: '100%', lg: 'auto' } }}
-            >
-              {t('settings.actions.editBlock')}
-            </Button>
-            <Button
-              startIcon={<AddIcon />}
-              variant="outlined"
-              disabled={isDeletingBlock}
-              onClick={() => {
-                if (shouldUseDatabaseBlocks) setDialogMode('create')
-              }}
-              sx={{ justifyContent: 'center', width: { xs: '100%', lg: 'auto' } }}
-            >
-              {t('settings.actions.addBlock')}
-            </Button>
-            <Button
-              color="error"
-              startIcon={<DeleteIcon />}
-              variant="outlined"
-              disabled={!shouldUseDatabaseBlocks || !selectedDatabaseBlock || isDeletingBlock}
-              onClick={() => setDeleteDialogOpen(true)}
-              sx={{ justifyContent: 'center', width: { xs: '100%', lg: 'auto' } }}
-            >
-              {isDeletingBlock ? t('settings.blockDialog.deleting') : t('settings.actions.deleteBlock')}
-            </Button>
           </Box>
         </Box>
       </Paper>
@@ -829,27 +729,6 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
         />
       </Paper>
 
-      <AddBlockDialog
-        block={dialogMode === 'edit' ? selectedDatabaseBlock : null}
-        open={dialogMode !== null}
-        onClose={() => setDialogMode(null)}
-        onSubmit={saveBlock}
-      />
-      <ConfirmationDialog
-        cancelLabel={t('common.cancel')}
-        confirmDisabled={isDeletingBlock}
-        confirmLabel={isDeletingBlock ? t('settings.blockDialog.deleting') : t('settings.blockDialog.deleteConfirmYes')}
-        onCancel={() => setDeleteDialogOpen(false)}
-        onConfirm={() => void deleteBlock()}
-        open={deleteDialogOpen}
-        title={t('settings.blockDialog.deleteTitle')}
-      >
-        <Typography>
-          {t('settings.blockDialog.deleteConfirm', {
-            block: selectedDatabaseBlock?.name ?? selectedBlock?.name ?? '',
-          })}
-        </Typography>
-      </ConfirmationDialog>
       <Snackbar
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         autoHideDuration={4000}

@@ -2,13 +2,13 @@ import React from 'react'
 import Alert from '@mui/material/Alert'
 import TextField from '@mui/material/TextField'
 import { useTranslation } from 'react-i18next'
-import AppDialog from '../../../../../components/shared/AppDialog'
+import AppDialog from '../../../../components/shared/AppDialog'
 import type {
   BlockOverviewDto,
   CreateBlockRequest,
-} from '../../../../../types/block'
+} from '../../../../types/block'
 
-type AddBlockDialogProps = {
+type BlockDialogProps = {
   block?: BlockOverviewDto | null
   open: boolean
   onClose: () => void
@@ -25,7 +25,7 @@ const emptyForm: BlockForm = {
   address: '',
 }
 
-const AddBlockDialog: React.FC<AddBlockDialogProps> = ({
+const BlockDialog: React.FC<BlockDialogProps> = ({
   block,
   onClose,
   onSubmit,
@@ -40,16 +40,20 @@ const AddBlockDialog: React.FC<AddBlockDialogProps> = ({
   React.useEffect(() => {
     if (!open) return
 
-    setForm(block ? {
-      name: block.name,
-      address: block.address ?? '',
-    } : emptyForm)
-    setError(null)
+    window.setTimeout(() => {
+      setForm(block ? {
+        name: block.name,
+        address: block.address ?? '',
+      } : emptyForm)
+      setError(null)
+    }, 0)
   }, [block, open])
 
   const isValid = Boolean(form.name.trim())
 
   const handleSubmit = async () => {
+    if (isSubmitting) return
+
     if (!isValid) {
       setError(t('settings.blockDialog.validationError'))
       return
@@ -108,4 +112,4 @@ const AddBlockDialog: React.FC<AddBlockDialogProps> = ({
   )
 }
 
-export default AddBlockDialog
+export default BlockDialog

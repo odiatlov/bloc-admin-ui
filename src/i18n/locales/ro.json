@@ -598,6 +598,7 @@
                                    "configureBlocks":  "Configurează blocurile",
                                    "backToList":  "Înapoi la blocuri",
                                    "backToDashboard":  "Panou principal",
+                                   "moreActions":  "Mai multe acțiuni pentru {{block}}",
                                    "retry":  "Reîncearcă"
                                },
                    "columns":  {
@@ -619,8 +620,15 @@
                                },
                    "loading":  "Se încarcă blocurile...",
                    "errors":  {
-                                  "loadFailed":  "Blocurile nu au putut fi încărcate. Încercați din nou."
-                              }
+                                  "loadFailed":  "Blocurile nu au putut fi încărcate. Încercați din nou.",
+                                  "refreshAfterDelete":  "Blocul a fost șters, dar lista de blocuri nu a putut fi reîncărcată. Reîncercați încărcarea paginii.",
+                                  "refreshAfterSave":  "Blocul a fost salvat, dar lista de blocuri nu a putut fi reîncărcată. Reîncercați încărcarea paginii."
+                              },
+                   "empty":  {
+                                 "helperText":  "Adăugați primul bloc pentru a începe administrarea apartamentelor, scărilor, locatarilor și configurării financiare.",
+                                 "noSearchResults":  "Nu există blocuri potrivite",
+                                 "noSearchResultsHelper":  "Ajustați termenul de căutare pentru a vedea blocurile existente."
+                             }
                },
     "resident":  {
                      "bills":  {
@@ -856,6 +864,7 @@
                      "admin":  {
                                    "blockManagement":  "Administrare blocuri",
                                    "financialSetup":  "Configurare financiară",
+                                   "scopeSelection":  "Domeniu setări",
                                    "saveFailed":  "Setările nu au putut fi salvate.",
                                    "saveSuccess":  "Setările au fost salvate."
                                },

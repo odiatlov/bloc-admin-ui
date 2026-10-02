@@ -6,7 +6,7 @@ import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined'
 import { Link as RouterLink } from 'react-router-dom'
 
 type EmptyStateProps = {
-  actionLabel: string
+  actionLabel?: string
   actionTo?: string
   headline: string
   helperText: string
@@ -48,15 +48,15 @@ const EmptyState: React.FC<EmptyStateProps> = ({ actionLabel, actionTo, headline
       <Typography color="text.secondary" sx={{ maxWidth: 460 }}>
         {helperText}
       </Typography>
-      {actionTo ? (
+      {actionTo && actionLabel ? (
         <Button variant="contained" component={RouterLink} to={actionTo}>
           {actionLabel}
         </Button>
-      ) : (
+      ) : actionLabel ? (
         <Button variant="contained" onClick={onAction}>
           {actionLabel}
         </Button>
-      )}
+      ) : null}
     </Paper>
   )
 }

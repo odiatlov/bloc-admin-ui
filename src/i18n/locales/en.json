@@ -540,6 +540,7 @@
       "configureBlocks": "Configure blocks",
       "backToList": "Back to blocks",
       "backToDashboard": "Dashboard",
+      "moreActions": "More actions for {{block}}",
       "retry": "Retry"
     },
     "columns": {
@@ -561,7 +562,14 @@
     },
     "loading": "Loading blocks...",
     "errors": {
-      "loadFailed": "Blocks could not be loaded. Please try again."
+      "loadFailed": "Blocks could not be loaded. Please try again.",
+      "refreshAfterDelete": "The block was deleted, but the block list could not be refreshed. Please retry loading the page.",
+      "refreshAfterSave": "The block was saved, but the block list could not be refreshed. Please retry loading the page."
+    },
+    "empty": {
+      "helperText": "Add the first block to start managing apartments, staircases, residents, and financial setup.",
+      "noSearchResults": "No matching blocks",
+      "noSearchResultsHelper": "Adjust the search term to see existing blocks."
     }
   },
   "apartments": {
@@ -1084,6 +1092,7 @@
     "admin": {
       "blockManagement": "Block management",
       "financialSetup": "Financial setup",
+      "scopeSelection": "Settings scope",
       "saveFailed": "Settings could not be saved.",
       "saveSuccess": "Settings saved."
     },

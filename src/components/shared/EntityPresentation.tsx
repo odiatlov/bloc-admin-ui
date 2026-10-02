@@ -4,6 +4,8 @@ import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import type { SxProps, Theme } from '@mui/material/styles'
 
+/* eslint-disable react-refresh/only-export-components */
+
 export type EntityMetadataItem = {
   key: string
   label: string
@@ -73,6 +75,7 @@ export const MetadataGrid: React.FC<MetadataGridProps> = ({ items }) => {
 
 type EntityListItemProps = {
   actions?: React.ReactNode
+  cornerActions?: React.ReactNode
   metadata?: EntityMetadataItem[]
   secondary?: React.ReactNode
   secondaryLabel?: string
@@ -178,7 +181,7 @@ export const EntityCardFooter: React.FC<EntityCardFooterProps> = ({ children }) 
   </Box>
 )
 
-export const EntityListItem: React.FC<EntityListItemProps> = ({ actions, metadata = [], secondary, secondaryLabel, status, statusLabel, title, titleLabel }) => (
+export const EntityListItem: React.FC<EntityListItemProps> = ({ actions, cornerActions, metadata = [], secondary, secondaryLabel, status, statusLabel, title, titleLabel }) => (
   <Paper
     variant="outlined"
     sx={{
@@ -199,10 +202,15 @@ export const EntityListItem: React.FC<EntityListItemProps> = ({ actions, metadat
             {title}
           </Typography>
         </Box>
-        {status && (
-          <Box sx={{ minWidth: 0 }}>
-            {statusLabel && <MetadataLabel>{statusLabel}</MetadataLabel>}
-            <Box sx={{ mt: statusLabel ? 0.25 : 0 }}>{status}</Box>
+        {(status || cornerActions) && (
+          <Box sx={{ alignItems: 'center', display: 'flex', gap: 0.75, justifyContent: 'end', minWidth: 0 }}>
+            {status && (
+              <Box sx={{ minWidth: 0 }}>
+                {statusLabel && <MetadataLabel>{statusLabel}</MetadataLabel>}
+                <Box sx={{ mt: statusLabel ? 0.25 : 0 }}>{status}</Box>
+              </Box>
+            )}
+            {cornerActions}
           </Box>
         )}
       </Box>

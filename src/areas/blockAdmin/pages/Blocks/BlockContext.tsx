@@ -171,7 +171,7 @@ const BlockContext: React.FC = () => {
             emptyState={(
               <EmptyState
                 actionLabel={t('emptyState.action', { information: t('emptyState.information.blocks') })}
-                actionTo="/admin/settings"
+                actionTo="/admin/blocks"
                 headline={t('emptyState.headline', { information: t('emptyState.information.blocks') })}
                 helperText={t('emptyState.helper.settings', { information: t('emptyState.information.blocks') })}
               />
@@ -190,7 +190,7 @@ const BlockContext: React.FC = () => {
                 emptyState={(
                   <EmptyState
                     actionLabel={t('emptyState.action', { information: t('emptyState.information.blocks') })}
-                    actionTo="/admin/settings"
+                    actionTo="/admin/blocks"
                     headline={t('emptyState.headline', { information: t('emptyState.information.blocks') })}
                     helperText={t('emptyState.helper.settings', { information: t('emptyState.information.blocks') })}
                   />
