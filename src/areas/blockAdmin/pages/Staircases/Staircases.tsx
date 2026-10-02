@@ -19,6 +19,7 @@ import EmptyState from '../../../../components/shared/EmptyState'
 import FilterBar from '../../../../components/shared/FilterBar'
 import LoadErrorState from '../../../../components/shared/LoadErrorState'
 import PageHeader from '../../../../components/shared/PageHeader'
+import SearchField from '../../../../components/shared/SearchField'
 import ResponsiveDataView, { type DataColumn } from '../../../../components/shared/ResponsiveDataView'
 import { useBlocks } from '../../../../hooks/useBlocks'
 import { staircasesApi } from '../../../../services/staircasesApi'
@@ -170,7 +171,7 @@ const Staircases: React.FC = () => {
               ))}
             </Select>
           </FormControl>
-          <TextField
+          <SearchField
             size="small"
             label={t('staircases.filters.search')}
             value={search}

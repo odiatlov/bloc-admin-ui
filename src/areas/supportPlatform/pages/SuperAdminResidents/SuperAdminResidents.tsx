@@ -23,6 +23,7 @@ import ConfirmationDialog from '../../../../components/shared/ConfirmationDialog
 import EmptyState from '../../../../components/shared/EmptyState'
 import LoadErrorState from '../../../../components/shared/LoadErrorState'
 import PageHeader from '../../../../components/shared/PageHeader'
+import SearchField from '../../../../components/shared/SearchField'
 import ResponsiveDataView, { type DataColumn } from '../../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../../components/shared/StatusChip'
 import { translateResidentStatus } from '../../../../domain/displayLabels'
@@ -292,7 +293,7 @@ const SuperAdminResidents: React.FC = () => {
                 ))}
               </Select>
             </FormControl>
-            <TextField
+            <SearchField
               disabled={Boolean(loadError)}
               label={t('residents.filters.searchName')}
               size="small"

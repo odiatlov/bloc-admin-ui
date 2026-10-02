@@ -9,7 +9,6 @@ import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Snackbar from '@mui/material/Snackbar'
-import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import AddIcon from '@mui/icons-material/Add'
@@ -24,6 +23,7 @@ import EmptyState from '../../../../components/shared/EmptyState'
 import FilterBar from '../../../../components/shared/FilterBar'
 import LoadErrorState from '../../../../components/shared/LoadErrorState'
 import PageHeader from '../../../../components/shared/PageHeader'
+import SearchField from '../../../../components/shared/SearchField'
 import ResponsiveDataView, { type DataColumn } from '../../../../components/shared/ResponsiveDataView'
 import { RoleContext } from '../../../../contexts/RoleContext'
 import { useBlocks } from '../../../../hooks/useBlocks'
@@ -272,7 +272,7 @@ const Blocks: React.FC = () => {
             </Button>
           )}
         >
-          <TextField
+          <SearchField
             size="small"
             label={t('sidebar.searchBlocks')}
             value={search}
