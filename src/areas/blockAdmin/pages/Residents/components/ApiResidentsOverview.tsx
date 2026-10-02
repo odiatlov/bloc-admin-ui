@@ -363,6 +363,7 @@ const ApiResidentsOverview: React.FC = () => {
               label={t('residents.filters.staircase')}
               size="small"
               value={staircaseFilter}
+              onClear={() => setStaircaseFilter('')}
               onChange={(event) => setStaircaseFilter(event.target.value)}
               sx={{ width: { xs: '100%', sm: 180 } }}
             />
@@ -371,6 +372,7 @@ const ApiResidentsOverview: React.FC = () => {
               label={t('residents.filters.searchName')}
               size="small"
               value={nameFilter}
+              onClear={() => setNameFilter('')}
               onChange={(event) => setNameFilter(event.target.value)}
               sx={{ width: { xs: '100%', sm: 240 } }}
             />

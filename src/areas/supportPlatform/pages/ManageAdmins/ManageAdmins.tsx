@@ -180,6 +180,7 @@ const ManageAdmins: React.FC = () => {
             label={t('superAdmin.manageAdmins.filters.searchAdmin')}
             size="small"
             value={adminNameFilter}
+            onClear={() => setAdminNameFilter('')}
             onChange={(event) => setAdminNameFilter(event.target.value)}
             sx={{ width: { xs: '100%', sm: 240 } }}
           />
@@ -188,6 +189,7 @@ const ManageAdmins: React.FC = () => {
             label={t('superAdmin.manageAdmins.filters.searchBlock')}
             size="small"
             value={blockFilter}
+            onClear={() => setBlockFilter('')}
             onChange={(event) => setBlockFilter(event.target.value)}
             sx={{ width: { xs: '100%', sm: 220 } }}
           />

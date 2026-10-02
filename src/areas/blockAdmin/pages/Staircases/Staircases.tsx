@@ -175,6 +175,7 @@ const Staircases: React.FC = () => {
             size="small"
             label={t('staircases.filters.search')}
             value={search}
+            onClear={() => setSearch('')}
             onChange={(event) => setSearch(event.target.value)}
             disabled={Boolean(loadError)}
             sx={{ minWidth: { sm: 280 } }}

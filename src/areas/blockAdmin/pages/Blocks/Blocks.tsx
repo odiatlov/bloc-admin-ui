@@ -276,6 +276,7 @@ const Blocks: React.FC = () => {
             size="small"
             label={t('sidebar.searchBlocks')}
             value={search}
+            onClear={() => setSearch('')}
             onChange={(event) => setSearch(event.target.value)}
             disabled={Boolean(error)}
             sx={{ minWidth: { sm: 320 } }}
