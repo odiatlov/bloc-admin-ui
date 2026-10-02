@@ -1,8 +1,9 @@
 import React from 'react'
-import { Accordion, AccordionDetails, AccordionSummary, Alert, Box, Button, Checkbox, FormControlLabel, IconButton, Radio, RadioGroup, Step, StepLabel, Stepper, TextField, Tooltip, Typography } from '@mui/material'
+import { Accordion, AccordionDetails, AccordionSummary, Alert, Box, Button, Checkbox, FormControlLabel, IconButton, MenuItem, Radio, RadioGroup, Step, StepLabel, Stepper, TextField, Tooltip, Typography } from '@mui/material'
 import ApartmentIcon from '@mui/icons-material/Apartment'
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import AddIcon from '@mui/icons-material/Add'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import DeleteIcon from '@mui/icons-material/Delete'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { useTranslation } from 'react-i18next'
@@ -13,7 +14,7 @@ import BlockFields from './BlockFields'
 import ApartmentSetupFields from '../Apartments/components/ApartmentSetupFields'
 import { ApiError } from '../../../../services/apiClient'
 import { translateApartmentSetupStatus } from '../../../../domain/displayLabels'
-import { generateBatch, newApartment, newGroup, unique, validApartment, type ApartmentDraft, type Group } from './setupDraft'
+import { generateBatch, generateStaircases, newApartment, newGroup, unique, validApartment, type ApartmentDraft, type Group } from './setupDraft'
 const toApartment = (a: ApartmentDraft): SetupApartment => ({ number: a.number.trim(), floor: a.floor.trim() ? Number(a.floor) : null,
   usableSqm: a.usableSqm.trim() ? Number(a.usableSqm) : null, setupStatus: a.setupStatus, hasBoiler: a.hasBoiler })
 
@@ -31,7 +32,8 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
   const [blockGroup, setBlockGroup] = React.useState<Group>(() => newGroup())
   const [batchStart, setBatchStart] = React.useState('1')
   const [batchQuantity, setBatchQuantity] = React.useState('1')
-  const [batchPrefix, setBatchPrefix] = React.useState('')
+  const [staircaseNaming, setStaircaseNaming] = React.useState<'alphabetical' | 'numeric'>('alphabetical')
+  const [staircaseQuantity, setStaircaseQuantity] = React.useState('1')
   const [error, setError] = React.useState<string | null>(null)
   const [busy, setBusy] = React.useState(false)
   const submitting = React.useRef(false)
@@ -54,9 +56,10 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
     return true
   }
   const batch = (group?: Group) => {
-    const start = Number(batchStart), quantity = Number(batchQuantity)
     const existing = group ? group.apartments.map(a => a.number) : staircases.map(g => g.name)
-    const result = generateBatch(start, quantity, group ? '' : batchPrefix, existing, group ? 50 : 100)
+    const result = group
+      ? generateBatch(Number(batchStart), Number(batchQuantity), '', existing, 50)
+      : generateStaircases(staircaseNaming, Number(staircaseQuantity), existing)
     if (result.error) { setError(w(result.error)); return }
     const values = result.values
     if (group) updateGroup(group.id, g => ({ ...g, apartments: [...g.apartments, ...values.map(newApartment)] }))
@@ -90,9 +93,14 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
     else setStage(value => value + 1)
   }
   const batchControls = (group?: Group) => <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
-    {!group && <TextField size="small" label={w('prefix')} value={batchPrefix} onChange={e => setBatchPrefix(e.target.value)} sx={{ width: 140 }} />}
-    <TextField size="small" type="number" label={w('start')} value={batchStart} onChange={e => setBatchStart(e.target.value)} sx={{ width: 140 }} />
-    <TextField size="small" type="number" label={w('quantity')} value={batchQuantity} onChange={e => setBatchQuantity(e.target.value)} sx={{ width: 140 }} />
+    {group ? <TextField size="small" type="number" label={w('start')} value={batchStart} onChange={e => setBatchStart(e.target.value)} sx={{ width: 140 }} />
+      : <TextField select size="small" label={w('naming')} value={staircaseNaming} onChange={e => setStaircaseNaming(e.target.value as 'alphabetical' | 'numeric')} sx={{ width: { xs: '100%', sm: 240 } }}>
+        <MenuItem value="alphabetical">{w('alphabetical')}</MenuItem>
+        <MenuItem value="numeric">{w('numeric')}</MenuItem>
+      </TextField>}
+    <TextField size="small" type="number" label={w('quantity')} value={group ? batchQuantity : staircaseQuantity}
+      onChange={e => group ? setBatchQuantity(e.target.value) : setStaircaseQuantity(e.target.value)}
+      slotProps={{ htmlInput: { min: 1, max: !group && staircaseNaming === 'alphabetical' ? 26 : 1000, step: 1 } }} sx={{ width: 140 }} />
     <Button startIcon={<AddIcon />} onClick={() => batch(group)}>{w('generate')}</Button>
   </Box>
   const removeButton = (action: () => void) => <Tooltip title={w('remove')}><IconButton aria-label={w('remove')} onClick={action}><DeleteIcon /></IconButton></Tooltip>
@@ -160,7 +168,7 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
           </>}
         </Box>
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          <Button disabled={busy || Boolean(retryRequest)} onClick={() => { setError(null); setStage(value => value - 1) }}>{w('back')}</Button>
+          <Button startIcon={<ArrowBackIcon />} disabled={busy || Boolean(retryRequest)} onClick={() => { setError(null); setStage(value => value - 1) }}>{w('back')}</Button>
           {stage > 0 && <Button disabled={busy || Boolean(retryRequest)} onClick={() => ask(() => { setStage(-1); setName(''); setAddress(''); setStaircases([]); setBlockGroup(newGroup()) })}>{w('changeMode')}</Button>}
         </Box>
       </>}

@@ -13,3 +13,11 @@ export function generateBatch(start: number, quantity: number, prefix: string, e
   if (!unique([...existing, ...values]) || values.some(v => v.length > maxLength)) return { error: 'duplicates' } as const
   return { values } as const
 }
+
+export function generateStaircases(naming: 'alphabetical' | 'numeric', quantity: number, existing: string[]) {
+  if (naming === 'numeric') return generateBatch(1, quantity, '', existing, 100)
+  if (!Number.isInteger(quantity) || quantity < 1 || quantity > 26) return { error: 'alphabeticalQuantityError' } as const
+  const values = Array.from({ length: quantity }, (_, index) => String.fromCharCode(65 + index))
+  if (!unique([...existing, ...values])) return { error: 'duplicates' } as const
+  return { values } as const
+}
