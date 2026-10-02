@@ -1,4 +1,9 @@
 {
+  "blockOverviewFilters": {
+    "search": "Search resident or apartment number",
+    "noResults": "No matching apartments",
+    "noResultsHelper": "Adjust the search or staircase filter to see existing apartments."
+  },
   "blockSetup": {
     "chooseTitle": "Choose block creation",
     "title": "Block Setup",

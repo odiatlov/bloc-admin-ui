@@ -31,6 +31,7 @@ import ConfirmationDialog from '../../../../../components/shared/ConfirmationDia
 import EmptyState from '../../../../../components/shared/EmptyState'
 import { EntityListItem } from '../../../../../components/shared/EntityPresentation'
 import FilterBar from '../../../../../components/shared/FilterBar'
+import SearchField from '../../../../../components/shared/SearchField'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
 import ResponsiveDataView, { type DataColumn } from '../../../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../../../components/shared/StatusChip'
@@ -49,6 +50,9 @@ import type { ApartmentWaterConfigurationZone } from '../../../../../types/water
 type ApiApartmentManagementProps = {
   hideScopeFilters?: boolean
   initialBlockId?: string
+  showOverviewFilters?: boolean
+  filterActions?: React.ReactNode
+  afterFilters?: React.ReactNode
 }
 
 type FormState = {
@@ -81,7 +85,7 @@ const setupStatuses: ApartmentSetupStatus[] = ['configured', 'unconfigured']
 const waterLocationTypes = ['Kitchen', 'Bathroom', 'SecondaryBathroom', 'ServiceToilet', 'Other']
 const tableEmptyValue = '-'
 
-const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideScopeFilters = false, initialBlockId }) => {
+const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideScopeFilters = false, initialBlockId, showOverviewFilters = false, filterActions, afterFilters }) => {
   const { t } = useTranslation()
   const databaseBlocks = useBlocks()
   const [apartments, setApartments] = React.useState<ApartmentResponse[]>([])
@@ -91,6 +95,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   const [selectedBlockId, setSelectedBlockId] = React.useState(initialBlockId ?? 'all')
   const [selectedStaircaseId, setSelectedStaircaseId] = React.useState('all')
   const [setupStatusFilter, setSetupStatusFilter] = React.useState<ApartmentSetupStatus | 'all'>('all')
+  const [search, setSearch] = React.useState('')
   const [error, setError] = React.useState<string | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
   const [dialogMode, setDialogMode] = React.useState<'create' | 'edit' | null>(null)
@@ -203,23 +208,25 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   }, [blocks, databaseBlocks.isLoading, selectedBlockId])
 
   React.useEffect(() => {
-    if (!selectedBlockHasStaircases) {
+    if (!selectedBlockHasStaircases || (selectedStaircaseId !== 'all' && !scopedStaircases.some(staircase => staircase.id === selectedStaircaseId && staircase.blockId === selectedBlockId))) {
       const timeoutId = window.setTimeout(() => {
         setSelectedStaircaseId('all')
       }, 0)
 
       return () => window.clearTimeout(timeoutId)
     }
-  }, [selectedBlockHasStaircases])
+  }, [selectedBlockHasStaircases, selectedStaircaseId, selectedBlockId, scopedStaircases])
 
   const filteredApartments = React.useMemo(() => (
     scopedApartments.filter((apartment) => {
       const matchesBlock = selectedBlockId === 'all' || apartment.blockId === selectedBlockId
       const matchesStaircase = selectedStaircaseId === 'all' || apartment.staircaseId === selectedStaircaseId
       const matchesStatus = setupStatusFilter === 'all' || apartment.setupStatus === setupStatusFilter
-      return matchesBlock && matchesStaircase && matchesStatus
+      const query = search.trim().toLowerCase()
+      const matchesSearch = !query || [apartment.number, apartment.residentNames ?? ''].some(value => value.toLowerCase().includes(query))
+      return matchesBlock && matchesStaircase && matchesStatus && matchesSearch
     })
-  ), [scopedApartments, selectedBlockId, selectedStaircaseId, setupStatusFilter])
+  ), [scopedApartments, selectedBlockId, selectedStaircaseId, setupStatusFilter, search])
 
   const openCreateDialog = () => {
     const blockId = selectedBlockId !== 'all' ? selectedBlockId : blocks[0]?.id ?? ''
@@ -421,6 +428,18 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
 
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
+      {showOverviewFilters && <FilterBar actions={filterActions}>
+        <SearchField size="small" label={t('blockOverviewFilters.search')} value={search} onChange={event => setSearch(event.target.value)} onClear={() => setSearch('')}
+          disabled={loading || Boolean(loadError)} />
+        <FormControl size="small" disabled={loading || Boolean(loadError) || !selectedBlockHasStaircases}>
+          <InputLabel id="block-overview-staircase-label">{t('blocks.columns.staircase')}</InputLabel>
+          <Select labelId="block-overview-staircase-label" label={t('blocks.columns.staircase')} value={selectedStaircaseId} onChange={event => setSelectedStaircaseId(event.target.value)}>
+            <MenuItem value="all">{t('common.all')}</MenuItem>
+            {selectedBlockStaircases.map(staircase => <MenuItem key={staircase.id} value={staircase.id}>{staircase.name}</MenuItem>)}
+          </Select>
+        </FormControl>
+      </FilterBar>}
+      {afterFilters}
       {!hideScopeFilters && (
         <FilterBar
           actions={(
@@ -466,6 +485,9 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
         </Paper>
       ) : loadError ? (
         <LoadErrorState helperText={t('apartments.errors.loadFailed')} onRetry={() => { void loadData(); void databaseBlocks.refresh() }} />
+      ) : filteredApartments.length === 0 && showOverviewFilters && (Boolean(search.trim()) || selectedStaircaseId !== 'all') ? (
+        <EmptyState headline={t('blockOverviewFilters.noResults')} helperText={t('blockOverviewFilters.noResultsHelper')}
+          actionLabel={t('common.clearFilters')} onAction={() => { setSearch(''); setSelectedStaircaseId('all') }} />
       ) : filteredApartments.length === 0 ? (
         <EmptyState
           actionLabel={t('emptyState.action', { information: t('emptyState.information.apartments') })}

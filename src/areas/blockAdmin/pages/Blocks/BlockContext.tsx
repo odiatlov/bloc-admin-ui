@@ -113,6 +113,18 @@ const BlockContext: React.FC = () => {
     { key: 'amount', label: t('finance.columns.amount'), render: (payment) => formatCurrency(payment.amount) },
   ]
 
+  const isApartmentOverview = normalizedSection === 'overview' || normalizedSection === 'apartments'
+  const hasOverviewFilters = isApartmentOverview && Boolean(databaseBlockContext)
+  const backToBlocks = <Button startIcon={<ArrowBackIcon />} variant="contained" onClick={() => navigate('/admin/blocks')}>
+    {t('blocks.actions.backToList')}
+  </Button>
+  const overviewMetrics = <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, minmax(0, 1fr))' }, gap: 2 }}>
+    <MetricCard label={t('dashboard.admin.overview.apartments')} value={apartmentCount} />
+    <MetricCard label={t('dashboard.admin.overview.residents')} value={residentCount} />
+    <MetricCard label={t('blocks.metrics.totalInvoices')} value={formatCurrency(totalInvoices)} />
+    <MetricCard label={t('blocks.metrics.totalPayments')} value={formatCurrency(totalPayments)} />
+  </Box>
+
   return (
     <Box>
       <PageHeader
@@ -121,27 +133,20 @@ const BlockContext: React.FC = () => {
       />
 
       <Box sx={{ display: 'grid', gap: 2 }}>
-        <ActionBar title={t('dashboard.admin.quickActions')}>
+        {!hasOverviewFilters && <ActionBar title={t('dashboard.admin.quickActions')}>
           {normalizedSection !== 'overview' && normalizedSection !== 'apartments' && (
             <Button startIcon={<ApartmentIcon />} variant="contained" component={RouterLink} to={`/admin/blocks/${block.id}/Overview`}>
               {t('sidebar.apartments')}
             </Button>
           )}
-          <Button startIcon={<ArrowBackIcon />} variant="contained" onClick={() => navigate('/admin/blocks')}>
-            {t('blocks.actions.backToList')}
-          </Button>
-        </ActionBar>
+          {backToBlocks}
+        </ActionBar>}
 
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, minmax(0, 1fr))' }, gap: 2 }}>
-          <MetricCard label={t('dashboard.admin.overview.apartments')} value={apartmentCount} />
-          <MetricCard label={t('dashboard.admin.overview.residents')} value={residentCount} />
-          <MetricCard label={t('blocks.metrics.totalInvoices')} value={formatCurrency(totalInvoices)} />
-          <MetricCard label={t('blocks.metrics.totalPayments')} value={formatCurrency(totalPayments)} />
-        </Box>
+        {!hasOverviewFilters && overviewMetrics}
 
         {(normalizedSection === 'overview' || normalizedSection === 'apartments') && (
           databaseBlockContext ? (
-            <ApiApartmentManagement hideScopeFilters initialBlockId={block.id} />
+            <ApiApartmentManagement key={block.id} hideScopeFilters initialBlockId={block.id} showOverviewFilters filterActions={backToBlocks} afterFilters={overviewMetrics} />
           ) : (
             <ApartmentManagement hideScopeFilters initialBlockId={block.id} />
           )
