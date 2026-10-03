@@ -1,12 +1,14 @@
 import React from 'react'
-import { Accordion, AccordionDetails, AccordionSummary, Alert, Box, Button, Card, Checkbox, FormControlLabel, IconButton, MenuItem, Radio, RadioGroup, Step, StepLabel, Stepper, Switch, TextField, Tooltip, Typography } from '@mui/material'
+import { Accordion, AccordionDetails, AccordionSummary, Alert, Box, Button, Card, Checkbox, FormControlLabel, IconButton, MenuItem, Radio, RadioGroup, Snackbar, Step, StepLabel, Stepper, Switch, TextField, Tooltip, Typography } from '@mui/material'
 import ApartmentIcon from '@mui/icons-material/Apartment'
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import AddIcon from '@mui/icons-material/Add'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import DeleteIcon from '@mui/icons-material/Delete'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { lighten } from '@mui/material/styles'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import { lighten, useTheme } from '@mui/material/styles'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTranslation } from 'react-i18next'
 import AppDialog from '../../../../components/shared/AppDialog'
 import ConfirmationDialog from '../../../../components/shared/ConfirmationDialog'
@@ -15,7 +17,7 @@ import BlockFields from './BlockFields'
 import ApartmentSetupFields from '../Apartments/components/ApartmentSetupFields'
 import { ApiError } from '../../../../services/apiClient'
 import { translateApartmentSetupStatus } from '../../../../domain/displayLabels'
-import { generateBatch, generateStaircases, newApartment, newGroup, unique, validApartment, type ApartmentDraft, type Group } from './setupDraft'
+import { generateStaircases, newApartment, newGroup, planApartmentBatch, unique, validApartment, type ApartmentDraft, type GenerationSettings, type Group } from './setupDraft'
 const toApartment = (a: ApartmentDraft): SetupApartment => ({ number: a.number.trim(), floor: a.floor.trim() ? Number(a.floor) : null,
   usableSqm: a.usableSqm.trim() ? Number(a.usableSqm) : null, setupStatus: a.setupStatus, hasBoiler: a.hasBoiler })
 
@@ -23,7 +25,10 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
   onClose: () => void; onSimple: (request: CreateBlockRequest) => Promise<void>; onSetup: (request: BlockSetupRequest) => Promise<void>
 }) {
   const { t } = useTranslation()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const w = (key: string, values?: Record<string, unknown>) => t(`blockSetup.${key}`, values)
+  const caption = (key: string) => w(isMobile ? `mobile.${key}` : key)
   const [mode, setMode] = React.useState<'simple' | 'full'>('simple')
   const [stage, setStage] = React.useState(-1)
   const [name, setName] = React.useState('')
@@ -31,11 +36,7 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
   const [hasStaircases, setHasStaircases] = React.useState(true)
   const [staircases, setStaircases] = React.useState<Group[]>([])
   const [blockGroup, setBlockGroup] = React.useState<Group>(() => newGroup())
-  const [batchStart, setBatchStart] = React.useState('1')
-  const [batchQuantity, setBatchQuantity] = React.useState('1')
-  const [startingFloor, setStartingFloor] = React.useState('0')
-  const [apartmentsPerFloor, setApartmentsPerFloor] = React.useState('1')
-  const [batchUsableSqm, setBatchUsableSqm] = React.useState('')
+  const [copyNotice, setCopyNotice] = React.useState<string | null>(null)
   const [staircaseNaming, setStaircaseNaming] = React.useState<'alphabetical' | 'numeric'>('alphabetical')
   const [staircaseQuantity, setStaircaseQuantity] = React.useState('1')
   const [error, setError] = React.useState<string | null>(null)
@@ -53,33 +54,38 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
     if (hasStaircases) setStaircases(value => value.map(g => g.id === id ? update(g) : g))
     else setBlockGroup(update)
   }
+  const updateGeneration = (group: Group, patch: Partial<GenerationSettings>) => updateGroup(group.id, current => ({ ...current, generation: { ...current.generation, ...patch } }))
+  const copyGeneration = (source: Group) => {
+    if (busy || retryRequest) return
+    setStaircases(current => current.map(group => group.id === source.id ? group : { ...group, generation: { ...source.generation } }))
+    setCopyNotice(source.name)
+  }
   const validate = (step: string) => {
     if (step === 'details') return Boolean(name.trim())
     if (step === 'staircases') return staircases.length > 0 && staircases.every(g => Boolean(g.name.trim()) && g.name.trim().length <= 100) && unique(staircases.map(g => g.name))
     if (step === 'apartments') return groups.length > 0 && groups.every(g => g.apartments.length > 0 && g.apartments.every(validApartment) && unique(g.apartments.map(a => a.number)))
     return true
   }
-  const batch = (group?: Group) => {
-    const usableSqm = batchUsableSqm.trim()
-    if (group && usableSqm && (!/^\d+(\.\d{1,2})?$/.test(usableSqm) || Number(usableSqm) >= 1e16)) {
-      setError(w('usableSqmError')); return
-    }
-    const floor = Number(startingFloor), perFloor = Number(apartmentsPerFloor)
-    if (group && (!startingFloor.trim() || !Number.isInteger(floor) || floor < -2147483648 || floor > 2147483647
-      || !apartmentsPerFloor.trim() || !Number.isSafeInteger(perFloor) || perFloor < 1
-      || floor + Math.floor((Number(batchQuantity) - 1) / perFloor) > 2147483647)) {
-      setError(w('floorDistributionError')); return
-    }
-    const existing = group ? group.apartments.map(a => a.number) : staircases.map(g => g.name)
-    const result = group
-      ? generateBatch(Number(batchStart), Number(batchQuantity), '', existing, 50)
-      : generateStaircases(staircaseNaming, Number(staircaseQuantity), existing)
+  const batch = () => {
+    const result = generateStaircases(staircaseNaming, Number(staircaseQuantity), staircases.map(g => g.name))
     if (result.error) { setError(w(result.error)); return }
-    const values = result.values
-    if (group) updateGroup(group.id, g => ({ ...g, apartments: [...g.apartments, ...values.map((number, index) => ({
-      ...newApartment(number), floor: String(floor + Math.floor(index / perFloor)), usableSqm,
-    }))] }))
-    else setStaircases(value => [...value, ...values.map(newGroup)])
+    setStaircases(value => [...value, ...result.values.map(newGroup)])
+    setError(null)
+  }
+  const generateAllApartments = () => {
+    if (busy || retryRequest) return
+    if (groups.length === 0 || groups.some(group => Object.values(group.generation).some(value => !value.trim()))) {
+      setError(w(hasStaircases ? 'completeAllStaircases' : 'completeGenerationSettings')); return
+    }
+    // Check every location before changing any apartment drafts.
+    const plans = groups.map(group => ({ group, result: planApartmentBatch(group) }))
+    const invalid = plans.find(plan => plan.result.error)
+    if (invalid) {
+      setError(w('generationError', { location: hasStaircases ? invalid.group.name : name, reason: w(invalid.result.error!) })); return
+    }
+    const generated = new Map(plans.map(({ group, result }) => [group.id, result.values!.map(value => ({ ...newApartment(value.number), ...value }))]))
+    if (hasStaircases) setStaircases(current => current.map(group => ({ ...group, apartments: [...group.apartments, ...generated.get(group.id)!] })))
+    else setBlockGroup(current => ({ ...current, apartments: [...current.apartments, ...generated.get(current.id)!] }))
     setError(null)
   }
   const submit = async () => {
@@ -110,27 +116,27 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
   }
   const batchControls = (group?: Group) => <Box sx={{
     display: 'grid', gap: 1.5, alignItems: 'start',
-    gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: group ? 'repeat(5, minmax(0, 1fr)) max-content' : 'minmax(0, 2fr) minmax(0, 1fr) max-content' },
+    gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: group ? 'repeat(5, minmax(0, 1fr))' : 'minmax(0, 2fr) minmax(0, 1fr) max-content' },
     '@media (max-width: 359px)': { gridTemplateColumns: 'minmax(0, 1fr)' },
     '& .MuiTextField-root': { width: '100%', minWidth: 0 },
   }}>
-    {group ? <TextField size="small" type="number" label={w('start')} value={batchStart} onChange={e => setBatchStart(e.target.value)} />
-      : <TextField select size="small" label={w('naming')} value={staircaseNaming} onChange={e => setStaircaseNaming(e.target.value as 'alphabetical' | 'numeric')}>
+    {group ? <TextField required size="small" type="number" label={caption('start')} value={group.generation.start} onChange={e => updateGeneration(group, { start: e.target.value })} />
+      : <TextField select size="small" label={caption('naming')} value={staircaseNaming} onChange={e => setStaircaseNaming(e.target.value as 'alphabetical' | 'numeric')}>
         <MenuItem value="alphabetical">{w('alphabetical')}</MenuItem>
         <MenuItem value="numeric">{w('numeric')}</MenuItem>
       </TextField>}
-    <TextField size="small" type="number" label={w('quantity')} value={group ? batchQuantity : staircaseQuantity}
-      onChange={e => group ? setBatchQuantity(e.target.value) : setStaircaseQuantity(e.target.value)}
+    <TextField required={Boolean(group)} size="small" type="number" label={caption('quantity')} value={group ? group.generation.quantity : staircaseQuantity}
+      onChange={e => group ? updateGeneration(group, { quantity: e.target.value }) : setStaircaseQuantity(e.target.value)}
       slotProps={{ htmlInput: { min: 1, max: !group && staircaseNaming === 'alphabetical' ? 26 : 1000, step: 1 } }} />
     {group && <>
-      <TextField size="small" type="number" label={w('startingFloor')} value={startingFloor} onChange={e => setStartingFloor(e.target.value)}
+      <TextField required size="small" type="number" label={caption('startingFloor')} value={group.generation.startingFloor} onChange={e => updateGeneration(group, { startingFloor: e.target.value })}
         slotProps={{ htmlInput: { min: -2147483648, max: 2147483647, step: 1 } }} />
-      <TextField size="small" type="number" label={w('apartmentsPerFloor')} value={apartmentsPerFloor} onChange={e => setApartmentsPerFloor(e.target.value)}
+      <TextField required size="small" type="number" label={caption('apartmentsPerFloor')} value={group.generation.apartmentsPerFloor} onChange={e => updateGeneration(group, { apartmentsPerFloor: e.target.value })}
         slotProps={{ htmlInput: { min: 1, step: 1 } }} />
-      <TextField size="small" type="number" label={t('blocks.columns.usableSurface')} value={batchUsableSqm} onChange={e => setBatchUsableSqm(e.target.value)}
+      <TextField required size="small" type="number" label={isMobile ? w('mobile.usableSqm') : t('blocks.columns.usableSurface')} value={group.generation.usableSqm} onChange={e => updateGeneration(group, { usableSqm: e.target.value })}
         slotProps={{ htmlInput: { min: 0, step: 0.01 } }} sx={{ gridColumn: { xs: '1 / -1', md: 'auto' } }} />
     </>}
-    <Button variant="outlined" startIcon={<AutoAwesomeIcon />} onClick={() => batch(group)} sx={{ gridColumn: { xs: '1 / -1', md: 'auto' }, minHeight: 40 }}>{w('generate')}</Button>
+    {!group && <Button variant="outlined" startIcon={<AutoAwesomeIcon />} onClick={batch} sx={{ gridColumn: { xs: '1 / -1', md: 'auto' }, minHeight: 40 }}>{w('generate')}</Button>}
   </Box>
   const removeButton = (action: () => void) => <Tooltip title={w('remove')}><IconButton aria-label={w('remove')} onClick={action}><DeleteIcon /></IconButton></Tooltip>
   return <>
@@ -142,7 +148,8 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
       onConfirm={next} confirmDisabled={busy} confirmLabel={busy ? t('settings.blockDialog.saving') : stage === -1 ? w('continue') : mode === 'simple' || current === 'review' ? w('create') : w('next')}
       dialogContentSx={{ pt: '4px !important', px: { xs: 2, sm: 3 } }}
       contentSx={{ display: 'grid', gap: 2, pt: 0 }}>
-      {error && <Alert severity="error">{error}</Alert>}
+      {error && <Alert severity="error" onClose={() => setError(null)} closeText={t('common.close')}
+        sx={{ '& .MuiAlert-action': { alignItems: 'flex-start', pt: 0 } }}>{error}</Alert>}
       {retryRequest && <Alert severity="info">{w('retry')}</Alert>}
       {stage === -1 ? <RadioGroup value={mode} onChange={e => {
         const selected = e.target.value as 'simple' | 'full'
@@ -178,12 +185,35 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
             <Button startIcon={<AddIcon />} onClick={() => setStaircases(value => [...value, newGroup()])}>{w('addStaircase')}</Button>
           </>}
           {current === 'apartments' && groups.map(g => <Accordion key={g.id} defaultExpanded disableGutters>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}><Typography>{hasStaircases ? g.name : name} ({g.apartments.length})</Typography></AccordionSummary>
+            <Box id={`setup-header-${g.id}`} aria-controls={`setup-apartments-${g.id}`} sx={{ position: 'relative' }}>
+              <AccordionSummary id={`setup-toggle-${g.id}`} aria-controls={`setup-apartments-${g.id}`} expandIcon={<ExpandMoreIcon />}
+                sx={{ '& .MuiAccordionSummary-content': { pr: hasStaircases ? 22 : 17, minWidth: 0 } }}>
+                <Typography sx={{ overflowWrap: 'anywhere' }}>{hasStaircases ? g.name : name} ({g.apartments.length})</Typography>
+              </AccordionSummary>
+              <Tooltip title={w(hasStaircases ? 'generateAllStaircases' : 'generate')}>
+                <Box component="span" sx={{ position: 'absolute', right: hasStaircases ? 80 : 44, top: '50%', transform: 'translateY(-50%)' }}>
+                  <Button size="small" variant="outlined" startIcon={<AutoAwesomeIcon fontSize="small" />} aria-label={w(hasStaircases ? 'generateAllStaircases' : 'generate')}
+                    disabled={busy || Boolean(retryRequest)}
+                    sx={{ width: 112, minHeight: 32, px: 1 }}
+                    onClick={event => { event.stopPropagation(); generateAllApartments() }}>
+                    {w('generate')}
+                  </Button>
+                </Box>
+              </Tooltip>
+              {hasStaircases && <Tooltip title={w('copyGeneration')}>
+                <span style={{ position: 'absolute', right: 44, top: '50%', transform: 'translateY(-50%)' }}>
+                  <IconButton size="small" aria-label={w('copyGeneration')} color="primary" disabled={busy || Boolean(retryRequest) || staircases.length < 2}
+                    onClick={event => { event.stopPropagation(); copyGeneration(g) }}>
+                    <ContentCopyIcon fontSize="small" />
+                  </IconButton>
+                </span>
+              </Tooltip>}
+            </Box>
             <AccordionDetails sx={{ display: 'grid', gap: 2 }}>
               {batchControls(g)}
               {g.apartments.map((a, index) => {
                 const update = (patch: Partial<ApartmentDraft>) => updateGroup(g.id, value => ({ ...value, apartments: value.apartments.map(item => item.id === a.id ? { ...item, ...patch } : item) }))
-                const label = w('apartmentTitle', { number: a.number.trim() || index + 1 })
+                const label = w(isMobile ? 'mobile.apartmentTitle' : 'apartmentTitle', { number: a.number.trim() || index + 1 })
                 return <Card key={a.id} component="article" aria-label={label} variant="outlined" sx={theme => ({
                   borderRadius: 1, minWidth: 0,
                   backgroundColor: theme.palette.mode === 'dark' ? lighten(theme.palette.background.paper, 0.16) : theme.palette.background.paper,
@@ -202,9 +232,11 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
                       </IconButton>
                     </Tooltip>
                   </Box>
-                  <Box sx={{ p: 2, display: 'grid', gap: 1.5, alignItems: 'start', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, minmax(0, 1fr))' } }}>
-                    <ApartmentSetupFields value={a} onChange={update} />
-                    <TextField size="small" type="number" disabled label={t('apartments.setup.householdMembers')} value={0} helperText={t('apartments.setup.assignOwnerBeforeCount')} />
+                  <Box sx={{ p: 1.5, display: 'grid', gap: 1.5, alignItems: 'start',
+                    gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(4, minmax(0, 1fr))' },
+                    '& .MuiTextField-root': { minWidth: 0 },
+                  }}>
+                    <ApartmentSetupFields value={a} onChange={update} compactLabels={isMobile} />
                   </Box>
                   <Box sx={{ px: 2, py: 0.75, borderTop: '1px solid', borderColor: 'divider' }}>
                     <FormControlLabel label={w('boiler')} labelPlacement="start"
@@ -232,5 +264,8 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
     </AppDialog>
     <ConfirmationDialog open={Boolean(confirmation)} title={w('discardTitle')} cancelLabel={t('common.cancel')} confirmLabel={w('discard')}
       onCancel={() => setConfirmation(null)} onConfirm={() => { confirmation?.(); setConfirmation(null) }}><Typography>{w('discardMessage')}</Typography></ConfirmationDialog>
+    <Snackbar open={copyNotice !== null} autoHideDuration={3000} onClose={() => setCopyNotice(null)}>
+      <Alert severity="success" onClose={() => setCopyNotice(null)}>{w('generationCopied', { staircase: copyNotice })}</Alert>
+    </Snackbar>
   </>
 }
