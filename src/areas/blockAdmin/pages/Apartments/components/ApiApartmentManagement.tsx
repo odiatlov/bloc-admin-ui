@@ -94,6 +94,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   const [staircases, setStaircases] = React.useState<StaircaseResponse[]>([])
   const [selectedBlockId, setSelectedBlockId] = React.useState(initialBlockId ?? 'all')
   const [selectedStaircaseId, setSelectedStaircaseId] = React.useState('all')
+  const [selectedFloor, setSelectedFloor] = React.useState('all')
   const [setupStatusFilter, setSetupStatusFilter] = React.useState<ApartmentSetupStatus | 'all'>('all')
   const [search, setSearch] = React.useState('')
   const [error, setError] = React.useState<string | null>(null)
@@ -217,16 +218,35 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
     }
   }, [selectedBlockHasStaircases, selectedStaircaseId, selectedBlockId, scopedStaircases])
 
+  const floorOptions = React.useMemo(() => {
+    const floors = new Set(scopedApartments
+      .filter(apartment => (selectedBlockId === 'all' || apartment.blockId === selectedBlockId)
+        && (selectedStaircaseId === 'all' || apartment.staircaseId === selectedStaircaseId))
+      .map(apartment => apartment.floor))
+    const values = [...floors].filter((floor): floor is number => floor !== null)
+      .sort((left, right) => left - right).map(String)
+    return floors.has(null) ? [...values, 'unassigned'] : values
+  }, [scopedApartments, selectedBlockId, selectedStaircaseId])
+  const activeFloor = floorOptions.includes(selectedFloor) ? selectedFloor : 'all'
+
+  React.useEffect(() => {
+    if (isLoading || databaseBlocks.isLoading || selectedFloor === 'all' || floorOptions.includes(selectedFloor)) return
+    const timeoutId = window.setTimeout(() => setSelectedFloor('all'), 0)
+    return () => window.clearTimeout(timeoutId)
+  }, [isLoading, databaseBlocks.isLoading, selectedFloor, floorOptions])
+
   const filteredApartments = React.useMemo(() => (
     scopedApartments.filter((apartment) => {
       const matchesBlock = selectedBlockId === 'all' || apartment.blockId === selectedBlockId
       const matchesStaircase = selectedStaircaseId === 'all' || apartment.staircaseId === selectedStaircaseId
       const matchesStatus = setupStatusFilter === 'all' || apartment.setupStatus === setupStatusFilter
+      const matchesFloor = !showOverviewFilters || activeFloor === 'all'
+        || (activeFloor === 'unassigned' ? apartment.floor === null : apartment.floor === Number(activeFloor))
       const query = search.trim().toLowerCase()
       const matchesSearch = !query || [apartment.number, apartment.residentNames ?? ''].some(value => value.toLowerCase().includes(query))
-      return matchesBlock && matchesStaircase && matchesStatus && matchesSearch
+      return matchesBlock && matchesStaircase && matchesStatus && matchesFloor && matchesSearch
     })
-  ), [scopedApartments, selectedBlockId, selectedStaircaseId, setupStatusFilter, search])
+  ), [scopedApartments, selectedBlockId, selectedStaircaseId, setupStatusFilter, search, showOverviewFilters, activeFloor])
 
   const openCreateDialog = () => {
     const blockId = selectedBlockId !== 'all' ? selectedBlockId : blocks[0]?.id ?? ''
@@ -433,9 +453,16 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
           disabled={loading || Boolean(loadError)} />
         <FormControl size="small" disabled={loading || Boolean(loadError) || !selectedBlockHasStaircases}>
           <InputLabel id="block-overview-staircase-label">{t('blocks.columns.staircase')}</InputLabel>
-          <Select labelId="block-overview-staircase-label" label={t('blocks.columns.staircase')} value={selectedStaircaseId} onChange={event => setSelectedStaircaseId(event.target.value)}>
+          <Select labelId="block-overview-staircase-label" label={t('blocks.columns.staircase')} value={selectedStaircaseId} onChange={event => { setSelectedStaircaseId(event.target.value); setSelectedFloor('all') }}>
             <MenuItem value="all">{t('common.all')}</MenuItem>
             {selectedBlockStaircases.map(staircase => <MenuItem key={staircase.id} value={staircase.id}>{staircase.name}</MenuItem>)}
+          </Select>
+        </FormControl>
+        <FormControl size="small" disabled={loading || Boolean(loadError) || floorOptions.length === 0}>
+          <InputLabel id="block-overview-floor-label">{t('blocks.columns.floor')}</InputLabel>
+          <Select labelId="block-overview-floor-label" label={t('blocks.columns.floor')} value={activeFloor} onChange={event => setSelectedFloor(event.target.value)}>
+            <MenuItem value="all">{t('common.all')}</MenuItem>
+            {floorOptions.map(floor => <MenuItem key={floor} value={floor}>{floor === 'unassigned' ? t('common.notAvailable') : floor}</MenuItem>)}
           </Select>
         </FormControl>
       </FilterBar>}
@@ -485,9 +512,9 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
         </Paper>
       ) : loadError ? (
         <LoadErrorState helperText={t('apartments.errors.loadFailed')} onRetry={() => { void loadData(); void databaseBlocks.refresh() }} />
-      ) : filteredApartments.length === 0 && showOverviewFilters && (Boolean(search.trim()) || selectedStaircaseId !== 'all') ? (
+      ) : filteredApartments.length === 0 && showOverviewFilters && (Boolean(search.trim()) || selectedStaircaseId !== 'all' || activeFloor !== 'all') ? (
         <EmptyState headline={t('blockOverviewFilters.noResults')} helperText={t('blockOverviewFilters.noResultsHelper')}
-          actionLabel={t('common.clearFilters')} onAction={() => { setSearch(''); setSelectedStaircaseId('all') }} />
+          actionLabel={t('common.clearFilters')} onAction={() => { setSearch(''); setSelectedStaircaseId('all'); setSelectedFloor('all') }} />
       ) : filteredApartments.length === 0 ? (
         <EmptyState
           actionLabel={t('emptyState.action', { information: t('emptyState.information.apartments') })}

@@ -2,7 +2,7 @@
   "blockOverviewFilters": {
     "search": "Caută locatar sau număr de apartament",
     "noResults": "Niciun apartament găsit",
-    "noResultsHelper": "Modificați căutarea sau filtrul de scară pentru a vedea apartamentele existente."
+    "noResultsHelper": "Modificați căutarea sau filtrele de scară și etaj pentru a vedea apartamentele existente."
   },
   "blockSetup": {
     "mobile": {
