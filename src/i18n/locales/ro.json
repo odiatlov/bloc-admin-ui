@@ -15,6 +15,7 @@
       "number": "Ap. Nr.",
       "floor": "Etaj",
       "setupStatus": "Stare",
+      "boiler": "Centrală",
       "apartmentTitle": "Ap. {{number}}"
     },
     "chooseTitle": "Alegeți modul de creare a blocului",
@@ -39,6 +40,7 @@
     "usableSqmError": "Introduceți o suprafață utilă nenegativă cu maximum două zecimale.",
     "floorDistributionError": "Introduceți un etaj de început întreg (sunt permise valori negative) și un număr întreg pozitiv de apartamente pe etaj. Toate etajele generate trebuie să se încadreze în intervalul numeric permis.",
     "generate": "Generează",
+    "generateStaircase": "Generează apartamente pentru scara {{staircase}}",
     "generateAllStaircases": "Generează pentru toate scările",
     "completeAllStaircases": "Completați setările de generare pentru toate scările.",
     "completeGenerationSettings": "Completați toate câmpurile de generare a apartamentelor.",

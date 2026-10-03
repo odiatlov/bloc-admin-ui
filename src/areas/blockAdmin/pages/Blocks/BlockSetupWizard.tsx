@@ -24,7 +24,7 @@ const toApartment = (a: ApartmentDraft): SetupApartment => ({ number: a.number.t
 export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
   onClose: () => void; onSimple: (request: CreateBlockRequest) => Promise<void>; onSetup: (request: BlockSetupRequest) => Promise<void>
 }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const w = (key: string, values?: Record<string, unknown>) => t(`blockSetup.${key}`, values)
@@ -72,20 +72,14 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
     setStaircases(value => [...value, ...result.values.map(newGroup)])
     setError(null)
   }
-  const generateAllApartments = () => {
+  const generateApartments = (group: Group) => {
     if (busy || retryRequest) return
-    if (groups.length === 0 || groups.some(group => Object.values(group.generation).some(value => !value.trim()))) {
-      setError(w(hasStaircases ? 'completeAllStaircases' : 'completeGenerationSettings')); return
+    const result = planApartmentBatch(group)
+    if (result.error) {
+      setError(w('generationError', { location: hasStaircases ? group.name : name, reason: w(result.error) })); return
     }
-    // Check every location before changing any apartment drafts.
-    const plans = groups.map(group => ({ group, result: planApartmentBatch(group) }))
-    const invalid = plans.find(plan => plan.result.error)
-    if (invalid) {
-      setError(w('generationError', { location: hasStaircases ? invalid.group.name : name, reason: w(invalid.result.error!) })); return
-    }
-    const generated = new Map(plans.map(({ group, result }) => [group.id, result.values!.map(value => ({ ...newApartment(value.number), ...value }))]))
-    if (hasStaircases) setStaircases(current => current.map(group => ({ ...group, apartments: [...group.apartments, ...generated.get(group.id)!] })))
-    else setBlockGroup(current => ({ ...current, apartments: [...current.apartments, ...generated.get(current.id)!] }))
+    const generated = result.values.map(value => ({ ...newApartment(value.number), ...value }))
+    updateGroup(group.id, current => ({ ...current, apartments: [...current.apartments, ...generated] }))
     setError(null)
   }
   const submit = async () => {
@@ -190,12 +184,12 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
                 sx={{ '& .MuiAccordionSummary-content': { pr: hasStaircases ? 22 : 17, minWidth: 0 } }}>
                 <Typography sx={{ overflowWrap: 'anywhere' }}>{hasStaircases ? g.name : name} ({g.apartments.length})</Typography>
               </AccordionSummary>
-              <Tooltip title={w(hasStaircases ? 'generateAllStaircases' : 'generate')}>
+              <Tooltip title={hasStaircases ? w('generateStaircase', { staircase: g.name }) : w('generate')}>
                 <Box component="span" sx={{ position: 'absolute', right: hasStaircases ? 80 : 44, top: '50%', transform: 'translateY(-50%)' }}>
-                  <Button size="small" variant="outlined" startIcon={<AutoAwesomeIcon fontSize="small" />} aria-label={w(hasStaircases ? 'generateAllStaircases' : 'generate')}
+                  <Button size="small" variant="outlined" startIcon={<AutoAwesomeIcon fontSize="small" />} aria-label={hasStaircases ? w('generateStaircase', { staircase: g.name }) : w('generate')}
                     disabled={busy || Boolean(retryRequest)}
                     sx={{ width: 112, minHeight: 32, px: 1 }}
-                    onClick={event => { event.stopPropagation(); generateAllApartments() }}>
+                    onClick={event => { event.stopPropagation(); generateApartments(g) }}>
                     {w('generate')}
                   </Button>
                 </Box>
@@ -254,9 +248,23 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
             <Typography>{w('totals', { staircases: hasStaircases ? staircases.length : 0, apartments: groups.reduce((sum, g) => sum + g.apartments.length, 0) })}</Typography>
             {groups.map(g => <Accordion key={g.id} disableGutters>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}><Typography sx={{ overflowWrap: 'anywhere' }}>{hasStaircases ? g.name : name} ({g.apartments.length})</Typography></AccordionSummary>
-              <AccordionDetails>{g.apartments.map(a => <Typography key={a.id} sx={{ overflowWrap: 'anywhere' }}>
-                {t('apartments.setup.number')}: {a.number} · {t('blocks.columns.floor')}: {a.floor || '-'} · {t('blocks.columns.usableSurface')}: {a.usableSqm ? Number(a.usableSqm).toLocaleString(undefined, { maximumFractionDigits: 2 }) : '-'} · {translateApartmentSetupStatus(t, a.setupStatus)} · {w('boiler')}: {w(a.hasBoiler ? 'yes' : 'no')}
-              </Typography>)}</AccordionDetails>
+              <AccordionDetails sx={{ pt: 0 }}>
+                <Box component="ul" sx={{ listStyle: 'none', m: 0, p: 0, minWidth: 0 }}>
+                  {g.apartments.map(a => <Box component="li" key={a.id} sx={{
+                    display: 'grid', gridTemplateColumns: { xs: 'repeat(6, minmax(0, 1fr))', sm: 'repeat(5, minmax(0, 1fr))' },
+                    columnGap: 1, rowGap: 0.5, py: 1.25, borderBottom: '1px solid', borderColor: 'divider',
+                    '&:last-child': { borderBottom: 0 },
+                    '& > span': { gridColumn: { xs: 'span 2', sm: 'span 1' }, minWidth: 0, fontSize: '0.8125rem', lineHeight: 1.5, overflowWrap: 'anywhere' },
+                    '& > span:nth-of-type(n+4)': { gridColumn: { xs: 'span 3', sm: 'span 1' } },
+                  }}>
+                    <Box component="span" sx={{ fontWeight: 600 }}>{w('mobile.apartmentTitle', { number: a.number })}</Box>
+                    <span>{w('mobile.floor')}: {a.floor || '-'}</span>
+                    <span>{a.usableSqm ? `${Number(a.usableSqm).toLocaleString(i18n.resolvedLanguage ?? i18n.language, { maximumFractionDigits: 2 })} m²` : '-'}</span>
+                    <span>{translateApartmentSetupStatus(t, a.setupStatus)}</span>
+                    <span>{w('mobile.boiler')}: {w(a.hasBoiler ? 'yes' : 'no')}</span>
+                  </Box>)}
+                </Box>
+              </AccordionDetails>
             </Accordion>)}
           </>}
         </Box>

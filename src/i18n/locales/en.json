@@ -15,6 +15,7 @@
       "number": "Ap. Nr.",
       "floor": "Floor",
       "setupStatus": "Status",
+      "boiler": "Boiler",
       "apartmentTitle": "Ap. {{number}}"
     },
     "chooseTitle": "Choose block creation",
@@ -39,6 +40,7 @@
     "usableSqmError": "Enter a nonnegative usable surface with at most two decimal places.",
     "floorDistributionError": "Enter a whole starting floor (negative values allowed) and a positive whole number of apartments per floor. All generated floors must fit the allowed numeric range.",
     "generate": "Generate",
+    "generateStaircase": "Generate apartments for staircase {{staircase}}",
     "generateAllStaircases": "Generate for all staircases",
     "completeAllStaircases": "Complete the generation settings for all staircases.",
     "completeGenerationSettings": "Complete all apartment generation fields.",
