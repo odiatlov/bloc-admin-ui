@@ -28,6 +28,23 @@ export type CreateBlockRequest = {
 
 export type UpdateBlockRequest = CreateBlockRequest
 
+export type SetupApartment = {
+  number: string
+  floor: number | null
+  usableSqm: number | null
+  setupStatus: 'configured' | 'unconfigured'
+  hasBoiler: boolean
+}
+
+export type BlockSetupRequest = {
+  requestId: string
+  name: string
+  address?: string
+  hasStaircases: boolean
+  staircases: { name: string; apartments: SetupApartment[] }[]
+  apartments: SetupApartment[]
+}
+
 export type AssignBlockCensorRequest = {
   residentId: string
 }

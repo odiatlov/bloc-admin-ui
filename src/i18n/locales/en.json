@@ -1,4 +1,74 @@
 {
+  "blockOverviewFilters": {
+    "search": "Search resident or apartment number",
+    "noResults": "No matching apartments",
+    "noResultsHelper": "Adjust the search, staircase, or floor filter to see existing apartments."
+  },
+  "blockSetup": {
+    "mobile": {
+      "start": "Start Nr.",
+      "naming": "Names",
+      "quantity": "Qty.",
+      "startingFloor": "Start floor",
+      "apartmentsPerFloor": "Ap. Floor",
+      "usableSqm": "Area (m²)",
+      "number": "Ap. Nr.",
+      "floor": "Floor",
+      "setupStatus": "Status",
+      "boiler": "Boiler",
+      "apartmentTitle": "Ap. {{number}}"
+    },
+    "chooseTitle": "Choose block creation",
+    "title": "Block Setup",
+    "simple": "Block only",
+    "full": "Block with staircases and apartments",
+    "continue": "Continue",
+    "details": "Block Details",
+    "staircases": "Staircases",
+    "apartments": "Apartments",
+    "review": "Review & Create",
+    "hasStaircases": "This block has staircases",
+    "step": "Step {{current}} of {{total}}",
+    "naming": "Staircase names",
+    "alphabetical": "Alphabetical (A–Z)",
+    "numeric": "Numeric (1, 2, 3…)",
+    "alphabeticalQuantityError": "Enter a quantity between 1 and 26 for alphabetical staircase names.",
+    "start": "Starting number",
+    "quantity": "Quantity",
+    "startingFloor": "Starting floor number",
+    "apartmentsPerFloor": "Apartments per floor",
+    "usableSqmError": "Enter a nonnegative usable surface with at most two decimal places.",
+    "floorDistributionError": "Enter a whole starting floor (negative values allowed) and a positive whole number of apartments per floor. All generated floors must fit the allowed numeric range.",
+    "generate": "Generate",
+    "generateStaircase": "Generate apartments for staircase {{staircase}}",
+    "generateAllStaircases": "Generate for all staircases",
+    "completeAllStaircases": "Complete the generation settings for all staircases.",
+    "completeGenerationSettings": "Complete all apartment generation fields.",
+    "generationError": "{{location}}: {{reason}}",
+    "copyGeneration": "Copy generation settings to all other staircases",
+    "generationCopied": "Generation settings from staircase {{staircase}} applied to all other staircases.",
+    "batchError": "Enter a nonnegative starting number and a quantity between 1 and 1,000.",
+    "duplicates": "Names and numbers must be unique within their location and fit the allowed length.",
+    "validation": "Complete all required fields, remove duplicates, and check numbers. Each location needs at least one apartment. Surface allows at most two decimals.",
+    "staircaseName": "Staircase name",
+    "addStaircase": "Add staircase",
+    "addApartment": "Add apartment",
+    "apartmentTitle": "Apartment {{number}}",
+    "removeApartment": "Remove apartment {{number}}",
+    "boiler": "Apartment has boiler",
+    "totals": "{{staircases}} staircases · {{apartments}} apartments · 0 residents",
+    "create": "Create Block",
+    "next": "Next",
+    "back": "Back",
+    "changeMode": "Change creation option",
+    "discardTitle": "Discard entered data?",
+    "discard": "Discard",
+    "discardMessage": "The affected draft data will be discarded. Continue?",
+    "retry": "The submission outcome is uncertain. Retry the same request before making changes, or refresh the block list to check whether it was created.",
+    "remove": "Remove",
+    "yes": "Yes",
+    "no": "No"
+  },
   "app": {
     "title": "Block Admin"
   },
@@ -540,6 +610,7 @@
       "configureBlocks": "Configure blocks",
       "backToList": "Back to blocks",
       "backToDashboard": "Dashboard",
+      "moreActions": "More actions for {{block}}",
       "retry": "Retry"
     },
     "columns": {
@@ -561,7 +632,14 @@
     },
     "loading": "Loading blocks...",
     "errors": {
-      "loadFailed": "Blocks could not be loaded. Please try again."
+      "loadFailed": "Blocks could not be loaded. Please try again.",
+      "refreshAfterDelete": "The block was deleted, but the block list could not be refreshed. Please retry loading the page.",
+      "refreshAfterSave": "The block was saved, but the block list could not be refreshed. Please retry loading the page."
+    },
+    "empty": {
+      "helperText": "Add the first block to start managing apartments, staircases, residents, and financial setup.",
+      "noSearchResults": "No matching blocks",
+      "noSearchResultsHelper": "Adjust the search term to see existing blocks."
     }
   },
   "apartments": {
@@ -1084,6 +1162,7 @@
     "admin": {
       "blockManagement": "Block management",
       "financialSetup": "Financial setup",
+      "scopeSelection": "Settings scope",
       "saveFailed": "Settings could not be saved.",
       "saveSuccess": "Settings saved."
     },

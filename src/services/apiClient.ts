@@ -10,6 +10,14 @@ type ProblemDetails = {
   errors?: Record<string, string[]>
 }
 
+export class ApiError extends Error {
+  status: number
+  constructor(message: string, status: number) {
+    super(message)
+    this.status = status
+  }
+}
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
 
 const apiRequest = async <T>(path: string, init?: RequestInit): Promise<T> => {
@@ -28,7 +36,7 @@ const apiRequest = async <T>(path: string, init?: RequestInit): Promise<T> => {
     const validationMessage = payload?.errors
       ? Object.values(payload.errors).flat()[0]
       : undefined
-    throw new Error(payload?.message || validationMessage || payload?.title || 'Request failed')
+    throw new ApiError(payload?.message || validationMessage || payload?.title || 'Request failed', response.status)
   }
 
   return payload.data

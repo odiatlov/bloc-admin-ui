@@ -18,7 +18,7 @@ export const useBlocks = ({ enabled = true }: UseBlocksOptions = {}) => {
     if (!enabled) {
       setIsLoading(false)
       setError(null)
-      return
+      return true
     }
 
     setIsLoading(true)
@@ -27,15 +27,21 @@ export const useBlocks = ({ enabled = true }: UseBlocksOptions = {}) => {
     try {
       const nextBlocks = await fetchBlockOverview()
       setBlocks(nextBlocks)
+      return true
     } catch (nextError) {
       setError(nextError instanceof Error ? nextError.message : 'Unable to load blocks')
+      return false
     } finally {
       setIsLoading(false)
     }
   }, [enabled])
 
   React.useEffect(() => {
-    void loadBlocks()
+    const timer = window.setTimeout(() => {
+      void loadBlocks()
+    }, 0)
+
+    return () => window.clearTimeout(timer)
   }, [loadBlocks])
 
   const scopedBlocks = React.useMemo(() => {
@@ -58,6 +64,7 @@ export const useBlocks = ({ enabled = true }: UseBlocksOptions = {}) => {
 
   return {
     blocks: filteredBlocks,
+    totalBlocks: scopedBlocks.length,
     error,
     isLoading,
     refresh: loadBlocks,

@@ -1,4 +1,74 @@
 ﻿{
+  "blockOverviewFilters": {
+    "search": "Caută locatar sau număr de apartament",
+    "noResults": "Niciun apartament găsit",
+    "noResultsHelper": "Modificați căutarea sau filtrele de scară și etaj pentru a vedea apartamentele existente."
+  },
+  "blockSetup": {
+    "mobile": {
+      "start": "Nr. început",
+      "naming": "Denumiri",
+      "quantity": "Cant.",
+      "startingFloor": "Etaj început",
+      "apartmentsPerFloor": "Ap. Etaj.",
+      "usableSqm": "Sup. (m²)",
+      "number": "Ap. Nr.",
+      "floor": "Etaj",
+      "setupStatus": "Stare",
+      "boiler": "Centrală",
+      "apartmentTitle": "Ap. {{number}}"
+    },
+    "chooseTitle": "Alegeți modul de creare a blocului",
+    "title": "Configurare bloc",
+    "simple": "Doar bloc",
+    "full": "Bloc cu scări și apartamente",
+    "continue": "Continuă",
+    "details": "Detalii bloc",
+    "staircases": "Scări",
+    "apartments": "Apartamente",
+    "review": "Verificare și creare",
+    "hasStaircases": "Acest bloc are scări",
+    "step": "Pasul {{current}} din {{total}}",
+    "naming": "Denumiri scări",
+    "alphabetical": "Alfabetice (A–Z)",
+    "numeric": "Numerice (1, 2, 3…)",
+    "alphabeticalQuantityError": "Introduceți o cantitate între 1 și 26 pentru denumiri alfabetice ale scărilor.",
+    "start": "Număr de început",
+    "quantity": "Cantitate",
+    "startingFloor": "Etaj de început",
+    "apartmentsPerFloor": "Apartamente pe etaj",
+    "usableSqmError": "Introduceți o suprafață utilă nenegativă cu maximum două zecimale.",
+    "floorDistributionError": "Introduceți un etaj de început întreg (sunt permise valori negative) și un număr întreg pozitiv de apartamente pe etaj. Toate etajele generate trebuie să se încadreze în intervalul numeric permis.",
+    "generate": "Generează",
+    "generateStaircase": "Generează apartamente pentru scara {{staircase}}",
+    "generateAllStaircases": "Generează pentru toate scările",
+    "completeAllStaircases": "Completați setările de generare pentru toate scările.",
+    "completeGenerationSettings": "Completați toate câmpurile de generare a apartamentelor.",
+    "generationError": "{{location}}: {{reason}}",
+    "copyGeneration": "Copiază setările de generare la toate celelalte scări",
+    "generationCopied": "Setările de generare de la scara {{staircase}} au fost aplicate tuturor celorlalte scări.",
+    "batchError": "Introduceți un număr de început nenegativ și o cantitate între 1 și 1.000.",
+    "duplicates": "Denumirile și numerele trebuie să fie unice în locația lor și să respecte lungimea permisă.",
+    "validation": "Completați câmpurile obligatorii, eliminați duplicatele și verificați numerele. Fiecare locație necesită cel puțin un apartament. Suprafața permite maximum două zecimale.",
+    "staircaseName": "Denumire scară",
+    "addStaircase": "Adaugă scară",
+    "addApartment": "Adaugă apartament",
+    "apartmentTitle": "Apartament {{number}}",
+    "removeApartment": "Elimină apartamentul {{number}}",
+    "boiler": "Apartamentul are centrală",
+    "totals": "{{staircases}} scări · {{apartments}} apartamente · 0 locatari",
+    "create": "Creează bloc",
+    "next": "Înainte",
+    "back": "Înapoi",
+    "changeMode": "Schimbă opțiunea de creare",
+    "discardTitle": "Renunțați la datele introduse?",
+    "discard": "Renunță",
+    "discardMessage": "Datele afectate din configurare vor fi șterse. Continuați?",
+    "retry": "Rezultatul trimiterii este incert. Retrimiteți aceeași cerere înainte de modificări sau reîncărcați lista de blocuri pentru a verifica dacă blocul a fost creat.",
+    "remove": "Elimină",
+    "yes": "Da",
+    "no": "Nu"
+  },
     "app":  {
                 "title":  "Bloc Admin"
             },
@@ -598,6 +668,7 @@
                                    "configureBlocks":  "Configurează blocurile",
                                    "backToList":  "Înapoi la blocuri",
                                    "backToDashboard":  "Panou principal",
+                                   "moreActions":  "Mai multe acțiuni pentru {{block}}",
                                    "retry":  "Reîncearcă"
                                },
                    "columns":  {
@@ -619,8 +690,15 @@
                                },
                    "loading":  "Se încarcă blocurile...",
                    "errors":  {
-                                  "loadFailed":  "Blocurile nu au putut fi încărcate. Încercați din nou."
-                              }
+                                  "loadFailed":  "Blocurile nu au putut fi încărcate. Încercați din nou.",
+                                  "refreshAfterDelete":  "Blocul a fost șters, dar lista de blocuri nu a putut fi reîncărcată. Reîncercați încărcarea paginii.",
+                                  "refreshAfterSave":  "Blocul a fost salvat, dar lista de blocuri nu a putut fi reîncărcată. Reîncercați încărcarea paginii."
+                              },
+                   "empty":  {
+                                 "helperText":  "Adăugați primul bloc pentru a începe administrarea apartamentelor, scărilor, locatarilor și configurării financiare.",
+                                 "noSearchResults":  "Nu există blocuri potrivite",
+                                 "noSearchResultsHelper":  "Ajustați termenul de căutare pentru a vedea blocurile existente."
+                             }
                },
     "resident":  {
                      "bills":  {
@@ -856,6 +934,7 @@
                      "admin":  {
                                    "blockManagement":  "Administrare blocuri",
                                    "financialSetup":  "Configurare financiară",
+                                   "scopeSelection":  "Domeniu setări",
                                    "saveFailed":  "Setările nu au putut fi salvate.",
                                    "saveSuccess":  "Setările au fost salvate."
                                },

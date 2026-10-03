@@ -24,6 +24,7 @@ type ResponsiveDataViewProps<T> = {
   desktopTableMinWidth?: number
   emptyState?: React.ReactNode
   getRowId: (row: T) => string
+  renderCardCornerActions?: (row: T) => React.ReactNode
   rows: T[]
 }
 
@@ -35,7 +36,7 @@ const inferCardRole = (column: Pick<DataColumn<unknown>, 'cardRole' | 'key'>, in
   return 'metadata'
 }
 
-const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900, emptyState, getRowId, rows }: ResponsiveDataViewProps<T>) => {
+const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900, emptyState, getRowId, renderCardCornerActions, rows }: ResponsiveDataViewProps<T>) => {
   if (rows.length === 0 && emptyState) return <>{emptyState}</>
 
   return (
@@ -151,6 +152,7 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
             <EntityListItem
               key={getRowId(row)}
               actions={actions}
+              cornerActions={renderCardCornerActions?.(row)}
               metadata={metadata}
               secondary={secondary}
               secondaryLabel={secondaryLabel}

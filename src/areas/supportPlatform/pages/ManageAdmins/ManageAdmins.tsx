@@ -16,6 +16,7 @@ import AppDialog from '../../../../components/shared/AppDialog'
 import EmptyState from '../../../../components/shared/EmptyState'
 import LoadErrorState from '../../../../components/shared/LoadErrorState'
 import PageHeader from '../../../../components/shared/PageHeader'
+import SearchField from '../../../../components/shared/SearchField'
 import ResponsiveDataView, { type DataColumn } from '../../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../../components/shared/StatusChip'
 import {
@@ -174,19 +175,21 @@ const ManageAdmins: React.FC = () => {
         }}
       >
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, width: { xs: '100%', md: 'auto' } }}>
-          <TextField
+          <SearchField
             disabled={Boolean(error)}
             label={t('superAdmin.manageAdmins.filters.searchAdmin')}
             size="small"
             value={adminNameFilter}
+            onClear={() => setAdminNameFilter('')}
             onChange={(event) => setAdminNameFilter(event.target.value)}
             sx={{ width: { xs: '100%', sm: 240 } }}
           />
-          <TextField
+          <SearchField
             disabled={Boolean(error)}
             label={t('superAdmin.manageAdmins.filters.searchBlock')}
             size="small"
             value={blockFilter}
+            onClear={() => setBlockFilter('')}
             onChange={(event) => setBlockFilter(event.target.value)}
             sx={{ width: { xs: '100%', sm: 220 } }}
           />
