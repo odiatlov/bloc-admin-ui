@@ -74,6 +74,7 @@
             },
     "common":  {
                    "actions":  "Acțiuni",
+                   "moreActions":  "Mai multe acțiuni",
                    "all":  "Toate",
                    "blockValue":  "Bloc {{block}}",
                    "cancel":  "Anulează",

@@ -8,6 +8,7 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
+import IconButtonTooltip from '../../shared/IconButtonTooltip'
 import Box from '@mui/material/Box'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import DashboardIcon from '@mui/icons-material/Dashboard'
@@ -86,9 +87,11 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ onNavigate, onClose, sh
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Toolbar>
         {showCloseButton && (
+          <IconButtonTooltip title={t('sidebar.close')}>
           <IconButton edge="start" onClick={onClose} aria-label={t('sidebar.close')} sx={{ mr: 1 }}>
             <ArrowBackIcon />
           </IconButton>
+          </IconButtonTooltip>
         )}
         <Typography sx={{ fontWeight: 700, fontSize: 18 }}>{t('app.title')}</Typography>
       </Toolbar>

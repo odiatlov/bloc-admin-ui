@@ -1,6 +1,5 @@
 import React from 'react'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
@@ -53,13 +52,11 @@ const SuperAdminBlocks: React.FC = () => {
       key: 'actions',
       label: t('common.actions'),
       cardRole: 'actions',
-      render: () => (
-        <>
-          <Button size="small" startIcon={<VisibilityIcon />}>{t('superAdmin.blocks.actions.viewDetails')}</Button>
-          <Button size="small" startIcon={<AssignmentIndIcon />}>{t('superAdmin.blocks.actions.assignAdmin')}</Button>
-          <Button size="small" startIcon={<FileDownloadIcon />}>{t('superAdmin.blocks.actions.exportBlockData')}</Button>
-        </>
-      ),
+      actions: () => [
+        { id: 'details', label: t('superAdmin.blocks.actions.viewDetails'), icon: <VisibilityIcon />, priority: 2 },
+        { id: 'assign', label: t('superAdmin.blocks.actions.assignAdmin'), icon: <AssignmentIndIcon />, priority: 1 },
+        { id: 'export', label: t('superAdmin.blocks.actions.exportBlockData'), icon: <FileDownloadIcon /> },
+      ],
     },
   ]
 

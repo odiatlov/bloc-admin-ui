@@ -5,7 +5,7 @@ import Drawer from '@mui/material/Drawer'
 import IconButton from '@mui/material/IconButton'
 import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
-import Tooltip from '@mui/material/Tooltip'
+import IconButtonTooltip from '../../../../../components/shared/IconButtonTooltip'
 import Typography from '@mui/material/Typography'
 import CloseIcon from '@mui/icons-material/Close'
 import { useTranslation } from 'react-i18next'
@@ -90,7 +90,7 @@ const MeterHistoryDrawer = ({ apartmentId, onClose }: { apartmentId: string, onC
           t('common.blockValue', { block: apartment.blockName }),
         ].filter(Boolean).join(' - ')}</Typography>}
       </Box>
-      <Tooltip title={t('common.close')}><IconButton aria-label={t('common.close')} onClick={onClose}><CloseIcon /></IconButton></Tooltip>
+      <IconButtonTooltip title={t('common.close')}><IconButton aria-label={t('common.close')} onClick={onClose}><CloseIcon /></IconButton></IconButtonTooltip>
     </Box>
     <Box sx={{ p: 2, flex: 1, overflowY: 'auto', minWidth: 0 }}>
       {loading ? <Box role="status" sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><CircularProgress size={24} />{t('consumption.loading')}</Box>

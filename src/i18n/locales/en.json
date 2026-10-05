@@ -74,6 +74,7 @@
   },
   "common": {
     "actions": "Actions",
+    "moreActions": "More actions",
     "all": "All",
     "blockValue": "Block {{block}}",
     "cancel": "Cancel",

@@ -7,14 +7,17 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
-import { EntityListItem, entityActionButtonSx, type EntityMetadataItem, metadataLabelSx } from './EntityPresentation'
+import { EntityListItem, type EntityMetadataItem, metadataLabelSx } from './EntityPresentation'
+import ActionButtons, { type ActionButtonDefinition } from './ActionButtons'
 
 export type DataColumn<T> = {
   key: string
   label: string
-  render: (row: T) => React.ReactNode
   cardRole?: CardRole
-}
+} & (
+  | { render: (row: T) => React.ReactNode; actions?: never }
+  | { actions: (row: T) => ActionButtonDefinition[]; render?: never }
+)
 
 type CardRole = 'primary' | 'secondary' | 'metadata' | 'status' | 'actions' | 'hidden'
 
@@ -38,6 +41,8 @@ const inferCardRole = (column: Pick<DataColumn<unknown>, 'cardRole' | 'key'>, in
 
 const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900, emptyState, getRowId, renderCardCornerActions, rows }: ResponsiveDataViewProps<T>) => {
   if (rows.length === 0 && emptyState) return <>{emptyState}</>
+  const actionColumns = columns.filter((column) => column.actions)
+  const firstActionColumn = actionColumns[0]
 
   return (
     <Box
@@ -74,7 +79,7 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
             {columns.map((column, index) => (
               <col
                 key={column.key}
-                style={inferCardRole(column, index) === 'actions' ? { width: '180px' } : undefined}
+                style={inferCardRole(column, index) === 'actions' ? { width: '144px' } : undefined}
               />
             ))}
           </colgroup>
@@ -94,21 +99,22 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row) => (
-              <TableRow key={getRowId(row)} hover>
-                {columns.map((column, index) => {
-                  const role = inferCardRole(column, index)
-
+            {rows.map((row) => {
+              const actions = actionColumns.flatMap((column) => column.actions!(row))
+              return (
+                <TableRow key={getRowId(row)} hover>
+                {columns.map((column) => {
                   return (
                     <TableCell key={column.key}>
-                      {role === 'actions'
-                        ? <Box sx={entityActionButtonSx('table')}>{column.render(row)}</Box>
+                      {column.actions
+                        ? column === firstActionColumn && <ActionButtons actions={actions} variant="row" />
                         : column.render(row)}
                     </TableCell>
                   )
                 })}
-              </TableRow>
-            ))}
+                </TableRow>
+              )
+            })}
           </TableBody>
         </Table>
       </TableContainer>
@@ -126,14 +132,13 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
           let secondary: React.ReactNode = null
           let secondaryLabel = ''
           let status: React.ReactNode = null
-          let actions: React.ReactNode = null
+          const actions = actionColumns.flatMap((column) => column.actions!(row))
           const metadata: EntityMetadataItem[] = []
 
           columns.forEach((column, index) => {
-            const value = column.render(row)
             const role = inferCardRole(column, index)
-
-            if (role === 'hidden') return
+            if (role === 'hidden' || column.actions) return
+            const value = column.render(row)
             if (role === 'primary') {
               primary = value
             }
@@ -144,14 +149,13 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
             if (role === 'status') {
               status = status ? <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>{status}{value}</Box> : value
             }
-            if (role === 'actions') actions = actions ? <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>{actions}{value}</Box> : value
             if (role === 'metadata') metadata.push({ key: column.key, label: column.label, value })
           })
 
           return (
             <EntityListItem
               key={getRowId(row)}
-              actions={actions}
+              actions={actions.some((action) => action.visible !== false) ? <ActionButtons actions={actions} variant="card" /> : undefined}
               cornerActions={renderCardCornerActions?.(row)}
               metadata={metadata}
               secondary={secondary}

@@ -30,6 +30,8 @@ import AppDialog from '../../../../../components/shared/AppDialog'
 import ConfirmationDialog from '../../../../../components/shared/ConfirmationDialog'
 import EmptyState from '../../../../../components/shared/EmptyState'
 import { EntityListItem } from '../../../../../components/shared/EntityPresentation'
+import ActionButtons from '../../../../../components/shared/ActionButtons'
+import IconButtonTooltip from '../../../../../components/shared/IconButtonTooltip'
 import FilterBar from '../../../../../components/shared/FilterBar'
 import SearchField from '../../../../../components/shared/SearchField'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
@@ -393,22 +395,10 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
       key: 'actions',
       label: t('common.actions'),
       cardRole: 'actions',
-      render: (apartment) => (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-          <Button size="small" startIcon={<EditIcon />} onClick={() => openEditDialog(apartment)}>
-            {t('apartments.actions.edit')}
-          </Button>
-          <Button
-            color="error"
-            size="small"
-            startIcon={<DeleteIcon />}
-            onClick={() => setDeletingApartment(apartment)}
-            disabled={isDeletingApartment}
-          >
-            {t('apartments.actions.delete')}
-          </Button>
-        </Box>
-      ),
+      actions: (apartment) => [
+        { id: 'edit', label: t('apartments.actions.edit'), icon: <EditIcon />, onClick: () => openEditDialog(apartment), priority: 2 },
+        { id: 'delete', label: t('apartments.actions.delete'), icon: <DeleteIcon />, onClick: () => setDeletingApartment(apartment), disabled: isDeletingApartment, color: 'error', priority: 1 },
+      ],
     },
   ]
 
@@ -700,9 +690,11 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                           size="small"
                           value={zone.name}
                         />
+                        <IconButtonTooltip title={t('apartments.waterIndex.removeZone')}>
                         <IconButton aria-label={t('apartments.waterIndex.removeZone')} onClick={() => removeWaterZone(zone.id)}>
                           <DeleteIcon />
                         </IconButton>
+                        </IconButtonTooltip>
                       </Box>
                     ))}
                   </Box>
@@ -739,9 +731,9 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                       secondary={link.residentEmail || link.residentPhone || t('residents.resident.noEmail')}
                       status={<StatusChip status={link.residentStatus} label={translateResidentStatus(t, link.residentStatus)} />}
                       actions={(
-                        <Button size="small" startIcon={<PersonRemoveIcon />} onClick={() => { void removeResidentLink(link) }}>
-                          {t('residents.actions.unassign')}
-                        </Button>
+                        <ActionButtons variant="card" actions={[
+                          { id: 'unassign', label: t('residents.actions.unassign'), icon: <PersonRemoveIcon />, onClick: () => { void removeResidentLink(link) } },
+                        ]} />
                       )}
                     />
                   ))}

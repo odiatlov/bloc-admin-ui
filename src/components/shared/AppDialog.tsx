@@ -6,7 +6,7 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import IconButton from '@mui/material/IconButton'
-import Tooltip from '@mui/material/Tooltip'
+import IconButtonTooltip from './IconButtonTooltip'
 import CloseIcon from '@mui/icons-material/Close'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import type { SxProps, Theme } from '@mui/material/styles'
@@ -55,9 +55,9 @@ const AppDialog: React.FC<AppDialogProps> = ({
   <Dialog open={open} onClose={onCancel} fullWidth maxWidth={maxWidth}>
     <DialogTitle sx={showCloseButton ? { display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 1.5 } : undefined}>
       {showCloseButton ? <Box component="span" sx={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere' }}>{title}</Box> : title}
-      {showCloseButton && <Tooltip title={closeLabel ?? cancelLabel}>
+      {showCloseButton && <IconButtonTooltip title={closeLabel ?? cancelLabel}>
         <span><IconButton size="small" aria-label={closeLabel ?? cancelLabel} disabled={closeDisabled} onClick={onCancel}><CloseIcon /></IconButton></span>
-      </Tooltip>}
+      </IconButtonTooltip>}
     </DialogTitle>
     <DialogContent sx={dialogContentSx}>
       <Box sx={contentSx}>

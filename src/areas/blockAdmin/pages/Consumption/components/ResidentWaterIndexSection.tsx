@@ -4,6 +4,7 @@ import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
+import EditNoteIcon from '@mui/icons-material/EditNote'
 import { useTranslation } from 'react-i18next'
 import AppDatePicker from '../../../../../components/shared/AppDatePicker'
 import EmptyState from '../../../../../components/shared/EmptyState'
@@ -208,11 +209,9 @@ const ResidentWaterIndexSection: React.FC = () => {
       key: 'actions',
       label: t('common.actions'),
       cardRole: 'actions',
-      render: (row) => row.missingCount > 0 ? (
-        <Button size="small" variant="outlined" onClick={() => openSubmitDialog(row)}>
-          {t('consumption.actions.submitIndex')}
-        </Button>
-      ) : null,
+      actions: (row) => [
+        { id: 'submit', label: t('consumption.actions.submitIndex'), icon: <EditNoteIcon />, visible: row.missingCount > 0, onClick: () => openSubmitDialog(row), priority: 1, cardIcon: false },
+      ],
     },
   ]
 

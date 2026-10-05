@@ -1,5 +1,6 @@
 import type React from 'react'
-import { useState } from 'react'
+import { forwardRef, useState } from 'react'
+import IconButton, { type IconButtonProps } from '@mui/material/IconButton'
 import type { Dayjs } from 'dayjs'
 import dayjs from 'dayjs'
 import 'dayjs/locale/en'
@@ -9,6 +10,28 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { enUS, roRO } from '@mui/x-date-pickers/locales'
 import { useTranslation } from 'react-i18next'
+import IconButtonTooltip from './IconButtonTooltip'
+
+type PickerIconButtonProps = IconButtonProps & {
+  ownerState?: { isButtonHidden?: boolean; view?: string }
+}
+
+const PickerIconButton = forwardRef<HTMLButtonElement, PickerIconButtonProps>(
+  function PickerIconButton({ ownerState, title, sx, ...props }, ref) {
+    const label = props['aria-label'] ?? title
+    const button = <IconButton {...props} ref={ref} sx={[
+      {
+        visibility: ownerState?.isButtonHidden ? 'hidden' : undefined,
+        ...(ownerState?.view ? {
+          mr: 'auto',
+          '& .MuiPickersCalendarHeader-switchViewIcon': { transform: ownerState.view === 'year' ? 'rotate(180deg)' : 'rotate(0deg)' },
+        } : {}),
+      },
+      ...(Array.isArray(sx) ? sx : sx ? [sx] : []),
+    ]} />
+    return label && !ownerState?.isButtonHidden ? <IconButtonTooltip title={label}>{button}</IconButtonTooltip> : button
+  },
+)
 
 type AppDatePickerProps = {
   label: string
@@ -40,6 +63,12 @@ const AppDatePicker: React.FC<AppDatePickerProps> = ({ label, onChange, value, m
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={adapterLocale}
       localeText={(adapterLocale === 'ro' ? roRO : enUS).components.MuiLocalizationProvider.defaultProps.localeText}>
       <DatePicker
+        slots={{
+          openPickerButton: PickerIconButton,
+          previousIconButton: PickerIconButton,
+          nextIconButton: PickerIconButton,
+          switchViewButton: PickerIconButton,
+        }}
         label={label}
         disabled={disabled}
         shouldDisableMonth={availableMonths ? (date) => !availableMonths.includes(date.format('YYYY-MM')) : undefined}

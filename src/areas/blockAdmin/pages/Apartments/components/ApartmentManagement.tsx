@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next'
 import AppDialog from '../../../../../components/shared/AppDialog'
 import EmptyState from '../../../../../components/shared/EmptyState'
 import { EntityListItem } from '../../../../../components/shared/EntityPresentation'
+import ActionButtons from '../../../../../components/shared/ActionButtons'
 import FilterBar from '../../../../../components/shared/FilterBar'
 import ResponsiveDataView, { type DataColumn } from '../../../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../../../components/shared/StatusChip'
@@ -223,11 +224,9 @@ const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ hideScopeFilt
       key: 'actions',
       label: t('common.actions'),
       cardRole: 'actions',
-      render: (apartment) => (
-        <Button size="small" startIcon={<EditIcon />} onClick={() => openEditDrawer(apartment.id)}>
-          {t('apartments.actions.edit')}
-        </Button>
-      ),
+      actions: (apartment) => [
+        { id: 'edit', label: t('apartments.actions.edit'), icon: <EditIcon />, onClick: () => openEditDrawer(apartment.id), priority: 1 },
+      ],
     },
   ]
 
@@ -455,9 +454,9 @@ const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ hideScopeFilt
                     secondary={resident.email || t('residents.resident.noEmail')}
                     status={<StatusChip status={resident.accountStatus} label={translateResidentAccountStatus(t, resident.accountStatus)} />}
                     actions={(
-                      <Button size="small" startIcon={<PersonRemoveIcon />} onClick={() => handleUnassignResident(resident.id)}>
-                        {t('residents.actions.unassign')}
-                      </Button>
+                      <ActionButtons variant="card" actions={[
+                        { id: 'unassign', label: t('residents.actions.unassign'), icon: <PersonRemoveIcon />, onClick: () => handleUnassignResident(resident.id) },
+                      ]} />
                     )}
                   />
                 ))}

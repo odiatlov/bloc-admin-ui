@@ -45,14 +45,10 @@ const ResidentBills: React.FC = () => {
     {
       key: 'actions',
       label: t('common.actions'),
-      render: (invoice) => (
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          <Button size="small" startIcon={<VisibilityIcon />} onClick={() => setInvoiceId(invoice.id)}>
-            {t('resident.bills.viewDetails')}
-          </Button>
-          <Button size="small" startIcon={<FileDownloadIcon />}>{t('resident.bills.download')}</Button>
-        </Box>
-      ),
+      actions: (invoice) => [
+        { id: 'details', label: t('resident.bills.viewDetails'), icon: <VisibilityIcon />, onClick: () => setInvoiceId(invoice.id), priority: 2 },
+        { id: 'download', label: t('resident.bills.download'), icon: <FileDownloadIcon />, priority: 1 },
+      ],
     },
   ]
 

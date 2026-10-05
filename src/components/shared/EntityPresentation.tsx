@@ -2,7 +2,6 @@ import React from 'react'
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
-import type { SxProps, Theme } from '@mui/material/styles'
 
 /* eslint-disable react-refresh/only-export-components */
 
@@ -85,82 +84,6 @@ type EntityListItemProps = {
   titleLabel?: string
 }
 
-type EntityActionGroupProps = {
-  children: React.ReactNode
-}
-
-export const entityActionButtonSx = (density: 'card' | 'table' = 'card'): SxProps<Theme> => (theme) => {
-  const isTable = density === 'table'
-
-  return {
-    display: isTable ? 'flex' : 'grid',
-    gap: isTable ? 0.75 : 1,
-    gridTemplateColumns: isTable ? undefined : 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))',
-    maxWidth: '100%',
-    minWidth: 0,
-    width: isTable ? 'max-content' : '100%',
-    '& .MuiButton-root': {
-      justifyContent: 'center',
-      minHeight: isTable ? 30 : 40,
-      minWidth: 0,
-      px: isTable ? 1.25 : undefined,
-      py: isTable ? 0.35 : undefined,
-      width: isTable ? 'auto' : '100%',
-      whiteSpace: 'nowrap',
-    },
-    '& .MuiButton-sizeSmall': {
-      fontSize: isTable ? '0.8125rem' : undefined,
-      lineHeight: isTable ? 1.35 : undefined,
-    },
-    '& .MuiButton-startIcon': {
-      mr: isTable ? 0.5 : undefined,
-      '& > *:nth-of-type(1)': {
-        fontSize: isTable ? 16 : undefined,
-      },
-    },
-    '& > .MuiBox-root': {
-      display: isTable ? 'flex' : 'grid',
-      gap: isTable ? 0.75 : 1,
-      gridTemplateColumns: isTable ? undefined : 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))',
-      width: isTable ? 'max-content' : '100%',
-    },
-    '& .MuiButton-text': {
-      boxShadow: 1,
-      border: 1,
-      px: isTable ? 1.25 : 1.5,
-    },
-    '& .MuiButton-text.MuiButton-colorPrimary': {
-      borderColor: theme.palette.mode === 'dark' ? '#6366F1' : '#4F46E5',
-      bgcolor: theme.palette.mode === 'dark' ? '#6366F1' : '#4F46E5',
-      color: 'primary.contrastText',
-      '&:hover': {
-        bgcolor: theme.palette.mode === 'dark' ? '#4F46E5' : '#4338CA',
-      },
-    },
-    '& .MuiButton-text.MuiButton-colorError, & .MuiButton-outlined.MuiButton-colorError': {
-      borderColor: 'error.main',
-      bgcolor: 'transparent',
-      color: 'error.main',
-      '&:hover': {
-        bgcolor: 'transparent',
-      },
-    },
-    '& .MuiButton-text.Mui-disabled': {
-      boxShadow: 'none',
-      borderColor: 'action.disabledBackground',
-      bgcolor: 'action.disabledBackground',
-    },
-  }
-}
-
-export const EntityActionGroup: React.FC<EntityActionGroupProps> = ({ children }) => (
-  <Box
-    sx={entityActionButtonSx()}
-  >
-    {children}
-  </Box>
-)
-
 type EntityCardFooterProps = {
   children: React.ReactNode
 }
@@ -177,7 +100,7 @@ export const EntityCardFooter: React.FC<EntityCardFooterProps> = ({ children }) 
       width: '100%',
     }}
   >
-    <EntityActionGroup>{children}</EntityActionGroup>
+    {children}
   </Box>
 )
 
@@ -195,15 +118,15 @@ export const EntityListItem: React.FC<EntityListItemProps> = ({ actions, cornerA
     }}
   >
     <Box sx={{ display: 'grid', gap: 1, minWidth: 0, maxWidth: '100%', overflow: 'hidden', p: 1.5 }}>
-      <Box sx={{ alignItems: 'start', display: 'grid', gap: 1, gridTemplateColumns: 'minmax(0, 1fr) auto', minWidth: 0, maxWidth: '100%' }}>
+      <Box sx={{ alignItems: 'start', display: 'grid', gap: 1, gridTemplateColumns: { xs: 'minmax(0, 1fr)', sm: 'minmax(0, 1fr) auto' }, minWidth: 0, maxWidth: '100%' }}>
         <Box sx={{ minWidth: 0 }}>
           {titleLabel && <MetadataLabel>{titleLabel}</MetadataLabel>}
-          <Typography variant="body1" sx={{ minWidth: 0, fontWeight: 700, lineHeight: 1.35, overflowWrap: 'anywhere' }}>
+          <Typography variant="h6" component="div" sx={{ minWidth: 0, fontWeight: 700, lineHeight: 1.35, overflowWrap: 'anywhere' }}>
             {title}
           </Typography>
         </Box>
         {(status || cornerActions) && (
-          <Box sx={{ alignItems: 'center', display: 'flex', gap: 0.75, justifyContent: 'end', minWidth: 0 }}>
+          <Box sx={{ alignItems: 'center', display: 'flex', flexWrap: 'wrap', gap: 0.75, justifyContent: { xs: 'start', sm: 'end' }, minWidth: 0 }}>
             {status && (
               <Box sx={{ minWidth: 0 }}>
                 {statusLabel && <MetadataLabel>{statusLabel}</MetadataLabel>}

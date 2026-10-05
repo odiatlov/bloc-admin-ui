@@ -3,20 +3,13 @@ import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
-import Divider from '@mui/material/Divider'
-import IconButton from '@mui/material/IconButton'
-import Menu from '@mui/material/Menu'
-import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Snackbar from '@mui/material/Snackbar'
-import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import AddIcon from '@mui/icons-material/Add'
 import ApartmentIcon from '@mui/icons-material/Apartment'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
-import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import ConfirmationDialog from '../../../../components/shared/ConfirmationDialog'
 import EmptyState from '../../../../components/shared/EmptyState'
@@ -35,85 +28,6 @@ import BlockSetupWizard from './BlockSetupWizard'
 import type { BlockSetupRequest } from '../../../../types/block'
 
 const tableEmptyValue = '-'
-
-type BlockActionsProps = {
-  block: BlockOverview
-  disabled: boolean
-  onDelete: (block: BlockOverview) => void
-  onEdit: (block: BlockOverview) => void
-}
-
-const BlockActions: React.FC<BlockActionsProps> = ({
-  block,
-  disabled,
-  onDelete,
-  onEdit,
-}) => {
-  const { t } = useTranslation()
-  const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null)
-  const menuOpen = Boolean(anchorEl)
-  const label = block.name ? t('common.blockValue', { block: block.name }) : block.displayName
-
-  const closeMenu = () => setAnchorEl(null)
-
-  return (
-    <Box>
-      <Box sx={{ alignItems: 'center', display: 'flex', gap: 0.75, minWidth: 0, width: '100%' }}>
-        <Button
-          size="small"
-          startIcon={<ApartmentIcon />}
-          component={RouterLink}
-          to={`/admin/blocks/${block.id}/Overview`}
-          disabled={disabled}
-          sx={{ flex: 1, minWidth: 0 }}
-        >
-          {t('blocks.actions.openOverview')}
-        </Button>
-      <Tooltip title={t('blocks.actions.moreActions', { block: label })}>
-        <Box component="span" sx={{ flexShrink: 0 }}>
-          <IconButton
-            aria-controls={menuOpen ? `block-actions-${block.id}` : undefined}
-            aria-haspopup="menu"
-            aria-label={t('blocks.actions.moreActions', { block: label })}
-            disabled={disabled}
-            onClick={(event) => setAnchorEl(event.currentTarget)}
-            size="small"
-          >
-            <MoreVertIcon fontSize="small" />
-          </IconButton>
-        </Box>
-      </Tooltip>
-      </Box>
-      <Menu
-        anchorEl={anchorEl}
-        id={`block-actions-${block.id}`}
-        onClose={closeMenu}
-        open={menuOpen}
-      >
-        <MenuItem
-          onClick={() => {
-            closeMenu()
-            onEdit(block)
-          }}
-        >
-          <EditIcon fontSize="small" sx={{ mr: 1 }} />
-          {t('settings.actions.editBlock')}
-        </MenuItem>
-        <Divider />
-        <MenuItem
-          onClick={() => {
-            closeMenu()
-            onDelete(block)
-          }}
-          sx={{ color: 'error.main' }}
-        >
-          <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
-          {t('settings.actions.deleteBlock')}
-        </MenuItem>
-      </Menu>
-    </Box>
-  )
-}
 
 const Blocks: React.FC = () => {
   const { t } = useTranslation()
@@ -254,14 +168,11 @@ const Blocks: React.FC = () => {
     {
       key: 'actions',
       label: t('common.actions'),
-      render: (block) => (
-        <BlockActions
-          block={block}
-          disabled={isMutating}
-          onDelete={setDeleteTarget}
-          onEdit={openEditDialog}
-        />
-      ),
+      actions: (block) => [
+        { id: 'overview', label: t('blocks.actions.openOverview'), icon: <ApartmentIcon />, to: `/admin/blocks/${block.id}/Overview`, disabled: isMutating, priority: 2 },
+        { id: 'edit', label: t('settings.actions.editBlock'), icon: <EditIcon />, onClick: () => openEditDialog(block), disabled: isMutating, priority: 1 },
+        { id: 'delete', label: t('settings.actions.deleteBlock'), icon: <DeleteIcon />, onClick: () => setDeleteTarget(block), disabled: isMutating, color: 'error' },
+      ],
     },
   ]
 
