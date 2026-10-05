@@ -6,6 +6,7 @@ import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
 import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
+import IconButtonTooltip from '../../shared/IconButtonTooltip'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import MenuIcon from '@mui/icons-material/Menu'
@@ -79,6 +80,7 @@ const Topbar: React.FC<Props> = ({
     >
       <Toolbar sx={{ gap: { xs: 1, sm: 2 }, minWidth: 0, maxWidth: '100%', overflow: 'hidden' }}>
         {isMobile && (
+          <IconButtonTooltip title={t('layout.topbar.openSidebar')}>
           <IconButton
             color="inherit"
             edge="start"
@@ -88,6 +90,7 @@ const Topbar: React.FC<Props> = ({
           >
             <MenuIcon />
           </IconButton>
+          </IconButtonTooltip>
         )}
 
         <FormControl variant="standard" sx={{ minWidth: 0, width: { xs: 120, sm: 160 }, flexShrink: 1 }}>
@@ -102,9 +105,11 @@ const Topbar: React.FC<Props> = ({
 
         <Box sx={{ flexGrow: 1 }} />
         
+        <IconButtonTooltip title={t('layout.topbar.toggleTheme')}>
         <IconButton color="inherit" onClick={toggleTheme} aria-label={t('layout.topbar.toggleTheme')}>
           {themeMode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
         </IconButton>
+        </IconButtonTooltip>
 
           <FormControl variant="standard" sx={{ minWidth: 0, width: 72, flexShrink: 0 }}>
             <Select value={language} onChange={handleLanguageChange} inputProps={{ 'aria-label': 'language-select' }}>

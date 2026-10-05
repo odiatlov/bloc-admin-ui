@@ -1,6 +1,5 @@
 import React from 'react'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import Chip from '@mui/material/Chip'
@@ -66,11 +65,9 @@ const FinanceSections: React.FC = () => {
       key: 'actions',
       label: t('common.actions'),
       cardRole: 'actions',
-      render: (invoice) => (
-        <Button size="small" startIcon={<PointOfSaleIcon />} disabled={invoice.status === 'paid'} onClick={() => setDialogInvoiceId(invoice.id)}>
-          {t('finance.actions.registerCash')}
-        </Button>
-      ),
+      actions: (invoice) => [
+        { id: 'register-cash', label: t('finance.actions.registerCash'), icon: <PointOfSaleIcon />, disabled: invoice.status === 'paid', onClick: () => setDialogInvoiceId(invoice.id), priority: 1 },
+      ],
     },
   ]
 
@@ -102,16 +99,10 @@ const FinanceSections: React.FC = () => {
       key: 'actions',
       label: t('common.actions'),
       cardRole: 'actions',
-      render: (entry) => (
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          <Button size="small" startIcon={<CheckCircleIcon />} disabled={entry.status !== 'unverified'} onClick={() => setCashStatus(entry.id, 'verified')}>
-            {t('finance.actions.verify')}
-          </Button>
-          <Button size="small" startIcon={<AccountBalanceIcon />} disabled={entry.status !== 'verified'} onClick={() => setCashStatus(entry.id, 'deposited')}>
-            {t('finance.actions.deposit')}
-          </Button>
-        </Box>
-      ),
+      actions: (entry) => [
+        { id: 'verify', label: t('finance.actions.verify'), icon: <CheckCircleIcon />, disabled: entry.status !== 'unverified', onClick: () => setCashStatus(entry.id, 'verified'), priority: 2 },
+        { id: 'deposit', label: t('finance.actions.deposit'), icon: <AccountBalanceIcon />, disabled: entry.status !== 'verified', onClick: () => setCashStatus(entry.id, 'deposited'), priority: 1 },
+      ],
     },
   ]
 

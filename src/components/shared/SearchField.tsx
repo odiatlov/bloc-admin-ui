@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
-import Tooltip from '@mui/material/Tooltip'
+import IconButtonTooltip from './IconButtonTooltip'
 import FormControl from '@mui/material/FormControl'
 import OutlinedInput, { type OutlinedInputProps } from '@mui/material/OutlinedInput'
 import SearchIcon from '@mui/icons-material/Search'
@@ -34,7 +34,7 @@ const SearchField = ({ label, onClear, sx, fullWidth, size, disabled, ...props }
       )}
       endAdornment={(
         <InputAdornment position="end" sx={{ visibility: props.value ? 'visible' : 'hidden' }}>
-          <Tooltip title={clearLabel}>
+          <IconButtonTooltip title={clearLabel}>
             <IconButton
               aria-label={clearLabel}
               disabled={disabled}
@@ -47,7 +47,7 @@ const SearchField = ({ label, onClear, sx, fullWidth, size, disabled, ...props }
             >
               <CloseIcon fontSize="small" />
             </IconButton>
-          </Tooltip>
+          </IconButtonTooltip>
         </InputAdornment>
       )}
     />

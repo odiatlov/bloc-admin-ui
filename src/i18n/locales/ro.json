@@ -74,6 +74,7 @@
             },
     "common":  {
                    "actions":  "Acțiuni",
+                   "moreActions":  "Mai multe acțiuni",
                    "all":  "Toate",
                    "blockValue":  "Bloc {{block}}",
                    "cancel":  "Anulează",
@@ -82,6 +83,7 @@
                    "at":  "la",
                    "notAvailable":  "indisponibil",
                    "refresh":  "Reîmprospătează",
+                   "retry":  "Reîncearcă",
                    "save":  "Salvează",
                    "today":  "Astăzi"
                },

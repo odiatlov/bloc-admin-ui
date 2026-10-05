@@ -17,6 +17,7 @@ import Snackbar from '@mui/material/Snackbar'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import AddIcon from '@mui/icons-material/Add'
+import SaveIcon from '@mui/icons-material/Save'
 import { useTranslation } from 'react-i18next'
 import AppDatePicker from '../../../../../components/shared/AppDatePicker'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
@@ -42,8 +43,6 @@ import {
 
 type SettingsSectionsProps = {
   mode: 'admin' | 'resident'
-  adminSaveSignal?: number
-  onAdminSaveStateChange?: (state: { canSave: boolean; isSaving: boolean }) => void
   residentSaveSignal?: number
   onResidentSaveStateChange?: (state: { canSave: boolean; isSaving: boolean }) => void
 }
@@ -60,8 +59,6 @@ const resolveRecurringDeadlineDay = (dateValue: string) => {
 
 const SettingsSections: React.FC<SettingsSectionsProps> = ({
   mode,
-  adminSaveSignal = 0,
-  onAdminSaveStateChange,
   residentSaveSignal = 0,
   onResidentSaveStateChange,
 }) => {
@@ -180,19 +177,6 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
       isSaving: isResidentProfileSaving,
     })
   }, [canSaveResidentProfile, isResidentProfileSaving, onResidentSaveStateChange])
-
-  React.useEffect(() => {
-    onAdminSaveStateChange?.({
-      canSave: Boolean(selectedDatabaseBlock && adminSettingsDirty && !waterIndexSettingsLoading && !waterIndexSettingsSaving),
-      isSaving: waterIndexSettingsSaving,
-    })
-  }, [
-    adminSettingsDirty,
-    onAdminSaveStateChange,
-    selectedDatabaseBlock,
-    waterIndexSettingsLoading,
-    waterIndexSettingsSaving,
-  ])
 
   React.useEffect(() => {
     if (!selectedDatabaseBlock) {
@@ -336,14 +320,6 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
     void saveResidentProfile()
   }, [mode, residentSaveSignal, saveResidentProfile])
 
-  const lastAdminSaveSignal = React.useRef(adminSaveSignal)
-  React.useEffect(() => {
-    if (mode !== 'admin' || adminSaveSignal === lastAdminSaveSignal.current) return
-
-    lastAdminSaveSignal.current = adminSaveSignal
-    void saveAdminSettings()
-  }, [adminSaveSignal, mode, saveAdminSettings])
-
   if (mode === 'resident') {
     return (
       <Box
@@ -429,7 +405,7 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
             alignItems: 'center',
             display: 'grid',
             gap: 2,
-            gridTemplateColumns: '1fr',
+            gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1fr) auto' },
           }}
         >
           <Box
@@ -467,6 +443,15 @@ const SettingsSections: React.FC<SettingsSectionsProps> = ({
               </Select>
             </FormControl>
           </Box>
+          <Button
+            disabled={!selectedDatabaseBlock || !adminSettingsDirty || waterIndexSettingsLoading || waterIndexSettingsSaving}
+            onClick={() => void saveAdminSettings()}
+            startIcon={<SaveIcon />}
+            variant="contained"
+            sx={{ width: { xs: '100%', md: 'auto' }, minWidth: { md: 160 } }}
+          >
+            {waterIndexSettingsSaving ? t('settings.resident.profileSaving') : t('common.save')}
+          </Button>
         </Box>
       </Paper>
 

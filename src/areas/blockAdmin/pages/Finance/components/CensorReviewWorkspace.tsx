@@ -57,16 +57,10 @@ const CensorReviewWorkspace: React.FC = () => {
       key: 'actions',
       label: t('common.actions'),
       cardRole: 'actions',
-      render: ({ invoice, review }) => (
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          <Button size="small" startIcon={<VisibilityIcon />} onClick={() => setInvoiceId(invoice.id)}>
-            {t('resident.bills.viewDetails')}
-          </Button>
-          <Button size="small" startIcon={<RateReviewIcon />} onClick={() => openDecision(review)}>
-            {t('censor.actions.review')}
-          </Button>
-        </Box>
-      ),
+      actions: ({ invoice, review }) => [
+        { id: 'details', label: t('resident.bills.viewDetails'), icon: <VisibilityIcon />, onClick: () => setInvoiceId(invoice.id), priority: 2 },
+        { id: 'review', label: t('censor.actions.review'), icon: <RateReviewIcon />, onClick: () => openDecision(review), priority: 1 },
+      ],
     },
   ]
 
@@ -80,11 +74,9 @@ const CensorReviewWorkspace: React.FC = () => {
       key: 'actions',
       label: t('common.actions'),
       cardRole: 'actions',
-      render: ({ review }) => (
-        <Button size="small" startIcon={<RateReviewIcon />} onClick={() => openDecision(review)}>
-          {t('censor.actions.review')}
-        </Button>
-      ),
+      actions: ({ review }) => [
+        { id: 'review', label: t('censor.actions.review'), icon: <RateReviewIcon />, onClick: () => openDecision(review), priority: 1 },
+      ],
     },
   ]
 
@@ -98,11 +90,9 @@ const CensorReviewWorkspace: React.FC = () => {
       key: 'actions',
       label: t('common.actions'),
       cardRole: 'actions',
-      render: ({ review }) => (
-        <Button size="small" startIcon={<RateReviewIcon />} onClick={() => openDecision(review)}>
-          {t('censor.actions.review')}
-        </Button>
-      ),
+      actions: ({ review }) => [
+        { id: 'review', label: t('censor.actions.review'), icon: <RateReviewIcon />, onClick: () => openDecision(review), priority: 1 },
+      ],
     },
   ]
 

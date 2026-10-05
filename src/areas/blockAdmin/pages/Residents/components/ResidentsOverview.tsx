@@ -22,6 +22,7 @@ import { useTranslation } from 'react-i18next'
 import AppDialog from '../../../../../components/shared/AppDialog'
 import EmptyState from '../../../../../components/shared/EmptyState'
 import { EntityListItem } from '../../../../../components/shared/EntityPresentation'
+import ActionButtons from '../../../../../components/shared/ActionButtons'
 import FilterBar from '../../../../../components/shared/FilterBar'
 import InvoiceBreakdownDrawer from '../../../../../components/shared/InvoiceBreakdownDrawer'
 import ResponsiveDataView, { type DataColumn } from '../../../../../components/shared/ResponsiveDataView'
@@ -107,11 +108,9 @@ const ResidentsOverview: React.FC = () => {
       key: 'actions',
       label: t('common.actions'),
       cardRole: 'actions',
-      render: (invoice) => (
-        <Button size="small" startIcon={<VisibilityIcon />} onClick={() => setSelectedInvoiceId(invoice.id)}>
-          {t('resident.bills.viewDetails')}
-        </Button>
-      ),
+      actions: (invoice) => [
+        { id: 'details', label: t('resident.bills.viewDetails'), icon: <VisibilityIcon />, onClick: () => setSelectedInvoiceId(invoice.id), priority: 1 },
+      ],
     },
   ]
 
@@ -232,9 +231,9 @@ const ResidentsOverview: React.FC = () => {
                   status={<StatusChip status={apartment.financialStatus} label={t(`status.financial.${apartment.financialStatus}`)} />}
                   metadata={[{ key: 'debtBalance', label: t('finance.columns.amount'), value: formatCurrency(apartment.debtBalance) }]}
                   actions={(
-                    <Button size="small" startIcon={<VisibilityIcon />} onClick={() => setSelectedApartmentId(apartment.id)}>
-                      {t('residents.actions.openDetails')}
-                    </Button>
+                    <ActionButtons variant="card" actions={[
+                      { id: 'details', label: t('residents.actions.openDetails'), icon: <VisibilityIcon />, onClick: () => setSelectedApartmentId(apartment.id) },
+                    ]} />
                   )}
                 />
               ))}
@@ -273,9 +272,9 @@ const ResidentsOverview: React.FC = () => {
                     secondary={resident.email || t('residents.resident.noEmail')}
                     status={<StatusChip status={resident.accountStatus} label={translateResidentAccountStatus(t, resident.accountStatus)} />}
                     actions={(
-                      <Button size="small" startIcon={<PersonRemoveIcon />} onClick={() => unassignResidentFromApartment(resident.id, selectedApartment.id)}>
-                        {t('residents.actions.unassign')}
-                      </Button>
+                      <ActionButtons variant="card" actions={[
+                        { id: 'unassign', label: t('residents.actions.unassign'), icon: <PersonRemoveIcon />, onClick: () => unassignResidentFromApartment(resident.id, selectedApartment.id) },
+                      ]} />
                     )}
                   />
                 ))}

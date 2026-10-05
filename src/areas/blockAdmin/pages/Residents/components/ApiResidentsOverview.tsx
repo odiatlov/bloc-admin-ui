@@ -303,22 +303,10 @@ const ApiResidentsOverview: React.FC = () => {
       key: 'actions',
       label: t('common.actions'),
       cardRole: 'actions',
-      render: (resident) => (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-          <Button size="small" startIcon={<EditIcon />} onClick={() => openEditDialog(resident)}>
-            {t('residents.actions.editResident')}
-          </Button>
-          <Button
-            color="error"
-            size="small"
-            startIcon={<DeleteIcon />}
-            onClick={() => setDeletingResident(resident)}
-            disabled={isDeletingResident}
-          >
-            {t('residents.actions.deleteResident')}
-          </Button>
-        </Box>
-      ),
+      actions: (resident) => [
+        { id: 'edit', label: t('residents.actions.editResident'), icon: <EditIcon />, onClick: () => openEditDialog(resident), priority: 2 },
+        { id: 'delete', label: t('residents.actions.deleteResident'), icon: <DeleteIcon />, onClick: () => setDeletingResident(resident), disabled: isDeletingResident, color: 'error', priority: 1 },
+      ],
     },
   ]
 

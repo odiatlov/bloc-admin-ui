@@ -1,7 +1,6 @@
 import React from 'react'
 import Box from '@mui/material/Box'
 import Alert from '@mui/material/Alert'
-import Tooltip from '@mui/material/Tooltip'
 import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -55,15 +54,21 @@ const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) 
   ].filter(Boolean).join(' - ')
   if (mode === 'admin') columns.push({
     key: 'reminder', label: t('consumption.reminder.column'), cardRole: 'actions',
-    render: (row) => {
-      if (row.status !== 'incomplete' || !row.canRemind) return null
+    actions: (row) => {
       const state = reminderStates[`${period}:${row.id}`]
       const sent = row.reminderSent || state === 'sent'
-      const title = t(sent ? 'consumption.reminder.sent' : state === 'sending' ? 'consumption.reminder.sending' : 'consumption.reminder.send')
-      return <Tooltip title={title}><span><Button size="small" startIcon={<NotificationsActiveOutlinedIcon />} aria-label={title} color="primary"
-        disabled={sent || state === 'sending'} onClick={() => { void sendReminder(row) }}>
-        {t('consumption.reminder.caption')}
-      </Button></span></Tooltip>
+      return [{
+        id: 'reminder',
+        label: t(sent ? 'consumption.reminder.sent' : state === 'sending' ? 'consumption.reminder.sending' : 'consumption.reminder.send'),
+        icon: <NotificationsActiveOutlinedIcon />,
+        visible: row.status === 'incomplete' && row.canRemind,
+        disabled: sent || state === 'sending',
+        loading: state === 'sending',
+        color: 'primary',
+        onClick: () => { void sendReminder(row) },
+        priority: 1,
+        cardLabel: t('consumption.reminder.caption'),
+      }]
     },
   })
   const incompleteApartments = rows.filter((row) => row.meters.some((meter) => meter.isActive && meter.current === null))

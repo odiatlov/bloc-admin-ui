@@ -11,6 +11,7 @@ import { lighten, useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTranslation } from 'react-i18next'
 import AppDialog from '../../../../components/shared/AppDialog'
+import IconButtonTooltip from '../../../../components/shared/IconButtonTooltip'
 import ConfirmationDialog from '../../../../components/shared/ConfirmationDialog'
 import type { BlockSetupRequest, CreateBlockRequest, SetupApartment } from '../../../../types/block'
 import BlockFields from './BlockFields'
@@ -132,7 +133,7 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
     </>}
     {!group && <Button variant="outlined" startIcon={<AutoAwesomeIcon />} onClick={batch} sx={{ gridColumn: { xs: '1 / -1', md: 'auto' }, minHeight: 40 }}>{w('generate')}</Button>}
   </Box>
-  const removeButton = (action: () => void) => <Tooltip title={w('remove')}><IconButton aria-label={w('remove')} onClick={action}><DeleteIcon /></IconButton></Tooltip>
+  const removeButton = (action: () => void) => <IconButtonTooltip title={w('remove')}><IconButton aria-label={w('remove')} onClick={action}><DeleteIcon /></IconButton></IconButtonTooltip>
   return <>
     <AppDialog open title={w(stage === -1 ? 'chooseTitle' : 'title')} maxWidth="md"
       onCancel={() => { if (!busy) ask(onClose) }} cancelLabel={t('common.cancel')}
@@ -194,14 +195,14 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
                   </Button>
                 </Box>
               </Tooltip>
-              {hasStaircases && <Tooltip title={w('copyGeneration')}>
+              {hasStaircases && <IconButtonTooltip title={w('copyGeneration')}>
                 <span style={{ position: 'absolute', right: 44, top: '50%', transform: 'translateY(-50%)' }}>
                   <IconButton size="small" aria-label={w('copyGeneration')} color="primary" disabled={busy || Boolean(retryRequest) || staircases.length < 2}
                     onClick={event => { event.stopPropagation(); copyGeneration(g) }}>
                     <ContentCopyIcon fontSize="small" />
                   </IconButton>
                 </span>
-              </Tooltip>}
+              </IconButtonTooltip>}
             </Box>
             <AccordionDetails sx={{ display: 'grid', gap: 2 }}>
               {batchControls(g)}
@@ -218,13 +219,13 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
                       <ApartmentIcon fontSize="small" color="action" />
                       <Typography variant="subtitle2" sx={{ overflowWrap: 'anywhere', minWidth: 0 }}>{label}</Typography>
                     </Box>
-                    <Tooltip title={w('removeApartment', { number: a.number.trim() || index + 1 })}>
+                    <IconButtonTooltip title={w('removeApartment', { number: a.number.trim() || index + 1 })}>
                       <IconButton size="small" color="error" aria-label={w('removeApartment', { number: a.number.trim() || index + 1 })}
                         disabled={busy || Boolean(retryRequest)}
                         onClick={() => updateGroup(g.id, value => ({ ...value, apartments: value.apartments.filter(item => item.id !== a.id) }))}>
                         <DeleteIcon fontSize="small" />
                       </IconButton>
-                    </Tooltip>
+                    </IconButtonTooltip>
                   </Box>
                   <Box sx={{ p: 1.5, display: 'grid', gap: 1.5, alignItems: 'start',
                     gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(4, minmax(0, 1fr))' },

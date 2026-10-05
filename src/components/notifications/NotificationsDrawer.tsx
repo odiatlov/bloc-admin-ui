@@ -6,6 +6,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 import Divider from '@mui/material/Divider'
 import Drawer from '@mui/material/Drawer'
 import IconButton from '@mui/material/IconButton'
+import IconButtonTooltip from '../shared/IconButtonTooltip'
 import List from '@mui/material/List'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
@@ -58,9 +59,11 @@ const NotificationsDrawer: React.FC<Props> = ({
           <Typography sx={{ flex: 1, fontWeight: 700 }} variant="h6">
             {t('notifications.title')}
           </Typography>
+          <IconButtonTooltip title={t('common.close')}>
           <IconButton aria-label={t('common.close')} onClick={onClose}>
             <CloseIcon />
           </IconButton>
+          </IconButtonTooltip>
         </Toolbar>
         <Divider />
         <Box sx={{ alignItems: 'center', display: 'flex', gap: 1, px: 2, py: 1.5 }}>

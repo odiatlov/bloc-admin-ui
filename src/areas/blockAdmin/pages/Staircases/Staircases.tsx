@@ -128,22 +128,10 @@ const Staircases: React.FC = () => {
       key: 'actions',
       label: t('common.actions'),
       cardRole: 'actions',
-      render: (staircase) => (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-          <Button size="small" startIcon={<EditIcon />} onClick={() => openEditDialog(staircase)}>
-            {t('staircases.actions.edit')}
-          </Button>
-          <Button
-            color="error"
-            size="small"
-            startIcon={<DeleteIcon />}
-            onClick={() => setDeletingStaircase(staircase)}
-            disabled={isDeletingStaircase}
-          >
-            {t('staircases.actions.delete')}
-          </Button>
-        </Box>
-      ),
+      actions: (staircase) => [
+        { id: 'edit', label: t('staircases.actions.edit'), icon: <EditIcon />, onClick: () => openEditDialog(staircase), priority: 2 },
+        { id: 'delete', label: t('staircases.actions.delete'), icon: <DeleteIcon />, onClick: () => setDeletingStaircase(staircase), disabled: isDeletingStaircase, color: 'error', priority: 1 },
+      ],
     },
   ]
 

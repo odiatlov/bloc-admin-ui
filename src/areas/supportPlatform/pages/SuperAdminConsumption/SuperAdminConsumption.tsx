@@ -1,6 +1,5 @@
 import { useContext, useState } from 'react'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
@@ -24,9 +23,9 @@ const ConsumptionView = () => {
   const [apartmentId, setApartmentId] = useState<string | null>(null)
   columns.push({
     key: 'meters', label: t('superAdmin.water.viewMeters'), cardRole: 'actions',
-    render: (row) => row.hasMeters ? <Button size="small" startIcon={<VisibilityIcon />} onClick={() => setApartmentId(row.id)}>
-      {t('superAdmin.water.viewMeters')}
-    </Button> : null,
+    actions: (row) => [
+      { id: 'meters', label: t('superAdmin.water.viewMeters'), icon: <VisibilityIcon />, visible: row.hasMeters, onClick: () => setApartmentId(row.id), priority: 1 },
+    ],
   })
   const disabled = water.loading || !!water.error
   return <Box sx={{ display: 'grid', gap: 2 }}>
