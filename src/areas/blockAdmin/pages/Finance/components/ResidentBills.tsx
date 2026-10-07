@@ -61,6 +61,7 @@ const ResidentBills: React.FC = () => {
       </ActionBar>
 
       <ResponsiveDataView
+        paginationId="ResidentBills-1"
         ariaLabel={t('sidebar.myBills')}
         columns={columns}
         emptyState={(

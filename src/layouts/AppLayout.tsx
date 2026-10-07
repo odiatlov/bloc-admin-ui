@@ -7,6 +7,8 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
 import Sidebar from '../components/layout/sidebar/Sidebar'
 import Topbar from '../components/layout/topbar/Topbar'
+import DataViewPaginationProvider from '../components/shared/DataViewPaginationProvider'
+import { RoleContext } from '../contexts/RoleContext'
 
 const drawerWidth = 240
 
@@ -18,6 +20,7 @@ type AppLayoutProps = {
 const AppLayout: React.FC<AppLayoutProps> = ({ toggleTheme, themeMode }) => {
   const theme = useTheme()
   const location = useLocation()
+  const { account, role } = React.useContext(RoleContext)
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const [mobileOpen, setMobileOpen] = React.useState(false)
   const mainRef = React.useRef<HTMLElement | null>(null)
@@ -62,7 +65,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ toggleTheme, themeMode }) => {
         }}
       >
         <Toolbar />
-        <Outlet />
+        <DataViewPaginationProvider key={`${location.pathname}:${account.id}:${role}`}>
+          <Outlet />
+        </DataViewPaginationProvider>
       </Box>
     </Box>
   )

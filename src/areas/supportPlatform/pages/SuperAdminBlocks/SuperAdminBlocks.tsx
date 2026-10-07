@@ -10,7 +10,8 @@ import { useTranslation } from 'react-i18next'
 import EmptyState from '../../../../components/shared/EmptyState'
 import LoadErrorState from '../../../../components/shared/LoadErrorState'
 import PageHeader from '../../../../components/shared/PageHeader'
-import ResponsiveDataView, { type DataColumn } from '../../../../components/shared/ResponsiveDataView'
+import { type DataColumn } from '../../../../components/shared/ResponsiveDataView'
+import PagedResponsiveDataView from '../../../../components/shared/PagedResponsiveDataView'
 import { superAdminApi, type SuperAdminBlockResponse } from '../../../../services/superAdminApi'
 
 const tableEmptyValue = '-'
@@ -78,7 +79,8 @@ const SuperAdminBlocks: React.FC = () => {
           onAction={loadBlocks}
         />
       ) : (
-        <ResponsiveDataView
+        <PagedResponsiveDataView endpoint="/super-admin/blocks/page" query={{}}
+          paginationId="SuperAdminBlocks-1"
           ariaLabel={t('superAdmin.blocks.title')}
           columns={columns}
           desktopTableMinWidth={1200}

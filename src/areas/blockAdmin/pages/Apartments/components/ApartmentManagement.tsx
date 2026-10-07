@@ -280,6 +280,8 @@ const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ hideScopeFilt
       )}
 
       <ResponsiveDataView
+        paginationId="ApartmentManagement-1"
+        paginationResetKey={JSON.stringify([selectedBlockId, selectedStaircaseId, setupStatusFilter])}
         ariaLabel={t('sidebar.apartments')}
         columns={apartmentColumns}
         desktopTableMinWidth={1120}

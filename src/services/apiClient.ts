@@ -42,7 +42,7 @@ const apiRequest = async <T>(path: string, init?: RequestInit): Promise<T> => {
   return payload.data
 }
 
-export const apiGet = <T>(path: string) => apiRequest<T>(path)
+export const apiGet = <T>(path: string, signal?: AbortSignal) => apiRequest<T>(path, { signal })
 
 export const apiPost = <TRequest, TResponse>(path: string, body: TRequest) =>
   apiRequest<TResponse>(path, {

@@ -12,7 +12,8 @@ import { useTranslation } from 'react-i18next'
 import AppDatePicker from '../../../../../components/shared/AppDatePicker'
 import EmptyState from '../../../../../components/shared/EmptyState'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
-import ResponsiveDataView, { type DataColumn } from '../../../../../components/shared/ResponsiveDataView'
+import { type DataColumn } from '../../../../../components/shared/ResponsiveDataView'
+import PagedResponsiveDataView from '../../../../../components/shared/PagedResponsiveDataView'
 import { formatNumber } from '../../../../../utils/formatters'
 import { superAdminWaterApi, type ApartmentMeterHistory, type IndexReading } from '../../../services/superAdminWaterApi'
 import { fitHistoryRange, readingPeriod, recordedMonths, registrationDate } from '../../../utils/meterHistory'
@@ -59,7 +60,7 @@ const HistoryContent = ({ history, onClose }: { history: ApartmentMeterHistory, 
       <MeterIndexChart readings={rows} />
       <Typography variant="subtitle1">{t('superAdmin.water.history')}</Typography>
       <Box sx={{ '& td': { overflowWrap: 'anywhere' } }}>
-        <ResponsiveDataView desktopTableMinWidth={560} rows={rows} columns={columns} getRowId={(reading) => reading.id} ariaLabel={t('superAdmin.water.history')} />
+        <PagedResponsiveDataView endpoint="/super-admin/water/readings/page" query={{ meterId: selection.meterId, fromPeriod: selection.from, toPeriod: selection.to }} paginationId="MeterHistoryDrawer-1" paginationResetKey={JSON.stringify([selection.meterId, selection.from, selection.to])} desktopTableMinWidth={560} rows={rows} columns={columns} getRowId={(reading) => reading.id} ariaLabel={t('superAdmin.water.history')} />
       </Box>
     </> : <EmptyState headline={t('superAdmin.water.noReadings')} helperText={t('superAdmin.water.noReadingsHelper')} actionLabel={t('common.close')} onAction={onClose} />}
   </Box>

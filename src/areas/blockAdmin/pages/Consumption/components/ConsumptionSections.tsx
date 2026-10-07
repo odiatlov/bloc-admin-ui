@@ -13,7 +13,7 @@ import { useConsumptionColumns } from '../../../../../components/water/useConsum
 import EmptyState from '../../../../../components/shared/EmptyState'
 import FilterBar from '../../../../../components/shared/FilterBar'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
-import ResponsiveDataView from '../../../../../components/shared/ResponsiveDataView'
+import PagedResponsiveDataView from '../../../../../components/shared/PagedResponsiveDataView'
 import { useWaterConsumptions } from '../../../../../hooks/useWaterConsumptions'
 import type { WaterConsumptionRow } from '../../../../../types/waterReadings'
 import ResidentWaterIndexSection from './ResidentWaterIndexSection'
@@ -89,7 +89,7 @@ const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) 
       : error ? <LoadErrorState helperText={t('consumption.errors.loadFailed')} onRetry={refresh} />
         : rows.length === 0 ? <EmptyState headline={t('consumption.report.empty')} helperText={t('consumption.report.emptyHelper')}
           actionLabel={t('common.retry')} onAction={refresh} />
-          : <ResponsiveDataView ariaLabel={t('consumption.sections.readings')} columns={columns} getRowId={(row) => row.id} rows={rows} />}
+          : <PagedResponsiveDataView endpoint="/water-consumptions/page" query={{ blockId: blockFilter === 'all' ? undefined : blockFilter, year: period === 'all' ? undefined : Number(period.slice(0, 4)), month: period === 'all' ? undefined : Number(period.slice(5)) }} paginationId="ConsumptionSections-1" paginationResetKey={JSON.stringify([blockFilter, period])} ariaLabel={t('consumption.sections.readings')} columns={columns} getRowId={(row) => row.id} rows={rows} />}
     {mode === 'admin' && open && <WaterReadingDialog
       title={t('consumption.dialog.adminTitle')} year={Number(period.split('-')[0])} month={Number(period.split('-')[1])}
       apartments={incompleteApartments.map((row) => ({ id: row.id, label: label(row),

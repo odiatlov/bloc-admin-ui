@@ -124,6 +124,7 @@ const CensorReviewWorkspace: React.FC = () => {
 
       {tab === 0 && (
         <ResponsiveDataView
+          paginationId="CensorReviewWorkspace-1"
           ariaLabel={t('censor.tabs.invoices')}
           columns={invoiceColumns}
           emptyState={(
@@ -140,6 +141,7 @@ const CensorReviewWorkspace: React.FC = () => {
       )}
       {tab === 1 && (
         <ResponsiveDataView
+          paginationId="CensorReviewWorkspace-2"
           ariaLabel={t('censor.tabs.maintenance')}
           columns={maintenanceColumns}
           emptyState={(
@@ -156,6 +158,7 @@ const CensorReviewWorkspace: React.FC = () => {
       )}
       {tab === 2 && (
         <ResponsiveDataView
+          paginationId="CensorReviewWorkspace-3"
           ariaLabel={t('censor.tabs.anomalies')}
           columns={anomalyColumns}
           emptyState={(
@@ -172,6 +175,7 @@ const CensorReviewWorkspace: React.FC = () => {
       )}
       {tab === 3 && (
         <ResponsiveDataView
+          paginationId="CensorReviewWorkspace-4"
           ariaLabel={t('censor.tabs.history')}
           columns={historyColumns}
           emptyState={(

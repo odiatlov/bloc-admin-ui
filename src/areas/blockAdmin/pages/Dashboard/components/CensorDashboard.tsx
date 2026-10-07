@@ -50,6 +50,7 @@ const CensorDashboard: React.FC = () => {
 
       <ContentCard title={t('censor.tabs.history')}>
         <ResponsiveDataView
+          paginationId="CensorDashboard-1"
           ariaLabel={t('censor.tabs.history')}
           columns={columns}
           emptyState={(

@@ -17,7 +17,8 @@ import EmptyState from '../../../../components/shared/EmptyState'
 import LoadErrorState from '../../../../components/shared/LoadErrorState'
 import PageHeader from '../../../../components/shared/PageHeader'
 import SearchField from '../../../../components/shared/SearchField'
-import ResponsiveDataView, { type DataColumn } from '../../../../components/shared/ResponsiveDataView'
+import { type DataColumn } from '../../../../components/shared/ResponsiveDataView'
+import PagedResponsiveDataView from '../../../../components/shared/PagedResponsiveDataView'
 import StatusChip from '../../../../components/shared/StatusChip'
 import {
   superAdminApi,
@@ -223,7 +224,12 @@ const ManageAdmins: React.FC = () => {
           onAction={clearFilters}
         />
       ) : (
-        <ResponsiveDataView
+        <PagedResponsiveDataView
+          endpoint="/super-admin/admin-accounts/page"
+          query={{ search: adminNameFilter, blockSearch: blockFilter }}
+          mapRow={(row: { account?: SuperAdminAdminAccountResponse; invitation?: SuperAdminInvitationResponse }) => row.account ? mapAdminAccount(row.account) : mapInvitation(row.invitation!)}
+          paginationId="ManageAdmins-1"
+          paginationResetKey={JSON.stringify([adminNameFilter, blockFilter])}
           ariaLabel={t('superAdmin.manageAdmins.title')}
           columns={columns}
           desktopTableMinWidth={1200}

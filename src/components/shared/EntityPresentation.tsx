@@ -108,7 +108,7 @@ export const EntityListItem: React.FC<EntityListItemProps> = ({ actions, cornerA
   <Paper
     variant="outlined"
     sx={{
-      bgcolor: actions ? 'action.hover' : 'background.paper',
+      bgcolor: (theme) => theme.palette.mode === 'dark' && actions ? 'action.hover' : 'background.paper',
       display: 'grid',
       gridTemplateColumns: '1fr',
       gap: 0,

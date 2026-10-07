@@ -17,7 +17,8 @@ import FilterBar from '../../../../components/shared/FilterBar'
 import LoadErrorState from '../../../../components/shared/LoadErrorState'
 import PageHeader from '../../../../components/shared/PageHeader'
 import SearchField from '../../../../components/shared/SearchField'
-import ResponsiveDataView, { type DataColumn } from '../../../../components/shared/ResponsiveDataView'
+import { type DataColumn } from '../../../../components/shared/ResponsiveDataView'
+import PagedResponsiveDataView from '../../../../components/shared/PagedResponsiveDataView'
 import { RoleContext } from '../../../../contexts/RoleContext'
 import { useBlocks } from '../../../../hooks/useBlocks'
 import { formatCurrency } from '../../../../hooks/useApartmentData'
@@ -227,7 +228,9 @@ const Blocks: React.FC = () => {
             helperText={t('blocks.empty.noSearchResultsHelper')}
           />
         ) : (
-          <ResponsiveDataView
+          <PagedResponsiveDataView endpoint="/blocks/overview/page" query={{ search }}
+            paginationId="Blocks-1"
+            paginationResetKey={search}
             ariaLabel={t('pages.blocks.title')}
             columns={columns}
             desktopTableMinWidth={1200}
