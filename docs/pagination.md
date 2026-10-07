@@ -9,6 +9,7 @@ Every `ResponsiveDataView` displays at most 10 records per page. Tables and resp
 - `DataViewPaginationProvider` sits above the route content, preserving independent list pages when loading temporarily unmounts a list.
 - Route, account, or role changes reset the provider. Language, theme, and width changes preserve the current page.
 - A shortened collection clamps the page to the last valid page before rendering.
+- The entire pagination footer is hidden when the filtered total is 10 records or fewer, using the API total for server-paged lists.
 - Wider containers show numbered navigation; narrower containers show previous/next controls and a page counter.
 
 ## API Boundary

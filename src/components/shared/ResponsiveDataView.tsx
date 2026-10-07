@@ -213,7 +213,7 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
           )
         })}
       </Box>
-      {rows.length > 0 && (
+      {rows.length > 0 && totalPages > 1 && (
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1, py: 1.5 }}>
           <Typography variant="body2" color="text.secondary" role="status" aria-atomic="true">
             {t('common.pagination.range', { from: (page - 1) * DATA_VIEW_PAGE_SIZE + 1, to: Math.min(page * DATA_VIEW_PAGE_SIZE, totalCount), total: totalCount })}
