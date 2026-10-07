@@ -131,6 +131,7 @@ const FinanceSections: React.FC = () => {
       {tab === 0 && (
         <Box sx={{ display: 'grid', gap: 1.5 }}>
           <ResponsiveDataView
+            paginationId="FinanceSections-1"
             ariaLabel={t('finance.tabs.invoices')}
             columns={invoiceColumns}
             emptyState={(
@@ -162,6 +163,8 @@ const FinanceSections: React.FC = () => {
             </Select>
           </FormControl>
           <ResponsiveDataView
+            paginationId="FinanceSections-2"
+            paginationResetKey={paymentMethodFilter}
             ariaLabel={t('finance.tabs.payments')}
             columns={paymentColumns}
             emptyState={(
@@ -180,6 +183,7 @@ const FinanceSections: React.FC = () => {
 
       {tab === 2 && (
         <ResponsiveDataView
+          paginationId="FinanceSections-3"
           ariaLabel={t('finance.tabs.cashRegister')}
           columns={cashColumns}
           emptyState={(

@@ -73,6 +73,19 @@
     "title": "Block Admin"
   },
   "common": {
+    "pagination": {
+      "loading": "Loading records...",
+      "empty": "No matching records",
+      "emptyHelper": "Adjust the filters to see available records.",
+      "navigation": "Pagination for {{list}}",
+      "range": "{{from}}–{{to}} of {{total}}",
+      "page": "Page {{page}} of {{total}}",
+      "goToPage": "Go to page {{page}}",
+      "previous": "Previous page",
+      "next": "Next page",
+      "first": "First page",
+      "last": "Last page"
+    },
     "actions": "Actions",
     "moreActions": "More actions",
     "all": "All",

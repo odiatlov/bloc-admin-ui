@@ -20,7 +20,8 @@ import FilterBar from '../../../../components/shared/FilterBar'
 import LoadErrorState from '../../../../components/shared/LoadErrorState'
 import PageHeader from '../../../../components/shared/PageHeader'
 import SearchField from '../../../../components/shared/SearchField'
-import ResponsiveDataView, { type DataColumn } from '../../../../components/shared/ResponsiveDataView'
+import { type DataColumn } from '../../../../components/shared/ResponsiveDataView'
+import PagedResponsiveDataView from '../../../../components/shared/PagedResponsiveDataView'
 import { useBlocks } from '../../../../hooks/useBlocks'
 import { staircasesApi } from '../../../../services/staircasesApi'
 import type { StaircaseResponse } from '../../../../types/management'
@@ -184,7 +185,9 @@ const Staircases: React.FC = () => {
             helperText={t('emptyState.helper.dedicated', { information: t('emptyState.information.staircases') })}
           />
         ) : (
-          <ResponsiveDataView
+          <PagedResponsiveDataView endpoint="/staircases/page" query={{ search, blockId: selectedBlockId === 'all' ? undefined : selectedBlockId }}
+            paginationId="Staircases-1"
+            paginationResetKey={JSON.stringify([selectedBlockId, search])}
             ariaLabel={t('pages.staircases.title')}
             columns={columns}
             desktopTableMinWidth={900}

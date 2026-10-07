@@ -11,7 +11,7 @@ import FilterBar from '../../../../components/shared/FilterBar'
 import AppDatePicker from '../../../../components/shared/AppDatePicker'
 import EmptyState from '../../../../components/shared/EmptyState'
 import LoadErrorState from '../../../../components/shared/LoadErrorState'
-import ResponsiveDataView from '../../../../components/shared/ResponsiveDataView'
+import PagedResponsiveDataView from '../../../../components/shared/PagedResponsiveDataView'
 import { useConsumptionColumns } from '../../../../components/water/useConsumptionColumns'
 import { useSuperAdminConsumption } from '../../hooks/useSuperAdminConsumption'
 import MeterHistoryDrawer from './components/MeterHistoryDrawer'
@@ -46,7 +46,7 @@ const ConsumptionView = () => {
     {water.loading ? <Box role="status" sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><CircularProgress size={24} />{t('consumption.loading')}</Box>
       : water.error ? <LoadErrorState helperText={t('consumption.errors.loadFailed')} onRetry={water.refresh} />
         : water.rows.length === 0 ? <EmptyState headline={t('consumption.report.empty')} helperText={t('consumption.report.emptyHelper')} actionLabel={t('common.retry')} onAction={water.refresh} />
-          : <ResponsiveDataView rows={water.rows} columns={columns} getRowId={(row) => row.id} ariaLabel={t('consumption.sections.readings')} />}
+          : <PagedResponsiveDataView endpoint="/water-consumptions/page" query={{ adminAccountId: water.admin === 'all' || water.admin === 'unassigned' ? undefined : water.admin, unassigned: water.admin === 'unassigned', blockId: water.block === 'all' ? undefined : water.block, year: Number(water.period.slice(0, 4)), month: Number(water.period.slice(5)) }} paginationId="SuperAdminConsumption-1" paginationResetKey={JSON.stringify([water.admin, water.block, water.period])} rows={water.rows} columns={columns} getRowId={(row) => row.id} ariaLabel={t('consumption.sections.readings')} />}
     {apartmentId && <MeterHistoryDrawer key={apartmentId} apartmentId={apartmentId} onClose={() => setApartmentId(null)} />}
   </Box>
 }

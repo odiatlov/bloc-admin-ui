@@ -23,6 +23,15 @@ const createThemeConfig = (mode: 'light' | 'dark' = 'dark') =>
       },
     },
     components: {
+      MuiPaper: {
+        styleOverrides: {
+          outlined: ({ theme }) => ({
+            ...(theme.palette.mode === 'light' && {
+              backgroundColor: theme.palette.background.default,
+            }),
+          }),
+        },
+      },
       MuiCssBaseline: {
         styleOverrides: (theme) => ({
           a: { color: 'inherit', textDecoration: 'none' },

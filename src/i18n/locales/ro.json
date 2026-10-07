@@ -73,6 +73,19 @@
                 "title":  "Bloc Admin"
             },
     "common":  {
+                   "pagination": {
+                       "loading": "Se încarcă înregistrările...",
+                       "empty": "Nicio înregistrare găsită",
+                       "emptyHelper": "Modificați filtrele pentru a vedea înregistrările disponibile.",
+                       "navigation": "Paginare pentru {{list}}",
+                       "range": "{{from}}–{{to}} din {{total}}",
+                       "page": "Pagina {{page}} din {{total}}",
+                       "goToPage": "Mergi la pagina {{page}}",
+                       "previous": "Pagina anterioară",
+                       "next": "Pagina următoare",
+                       "first": "Prima pagină",
+                       "last": "Ultima pagină"
+                   },
                    "actions":  "Acțiuni",
                    "moreActions":  "Mai multe acțiuni",
                    "all":  "Toate",

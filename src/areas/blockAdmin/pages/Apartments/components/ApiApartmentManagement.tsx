@@ -35,7 +35,8 @@ import IconButtonTooltip from '../../../../../components/shared/IconButtonToolti
 import FilterBar from '../../../../../components/shared/FilterBar'
 import SearchField from '../../../../../components/shared/SearchField'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
-import ResponsiveDataView, { type DataColumn } from '../../../../../components/shared/ResponsiveDataView'
+import { type DataColumn } from '../../../../../components/shared/ResponsiveDataView'
+import PagedResponsiveDataView from '../../../../../components/shared/PagedResponsiveDataView'
 import StatusChip from '../../../../../components/shared/StatusChip'
 import { translateApartmentSetupStatus, translateResidentStatus } from '../../../../../domain/displayLabels'
 import { useBlocks } from '../../../../../hooks/useBlocks'
@@ -513,7 +514,9 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
           onAction={openCreateDialog}
         />
       ) : (
-        <ResponsiveDataView
+        <PagedResponsiveDataView endpoint="/apartments/page" query={{ search, blockId: selectedBlockId === 'all' ? undefined : selectedBlockId, staircaseId: selectedStaircaseId === 'all' ? undefined : selectedStaircaseId, setupStatus: setupStatusFilter === 'all' ? undefined : setupStatusFilter, floor: showOverviewFilters && activeFloor !== 'all' && activeFloor !== 'unassigned' ? Number(activeFloor) : undefined, unassignedFloor: showOverviewFilters && activeFloor === 'unassigned' }}
+          paginationId="ApiApartmentManagement-1"
+          paginationResetKey={JSON.stringify([selectedBlockId, selectedStaircaseId, activeFloor, setupStatusFilter, search])}
           ariaLabel={t('sidebar.apartments')}
           columns={columns}
           desktopTableMinWidth={1120}

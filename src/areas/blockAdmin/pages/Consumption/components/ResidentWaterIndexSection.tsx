@@ -10,7 +10,8 @@ import AppDatePicker from '../../../../../components/shared/AppDatePicker'
 import EmptyState from '../../../../../components/shared/EmptyState'
 import FilterBar from '../../../../../components/shared/FilterBar'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
-import ResponsiveDataView, { type DataColumn } from '../../../../../components/shared/ResponsiveDataView'
+import { type DataColumn } from '../../../../../components/shared/ResponsiveDataView'
+import PagedResponsiveDataView from '../../../../../components/shared/PagedResponsiveDataView'
 import StatusChip from '../../../../../components/shared/StatusChip'
 import { formatNumber } from '../../../../../hooks/useApartmentData'
 import { useResidentWaterIndex } from '../../../../../hooks/useResidentWaterIndex'
@@ -260,7 +261,11 @@ const ResidentWaterIndexSection: React.FC = () => {
         </Box>
       </FilterBar>
 
-      <ResponsiveDataView
+      <PagedResponsiveDataView
+        endpoint="/water-readings/resident-summary/page"
+        query={{ year: new Date().getFullYear(), month: new Date().getMonth() + 1 }}
+        paginationId="ResidentWaterIndexSection-1"
+        paginationResetKey={JSON.stringify([year, month])}
         ariaLabel={t('consumption.sections.readings')}
         columns={columns}
         emptyState={(

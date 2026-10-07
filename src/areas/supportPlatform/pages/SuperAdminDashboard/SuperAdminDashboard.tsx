@@ -90,6 +90,7 @@ const SuperAdminDashboard: React.FC = () => {
         <Paper sx={{ p: 2 }}>
           <Typography variant="h6" sx={{ mb: 1.5 }}>{t('superAdmin.dashboard.activity.title')}</Typography>
           <ResponsiveDataView
+            paginationId="SuperAdminDashboard-1"
             ariaLabel={t('superAdmin.dashboard.activity.title')}
             columns={activityColumns}
             getRowId={(activity) => activity.id}

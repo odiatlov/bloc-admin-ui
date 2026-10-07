@@ -312,6 +312,8 @@ const ResidentsOverview: React.FC = () => {
             </Tabs>
             {detailTab === 0 && (
               <ResponsiveDataView
+                paginationId="ResidentsOverview-1"
+                paginationResetKey={selectedApartment?.id ?? ''}
                 ariaLabel={t('residents.detail.invoices')}
                 columns={invoiceColumns}
                 emptyState={(
@@ -328,6 +330,8 @@ const ResidentsOverview: React.FC = () => {
             )}
             {detailTab === 1 && (
               <ResponsiveDataView
+                paginationId="ResidentsOverview-2"
+                paginationResetKey={selectedApartment?.id ?? ''}
                 ariaLabel={t('residents.detail.payments')}
                 columns={paymentColumns}
                 emptyState={(
@@ -344,6 +348,8 @@ const ResidentsOverview: React.FC = () => {
             )}
             {detailTab === 2 && (
               <ResponsiveDataView
+                paginationId="ResidentsOverview-3"
+                paginationResetKey={selectedApartment?.id ?? ''}
                 ariaLabel={t('residents.detail.consumption')}
                 columns={readingColumns}
                 emptyState={(

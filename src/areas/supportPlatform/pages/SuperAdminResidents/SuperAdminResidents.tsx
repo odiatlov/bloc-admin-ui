@@ -24,7 +24,8 @@ import EmptyState from '../../../../components/shared/EmptyState'
 import LoadErrorState from '../../../../components/shared/LoadErrorState'
 import PageHeader from '../../../../components/shared/PageHeader'
 import SearchField from '../../../../components/shared/SearchField'
-import ResponsiveDataView, { type DataColumn } from '../../../../components/shared/ResponsiveDataView'
+import { type DataColumn } from '../../../../components/shared/ResponsiveDataView'
+import PagedResponsiveDataView from '../../../../components/shared/PagedResponsiveDataView'
 import StatusChip from '../../../../components/shared/StatusChip'
 import { translateResidentStatus } from '../../../../domain/displayLabels'
 import { useBlocks } from '../../../../hooks/useBlocks'
@@ -320,7 +321,9 @@ const SuperAdminResidents: React.FC = () => {
           onAction={clearFilters}
         />
       ) : (
-        <ResponsiveDataView
+        <PagedResponsiveDataView endpoint="/residents/page" query={{ search: nameFilter, blockId: selectedBlockFilter === 'all' ? undefined : selectedBlockFilter, status: statusFilter === 'all' ? undefined : statusFilter }}
+          paginationId="SuperAdminResidents-1"
+          paginationResetKey={JSON.stringify([nameFilter, selectedBlockFilter, statusFilter])}
           ariaLabel={t('superAdmin.residents.title')}
           columns={columns}
           desktopTableMinWidth={1300}

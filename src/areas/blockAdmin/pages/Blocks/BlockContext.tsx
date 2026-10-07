@@ -154,6 +154,7 @@ const BlockContext: React.FC = () => {
 
         {normalizedSection === 'consumption' && (
           <ResponsiveDataView
+            paginationId="BlockContext-1"
             ariaLabel={t('sidebar.apartments')}
             columns={apartmentColumns}
             emptyState={(
@@ -171,6 +172,7 @@ const BlockContext: React.FC = () => {
 
         {normalizedSection === 'staircases' && (
           <ResponsiveDataView
+            paginationId="BlockContext-2"
             ariaLabel={t('sidebar.staircases')}
             columns={staircaseColumns}
             emptyState={(
@@ -190,6 +192,7 @@ const BlockContext: React.FC = () => {
           <Box sx={{ display: 'grid', gap: 2 }}>
             {block.hasStaircases && (
               <ResponsiveDataView
+                paginationId="BlockContext-3"
                 ariaLabel={t('blocks.monthlyStaircasePayments')}
                 columns={staircaseColumns}
                 emptyState={(
@@ -205,6 +208,7 @@ const BlockContext: React.FC = () => {
               />
             )}
             <ResponsiveDataView
+              paginationId="BlockContext-4"
               ariaLabel={t('finance.tabs.invoices')}
               columns={invoiceColumns}
               emptyState={(
@@ -219,6 +223,7 @@ const BlockContext: React.FC = () => {
               rows={blockInvoices}
             />
             <ResponsiveDataView
+              paginationId="BlockContext-5"
               ariaLabel={t('finance.tabs.payments')}
               columns={paymentColumns}
               emptyState={(

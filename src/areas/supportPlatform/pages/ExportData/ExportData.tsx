@@ -128,6 +128,7 @@ const ExportData: React.FC = () => {
         </Paper>
 
         <ResponsiveDataView
+          paginationId="ExportData-1"
           ariaLabel={t('superAdmin.export.history')}
           columns={columns}
           desktopTableMinWidth={1000}
