@@ -506,10 +506,8 @@
                                       "adminManagementOnly": "Modificarea locatarilor necesită un cont de administrator. Această listă globală permite doar consultarea.",
                                       "saveFailed": "Locatarul nu a putut fi salvat. Încercați din nou.",
                                       "removeFailed": "Locatarii selectați nu au putut fi eliminați. Încercați din nou.",
-                                      "select": "Selectează",
-                                      "selectResident": "Selectează {{resident}}",
-                                      "selectFiltered": "Selectează locatarii filtrați (maximum 500)",
-                                      "removeSelected": "Elimină selecția ({{count}})",
+                                      "deleteAll": "Șterge tot",
+                                      "deleteAllConfirm": "Eliminați din evidența dumneavoastră toți cei {{count}} locatari fără bloc, inclusiv cei ascunși de filtrele de căutare sau de pe alte pagini? Conturile de utilizator și evidențele altor administratori se păstrează.",
                                       "bulkConfirm": "Eliminați cei {{count}} locatari selectați din evidența dumneavoastră și din alocările la apartamente? Conturile de utilizator și evidențele altor administratori se păstrează.",
                                       "noDestinations": "Nu există blocuri disponibile pentru alocare. Acești locatari rămân în evidența dumneavoastră."
                                   },

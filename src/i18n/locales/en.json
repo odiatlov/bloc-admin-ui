@@ -474,10 +474,8 @@
       "adminManagementOnly": "Resident changes require an administrator account. This global overview is read-only.",
       "saveFailed": "Unable to save the resident. Please try again.",
       "removeFailed": "Unable to remove the selected residents. Please try again.",
-      "select": "Select",
-      "selectResident": "Select {{resident}}",
-      "selectFiltered": "Select filtered residents (up to 500)",
-      "removeSelected": "Remove selected ({{count}})",
+      "deleteAll": "Delete all",
+      "deleteAllConfirm": "Remove all {{count}} residents with no block from your records, including those hidden by search filters or on other pages? Their user accounts and other administrators' records will remain.",
       "bulkConfirm": "Remove {{count}} selected residents from your records and apartment assignments? Their user accounts and other administrators' records will remain.",
       "noDestinations": "No blocks are available for assignment. These residents remain in your records."
     },

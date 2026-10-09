@@ -13,4 +13,6 @@ export const residentsApi = {
   delete: (id: string) => apiDelete<string>(`/residents/${id}`),
   removeMany: (residentIds: string[]) =>
     apiPost<{ residentIds: string[] }, string[]>('/residents/remove', { residentIds }),
+  removeUnassigned: (residentIds: string[]) =>
+    apiPost<{ residentIds: string[]; unassignedOnly: boolean }, string[]>('/residents/remove', { residentIds, unassignedOnly: true }),
 }

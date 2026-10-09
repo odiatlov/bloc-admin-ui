@@ -94,7 +94,7 @@ const ApiResidentsOverview: React.FC = () => {
   const [dialogMode, setDialogMode] = React.useState<'create' | 'edit' | null>(null)
   const [editingResident, setEditingResident] = React.useState<ResidentResponse | null>(null)
   const [deletingResidents, setDeletingResidents] = React.useState<ResidentResponse[]>([])
-  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set())
+  const [isDeletingAll, setIsDeletingAll] = React.useState(false)
   const [isSaving, setIsSaving] = React.useState(false)
   const [isDeletingResident, setIsDeletingResident] = React.useState(false)
   const [isAssigningCensor, setIsAssigningCensor] = React.useState(false)
@@ -114,7 +114,6 @@ const ApiResidentsOverview: React.FC = () => {
     try {
       const nextResidents = await residentsApi.getAll()
       setResidents(nextResidents)
-      setSelectedIds((previous) => new Set([...previous].filter((id) => nextResidents.some((resident) => resident.id === id))))
     } catch (nextError) {
       setError(nextError instanceof Error ? nextError.message : 'Unable to load residents')
     } finally {
@@ -239,10 +238,11 @@ const ApiResidentsOverview: React.FC = () => {
     setMutationError(null)
 
     try {
-      if (deletingResidents.length === 1) await residentsApi.delete(deletingResidents[0].id)
+      if (isDeletingAll) await residentsApi.removeUnassigned(deletingResidents.map((resident) => resident.id))
+      else if (deletingResidents.length === 1) await residentsApi.delete(deletingResidents[0].id)
       else await residentsApi.removeMany(deletingResidents.map((resident) => resident.id))
       setDeletingResidents([])
-      setSelectedIds(new Set())
+      setIsDeletingAll(false)
       await loadResidents()
       await databaseBlocks.refresh()
     } catch (nextError) {
@@ -270,10 +270,6 @@ const ApiResidentsOverview: React.FC = () => {
   }
 
   const columns: DataColumn<ResidentResponse>[] = [
-    ...(canManage ? [{
-      key: 'selection', label: t('residents.retention.select'), cardRole: 'hidden' as const,
-      render: (resident: ResidentResponse) => renderSelection(resident),
-    }] : []),
     { key: 'name', label: t('residents.fields.name'), cardRole: 'primary', render: (resident) => resident.fullName },
     { key: 'email', label: t('residents.fields.email'), render: (resident) => resident.email || tableEmptyValue },
     { key: 'phone', label: t('residents.fields.phone'), render: (resident) => resident.phone || tableEmptyValue },
@@ -337,7 +333,7 @@ const ApiResidentsOverview: React.FC = () => {
       cardRole: 'actions',
       actions: (resident) => [
         { id: 'edit', label: t('residents.actions.editResident'), icon: <EditIcon />, onClick: () => openEditDialog(resident), disabled: !canManage || databaseBlocks.blocks.length === 0 || isDeletingResident, priority: 2 },
-        { id: 'delete', label: t('residents.actions.deleteResident'), icon: <DeleteIcon />, onClick: () => { setMutationError(null); setDeletingResidents([resident]) }, disabled: !canManage || isDeletingResident, color: 'error', priority: 1 },
+        { id: 'delete', label: t('residents.actions.deleteResident'), icon: <DeleteIcon />, onClick: () => { setMutationError(null); setIsDeletingAll(false); setDeletingResidents([resident]) }, disabled: !canManage || isDeletingResident, color: 'error', priority: 1 },
       ],
     },
   ]
@@ -360,19 +356,7 @@ const ApiResidentsOverview: React.FC = () => {
   const loadError = error || databaseBlocks.error
   const loading = isLoading || databaseBlocks.isLoading
 
-  function renderSelection(resident: ResidentResponse) {
-    return <Checkbox
-      checked={selectedIds.has(resident.id)}
-      disabled={isDeletingResident || (!selectedIds.has(resident.id) && selectedIds.size >= 500)}
-      slotProps={{ input: { 'aria-label': t('residents.retention.selectResident', { resident: resident.fullName }) } }}
-      onChange={(event) => setSelectedIds((previous) => {
-        const next = new Set(previous)
-        if (event.target.checked) next.add(resident.id)
-        else next.delete(resident.id)
-        return next
-      })}
-    />
-  }
+  const unassignedResidents = residents.filter((resident) => resident.blocks.length === 0 && resident.apartments.length === 0)
 
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
@@ -414,27 +398,18 @@ const ApiResidentsOverview: React.FC = () => {
           </>
         )}
       >
+        {canManage && selectedBlockFilter === 'unassigned' && (
+          <Button color="error" variant="outlined" startIcon={<DeleteIcon />}
+            disabled={loading || Boolean(loadError) || isDeletingResident || unassignedResidents.length === 0}
+            onClick={() => { setMutationError(null); setIsDeletingAll(true); setDeletingResidents(unassignedResidents) }}>
+            {t('residents.retention.deleteAll')}
+          </Button>
+        )}
         <Button startIcon={<PersonAddIcon />} variant="contained" onClick={openCreateDialog} disabled={!canManage || Boolean(loadError) || loading || databaseBlocks.blocks.length === 0}>
           {t('residents.actions.addResident')}
         </Button>
       </ActionBar>
 
-      {canManage && !loading && !loadError && scopedResidents.length > 0 && (
-        <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-          <FormControlLabel label={t('residents.retention.selectFiltered')}
-            control={<Checkbox
-              checked={filteredResidents.length > 0 && filteredResidents.every((resident) => selectedIds.has(resident.id))}
-              indeterminate={filteredResidents.some((resident) => selectedIds.has(resident.id)) && !filteredResidents.every((resident) => selectedIds.has(resident.id))}
-              disabled={isDeletingResident || filteredResidents.length === 0 || filteredResidents.length > 500}
-              onChange={(event) => setSelectedIds(event.target.checked ? new Set(filteredResidents.map((resident) => resident.id)) : new Set())}
-            />} />
-          <Button color="error" variant="outlined" startIcon={<DeleteIcon />}
-            disabled={selectedIds.size === 0 || isDeletingResident}
-            onClick={() => { setMutationError(null); setDeletingResidents(residents.filter((resident) => selectedIds.has(resident.id))) }}>
-            {t('residents.retention.removeSelected', { count: selectedIds.size })}
-          </Button>
-        </Box>
-      )}
       {!loading && !loadError && databaseBlocks.blocks.length === 0 && scopedResidents.length > 0 && (
         <Alert severity="info">{t('residents.retention.noDestinations')}</Alert>
       )}
@@ -469,7 +444,6 @@ const ApiResidentsOverview: React.FC = () => {
           desktopTableMinWidth={1400}
           getRowId={(resident) => resident.id}
           rows={filteredResidents}
-          renderCardCornerActions={canManage ? renderSelection : undefined}
         />
       )}
 
@@ -580,14 +554,16 @@ const ApiResidentsOverview: React.FC = () => {
         cancelLabel={t('common.cancel')}
         confirmDisabled={deletingResidents.length === 0 || isDeletingResident}
         confirmLabel={isDeletingResident ? t('residents.dialog.deleting') : t('residents.dialog.deleteConfirmYes')}
-        onCancel={() => { if (!isDeletingResident) setDeletingResidents([]) }}
+        onCancel={() => { if (!isDeletingResident) { setDeletingResidents([]); setIsDeletingAll(false) } }}
         onConfirm={() => { void deleteResident() }}
         open={deletingResidents.length > 0}
-        title={t('residents.dialog.deleteTitle')}
+        title={isDeletingAll ? t('residents.retention.deleteAll') : t('residents.dialog.deleteTitle')}
       >
         {mutationError && <Alert severity="error" sx={{ mb: 2 }}>{mutationError}</Alert>}
         <Typography color="text.secondary">
-          {deletingResidents.length === 1
+          {isDeletingAll
+            ? t('residents.retention.deleteAllConfirm', { count: deletingResidents.length })
+            : deletingResidents.length === 1
             ? t('residents.dialog.deleteConfirm', { resident: deletingResidents[0].fullName })
             : t('residents.retention.bulkConfirm', { count: deletingResidents.length })}
         </Typography>

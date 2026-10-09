@@ -44,9 +44,13 @@ const Blocks: React.FC = () => {
   const [deleteTarget, setDeleteTarget] = React.useState<BlockOverview | null>(null)
   const [isDeletingBlock, setIsDeletingBlock] = React.useState(false)
   const [notification, setNotification] = React.useState<{
+    open: boolean
     message: string
     severity: 'success' | 'error'
   } | null>(null)
+  const closeNotification = () => {
+    setNotification((current) => current ? { ...current, open: false } : null)
+  }
   const isMutating = isDeletingBlock || dialogMode !== null
   const isEmpty = !isLoading && !error && databaseOverview.totalBlocks === 0
   const isSearchEmpty = !isLoading && !error && databaseOverview.totalBlocks > 0 && blocks.length === 0
@@ -98,6 +102,7 @@ const Blocks: React.FC = () => {
       setDialogMode(null)
       setSelectedBlock(null)
       setNotification({
+        open: true,
         message: refreshed
           ? t(dialogMode === 'edit' ? 'settings.blockDialog.updateSuccess' : 'settings.blockDialog.createSuccess')
           : t('blocks.errors.refreshAfterSave'),
@@ -105,7 +110,7 @@ const Blocks: React.FC = () => {
       })
     } catch (submitError) {
       const message = submitError instanceof Error ? submitError.message : t('settings.blockDialog.serverError')
-      setNotification({ message, severity: 'error' })
+      setNotification({ open: true, message, severity: 'error' })
       throw submitError
     }
   }
@@ -115,7 +120,7 @@ const Blocks: React.FC = () => {
     setDialogMode(null)
     setSelectedBlock(null)
     const refreshed = await refreshAfterMutation().catch(() => false)
-    setNotification({ message: refreshed ? t('settings.blockDialog.createSuccess') : t('blocks.errors.refreshAfterSave'), severity: refreshed ? 'success' : 'error' })
+    setNotification({ open: true, message: refreshed ? t('settings.blockDialog.createSuccess') : t('blocks.errors.refreshAfterSave'), severity: refreshed ? 'success' : 'error' })
   }
 
   const deleteBlock = async () => {
@@ -128,11 +133,13 @@ const Blocks: React.FC = () => {
       const refreshed = await refreshAfterMutation()
       setDeleteTarget(null)
       setNotification({
+        open: true,
         message: refreshed ? t('settings.blockDialog.deleteSuccess') : t('blocks.errors.refreshAfterDelete'),
         severity: refreshed ? 'success' : 'error',
       })
     } catch (deleteError) {
       setNotification({
+        open: true,
         message: deleteError instanceof Error ? deleteError.message : t('settings.blockDialog.deleteError'),
         severity: 'error',
       })
@@ -267,13 +274,13 @@ const Blocks: React.FC = () => {
       <Snackbar
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         autoHideDuration={4000}
-        open={Boolean(notification)}
-        onClose={() => setNotification(null)}
+        open={notification?.open ?? false}
+        onClose={closeNotification}
       >
         <Alert
           severity={notification?.severity ?? 'success'}
           variant="filled"
-          onClose={() => setNotification(null)}
+          onClose={closeNotification}
         >
           {notification?.message}
         </Alert>
