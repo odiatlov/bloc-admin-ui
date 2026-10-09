@@ -454,7 +454,7 @@
       "addResident": "Add resident",
       "assign": "Assign",
       "assignResident": "Assign resident",
-      "deleteResident": "Delete resident",
+      "deleteResident": "Remove resident",
       "editResident": "Edit resident",
       "openDetails": "Open details",
       "backToList": "Back",
@@ -464,10 +464,20 @@
     },
     "dialog": {
       "addTitle": "Add resident",
-      "deleteConfirm": "Are you sure you want to delete resident {{resident}}? The resident and its associated account will be deleted!",
-      "deleteConfirmYes": "Yes, delete",
-      "deleteTitle": "Delete resident",
-      "deleting": "Deleting..."
+      "deleteConfirm": "Remove {{resident}} from your resident records and apartment assignments? Their user account and other administrators' records will remain.",
+      "deleteConfirmYes": "Yes, remove",
+      "deleteTitle": "Remove resident",
+      "deleting": "Removing..."
+    },
+    "retention": {
+      "noBlock": "No block",
+      "adminManagementOnly": "Resident changes require an administrator account. This global overview is read-only.",
+      "saveFailed": "Unable to save the resident. Please try again.",
+      "removeFailed": "Unable to remove the selected residents. Please try again.",
+      "deleteAll": "Delete all",
+      "deleteAllConfirm": "Remove all {{count}} residents with no block from your records, including those hidden by search filters or on other pages? Their user accounts and other administrators' records will remain.",
+      "bulkConfirm": "Remove {{count}} selected residents from your records and apartment assignments? Their user accounts and other administrators' records will remain.",
+      "noDestinations": "No blocks are available for assignment. These residents remain in your records."
     },
     "notifications": {
       "censorAssigned": "Censor role assigned successfully.",
@@ -619,6 +629,19 @@
     "title": "Block {{block}}",
     "description": "Block-level apartments, hierarchy, finance, and consumption.",
     "monthlyStaircasePayments": "Monthly staircase payments",
+    "deletion": {
+      "summary": "Deleting block {{block}} will also delete:",
+      "staircases": "Staircases",
+      "apartments": "Apartments",
+      "waterMeters": "Water meters (active and inactive)",
+      "waterReadings": "Water readings",
+      "residentsPreserved": "Residents and their user accounts will be preserved. Only their assignments to this block will be removed.",
+      "irreversible": "Are you sure you want to delete this block and all the items listed above, including its water-reading and consumption history? This action is irreversible.",
+      "loading": "Loading deletion summary...",
+      "loadFailed": "The deletion summary could not be loaded. Please try again.",
+      "delete": "Delete",
+      "deleteAll": "Yes, delete all"
+    },
     "results": "{{count}} blocks",
     "actions": {
       "openOverview": "Open overview",
@@ -1238,7 +1261,7 @@
       "apartmentsCount": "Apartments count",
       "createSuccess": "Block created successfully.",
       "createTitle": "Add block",
-      "deleteConfirm": "Are you sure you want to delete block {{block}}?",
+      "deleteConfirm": "Delete block {{block}}, its staircases, apartments, water meters and water-reading history? Residents and their user accounts will remain. This action is irreversible.",
       "deleteConfirmYes": "Yes",
       "deleteError": "The block could not be deleted.",
       "deleteSuccess": "Block deleted successfully.",

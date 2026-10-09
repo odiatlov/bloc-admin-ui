@@ -15,6 +15,7 @@ type AppDialogProps = {
   cancelLabel: string
   children: React.ReactNode
   confirmDisabled?: boolean
+  confirmColor?: 'primary' | 'error'
   confirmLabel: string
   contentSx?: SxProps<Theme>
   dialogContentSx?: SxProps<Theme>
@@ -36,6 +37,7 @@ const AppDialog: React.FC<AppDialogProps> = ({
   cancelLabel,
   children,
   confirmDisabled = false,
+  confirmColor = 'primary',
   confirmLabel,
   contentSx,
   dialogContentSx,
@@ -67,7 +69,7 @@ const AppDialog: React.FC<AppDialogProps> = ({
     <DialogActions>
       {onBack && <Button startIcon={<ArrowBackIcon />} disabled={backDisabled} onClick={onBack} sx={{ mr: 'auto' }}>{backLabel}</Button>}
       {!hideCancelButton && <Button onClick={onCancel}>{cancelLabel}</Button>}
-      <Button variant="contained" onClick={onConfirm} disabled={confirmDisabled}>
+      <Button variant="contained" color={confirmColor} onClick={onConfirm} disabled={confirmDisabled}>
         {confirmLabel}
       </Button>
     </DialogActions>

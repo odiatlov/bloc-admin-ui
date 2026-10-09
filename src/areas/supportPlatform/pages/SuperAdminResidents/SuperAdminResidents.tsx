@@ -95,7 +95,8 @@ const SuperAdminResidents: React.FC = () => {
   }, [])
 
   React.useEffect(() => {
-    void loadResidents()
+    const timer = window.setTimeout(() => { void loadResidents() }, 0)
+    return () => window.clearTimeout(timer)
   }, [loadResidents])
 
   const selectedBlockFilter = selectedBlockId === 'all' || databaseBlocks.blocks.some((block) => block.id === selectedBlockId)
@@ -294,10 +295,12 @@ const SuperAdminResidents: React.FC = () => {
           </>
         )}
       >
-        <Button startIcon={<PersonAddIcon />} variant="contained" onClick={openCreateDialog} disabled={Boolean(loadError) || databaseBlocks.blocks.length === 0}>
+        <Button startIcon={<PersonAddIcon />} variant="contained" onClick={openCreateDialog} disabled>
           {t('residents.actions.addResident')}
         </Button>
       </ActionBar>
+
+      <Alert severity="info">{t('residents.retention.adminManagementOnly')}</Alert>
 
       {loading ? (
         <Paper sx={{ alignItems: 'center', display: 'grid', gap: 1.5, justifyItems: 'center', p: 4 }}>
@@ -308,10 +311,8 @@ const SuperAdminResidents: React.FC = () => {
         <LoadErrorState helperText={t('superAdmin.residents.errors.loadFailed')} onRetry={() => { void loadResidents(); void databaseBlocks.refresh() }} />
       ) : residents.length === 0 ? (
         <EmptyState
-          actionLabel={t('emptyState.action', { information: t('emptyState.information.residents') })}
           headline={t('superAdmin.residents.empty.headline')}
           helperText={t('superAdmin.residents.empty.helperText')}
-          onAction={openCreateDialog}
         />
       ) : filteredResidents.length === 0 ? (
         <EmptyState
@@ -325,7 +326,7 @@ const SuperAdminResidents: React.FC = () => {
           paginationId="SuperAdminResidents-1"
           paginationResetKey={JSON.stringify([nameFilter, selectedBlockFilter, statusFilter])}
           ariaLabel={t('superAdmin.residents.title')}
-          columns={columns}
+          columns={columns.filter((column) => column.key !== 'actions')}
           desktopTableMinWidth={1300}
           getRowId={(resident) => resident.id}
           rows={filteredResidents}

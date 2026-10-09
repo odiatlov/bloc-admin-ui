@@ -486,7 +486,7 @@
                                       "addResident":  "Adaugă locatar",
                                       "assign":  "Alocă",
                                       "assignResident":  "Alocă locatar",
-                                      "deleteResident":  "Șterge locatar",
+                                      "deleteResident":  "Elimină locatar",
                                       "editResident":  "Editează locatar",
                                       "openDetails":  "Deschide detalii",
                                       "backToList":  "Înapoi",
@@ -496,11 +496,21 @@
                                   },
                       "dialog":  {
                                      "addTitle":  "Adaugă locatar",
-                                     "deleteConfirm":  "Sigur doriți să ștergeți locatarul {{resident}}? Locatarul și contul asociat vor fi șterse!",
-                                     "deleteConfirmYes":  "Da, șterge",
-                                     "deleteTitle":  "Șterge locatar",
-                                     "deleting":  "Se șterge..."
+                                     "deleteConfirm":  "Eliminați locatarul {{resident}} din evidența dumneavoastră și din alocările la apartamente? Contul de utilizator și evidențele altor administratori se păstrează.",
+                                     "deleteConfirmYes":  "Da, elimină",
+                                     "deleteTitle":  "Elimină locatar",
+                                     "deleting":  "Se elimină..."
                                  },
+                      "retention": {
+                                      "noBlock": "Fără bloc",
+                                      "adminManagementOnly": "Modificarea locatarilor necesită un cont de administrator. Această listă globală permite doar consultarea.",
+                                      "saveFailed": "Locatarul nu a putut fi salvat. Încercați din nou.",
+                                      "removeFailed": "Locatarii selectați nu au putut fi eliminați. Încercați din nou.",
+                                      "deleteAll": "Șterge tot",
+                                      "deleteAllConfirm": "Eliminați din evidența dumneavoastră toți cei {{count}} locatari fără bloc, inclusiv cei ascunși de filtrele de căutare sau de pe alte pagini? Conturile de utilizator și evidențele altor administratori se păstrează.",
+                                      "bulkConfirm": "Eliminați cei {{count}} locatari selectați din evidența dumneavoastră și din alocările la apartamente? Conturile de utilizator și evidențele altor administratori se păstrează.",
+                                      "noDestinations": "Nu există blocuri disponibile pentru alocare. Acești locatari rămân în evidența dumneavoastră."
+                                  },
                       "notifications":  {
                                             "censorAssigned":  "Rolul de cenzor a fost alocat cu succes.",
                                             "existingLinked":  "Acest locatar exista deja, așa că a fost asociat cu blocul selectat."
@@ -677,6 +687,19 @@
                    "title":  "Bloc {{block}}",
                    "description":  "Apartamente, ierarhie, finanțe și consum la nivel de bloc.",
                    "monthlyStaircasePayments":  "Plăți lunare pe scară",
+                   "deletion":  {
+                                    "summary":  "Ștergerea blocului {{block}} va șterge și:",
+                                    "staircases":  "Scări",
+                                    "apartments":  "Apartamente",
+                                    "waterMeters":  "Contoare de apă (active și inactive)",
+                                    "waterReadings":  "Citiri ale apei",
+                                    "residentsPreserved":  "Locatarii și conturile lor de utilizator se păstrează. Se elimină doar alocările lor la acest bloc.",
+                                    "irreversible":  "Sigur doriți să ștergeți acest bloc și toate elementele enumerate mai sus, inclusiv istoricul citirilor și al consumului de apă? Această acțiune este ireversibilă.",
+                                    "loading":  "Se încarcă rezumatul ștergerii...",
+                                    "loadFailed":  "Rezumatul ștergerii nu a putut fi încărcat. Încercați din nou.",
+                                    "delete":  "Șterge",
+                                    "deleteAll":  "Da, șterge tot"
+                                },
                    "results":  "{{count}} blocuri",
                    "actions":  {
                                    "openOverview":  "Deschide prezentarea",
@@ -1010,7 +1033,7 @@
                                          "apartmentsCount":  "Număr de apartamente",
                                          "createSuccess":  "Blocul a fost creat cu succes.",
                                          "createTitle":  "Adaugă bloc",
-                                         "deleteConfirm":  "Sigur doriți să ștergeți blocul {{block}}?",
+                                         "deleteConfirm":  "Ștergeți blocul {{block}}, scările, apartamentele, contoarele de apă și istoricul citirilor apei? Locatarii și conturile lor de utilizator se păstrează. Această acțiune este ireversibilă.",
                                          "deleteConfirmYes":  "Da",
                                          "deleteError":  "Blocul nu a putut fi șters.",
                                          "deleteSuccess":  "Blocul a fost șters cu succes.",
