@@ -31,6 +31,7 @@ import { useBlocks } from '../../../../../hooks/useBlocks'
 import { blocksApi } from '../../../../../services/blocksApi'
 import { residentsApi } from '../../../../../services/residentsApi'
 import type { ResidentResponse, ResidentStatus } from '../../../../../types/management'
+import { RoleContext } from '../../../../../contexts/RoleContext'
 
 type FormState = {
   firstName: string
@@ -80,16 +81,21 @@ const getDisplayRoles = (resident: ResidentResponse) => {
 
 const ApiResidentsOverview: React.FC = () => {
   const { t } = useTranslation()
+  const { role } = React.useContext(RoleContext)
+  const canManage = role === 'Admin'
   const databaseBlocks = useBlocks()
   const [residents, setResidents] = React.useState<ResidentResponse[]>([])
   const [nameFilter, setNameFilter] = React.useState('')
   const [selectedBlockId, setSelectedBlockId] = React.useState('all')
   const [staircaseFilter, setStaircaseFilter] = React.useState('')
   const [error, setError] = React.useState<string | null>(null)
+  const [mutationError, setMutationError] = React.useState<string | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
   const [dialogMode, setDialogMode] = React.useState<'create' | 'edit' | null>(null)
   const [editingResident, setEditingResident] = React.useState<ResidentResponse | null>(null)
-  const [deletingResident, setDeletingResident] = React.useState<ResidentResponse | null>(null)
+  const [deletingResidents, setDeletingResidents] = React.useState<ResidentResponse[]>([])
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set())
+  const [isSaving, setIsSaving] = React.useState(false)
   const [isDeletingResident, setIsDeletingResident] = React.useState(false)
   const [isAssigningCensor, setIsAssigningCensor] = React.useState(false)
   const [notification, setNotification] = React.useState('')
@@ -98,19 +104,17 @@ const ApiResidentsOverview: React.FC = () => {
     () => new Set(databaseBlocks.blocks.map((block) => block.id)),
     [databaseBlocks.blocks],
   )
-  const scopedResidents = React.useMemo(
-    () => residents.filter((resident) => (
-      resident.blocks.some((block) => allowedBlockIds.has(block.blockId))
-    )),
-    [allowedBlockIds, residents],
-  )
+  // The API owns resident visibility, including retained residents without a block.
+  const scopedResidents = residents
 
   const loadResidents = React.useCallback(async () => {
     setIsLoading(true)
     setError(null)
 
     try {
-      setResidents(await residentsApi.getAll())
+      const nextResidents = await residentsApi.getAll()
+      setResidents(nextResidents)
+      setSelectedIds((previous) => new Set([...previous].filter((id) => nextResidents.some((resident) => resident.id === id))))
     } catch (nextError) {
       setError(nextError instanceof Error ? nextError.message : 'Unable to load residents')
     } finally {
@@ -126,9 +130,18 @@ const ApiResidentsOverview: React.FC = () => {
     return () => window.clearTimeout(timeoutId)
   }, [loadResidents])
 
-  const selectedBlockFilter = selectedBlockId === 'all' || databaseBlocks.blocks.some((block) => block.id === selectedBlockId)
+  const selectedBlockFilter = selectedBlockId === 'all' || selectedBlockId === 'unassigned' || databaseBlocks.blocks.some((block) => block.id === selectedBlockId)
     ? selectedBlockId
     : 'all'
+
+  React.useEffect(() => {
+    if (databaseBlocks.isLoading || selectedBlockId === selectedBlockFilter) return
+    const timer = window.setTimeout(() => {
+      setSelectedBlockId('all')
+      setStaircaseFilter('')
+    }, 0)
+    return () => window.clearTimeout(timer)
+  }, [databaseBlocks.isLoading, selectedBlockFilter, selectedBlockId])
 
   const filteredResidents = React.useMemo(() => {
     const normalizedNameFilter = normalizeFilterValue(nameFilter)
@@ -138,7 +151,10 @@ const ApiResidentsOverview: React.FC = () => {
       const visibleApartments = resident.apartments.filter((apartment) => allowedBlockIds.has(apartment.blockId))
       const visibleBlocks = resident.blocks.filter((block) => allowedBlockIds.has(block.blockId))
       const matchesName = !normalizedNameFilter || normalizeFilterValue(resident.fullName).includes(normalizedNameFilter)
-      const matchesBlock = selectedBlockFilter === 'all' || visibleBlocks.some((block) => block.blockId === selectedBlockFilter)
+      const matchesBlock = selectedBlockFilter === 'all'
+        || (selectedBlockFilter === 'unassigned'
+          ? visibleBlocks.length === 0 && visibleApartments.length === 0
+          : visibleBlocks.some((block) => block.blockId === selectedBlockFilter) || visibleApartments.some((apartment) => apartment.blockId === selectedBlockFilter))
       const matchesStaircase = !normalizedStaircaseFilter || visibleApartments.some((apartment) => (
         normalizeFilterValue(apartment.staircaseName).includes(normalizedStaircaseFilter)
       ))
@@ -154,15 +170,17 @@ const ApiResidentsOverview: React.FC = () => {
   }
 
   const openCreateDialog = () => {
+    setMutationError(null)
     setEditingResident(null)
     setForm({
       ...emptyForm,
-      blockId: selectedBlockFilter !== 'all' ? selectedBlockFilter : databaseBlocks.blocks[0]?.id ?? '',
+      blockId: allowedBlockIds.has(selectedBlockFilter) ? selectedBlockFilter : databaseBlocks.blocks[0]?.id ?? '',
     })
     setDialogMode('create')
   }
 
   const openEditDialog = (resident: ResidentResponse) => {
+    setMutationError(null)
     setEditingResident(resident)
     setForm({
       firstName: resident.firstName,
@@ -177,7 +195,7 @@ const ApiResidentsOverview: React.FC = () => {
   }
 
   const saveResident = async () => {
-    if (!form.firstName.trim() || !form.lastName.trim()) return
+    if (!form.firstName.trim() || !form.lastName.trim() || !form.blockId || isSaving || !canManage) return
 
     const request = {
       firstName: form.firstName.trim(),
@@ -190,7 +208,8 @@ const ApiResidentsOverview: React.FC = () => {
       status: form.status,
     }
 
-    setError(null)
+    setMutationError(null)
+    setIsSaving(true)
 
     try {
       if (editingResident) {
@@ -205,23 +224,29 @@ const ApiResidentsOverview: React.FC = () => {
       setDialogMode(null)
       setEditingResident(null)
       await loadResidents()
+      await databaseBlocks.refresh()
     } catch (nextError) {
-      setError(nextError instanceof Error ? nextError.message : 'Unable to save resident')
+      setMutationError(nextError instanceof Error ? nextError.message : t('residents.retention.saveFailed'))
+    } finally {
+      setIsSaving(false)
     }
   }
 
   const deleteResident = async () => {
-    if (!deletingResident || isDeletingResident) return
+    if (deletingResidents.length === 0 || isDeletingResident || !canManage) return
 
     setIsDeletingResident(true)
-    setError(null)
+    setMutationError(null)
 
     try {
-      await residentsApi.delete(deletingResident.id)
-      setDeletingResident(null)
+      if (deletingResidents.length === 1) await residentsApi.delete(deletingResidents[0].id)
+      else await residentsApi.removeMany(deletingResidents.map((resident) => resident.id))
+      setDeletingResidents([])
+      setSelectedIds(new Set())
       await loadResidents()
+      await databaseBlocks.refresh()
     } catch (nextError) {
-      setError(nextError instanceof Error ? nextError.message : 'Unable to delete resident')
+      setMutationError(nextError instanceof Error ? nextError.message : t('residents.retention.removeFailed'))
     } finally {
       setIsDeletingResident(false)
     }
@@ -231,20 +256,24 @@ const ApiResidentsOverview: React.FC = () => {
     if (!editingResident || !form.blockId || isAssigningCensor) return
 
     setIsAssigningCensor(true)
-    setError(null)
+    setMutationError(null)
 
     try {
       await blocksApi.assignCensor(form.blockId, { residentId: editingResident.id })
       setNotification(t('residents.notifications.censorAssigned'))
       await loadResidents()
     } catch (nextError) {
-      setError(nextError instanceof Error ? nextError.message : 'Unable to assign censor')
+      setMutationError(nextError instanceof Error ? nextError.message : t('residents.retention.saveFailed'))
     } finally {
       setIsAssigningCensor(false)
     }
   }
 
   const columns: DataColumn<ResidentResponse>[] = [
+    ...(canManage ? [{
+      key: 'selection', label: t('residents.retention.select'), cardRole: 'hidden' as const,
+      render: (resident: ResidentResponse) => renderSelection(resident),
+    }] : []),
     { key: 'name', label: t('residents.fields.name'), cardRole: 'primary', render: (resident) => resident.fullName },
     { key: 'email', label: t('residents.fields.email'), render: (resident) => resident.email || tableEmptyValue },
     { key: 'phone', label: t('residents.fields.phone'), render: (resident) => resident.phone || tableEmptyValue },
@@ -259,7 +288,9 @@ const ApiResidentsOverview: React.FC = () => {
       render: (resident) => {
         const visibleBlocks = resident.blocks.filter((block) => allowedBlockIds.has(block.blockId))
         return visibleBlocks.length === 0
-          ? tableEmptyValue
+          ? resident.apartments.length > 0
+            ? Array.from(new Set(resident.apartments.map((apartment) => apartment.blockName))).join(', ')
+            : <StatusChip status="unassigned" label={t('residents.retention.noBlock')} />
           : Array.from(new Set(visibleBlocks.map((block) => block.blockName))).join(', ') || tableEmptyValue
       },
     },
@@ -305,14 +336,14 @@ const ApiResidentsOverview: React.FC = () => {
       label: t('common.actions'),
       cardRole: 'actions',
       actions: (resident) => [
-        { id: 'edit', label: t('residents.actions.editResident'), icon: <EditIcon />, onClick: () => openEditDialog(resident), priority: 2 },
-        { id: 'delete', label: t('residents.actions.deleteResident'), icon: <DeleteIcon />, onClick: () => setDeletingResident(resident), disabled: isDeletingResident, color: 'error', priority: 1 },
+        { id: 'edit', label: t('residents.actions.editResident'), icon: <EditIcon />, onClick: () => openEditDialog(resident), disabled: !canManage || databaseBlocks.blocks.length === 0 || isDeletingResident, priority: 2 },
+        { id: 'delete', label: t('residents.actions.deleteResident'), icon: <DeleteIcon />, onClick: () => { setMutationError(null); setDeletingResidents([resident]) }, disabled: !canManage || isDeletingResident, color: 'error', priority: 1 },
       ],
     },
   ]
 
   const hasValidInviteEmail = !form.inviteResident || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())
-  const canSave = Boolean(form.firstName.trim() && form.lastName.trim() && form.blockId && hasValidInviteEmail)
+  const canSave = Boolean(canManage && !isSaving && form.firstName.trim() && form.lastName.trim() && allowedBlockIds.has(form.blockId) && hasValidInviteEmail)
   const selectedCensorBlockName = databaseBlocks.blocks.find((block) => block.id === form.blockId)?.displayName ?? ''
   const canAssignCensor = Boolean(
     editingResident?.hasRegisteredAccount
@@ -329,6 +360,20 @@ const ApiResidentsOverview: React.FC = () => {
   const loadError = error || databaseBlocks.error
   const loading = isLoading || databaseBlocks.isLoading
 
+  function renderSelection(resident: ResidentResponse) {
+    return <Checkbox
+      checked={selectedIds.has(resident.id)}
+      disabled={isDeletingResident || (!selectedIds.has(resident.id) && selectedIds.size >= 500)}
+      slotProps={{ input: { 'aria-label': t('residents.retention.selectResident', { resident: resident.fullName }) } }}
+      onChange={(event) => setSelectedIds((previous) => {
+        const next = new Set(previous)
+        if (event.target.checked) next.add(resident.id)
+        else next.delete(resident.id)
+        return next
+      })}
+    />
+  }
+
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
       <ActionBar
@@ -339,9 +384,10 @@ const ApiResidentsOverview: React.FC = () => {
               <Select
                 label={t('settings.fields.block')}
                 value={selectedBlockFilter}
-                onChange={(event: SelectChangeEvent) => setSelectedBlockId(event.target.value)}
+                onChange={(event: SelectChangeEvent) => { setSelectedBlockId(event.target.value); setStaircaseFilter('') }}
               >
                 <MenuItem value="all">{t('common.all')}</MenuItem>
+                <MenuItem value="unassigned">{t('residents.retention.noBlock')}</MenuItem>
                 {databaseBlocks.blocks.map((block) => (
                   <MenuItem key={block.id} value={block.id}>{block.displayName}</MenuItem>
                 ))}
@@ -368,10 +414,30 @@ const ApiResidentsOverview: React.FC = () => {
           </>
         )}
       >
-        <Button startIcon={<PersonAddIcon />} variant="contained" onClick={openCreateDialog} disabled={Boolean(loadError)}>
+        <Button startIcon={<PersonAddIcon />} variant="contained" onClick={openCreateDialog} disabled={!canManage || Boolean(loadError) || loading || databaseBlocks.blocks.length === 0}>
           {t('residents.actions.addResident')}
         </Button>
       </ActionBar>
+
+      {canManage && !loading && !loadError && scopedResidents.length > 0 && (
+        <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+          <FormControlLabel label={t('residents.retention.selectFiltered')}
+            control={<Checkbox
+              checked={filteredResidents.length > 0 && filteredResidents.every((resident) => selectedIds.has(resident.id))}
+              indeterminate={filteredResidents.some((resident) => selectedIds.has(resident.id)) && !filteredResidents.every((resident) => selectedIds.has(resident.id))}
+              disabled={isDeletingResident || filteredResidents.length === 0 || filteredResidents.length > 500}
+              onChange={(event) => setSelectedIds(event.target.checked ? new Set(filteredResidents.map((resident) => resident.id)) : new Set())}
+            />} />
+          <Button color="error" variant="outlined" startIcon={<DeleteIcon />}
+            disabled={selectedIds.size === 0 || isDeletingResident}
+            onClick={() => { setMutationError(null); setDeletingResidents(residents.filter((resident) => selectedIds.has(resident.id))) }}>
+            {t('residents.retention.removeSelected', { count: selectedIds.size })}
+          </Button>
+        </Box>
+      )}
+      {!loading && !loadError && databaseBlocks.blocks.length === 0 && scopedResidents.length > 0 && (
+        <Alert severity="info">{t('residents.retention.noDestinations')}</Alert>
+      )}
 
       {loading ? (
         <Paper sx={{ alignItems: 'center', display: 'grid', gap: 1.5, justifyItems: 'center', p: 4 }}>
@@ -382,10 +448,10 @@ const ApiResidentsOverview: React.FC = () => {
         <LoadErrorState helperText={t('residents.errors.loadFailed')} onRetry={() => { void loadResidents(); void databaseBlocks.refresh() }} />
       ) : scopedResidents.length === 0 ? (
         <EmptyState
-          actionLabel={t('emptyState.action', { information: t('emptyState.information.residents') })}
+          actionLabel={canManage && databaseBlocks.blocks.length > 0 ? t('emptyState.action', { information: t('emptyState.information.residents') }) : undefined}
           headline={t('emptyState.headline', { information: t('emptyState.information.residents') })}
           helperText={t('emptyState.helper.dedicated', { information: t('emptyState.information.residents') })}
-          onAction={openCreateDialog}
+          onAction={canManage && databaseBlocks.blocks.length > 0 ? openCreateDialog : undefined}
         />
       ) : filteredResidents.length === 0 ? (
         <EmptyState
@@ -395,7 +461,7 @@ const ApiResidentsOverview: React.FC = () => {
           onAction={clearFilters}
         />
       ) : (
-        <PagedResponsiveDataView endpoint="/residents/page" query={{ search: nameFilter, blockId: selectedBlockFilter === 'all' ? undefined : selectedBlockFilter, staircaseSearch: staircaseFilter }}
+        <PagedResponsiveDataView endpoint="/residents/page" query={{ search: nameFilter, blockId: allowedBlockIds.has(selectedBlockFilter) ? selectedBlockFilter : undefined, unassignedResident: selectedBlockFilter === 'unassigned', staircaseSearch: staircaseFilter }}
           paginationId="ApiResidentsOverview-1"
           paginationResetKey={JSON.stringify([nameFilter, selectedBlockFilter, staircaseFilter])}
           ariaLabel={t('sidebar.residents')}
@@ -403,6 +469,7 @@ const ApiResidentsOverview: React.FC = () => {
           desktopTableMinWidth={1400}
           getRowId={(resident) => resident.id}
           rows={filteredResidents}
+          renderCardCornerActions={canManage ? renderSelection : undefined}
         />
       )}
 
@@ -412,11 +479,12 @@ const ApiResidentsOverview: React.FC = () => {
         confirmLabel={t('common.save')}
         contentSx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' }, gap: 2 }}
         maxWidth="sm"
-        onCancel={() => setDialogMode(null)}
+        onCancel={() => { if (!isSaving) setDialogMode(null) }}
         onConfirm={() => { void saveResident() }}
         open={Boolean(dialogMode)}
         title={dialogMode === 'edit' ? t('residents.actions.editResident') : t('residents.actions.addResident')}
       >
+        {mutationError && <Alert severity="error" sx={{ gridColumn: '1 / -1' }}>{mutationError}</Alert>}
         <TextField
           autoFocus
           fullWidth
@@ -510,17 +578,18 @@ const ApiResidentsOverview: React.FC = () => {
 
       <ConfirmationDialog
         cancelLabel={t('common.cancel')}
-        confirmDisabled={!deletingResident || isDeletingResident}
+        confirmDisabled={deletingResidents.length === 0 || isDeletingResident}
         confirmLabel={isDeletingResident ? t('residents.dialog.deleting') : t('residents.dialog.deleteConfirmYes')}
-        onCancel={() => setDeletingResident(null)}
+        onCancel={() => { if (!isDeletingResident) setDeletingResidents([]) }}
         onConfirm={() => { void deleteResident() }}
-        open={Boolean(deletingResident)}
+        open={deletingResidents.length > 0}
         title={t('residents.dialog.deleteTitle')}
       >
+        {mutationError && <Alert severity="error" sx={{ mb: 2 }}>{mutationError}</Alert>}
         <Typography color="text.secondary">
-          {t('residents.dialog.deleteConfirm', {
-            resident: deletingResident?.fullName ?? '',
-          })}
+          {deletingResidents.length === 1
+            ? t('residents.dialog.deleteConfirm', { resident: deletingResidents[0].fullName })
+            : t('residents.retention.bulkConfirm', { count: deletingResidents.length })}
         </Typography>
       </ConfirmationDialog>
 

@@ -454,7 +454,7 @@
       "addResident": "Add resident",
       "assign": "Assign",
       "assignResident": "Assign resident",
-      "deleteResident": "Delete resident",
+      "deleteResident": "Remove resident",
       "editResident": "Edit resident",
       "openDetails": "Open details",
       "backToList": "Back",
@@ -464,10 +464,22 @@
     },
     "dialog": {
       "addTitle": "Add resident",
-      "deleteConfirm": "Are you sure you want to delete resident {{resident}}? The resident and its associated account will be deleted!",
-      "deleteConfirmYes": "Yes, delete",
-      "deleteTitle": "Delete resident",
-      "deleting": "Deleting..."
+      "deleteConfirm": "Remove {{resident}} from your resident records and apartment assignments? Their user account and other administrators' records will remain.",
+      "deleteConfirmYes": "Yes, remove",
+      "deleteTitle": "Remove resident",
+      "deleting": "Removing..."
+    },
+    "retention": {
+      "noBlock": "No block",
+      "adminManagementOnly": "Resident changes require an administrator account. This global overview is read-only.",
+      "saveFailed": "Unable to save the resident. Please try again.",
+      "removeFailed": "Unable to remove the selected residents. Please try again.",
+      "select": "Select",
+      "selectResident": "Select {{resident}}",
+      "selectFiltered": "Select filtered residents (up to 500)",
+      "removeSelected": "Remove selected ({{count}})",
+      "bulkConfirm": "Remove {{count}} selected residents from your records and apartment assignments? Their user accounts and other administrators' records will remain.",
+      "noDestinations": "No blocks are available for assignment. These residents remain in your records."
     },
     "notifications": {
       "censorAssigned": "Censor role assigned successfully.",
@@ -1238,7 +1250,7 @@
       "apartmentsCount": "Apartments count",
       "createSuccess": "Block created successfully.",
       "createTitle": "Add block",
-      "deleteConfirm": "Are you sure you want to delete block {{block}}?",
+      "deleteConfirm": "Delete block {{block}}, its staircases and apartments? Residents and their user accounts will remain. Residents without another block will stay in your residents list as No block. Blocks with water reading history cannot be deleted.",
       "deleteConfirmYes": "Yes",
       "deleteError": "The block could not be deleted.",
       "deleteSuccess": "Block deleted successfully.",

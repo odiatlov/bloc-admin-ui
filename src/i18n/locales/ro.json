@@ -486,7 +486,7 @@
                                       "addResident":  "Adaugă locatar",
                                       "assign":  "Alocă",
                                       "assignResident":  "Alocă locatar",
-                                      "deleteResident":  "Șterge locatar",
+                                      "deleteResident":  "Elimină locatar",
                                       "editResident":  "Editează locatar",
                                       "openDetails":  "Deschide detalii",
                                       "backToList":  "Înapoi",
@@ -496,11 +496,23 @@
                                   },
                       "dialog":  {
                                      "addTitle":  "Adaugă locatar",
-                                     "deleteConfirm":  "Sigur doriți să ștergeți locatarul {{resident}}? Locatarul și contul asociat vor fi șterse!",
-                                     "deleteConfirmYes":  "Da, șterge",
-                                     "deleteTitle":  "Șterge locatar",
-                                     "deleting":  "Se șterge..."
+                                     "deleteConfirm":  "Eliminați locatarul {{resident}} din evidența dumneavoastră și din alocările la apartamente? Contul de utilizator și evidențele altor administratori se păstrează.",
+                                     "deleteConfirmYes":  "Da, elimină",
+                                     "deleteTitle":  "Elimină locatar",
+                                     "deleting":  "Se elimină..."
                                  },
+                      "retention": {
+                                      "noBlock": "Fără bloc",
+                                      "adminManagementOnly": "Modificarea locatarilor necesită un cont de administrator. Această listă globală permite doar consultarea.",
+                                      "saveFailed": "Locatarul nu a putut fi salvat. Încercați din nou.",
+                                      "removeFailed": "Locatarii selectați nu au putut fi eliminați. Încercați din nou.",
+                                      "select": "Selectează",
+                                      "selectResident": "Selectează {{resident}}",
+                                      "selectFiltered": "Selectează locatarii filtrați (maximum 500)",
+                                      "removeSelected": "Elimină selecția ({{count}})",
+                                      "bulkConfirm": "Eliminați cei {{count}} locatari selectați din evidența dumneavoastră și din alocările la apartamente? Conturile de utilizator și evidențele altor administratori se păstrează.",
+                                      "noDestinations": "Nu există blocuri disponibile pentru alocare. Acești locatari rămân în evidența dumneavoastră."
+                                  },
                       "notifications":  {
                                             "censorAssigned":  "Rolul de cenzor a fost alocat cu succes.",
                                             "existingLinked":  "Acest locatar exista deja, așa că a fost asociat cu blocul selectat."
@@ -1010,7 +1022,7 @@
                                          "apartmentsCount":  "Număr de apartamente",
                                          "createSuccess":  "Blocul a fost creat cu succes.",
                                          "createTitle":  "Adaugă bloc",
-                                         "deleteConfirm":  "Sigur doriți să ștergeți blocul {{block}}?",
+                                         "deleteConfirm":  "Ștergeți blocul {{block}}, scările și apartamentele sale? Locatarii și conturile lor de utilizator se păstrează. Locatarii fără alt bloc rămân în lista dumneavoastră cu eticheta Fără bloc. Blocurile cu istoric de citiri ale apei nu pot fi șterse.",
                                          "deleteConfirmYes":  "Da",
                                          "deleteError":  "Blocul nu a putut fi șters.",
                                          "deleteSuccess":  "Blocul a fost șters cu succes.",

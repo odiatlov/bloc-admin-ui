@@ -11,4 +11,6 @@ export const residentsApi = {
   updateProfile: (id: string, request: UpdateResidentProfileRequest) =>
     apiPatch<UpdateResidentProfileRequest, ResidentResponse>(`/residents/${id}/profile`, request),
   delete: (id: string) => apiDelete<string>(`/residents/${id}`),
+  removeMany: (residentIds: string[]) =>
+    apiPost<{ residentIds: string[] }, string[]>('/residents/remove', { residentIds }),
 }
