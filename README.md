@@ -1,118 +1,166 @@
 # Bloc Admin UI
 
-Frontend application for apartment building administration built with React, TypeScript and Vite.
+Bloc Admin UI is a React, TypeScript and Vite frontend for managing apartment buildings, residents, apartments, utilities and administration workflows.
 
-The platform provides dedicated interfaces for administrators and residents, focused on financial management, utility tracking and communication.
+The application is built around role-based experiences for platform administrators, association administrators, censors and residents. It combines backend-connected management screens with mocked workflow data while the remaining modules are developed.
 
 ---
 
-## ✨ Features
+## Features
 
-### 👨‍💼 Administrator
-- Dashboard overview
-- Block management
+### Platform administration
+- Super admin dashboard
+- Administrator account management
+- Global block and resident oversight
+- Water consumption monitoring
+- Data export workspace
+
+### Building administration
+- Dashboard overview with operational metrics
+- Block, staircase and apartment management
 - Resident management
-- Financial management
-- Water consumption tracking
-- Reports and exports
+- Finance workspace for invoices, expenses, payments and resident bills
+- Water consumption tracking and resident index submissions
+- Reports workspace
 - Application settings
 
-### 🏠 Resident
+### Resident experience
 - Personal dashboard
-- Bills and payments
+- Bills and payment overview
 - Water index submission
 - Personal settings
 
-### 🌍 General
-- Responsive UI
-- Dark / Light mode
-- Multi-language support (i18n)
-- Role-based interface
-- Type-safe architecture
+### Shared experience
+- Role-based navigation and route protection
+- Mock login/session flow backed by available database accounts
+- Responsive sidebar and topbar layout
+- Dark and light theme switching
+- Multi-language support with i18next
+- Notifications drawer and notification API integration
+- Reusable data views, filters, dialogs and status components
+- Type-safe domain models and API services
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-- React
+- React 19
 - TypeScript
 - Vite
-- Material UI (MUI)
+- Material UI
 - React Router
-- i18next
+- i18next / react-i18next
+- Day.js
+- Vite PWA
+- ESLint
 
 ---
 
-## 📂 Structure
+## Project Structure
 
 ```bash
 src/
-├── components/
-├── pages/
-├── layouts/
-├── context/
-├── mock/
-├── types/
-├── utils/
-├── i18n/
-└── theme/
+├── app/                 # Routing and protected routes
+├── application/         # Application-level access helpers
+├── areas/               # Feature areas for block admin and support platform
+├── components/          # Shared UI, layout and notification components
+├── contexts/            # Role and session context
+├── domain/              # Domain presentation helpers
+├── hooks/               # Reusable data hooks
+├── i18n/                # Localization setup and locale files
+├── layouts/             # App shell layout
+├── mocks/               # Mock accounts and workflow data
+├── pages/               # Standalone pages such as login
+├── services/            # API clients and backend integrations
+├── theme/               # MUI theme configuration
+├── types/               # Shared TypeScript types
+└── utils/               # Formatting, pagination and domain utilities
 ```
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
-Install dependencies
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-Start development server
+Start the development server:
 
 ```bash
 npm run dev
 ```
 
-Production build
+Run a production build:
 
 ```bash
 npm run build
 ```
 
+Run linting:
+
+```bash
+npm run lint
+```
+
+Preview the production build:
+
+```bash
+npm run preview
+```
+
 ---
 
-## 📌 Status
+## Backend Connection Status
 
-### Current Backend Connection
+This UI repository depends on the separate API repository for backend services and data persistence. To use backend-connected features, set up and run the API project alongside this frontend and configure the frontend to connect to it.
 
-The frontend is currently connected with the backend for:
+The frontend currently includes API services for:
 
-- Residents
-- Apartments
 - Blocks
 - Staircases
+- Apartments
+- Apartment residents
+- Residents
+- User accounts / mock login
+- Water readings
+- Notifications
+- Super admin views
+
+Some finance, reporting and administration workflows still use local mock data while their backend endpoints are completed.
+
+---
+
+## Current Status
 
 ### Implemented
 
-- Layout system
-- Sidebar & Topbar
-- Translation system
+- Responsive application shell
+- Sidebar and topbar navigation
+- Role-based menus and protected routes
 - Theme switching
-- Mobile responsiveness
-- Dashboard foundations
+- Translation system
+- Mock login/session handling
+- Backend-connected management foundations
+- Super admin area
+- Block admin area
+- Resident and censor-specific views
+- Water consumption foundations
+- Notifications UI
 
 ### Planned
 
-- Authentication
+- Production authentication flow
 - Online payments
-- Invoice feature
+- Full invoice lifecycle
 - Bill export
-- Notifications system
-- Additional backend-connected modules currently in active development
+- Expanded notification workflows
+- Additional backend-connected finance and reporting modules
 
 ---
 
-## 👨‍💻 Author
+## Author
 
 Developed as a modern apartment administration platform focused on usability, scalability and clean UI.
