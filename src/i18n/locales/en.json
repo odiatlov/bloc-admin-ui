@@ -629,6 +629,19 @@
     "title": "Block {{block}}",
     "description": "Block-level apartments, hierarchy, finance, and consumption.",
     "monthlyStaircasePayments": "Monthly staircase payments",
+    "deletion": {
+      "summary": "Deleting block {{block}} will also delete:",
+      "staircases": "Staircases",
+      "apartments": "Apartments",
+      "waterMeters": "Water meters (active and inactive)",
+      "waterReadings": "Water readings",
+      "residentsPreserved": "Residents and their user accounts will be preserved. Only their assignments to this block will be removed.",
+      "irreversible": "Are you sure you want to delete this block and all the items listed above, including its water-reading and consumption history? This action is irreversible.",
+      "loading": "Loading deletion summary...",
+      "loadFailed": "The deletion summary could not be loaded. Please try again.",
+      "delete": "Delete",
+      "deleteAll": "Yes, delete all"
+    },
     "results": "{{count}} blocks",
     "actions": {
       "openOverview": "Open overview",
@@ -1248,7 +1261,7 @@
       "apartmentsCount": "Apartments count",
       "createSuccess": "Block created successfully.",
       "createTitle": "Add block",
-      "deleteConfirm": "Delete block {{block}}, its staircases and apartments? Residents and their user accounts will remain. Residents without another block will stay in your residents list as No block. Blocks with water reading history cannot be deleted.",
+      "deleteConfirm": "Delete block {{block}}, its staircases, apartments, water meters and water-reading history? Residents and their user accounts will remain. This action is irreversible.",
       "deleteConfirmYes": "Yes",
       "deleteError": "The block could not be deleted.",
       "deleteSuccess": "Block deleted successfully.",

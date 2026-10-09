@@ -687,6 +687,19 @@
                    "title":  "Bloc {{block}}",
                    "description":  "Apartamente, ierarhie, finanțe și consum la nivel de bloc.",
                    "monthlyStaircasePayments":  "Plăți lunare pe scară",
+                   "deletion":  {
+                                    "summary":  "Ștergerea blocului {{block}} va șterge și:",
+                                    "staircases":  "Scări",
+                                    "apartments":  "Apartamente",
+                                    "waterMeters":  "Contoare de apă (active și inactive)",
+                                    "waterReadings":  "Citiri ale apei",
+                                    "residentsPreserved":  "Locatarii și conturile lor de utilizator se păstrează. Se elimină doar alocările lor la acest bloc.",
+                                    "irreversible":  "Sigur doriți să ștergeți acest bloc și toate elementele enumerate mai sus, inclusiv istoricul citirilor și al consumului de apă? Această acțiune este ireversibilă.",
+                                    "loading":  "Se încarcă rezumatul ștergerii...",
+                                    "loadFailed":  "Rezumatul ștergerii nu a putut fi încărcat. Încercați din nou.",
+                                    "delete":  "Șterge",
+                                    "deleteAll":  "Da, șterge tot"
+                                },
                    "results":  "{{count}} blocuri",
                    "actions":  {
                                    "openOverview":  "Deschide prezentarea",
@@ -1020,7 +1033,7 @@
                                          "apartmentsCount":  "Număr de apartamente",
                                          "createSuccess":  "Blocul a fost creat cu succes.",
                                          "createTitle":  "Adaugă bloc",
-                                         "deleteConfirm":  "Ștergeți blocul {{block}}, scările și apartamentele sale? Locatarii și conturile lor de utilizator se păstrează. Locatarii fără alt bloc rămân în lista dumneavoastră cu eticheta Fără bloc. Blocurile cu istoric de citiri ale apei nu pot fi șterse.",
+                                         "deleteConfirm":  "Ștergeți blocul {{block}}, scările, apartamentele, contoarele de apă și istoricul citirilor apei? Locatarii și conturile lor de utilizator se păstrează. Această acțiune este ireversibilă.",
                                          "deleteConfirmYes":  "Da",
                                          "deleteError":  "Blocul nu a putut fi șters.",
                                          "deleteSuccess":  "Blocul a fost șters cu succes.",

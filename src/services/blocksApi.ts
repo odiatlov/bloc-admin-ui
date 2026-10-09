@@ -2,6 +2,8 @@ import type {
   AssignBlockCensorRequest,
   BlockRoleAssignmentResponse,
   BlockOverviewDto,
+  BlockDeletionSummary,
+  DeleteBlockRequest,
   CreateBlockRequest,
   BlockSetupRequest,
   UpdateBlockRequest,
@@ -19,6 +21,12 @@ export const blocksApi = {
   assignCensor: (id: string, request: AssignBlockCensorRequest) =>
     apiPatch<AssignBlockCensorRequest, BlockRoleAssignmentResponse>(`/blocks/${id}/censor`, request),
   deleteBlock: (id: string) => apiDelete<string>(`/blocks/${id}`),
+  getDeletionSummary: (id: string) => apiGet<BlockDeletionSummary>(`/blocks/${id}/deletion-summary`),
+  deleteWithSummary: (id: string, summary: BlockDeletionSummary) =>
+    apiPost<DeleteBlockRequest, string>(`/blocks/${id}/delete`, {
+      deleteWaterHistory: true,
+      expectedSummary: summary,
+    }),
 }
 
 export const fetchBlockOverview = blocksApi.getOverview

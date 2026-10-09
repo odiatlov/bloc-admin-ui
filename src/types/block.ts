@@ -17,6 +17,19 @@ export type BlockOverviewDto = {
 
 export type BlockOverview = BlockOverviewDto
 
+export type BlockDeletionSummary = {
+  blockName: string
+  staircaseCount: number
+  apartmentCount: number
+  waterMeterCount: number
+  waterReadingCount: number
+}
+
+export type DeleteBlockRequest = {
+  deleteWaterHistory: boolean
+  expectedSummary: BlockDeletionSummary
+}
+
 export type CreateBlockRequest = {
   name: string
   apartmentCount: number

@@ -11,7 +11,6 @@ import ApartmentIcon from '@mui/icons-material/Apartment'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import { useTranslation } from 'react-i18next'
-import ConfirmationDialog from '../../../../components/shared/ConfirmationDialog'
 import EmptyState from '../../../../components/shared/EmptyState'
 import FilterBar from '../../../../components/shared/FilterBar'
 import LoadErrorState from '../../../../components/shared/LoadErrorState'
@@ -23,7 +22,8 @@ import { RoleContext } from '../../../../contexts/RoleContext'
 import { useBlocks } from '../../../../hooks/useBlocks'
 import { formatCurrency } from '../../../../hooks/useApartmentData'
 import { blocksApi } from '../../../../services/blocksApi'
-import type { BlockOverview, CreateBlockRequest } from '../../../../types/block'
+import type { BlockDeletionSummary, BlockOverview, CreateBlockRequest } from '../../../../types/block'
+import BlockDeletionDialog from './BlockDeletionDialog'
 import BlockDialog from './BlockDialog'
 import BlockSetupWizard from './BlockSetupWizard'
 import type { BlockSetupRequest } from '../../../../types/block'
@@ -123,26 +123,28 @@ const Blocks: React.FC = () => {
     setNotification({ open: true, message: refreshed ? t('settings.blockDialog.createSuccess') : t('blocks.errors.refreshAfterSave'), severity: refreshed ? 'success' : 'error' })
   }
 
-  const deleteBlock = async () => {
-    if (!deleteTarget || isDeletingBlock) return
+  const deleteBlock = async (summary: BlockDeletionSummary) => {
+    if (!deleteTarget || isDeletingBlock) return false
 
     setIsDeletingBlock(true)
 
     try {
-      await blocksApi.deleteBlock(deleteTarget.id)
-      const refreshed = await refreshAfterMutation()
+      await blocksApi.deleteWithSummary(deleteTarget.id, summary)
+      const refreshed = await refreshAfterMutation().catch(() => false)
       setDeleteTarget(null)
       setNotification({
         open: true,
         message: refreshed ? t('settings.blockDialog.deleteSuccess') : t('blocks.errors.refreshAfterDelete'),
         severity: refreshed ? 'success' : 'error',
       })
+      return true
     } catch (deleteError) {
       setNotification({
         open: true,
         message: deleteError instanceof Error ? deleteError.message : t('settings.blockDialog.deleteError'),
         severity: 'error',
       })
+      return false
     } finally {
       setIsDeletingBlock(false)
     }
@@ -256,21 +258,13 @@ const Blocks: React.FC = () => {
         onSubmit={saveBlock}
       />
       {dialogMode === 'create' && <BlockSetupWizard onClose={() => setDialogMode(null)} onSimple={saveBlock} onSetup={saveSetup} />}
-      <ConfirmationDialog
-        cancelLabel={t('common.cancel')}
-        confirmDisabled={isDeletingBlock}
-        confirmLabel={isDeletingBlock ? t('settings.blockDialog.deleting') : t('settings.blockDialog.deleteConfirmYes')}
+      {deleteTarget && <BlockDeletionDialog
+        key={deleteTarget.id}
+        blockId={deleteTarget.id}
+        isDeleting={isDeletingBlock}
         onCancel={() => setDeleteTarget(null)}
-        onConfirm={() => void deleteBlock()}
-        open={Boolean(deleteTarget)}
-        title={t('settings.blockDialog.deleteTitle')}
-      >
-        <Typography>
-          {t('settings.blockDialog.deleteConfirm', {
-            block: deleteTarget?.name ?? '',
-          })}
-        </Typography>
-      </ConfirmationDialog>
+        onDelete={deleteBlock}
+      />}
       <Snackbar
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         autoHideDuration={4000}
