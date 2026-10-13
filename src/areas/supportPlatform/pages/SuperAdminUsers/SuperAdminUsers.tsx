@@ -20,6 +20,7 @@ import LoadErrorState from '../../../../components/shared/LoadErrorState'
 import PageHeader from '../../../../components/shared/PageHeader'
 import ResponsiveDataView, { type DataColumn } from '../../../../components/shared/ResponsiveDataView'
 import SearchField from '../../../../components/shared/SearchField'
+import StatusChip from '../../../../components/shared/StatusChip'
 import { translatePlatformUserValue } from '../../../../domain/displayLabels'
 import type { SuperAdminUserResponse, UserApartmentAssociation, UserBlockAssociation, UserRoleAssociation, UserAdminAssociation } from '../../../../services/superAdminApi'
 import { useSuperAdminUsers } from '../../hooks/useSuperAdminUsers'
@@ -36,6 +37,13 @@ const SuperAdminUsers = () => {
   const label = (key: string) => t(`superAdmin.users.${key}`)
   const statusLabel = (status: string) => translatePlatformUserValue(t, 'statuses', status)
   const roleLabel = (role: string) => translatePlatformUserValue(t, 'roles', role)
+  const statusBadge = (status: string) => {
+    const normalized = status.toLowerCase()
+    const colorStatus = ['suspended', 'blocked', 'disabled', 'deleted', 'expired', 'cancelled', 'ended', 'removed', 'archived'].includes(normalized)
+      ? 'inactive' : ['confirmed', 'accepted'].includes(normalized) ? 'active'
+        : ['trialing', 'deletionpending', 'deletionscheduled', 'pastdue', 'past_due'].includes(normalized) ? 'pending' : normalized
+    return <StatusChip status={colorStatus} label={statusLabel(status)} />
+  }
   const date = (value?: string | null) => value ? new Intl.DateTimeFormat(i18n.language).format(new Date(value)) : '-'
   const badges = (values: string[]) => values.length ? <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
     {values.map((value, index) => <Chip key={`${value}-${index}`} size="small" label={value}
@@ -44,7 +52,7 @@ const SuperAdminUsers = () => {
   const columns: DataColumn<SuperAdminUserResponse>[] = [
     { key: 'name', label: label('columns.name'), cardRole: 'primary', render: (user) => user.displayName },
     { key: 'email', label: label('columns.email'), render: (user) => user.email },
-    { key: 'status', label: label('columns.status'), cardRole: 'status', render: (user) => badges([statusLabel(user.status)]) },
+    { key: 'status', label: label('columns.status'), cardRole: 'status', render: (user) => statusBadge(user.status) },
     { key: 'roles', label: label('columns.roles'), render: (user) => badges(user.roles.map((role) => `${roleLabel(role.role)} / ${role.blockName} / ${statusLabel(role.status)}`)) },
     { key: 'resident', label: label('columns.resident'), render: (user) => user.residentName ?? label('noResident') },
     { key: 'admins', label: label('columns.admins'), render: (user) => user.adminAccounts.map((account) => account.displayName).join(', ') || label('none') },
@@ -59,7 +67,7 @@ const SuperAdminUsers = () => {
   const roleColumns: DataColumn<UserRoleAssociation>[] = [
     { key: 'role', label: label('columns.roles'), cardRole: 'primary', render: (role) => roleLabel(role.role) },
     { key: 'block', label: label('columns.blocks'), render: (role) => role.blockName },
-    { key: 'status', label: label('columns.status'), render: (role) => statusLabel(role.status) },
+    { key: 'status', label: label('columns.status'), render: (role) => statusBadge(role.status) },
     { key: 'created', label: label('columns.createdAt'), render: (role) => date(role.createdAt) },
     { key: 'suspended', label: label('suspendedAt'), render: (role) => date(role.suspendedAt) },
     { key: 'ended', label: label('endedAt'), render: (role) => date(role.endedAt) },
@@ -67,7 +75,7 @@ const SuperAdminUsers = () => {
   ]
   const adminColumns: DataColumn<UserAdminAssociation>[] = [
     { key: 'name', label: label('columns.name'), cardRole: 'primary', render: (account) => account.displayName },
-    { key: 'status', label: label('columns.status'), render: (account) => statusLabel(account.status) },
+    { key: 'status', label: label('columns.status'), render: (account) => statusBadge(account.status) },
     { key: 'subscription', label: label('subscription'), render: (account) => statusLabel(account.subscriptionStatus) },
     { key: 'blocks', label: label('columns.blocks'), render: (account) => account.blocks.map((block) => block.blockName).join(', ') || label('none') },
   ]
@@ -88,7 +96,7 @@ const SuperAdminUsers = () => {
   const user = report?.user
   return <Box>
     <PageHeader title={label('title')} />
-    <Box sx={{ mb: 2 }}><FilterBar actions={<Button startIcon={<FilterAltOffIcon />} disabled={!users.hasFilters} onClick={users.clearFilters}>{t('common.clearFilters')}</Button>}>
+    <Box sx={{ mb: 2 }}><FilterBar selectWidth={180} actions={<Button variant="contained" color="primary" startIcon={<FilterAltOffIcon />} disabled={!users.hasFilters} onClick={users.clearFilters}>{t('common.clearFilters')}</Button>}>
       <SearchField size="small" label={label('filters.search')} value={users.search} disabled={disabled}
         onChange={(event) => users.setSearch(event.target.value)} onClear={() => users.setSearch('')} />
       <TextField select size="small" label={label('columns.blocks')} value={users.blockId} disabled={disabled || users.optionsLoading} onChange={(event) => users.setBlockId(event.target.value)}>
@@ -120,29 +128,29 @@ const SuperAdminUsers = () => {
       hideCancelButton showCloseButton maxWidth="lg" onCancel={() => setReport(null)} onConfirm={() => setReport(null)} contentSx={{ display: 'grid', gap: 2, overflowWrap: 'anywhere' }}>
       {user && <>
         <Typography variant="h6">{user.displayName}</Typography>
-        <Typography>{user.email} / {statusLabel(user.status)}</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}><Typography>{user.email}</Typography>{statusBadge(user.status)}</Box>
         <Tabs value={report?.tab ?? 0} onChange={(_, tab: number) => setReport({ user, tab })} variant="fullWidth">
           <Tab id="user-associations-tab" aria-controls="user-associations-panel" label={label('associations')} />
           <Tab id="user-resident-tab" aria-controls="user-resident-panel" label={label('columns.resident')} disabled={!user.residentId} />
         </Tabs>
         {report?.tab === 0 ? <Box role="tabpanel" id="user-associations-panel" aria-labelledby="user-associations-tab" sx={{ display: 'grid', gap: 2 }}>
-          <Typography variant="subtitle1">{label('columns.roles')}</Typography>
+          <Typography variant="subtitle1" fontWeight={700}>{label('columns.roles')}</Typography>
           <ResponsiveDataView columns={roleColumns} rows={user.roles} getRowId={(row) => row.roleId} ariaLabel={label('columns.roles')}
             paginationId={`user-roles-${user.userId}`} desktopTableMinWidth={950} emptyState={reportEmpty} />
-          <Typography variant="subtitle1">{label('columns.admins')}</Typography>
+          <Typography variant="subtitle1" fontWeight={700}>{label('columns.admins')}</Typography>
           <ResponsiveDataView columns={adminColumns} rows={user.adminAccounts} getRowId={(row) => row.adminAccountId} ariaLabel={label('columns.admins')}
             paginationId={`user-admins-${user.userId}`} emptyState={reportEmpty} />
         </Box> : <Box role="tabpanel" id="user-resident-panel" aria-labelledby="user-resident-tab" sx={{ display: 'grid', gap: 2 }}>
           <Typography variant="h6">{user.residentName}</Typography>
           <Box component="dl" sx={{ m: 0, display: 'grid', gap: 1, gridTemplateColumns: { xs: '1fr', sm: '180px minmax(0, 1fr)' }, '& dd': { m: 0 } }}>
-            <Typography component="dt">{label('columns.status')}</Typography><Typography component="dd">{user.residentStatus ? statusLabel(user.residentStatus) : '-'}</Typography>
-            <Typography component="dt">{label('columns.email')}</Typography><Typography component="dd">{user.residentEmail || '-'}</Typography>
-            <Typography component="dt">{label('phone')}</Typography><Typography component="dd">{user.phone || '-'}</Typography>
+            <Typography component="dt" fontWeight={700}>{label('columns.status')}</Typography><Box component="dd">{user.residentStatus ? statusBadge(user.residentStatus) : '-'}</Box>
+            <Typography component="dt" fontWeight={700}>{label('columns.email')}</Typography><Typography component="dd">{user.residentEmail || '-'}</Typography>
+            <Typography component="dt" fontWeight={700}>{label('phone')}</Typography><Typography component="dd">{user.phone || '-'}</Typography>
           </Box>
-          <Typography variant="subtitle1">{label('memberships')}</Typography>
+          <Typography variant="subtitle1" fontWeight={700}>{label('memberships')}</Typography>
           <ResponsiveDataView columns={blockColumns} rows={user.residentBlocks} getRowId={(row) => row.blockId} ariaLabel={label('memberships')}
             paginationId={`user-memberships-${user.userId}`} emptyState={reportEmpty} />
-          <Typography variant="subtitle1">{label('columns.apartments')}</Typography>
+          <Typography variant="subtitle1" fontWeight={700}>{label('columns.apartments')}</Typography>
           <ResponsiveDataView columns={apartmentColumns} rows={user.apartments} getRowId={(row) => row.apartmentId} ariaLabel={label('columns.apartments')}
             paginationId={`user-apartments-${user.userId}`} emptyState={reportEmpty} />
         </Box>}
