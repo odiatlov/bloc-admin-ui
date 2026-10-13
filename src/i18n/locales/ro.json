@@ -213,6 +213,7 @@
                     "manageAdmins":  "Administrare administratori",
                     "superBlocks":  "Blocuri platformă",
                     "superResidents":  "Locatari platformă",
+                    "superUsers":  "Utilizatori platformă",
                     "exportData":  "Export date"
                 },
     "notifications":  {
@@ -1138,6 +1139,32 @@
                        "loading":  "Se încarcă scările..."
                    },
     "superAdmin":  {
+                       "users": {
+                           "title": "Utilizatori platformă",
+                           "columns": {
+                               "name": "Nume", "email": "Email", "status": "Starea contului", "roles": "Roluri în blocuri",
+                               "resident": "Profil locatar", "admins": "Conturi de administrator", "blocks": "Blocuri",
+                               "apartments": "Apartamente", "createdAt": "Creat", "actions": "Acțiuni"
+                           },
+                           "filters": { "search": "Caută după nume sau email", "linked": "Profil asociat", "unlinked": "Fără profil" },
+                           "roles": { "admin": "Administrator", "censor": "Cenzor", "resident": "Locatar" },
+                           "statuses": {
+                               "active": "Activ", "inactive": "Inactiv", "suspended": "Suspendat", "ended": "Încheiat",
+                               "removed": "Eliminat", "invited": "Invitat", "pending": "În așteptare", "confirmed": "Confirmat",
+                               "accepted": "Acceptat", "disabled": "Dezactivat", "deleted": "Șters", "cancelled": "Anulat",
+                               "expired": "Expirat", "trialing": "Perioadă de probă", "pastdue": "Restant", "past_due": "Restant",
+                               "deletionpending": "În așteptarea ștergerii", "deletionscheduled": "Ștergere programată",
+                               "unassigned": "Neatribuit", "blocked": "Blocat", "archived": "Arhivat"
+                           },
+                           "unknown": "Necunoscut", "none": "Niciuna", "noResident": "Fără profil asociat", "noRoles": "Fără roluri atribuite",
+                           "viewReport": "Vezi raportul asocierilor", "viewResident": "Vezi locatarul", "reportTitle": "Raportul asocierilor utilizatorului",
+                           "associations": "Roluri și conturi", "memberships": "Apartenența locatarului la blocuri", "subscription": "Abonament",
+                           "staircase": "Scară", "livesHere": "Locuiește aici", "yes": "Da", "no": "Nu", "phone": "Telefon",
+                           "suspendedAt": "Suspendat", "endedAt": "Încheiat", "suspensionReason": "Motivul suspendării",
+                           "empty": "Nu există utilizatori", "emptyHelper": "Nu există conturi de utilizator de afișat.",
+                           "filteredEmpty": "Niciun utilizator găsit", "filteredEmptyHelper": "Modifică sau șterge filtrele pentru a vedea mai mulți utilizatori.",
+                           "noAssociations": "Fără asocieri", "noAssociationsHelper": "Nu există înregistrări asociate în această secțiune."
+                       },
                        "water": {
                            "description": "Consumul de apă din toate blocurile.",
                            "admin": "Administrator",

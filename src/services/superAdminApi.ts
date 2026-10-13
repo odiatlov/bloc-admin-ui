@@ -71,6 +71,7 @@ export type SuperAdminInvitationResponse = {
 }
 
 export const superAdminApi = {
+  getUserFilters: (signal?: AbortSignal) => apiGet<SuperAdminUserFiltersResponse>('/super-admin/users/filters', signal),
   getDashboard: () => apiGet<SuperAdminDashboardResponse>('/super-admin/dashboard'),
   getAdminAccounts: () => apiGet<SuperAdminAdminAccountResponse[]>('/super-admin/admin-accounts'),
   createAdminAccount: (request: CreateSuperAdminAdminAccountRequest) =>
@@ -79,3 +80,24 @@ export const superAdminApi = {
   getResidents: () => apiGet<SuperAdminResidentResponse[]>('/super-admin/residents'),
   getAdminInvitations: () => apiGet<SuperAdminInvitationResponse[]>('/super-admin/admin-invitations'),
 }
+
+export type UserBlockAssociation = { blockId: string; blockName: string }
+export type UserRoleAssociation = UserBlockAssociation & {
+  roleId: string; role: string; status: string; createdAt: string
+  endedAt?: string | null; suspendedAt?: string | null; suspensionReason?: string | null
+}
+export type UserAdminAssociation = {
+  adminAccountId: string; displayName: string; status: string; subscriptionStatus: string
+  blocks: UserBlockAssociation[]
+}
+export type UserApartmentAssociation = UserBlockAssociation & {
+  apartmentId: string; apartmentNumber: string; staircaseName?: string | null; livesHere: boolean
+}
+export type SuperAdminUserResponse = {
+  userId: string; displayName: string; email: string; status: string; createdAt: string
+  residentId?: string | null; residentName?: string | null; residentStatus?: string | null
+  residentEmail?: string | null; phone?: string | null
+  roles: UserRoleAssociation[]; adminAccounts: UserAdminAssociation[]
+  residentBlocks: UserBlockAssociation[]; apartments: UserApartmentAssociation[]
+}
+export type SuperAdminUserFiltersResponse = { blocks: UserBlockAssociation[]; statuses: string[] }

@@ -5,9 +5,10 @@ import Paper from '@mui/material/Paper'
 interface FilterBarProps {
   actions?: ReactNode
   children: ReactNode
+  selectWidth?: number
 }
 
-const FilterBar = ({ actions, children }: FilterBarProps) => (
+const FilterBar = ({ actions, children, selectWidth }: FilterBarProps) => (
   <Paper
     sx={{
       p: 2,
@@ -46,6 +47,13 @@ const FilterBar = ({ actions, children }: FilterBarProps) => (
           maxWidth: { xs: '100%', sm: 280 },
           width: { xs: '100%', sm: 280 },
         },
+        ...(selectWidth === undefined ? {} : {
+          '& .MuiTextField-root:has(.MuiSelect-root)': {
+            flex: { sm: `0 0 ${selectWidth}px` },
+            maxWidth: { xs: '100%', sm: selectWidth },
+            width: { xs: '100%', sm: selectWidth },
+          },
+        }),
       }}
     >
       {children}

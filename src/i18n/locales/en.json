@@ -181,6 +181,7 @@
     "manageAdmins": "Manage admins",
     "superBlocks": "Platform blocks",
     "superResidents": "Platform residents",
+    "superUsers": "Platform users",
     "exportData": "Export data"
   },
   "notifications": {
@@ -983,6 +984,32 @@
     }
   },
   "superAdmin": {
+    "users": {
+      "title": "Platform users",
+      "columns": {
+        "name": "Name", "email": "Email", "status": "Account status", "roles": "Block roles",
+        "resident": "Resident profile", "admins": "Admin accounts", "blocks": "Blocks",
+        "apartments": "Apartments", "createdAt": "Created", "actions": "Actions"
+      },
+      "filters": { "search": "Search name or email", "linked": "Linked profile", "unlinked": "No profile" },
+      "roles": { "admin": "Administrator", "censor": "Censor", "resident": "Resident" },
+      "statuses": {
+        "active": "Active", "inactive": "Inactive", "suspended": "Suspended", "ended": "Ended",
+        "removed": "Removed", "invited": "Invited", "pending": "Pending", "confirmed": "Confirmed",
+        "accepted": "Accepted", "disabled": "Disabled", "deleted": "Deleted", "cancelled": "Cancelled",
+        "expired": "Expired", "trialing": "Trial", "pastdue": "Past due", "past_due": "Past due",
+        "deletionpending": "Pending deletion", "deletionscheduled": "Deletion scheduled",
+        "unassigned": "Unassigned", "blocked": "Blocked", "archived": "Archived"
+      },
+      "unknown": "Unknown", "none": "None", "noResident": "No linked profile", "noRoles": "No role assignments",
+      "viewReport": "View association report", "viewResident": "View resident", "reportTitle": "User association report",
+      "associations": "Roles and accounts", "memberships": "Resident memberships", "subscription": "Subscription",
+      "staircase": "Staircase", "livesHere": "Lives here", "yes": "Yes", "no": "No", "phone": "Phone",
+      "suspendedAt": "Suspended", "endedAt": "Ended", "suspensionReason": "Suspension reason",
+      "empty": "No users yet", "emptyHelper": "There are no user accounts to display.",
+      "filteredEmpty": "No matching users", "filteredEmptyHelper": "Change or clear the filters to see more users.",
+      "noAssociations": "No associations", "noAssociationsHelper": "No records are linked in this section."
+    },
     "water": {
       "description": "Water consumption across all blocks.",
       "admin": "Administrator",
