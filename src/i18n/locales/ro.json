@@ -1309,6 +1309,13 @@
                                                     "viewDetails":  "Vezi detalii",
                                                     "assignAdmin":  "Alocă administrator",
                                                     "exportBlockData":  "Exportă datele blocului"
+                                                },
+                                      "apartments":  {
+                                                        "title":  "Apartamentele blocului {{block}}",
+                                                        "emptyHeadline":  "Nu există apartamente în acest bloc",
+                                                        "emptyHelper":  "Apartamentele adăugate în acest bloc vor apărea aici.",
+                                                        "notFoundHeadline":  "Blocul nu a fost găsit",
+                                                        "notFoundHelper":  "Acest bloc nu mai este disponibil. Reveniți la lista blocurilor."
                                                 }
                                   },
                        "residents":  {

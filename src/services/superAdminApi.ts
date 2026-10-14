@@ -39,6 +39,14 @@ export type SuperAdminBlockResponse = {
   subscriptionStatus?: string
 }
 
+export type SuperAdminBlockApartmentFiltersResponse = {
+  blockId: string
+  blockName: string
+  hasStaircases: boolean
+  staircases: { id: string; name: string }[]
+  floors: { staircaseId: string | null; floor: number | null }[]
+}
+
 export type CreateSuperAdminAdminAccountRequest = {
   ownerName: string
   ownerEmail: string
@@ -77,6 +85,8 @@ export const superAdminApi = {
   createAdminAccount: (request: CreateSuperAdminAdminAccountRequest) =>
     apiPost<CreateSuperAdminAdminAccountRequest, SuperAdminAdminAccountResponse>('/super-admin/admin-accounts', request),
   getBlocks: () => apiGet<SuperAdminBlockResponse[]>('/super-admin/blocks'),
+  getBlockApartmentFilters: (blockId: string, signal?: AbortSignal) =>
+    apiGet<SuperAdminBlockApartmentFiltersResponse>(`/super-admin/blocks/${blockId}/apartments/filters`, signal),
   getResidents: () => apiGet<SuperAdminResidentResponse[]>('/super-admin/residents'),
   getAdminInvitations: () => apiGet<SuperAdminInvitationResponse[]>('/super-admin/admin-invitations'),
 }

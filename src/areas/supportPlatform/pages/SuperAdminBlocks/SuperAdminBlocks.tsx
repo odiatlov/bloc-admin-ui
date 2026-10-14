@@ -37,7 +37,8 @@ const SuperAdminBlocks: React.FC = () => {
   }, [])
 
   React.useEffect(() => {
-    void loadBlocks()
+    const timer = window.setTimeout(() => { void loadBlocks() }, 0)
+    return () => window.clearTimeout(timer)
   }, [loadBlocks])
 
   const columns: DataColumn<SuperAdminBlockResponse>[] = [
@@ -53,8 +54,8 @@ const SuperAdminBlocks: React.FC = () => {
       key: 'actions',
       label: t('common.actions'),
       cardRole: 'actions',
-      actions: () => [
-        { id: 'details', label: t('superAdmin.blocks.actions.viewDetails'), icon: <VisibilityIcon />, priority: 2 },
+      actions: (block) => [
+        { id: 'details', label: t('superAdmin.blocks.actions.viewDetails'), icon: <VisibilityIcon />, to: `/superadmin/blocks/${block.blockId}/apartments`, priority: 2 },
         { id: 'assign', label: t('superAdmin.blocks.actions.assignAdmin'), icon: <AssignmentIndIcon />, priority: 1 },
         { id: 'export', label: t('superAdmin.blocks.actions.exportBlockData'), icon: <FileDownloadIcon /> },
       ],

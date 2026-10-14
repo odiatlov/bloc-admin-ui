@@ -134,23 +134,23 @@ const SuperAdminUsers = () => {
           <Tab id="user-resident-tab" aria-controls="user-resident-panel" label={label('columns.resident')} disabled={!user.residentId} />
         </Tabs>
         {report?.tab === 0 ? <Box role="tabpanel" id="user-associations-panel" aria-labelledby="user-associations-tab" sx={{ display: 'grid', gap: 2 }}>
-          <Typography variant="subtitle1" fontWeight={700}>{label('columns.roles')}</Typography>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>{label('columns.roles')}</Typography>
           <ResponsiveDataView columns={roleColumns} rows={user.roles} getRowId={(row) => row.roleId} ariaLabel={label('columns.roles')}
             paginationId={`user-roles-${user.userId}`} desktopTableMinWidth={950} emptyState={reportEmpty} />
-          <Typography variant="subtitle1" fontWeight={700}>{label('columns.admins')}</Typography>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>{label('columns.admins')}</Typography>
           <ResponsiveDataView columns={adminColumns} rows={user.adminAccounts} getRowId={(row) => row.adminAccountId} ariaLabel={label('columns.admins')}
             paginationId={`user-admins-${user.userId}`} emptyState={reportEmpty} />
         </Box> : <Box role="tabpanel" id="user-resident-panel" aria-labelledby="user-resident-tab" sx={{ display: 'grid', gap: 2 }}>
           <Typography variant="h6">{user.residentName}</Typography>
           <Box component="dl" sx={{ m: 0, display: 'grid', gap: 1, gridTemplateColumns: { xs: '1fr', sm: '180px minmax(0, 1fr)' }, '& dd': { m: 0 } }}>
-            <Typography component="dt" fontWeight={700}>{label('columns.status')}</Typography><Box component="dd">{user.residentStatus ? statusBadge(user.residentStatus) : '-'}</Box>
-            <Typography component="dt" fontWeight={700}>{label('columns.email')}</Typography><Typography component="dd">{user.residentEmail || '-'}</Typography>
-            <Typography component="dt" fontWeight={700}>{label('phone')}</Typography><Typography component="dd">{user.phone || '-'}</Typography>
+            <Typography component="dt" sx={{ fontWeight: 700 }}>{label('columns.status')}</Typography><Box component="dd">{user.residentStatus ? statusBadge(user.residentStatus) : '-'}</Box>
+            <Typography component="dt" sx={{ fontWeight: 700 }}>{label('columns.email')}</Typography><Typography component="dd">{user.residentEmail || '-'}</Typography>
+            <Typography component="dt" sx={{ fontWeight: 700 }}>{label('phone')}</Typography><Typography component="dd">{user.phone || '-'}</Typography>
           </Box>
-          <Typography variant="subtitle1" fontWeight={700}>{label('memberships')}</Typography>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>{label('memberships')}</Typography>
           <ResponsiveDataView columns={blockColumns} rows={user.residentBlocks} getRowId={(row) => row.blockId} ariaLabel={label('memberships')}
             paginationId={`user-memberships-${user.userId}`} emptyState={reportEmpty} />
-          <Typography variant="subtitle1" fontWeight={700}>{label('columns.apartments')}</Typography>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>{label('columns.apartments')}</Typography>
           <ResponsiveDataView columns={apartmentColumns} rows={user.apartments} getRowId={(row) => row.apartmentId} ariaLabel={label('columns.apartments')}
             paginationId={`user-apartments-${user.userId}`} emptyState={reportEmpty} />
         </Box>}
