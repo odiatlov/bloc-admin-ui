@@ -47,6 +47,17 @@ export type SetupApartment = {
   usableSqm: number | null
   setupStatus: 'configured' | 'unconfigured'
   hasBoiler: boolean
+  householdCount: number
+  resident: SetupResident | null
+}
+
+export type SetupResident = {
+  residentId: string | null
+  firstName: string
+  lastName: string
+  phone: string | null
+  email: string | null
+  inviteResident: boolean
 }
 
 export type BlockSetupRequest = {
@@ -56,6 +67,11 @@ export type BlockSetupRequest = {
   hasStaircases: boolean
   staircases: { name: string; apartments: SetupApartment[] }[]
   apartments: SetupApartment[]
+}
+
+export type BlockSetupResponse = {
+  block: BlockOverviewDto
+  invitations: { residentId: string; email: string; succeeded: boolean }[]
 }
 
 export type AssignBlockCensorRequest = {

@@ -5,6 +5,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import EditNoteIcon from '@mui/icons-material/EditNote'
+import GroupsIcon from '@mui/icons-material/Groups'
 import { useTranslation } from 'react-i18next'
 import AppDatePicker from '../../../../../components/shared/AppDatePicker'
 import EmptyState from '../../../../../components/shared/EmptyState'
@@ -45,6 +46,7 @@ const normalizeLocationKey = (locationType: string) => {
 }
 
 type ApartmentWaterSummaryRow = {
+  householdCount: number | null
   id: string
   apartmentId: string
   year: number
@@ -152,6 +154,7 @@ const ResidentWaterIndexSection: React.FC = () => {
 
         return {
           id: `${apartment.apartmentId}-${periodYear}-${periodMonth}`,
+          householdCount: apartmentRows.find(row => row.householdCount !== null)?.householdCount ?? null,
           apartmentId: apartment.apartmentId,
           year: periodYear,
           month: periodMonth,
@@ -186,6 +189,7 @@ const ResidentWaterIndexSection: React.FC = () => {
   const columns: DataColumn<ApartmentWaterSummaryRow>[] = [
     { key: 'month', label: t('finance.columns.month'), render: (row) => formatPeriod(row.year, row.month) },
     { key: 'apartment', label: t('consumption.columns.apartment'), cardRole: 'primary', render: (row) => formatApartmentLabel(row.apartmentId) },
+    { key: 'occupants', label: t('apartments.setup.householdMembers'), render: (row) => row.householdCount ?? '-' },
     {
       key: 'coldWater',
       label: `${t('consumption.columns.waterConsumption', { water: t('consumption.waterType.cold') })} (m\u00b3)`,
@@ -212,6 +216,7 @@ const ResidentWaterIndexSection: React.FC = () => {
       cardRole: 'actions',
       actions: (row) => [
         { id: 'submit', label: t('consumption.actions.submitIndex'), icon: <EditNoteIcon />, visible: row.missingCount > 0, onClick: () => openSubmitDialog(row), priority: 1, cardIcon: false },
+        { id: 'occupants', label: t('blockSetup.editOccupants'), icon: <GroupsIcon />, visible: row.submittedCount > 0, onClick: () => openSubmitDialog(row), priority: 0 },
       ],
     },
   ]
@@ -300,6 +305,9 @@ const ResidentWaterIndexSection: React.FC = () => {
         year={dialogPeriod.year} month={dialogPeriod.month}
         apartments={apartments.map((apartment) => ({
           id: apartment.apartmentId, label: formatApartmentLabel(apartment.apartmentId),
+          householdCount: apartment.householdCount,
+          declaredHouseholdCount: rows.find(row => row.apartmentId === apartment.apartmentId
+            && row.year === dialogPeriod.year && row.month === dialogPeriod.month && row.householdCount !== null)?.householdCount ?? null,
           meters: rows.filter((row) => row.apartmentId === apartment.apartmentId
             && row.year === dialogPeriod.year && row.month === dialogPeriod.month)
             .map((row) => ({ id: row.meterId, name: formatLocation(row.locationType), utilityType: row.utilityType,

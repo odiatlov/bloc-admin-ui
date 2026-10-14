@@ -112,6 +112,7 @@ export const useResidentWaterIndex = () => {
             year: period.year,
             month: period.month,
             value: reading?.value ?? null,
+            householdCount: reading?.householdCount ?? null,
             submittedAt: reading?.submittedAt ?? null,
           }
         })))

@@ -49,6 +49,7 @@ export type UpdateApartmentRequest = CreateApartmentRequest
 export type ResidentStatus = 'active' | 'inactive'
 
 export type ResidentApartmentSummary = {
+  householdCount: number
   linkId: string
   apartmentId: string
   apartmentNumber: string

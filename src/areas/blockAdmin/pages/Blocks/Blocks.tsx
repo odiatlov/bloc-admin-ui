@@ -116,11 +116,13 @@ const Blocks: React.FC = () => {
   }
 
   const saveSetup = async (request: BlockSetupRequest) => {
-    await blocksApi.createSetup(request)
-    setDialogMode(null)
+    const result = await blocksApi.createSetup(request)
+    const failedInvitations = result.invitations.some(invitation => !invitation.succeeded)
+    if (!failedInvitations) setDialogMode(null)
     setSelectedBlock(null)
     const refreshed = await refreshAfterMutation().catch(() => false)
-    setNotification({ open: true, message: refreshed ? t('settings.blockDialog.createSuccess') : t('blocks.errors.refreshAfterSave'), severity: refreshed ? 'success' : 'error' })
+    if (!failedInvitations) setNotification({ open: true, message: refreshed ? t('settings.blockDialog.createSuccess') : t('blocks.errors.refreshAfterSave'), severity: refreshed ? 'success' : 'error' })
+    return result
   }
 
   const deleteBlock = async (summary: BlockDeletionSummary) => {

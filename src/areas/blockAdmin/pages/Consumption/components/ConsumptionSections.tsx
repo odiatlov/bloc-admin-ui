@@ -7,6 +7,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 import AddIcon from '@mui/icons-material/Add'
+import GroupsIcon from '@mui/icons-material/Groups'
 import { useTranslation } from 'react-i18next'
 import AppDatePicker from '../../../../../components/shared/AppDatePicker'
 import { useConsumptionColumns } from '../../../../../components/water/useConsumptionColumns'
@@ -29,6 +30,7 @@ const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) 
   const { t } = useTranslation()
   const { blocks, blockFilter, setBlockFilter, period, setPeriod, minimumPeriod, rows, loading, error, refresh } = useWaterConsumptions({ submissionPeriodsOnly: true })
   const [open, setOpen] = React.useState(false)
+  const [readingApartmentId, setReadingApartmentId] = React.useState<string | undefined>()
   const [reminderStates, setReminderStates] = React.useState<Record<string, 'sending' | 'sent' | 'error'>>({})
   const reminderRequests = React.useRef(new Set<string>())
   const sendReminder = async (row: WaterConsumptionRow) => {
@@ -53,7 +55,7 @@ const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) 
     t('common.blockValue', { block: row.apartment.blockName }),
   ].filter(Boolean).join(' - ')
   if (mode === 'admin') columns.push({
-    key: 'reminder', label: t('consumption.reminder.column'), cardRole: 'actions',
+    key: 'actions', label: t('common.actions'), cardRole: 'actions',
     actions: (row) => {
       const state = reminderStates[`${period}:${row.id}`]
       const sent = row.reminderSent || state === 'sent'
@@ -68,6 +70,10 @@ const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) 
         onClick: () => { void sendReminder(row) },
         priority: 1,
         cardLabel: t('consumption.reminder.caption'),
+      }, {
+        id: 'occupants', label: t('blockSetup.editOccupants'), icon: <GroupsIcon />,
+        visible: row.meters.some(meter => meter.current !== null), priority: 0,
+        onClick: () => { setReadingApartmentId(row.id); setOpen(true) },
       }]
     },
   })
@@ -76,6 +82,7 @@ const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) 
   return <Box sx={{ display: 'grid', gap: 2 }}>
     {rows.some((row) => reminderStates[`${period}:${row.id}`] === 'error') && <Alert severity="error">{t('consumption.reminder.failed')}</Alert>}
     <FilterBar actions={mode === 'admin' ? <Button startIcon={<AddIcon />} variant="contained" disabled={loading || !!error || incompleteApartments.length === 0} onClick={() => {
+      setReadingApartmentId(undefined)
       setOpen(true)
     }}>{t('consumption.actions.addReading')}</Button> : undefined}>
       <TextField select size="small" disabled={loading || !!error} label={t('residents.filters.block')} value={blockFilter} onChange={(event) => setBlockFilter(event.target.value)} sx={{ minWidth: 180 }}>
@@ -92,7 +99,9 @@ const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) 
           : <PagedResponsiveDataView endpoint="/water-consumptions/page" query={{ blockId: blockFilter === 'all' ? undefined : blockFilter, year: period === 'all' ? undefined : Number(period.slice(0, 4)), month: period === 'all' ? undefined : Number(period.slice(5)) }} paginationId="ConsumptionSections-1" paginationResetKey={JSON.stringify([blockFilter, period])} ariaLabel={t('consumption.sections.readings')} columns={columns} getRowId={(row) => row.id} rows={rows} />}
     {mode === 'admin' && open && <WaterReadingDialog
       title={t('consumption.dialog.adminTitle')} year={Number(period.split('-')[0])} month={Number(period.split('-')[1])}
-      apartments={incompleteApartments.map((row) => ({ id: row.id, label: label(row),
+      initialApartmentId={readingApartmentId}
+      apartments={rows.filter(row => incompleteApartments.includes(row) || row.id === readingApartmentId).map((row) => ({ id: row.id, label: label(row),
+        householdCount: row.apartment.householdCount, declaredHouseholdCount: row.householdCount,
         meters: row.meters.filter((meter) => meter.isActive || meter.current !== null),
       }))}
       onClose={(changed) => { setOpen(false); if (changed) refresh() }} />}

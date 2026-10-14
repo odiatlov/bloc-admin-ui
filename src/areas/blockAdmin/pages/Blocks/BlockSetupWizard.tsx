@@ -13,17 +13,26 @@ import { useTranslation } from 'react-i18next'
 import AppDialog from '../../../../components/shared/AppDialog'
 import IconButtonTooltip from '../../../../components/shared/IconButtonTooltip'
 import ConfirmationDialog from '../../../../components/shared/ConfirmationDialog'
-import type { BlockSetupRequest, CreateBlockRequest, SetupApartment } from '../../../../types/block'
+import type { BlockSetupRequest, BlockSetupResponse, CreateBlockRequest, SetupApartment } from '../../../../types/block'
 import BlockFields from './BlockFields'
 import ApartmentSetupFields from '../Apartments/components/ApartmentSetupFields'
 import { ApiError } from '../../../../services/apiClient'
+import { residentsApi } from '../../../../services/residentsApi'
+import type { ResidentResponse } from '../../../../types/management'
+import ResidentSetupFields from './ResidentSetupFields'
 import { translateApartmentSetupStatus } from '../../../../domain/displayLabels'
 import { generateStaircases, newApartment, newGroup, planApartmentBatch, unique, validApartment, type ApartmentDraft, type GenerationSettings, type Group } from './setupDraft'
 const toApartment = (a: ApartmentDraft): SetupApartment => ({ number: a.number.trim(), floor: a.floor.trim() ? Number(a.floor) : null,
-  usableSqm: a.usableSqm.trim() ? Number(a.usableSqm) : null, setupStatus: a.setupStatus, hasBoiler: a.hasBoiler })
+  usableSqm: a.usableSqm.trim() ? Number(a.usableSqm) : null, setupStatus: a.setupStatus, hasBoiler: a.hasBoiler,
+  householdCount: Number(a.householdCount), resident: a.addResident ? {
+    residentId: a.resident.mode === 'existing' ? a.resident.residentId : null,
+    firstName: a.resident.mode === 'new' ? a.resident.firstName.trim() : '', lastName: a.resident.mode === 'new' ? a.resident.lastName.trim() : '',
+    phone: a.resident.mode === 'new' ? a.resident.phone.trim() || null : null,
+    email: a.resident.inviteResident ? a.resident.email.trim() : null, inviteResident: a.resident.inviteResident,
+  } : null })
 
 export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
-  onClose: () => void; onSimple: (request: CreateBlockRequest) => Promise<void>; onSetup: (request: BlockSetupRequest) => Promise<void>
+  onClose: () => void; onSimple: (request: CreateBlockRequest) => Promise<void>; onSetup: (request: BlockSetupRequest) => Promise<BlockSetupResponse>
 }) {
   const { t, i18n } = useTranslation()
   const theme = useTheme()
@@ -46,9 +55,25 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
   const [confirmation, setConfirmation] = React.useState<(() => void) | null>(null)
   const [requestId] = React.useState(() => crypto.randomUUID())
   const [retryRequest, setRetryRequest] = React.useState<BlockSetupRequest | null>(null)
+  const [setupSaved, setSetupSaved] = React.useState(false)
+  const [failedInvitations, setFailedInvitations] = React.useState<string[]>([])
+  const [residents, setResidents] = React.useState<ResidentResponse[]>([])
+  const [residentsLoading, setResidentsLoading] = React.useState(true)
+  const [residentsError, setResidentsError] = React.useState(false)
   const groups = hasStaircases ? staircases : [blockGroup]
   const steps = ['details', ...(hasStaircases ? ['staircases'] : []), 'apartments', 'review']
   const current = steps[stage]
+  const loadResidents = React.useCallback(async () => {
+    setResidentsLoading(true); setResidentsError(false)
+    try { setResidents((await residentsApi.getAll()).filter(resident => resident.status === 'active')) }
+    catch { setResidents([]); setResidentsError(true) }
+    finally { setResidentsLoading(false) }
+  }, [])
+  React.useEffect(() => {
+    if (current !== 'apartments') return
+    const timeout = window.setTimeout(() => { void loadResidents() }, 0)
+    return () => window.clearTimeout(timeout)
+  }, [current, loadResidents])
   const populated = Boolean(name || address || staircases.length || blockGroup.apartments.length)
   const ask = (action: () => void, needed = populated) => needed ? setConfirmation(() => action) : action()
   const updateGroup = (id: string, update: (group: Group) => Group) => {
@@ -64,7 +89,9 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
   const validate = (step: string) => {
     if (step === 'details') return Boolean(name.trim())
     if (step === 'staircases') return staircases.length > 0 && staircases.every(g => Boolean(g.name.trim()) && g.name.trim().length <= 100) && unique(staircases.map(g => g.name))
-    if (step === 'apartments') return groups.length > 0 && groups.every(g => g.apartments.length > 0 && g.apartments.every(validApartment) && unique(g.apartments.map(a => a.number)))
+    if (step === 'apartments') return groups.length > 0 && groups.every(g => g.apartments.length > 0 && g.apartments.every(a => validApartment(a)
+      && (!a.addResident || a.resident.mode !== 'existing' || (!residentsLoading && !residentsError && residents.some(resident => resident.id === a.resident.residentId))))
+      && unique(g.apartments.map(a => a.number)))
     return true
   }
   const batch = () => {
@@ -85,7 +112,7 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
   }
   const submit = async () => {
     if (submitting.current) return
-    if (!name.trim() || (mode === 'full' && (!validate('apartments') || (hasStaircases && !validate('staircases'))))) { setError(w('validation')); return }
+    if (!name.trim() || (mode === 'full' && !retryRequest && (!validate('apartments') || (hasStaircases && !validate('staircases'))))) { setError(w('validation')); return }
     submitting.current = true; setBusy(true); setError(null)
     try {
       if (mode === 'simple') await onSimple({ name: name.trim(), address: address.trim() || undefined, hasStaircases: false, apartmentCount: 0, residentCount: 0, staircaseCount: 0 })
@@ -94,10 +121,12 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
           staircases: hasStaircases ? staircases.map(g => ({ name: g.name.trim(), apartments: g.apartments.map(toApartment) })) : [],
           apartments: hasStaircases ? [] : blockGroup.apartments.map(toApartment) }
         setRetryRequest(request)
-        await onSetup(request)
+        const result = await onSetup(request)
+        setSetupSaved(true)
+        setFailedInvitations(result.invitations.filter(invitation => !invitation.succeeded).map(invitation => invitation.email))
       }
     } catch (e) {
-      if (e instanceof ApiError && e.status >= 400 && e.status < 500) setRetryRequest(null)
+      if (!setupSaved && e instanceof ApiError && e.status >= 400 && e.status < 500) setRetryRequest(null)
       setError(e instanceof Error ? e.message : t('settings.blockDialog.serverError'))
     }
     finally { submitting.current = false; setBusy(false) }
@@ -124,11 +153,11 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
       onChange={e => group ? updateGeneration(group, { quantity: e.target.value }) : setStaircaseQuantity(e.target.value)}
       slotProps={{ htmlInput: { min: 1, max: !group && staircaseNaming === 'alphabetical' ? 26 : 1000, step: 1 } }} />
     {group && <>
-      <TextField required size="small" type="number" label={caption('startingFloor')} value={group.generation.startingFloor} onChange={e => updateGeneration(group, { startingFloor: e.target.value })}
+      <TextField size="small" type="number" label={caption('startingFloor')} value={group.generation.startingFloor} onChange={e => updateGeneration(group, { startingFloor: e.target.value, ...(!e.target.value.trim() ? { apartmentsPerFloor: '' } : {}) })}
         slotProps={{ htmlInput: { min: -2147483648, max: 2147483647, step: 1 } }} />
-      <TextField required size="small" type="number" label={caption('apartmentsPerFloor')} value={group.generation.apartmentsPerFloor} onChange={e => updateGeneration(group, { apartmentsPerFloor: e.target.value })}
+      <TextField size="small" type="number" disabled={!group.generation.startingFloor.trim()} label={caption('apartmentsPerFloor')} value={group.generation.apartmentsPerFloor} onChange={e => updateGeneration(group, { apartmentsPerFloor: e.target.value })}
         slotProps={{ htmlInput: { min: 1, step: 1 } }} />
-      <TextField required size="small" type="number" label={isMobile ? w('mobile.usableSqm') : t('blocks.columns.usableSurface')} value={group.generation.usableSqm} onChange={e => updateGeneration(group, { usableSqm: e.target.value })}
+      <TextField size="small" type="number" label={isMobile ? w('mobile.usableSqm') : t('blocks.columns.usableSurface')} value={group.generation.usableSqm} onChange={e => updateGeneration(group, { usableSqm: e.target.value })}
         slotProps={{ htmlInput: { min: 0, step: 0.01 } }} sx={{ gridColumn: { xs: '1 / -1', md: 'auto' } }} />
     </>}
     {!group && <Button variant="outlined" startIcon={<AutoAwesomeIcon />} onClick={batch} sx={{ gridColumn: { xs: '1 / -1', md: 'auto' }, minHeight: 40 }}>{w('generate')}</Button>}
@@ -136,16 +165,17 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
   const removeButton = (action: () => void) => <IconButtonTooltip title={w('remove')}><IconButton aria-label={w('remove')} onClick={action}><DeleteIcon /></IconButton></IconButtonTooltip>
   return <>
     <AppDialog open title={w(stage === -1 ? 'chooseTitle' : 'title')} maxWidth="md"
-      onCancel={() => { if (!busy) ask(onClose) }} cancelLabel={t('common.cancel')}
+      onCancel={() => { if (!busy) ask(onClose, !setupSaved && populated) }} cancelLabel={t('common.cancel')}
       hideCancelButton showCloseButton closeLabel={t('common.close')} closeDisabled={busy}
       onBack={stage >= 0 ? () => { setError(null); setStage(value => value - 1) } : undefined}
       backLabel={w('back')} backDisabled={busy || Boolean(retryRequest)}
-      onConfirm={next} confirmDisabled={busy} confirmLabel={busy ? t('settings.blockDialog.saving') : stage === -1 ? w('continue') : mode === 'simple' || current === 'review' ? w('create') : w('next')}
+      onConfirm={next} confirmDisabled={busy} confirmLabel={busy ? t('settings.blockDialog.saving') : setupSaved ? w('retryInvitations') : stage === -1 ? w('continue') : mode === 'simple' || current === 'review' ? w('create') : w('next')}
       dialogContentSx={{ pt: '4px !important', px: { xs: 2, sm: 3 } }}
       contentSx={{ display: 'grid', gap: 2, pt: 0 }}>
       {error && <Alert severity="error" onClose={() => setError(null)} closeText={t('common.close')}
         sx={{ '& .MuiAlert-action': { alignItems: 'flex-start', pt: 0 } }}>{error}</Alert>}
-      {retryRequest && <Alert severity="info">{w('retry')}</Alert>}
+      {retryRequest && !setupSaved && <Alert severity="info">{w('retry')}</Alert>}
+      {failedInvitations.length > 0 && <Alert severity="warning" sx={{ overflowWrap: 'anywhere' }}>{w('invitationFailed', { emails: failedInvitations.join(', ') })}</Alert>}
       {stage === -1 ? <RadioGroup value={mode} onChange={e => {
         const selected = e.target.value as 'simple' | 'full'
         ask(() => { setMode(selected); setName(''); setAddress(''); setStaircases([]); setBlockGroup(newGroup()) })
@@ -232,12 +262,20 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
                     '& .MuiTextField-root': { minWidth: 0 },
                   }}>
                     <ApartmentSetupFields value={a} onChange={update} compactLabels={isMobile} />
+                    <TextField fullWidth required size="small" type="number" label={t('apartments.setup.householdMembers')} value={a.householdCount}
+                      slotProps={{ htmlInput: { min: 0, max: 2147483647, step: 1 } }} onChange={e => update({ householdCount: e.target.value })}
+                      sx={{ gridColumn: { xs: '1 / -1', sm: 'span 2' } }} />
                   </Box>
                   <Box sx={{ px: 2, py: 0.75, borderTop: '1px solid', borderColor: 'divider' }}>
                     <FormControlLabel label={w('boiler')} labelPlacement="start"
                       sx={{ m: 0, width: '100%', justifyContent: 'space-between', gap: 2, '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
                       control={<Switch size="small" checked={a.hasBoiler} disabled={busy || Boolean(retryRequest)} onChange={e => update({ hasBoiler: e.target.checked })} />} />
+                    <FormControlLabel label={w('addResident')} labelPlacement="start"
+                      sx={{ m: 0, width: '100%', justifyContent: 'space-between', gap: 2, '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
+                      control={<Switch size="small" checked={a.addResident} disabled={busy || Boolean(retryRequest)} onChange={e => update({ addResident: e.target.checked })} />} />
                   </Box>
+                  {a.addResident && <ResidentSetupFields value={a.resident} onChange={patch => update({ resident: { ...a.resident, ...patch } })}
+                    residents={residents} loading={residentsLoading} error={residentsError} onRetry={() => { void loadResidents() }} disabled={busy || Boolean(retryRequest)} />}
                 </Card>
               })}
               <Button startIcon={<AddIcon />} onClick={() => updateGroup(g.id, value => ({ ...value, apartments: [...value.apartments, newApartment()] }))}>{w('addApartment')}</Button>
@@ -246,7 +284,10 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
           {current === 'review' && <>
             <Typography variant="h6" sx={{ overflowWrap: 'anywhere' }}>{name}</Typography>
             {address && <Typography sx={{ overflowWrap: 'anywhere' }}>{address}</Typography>}
-            <Typography>{w('totals', { staircases: hasStaircases ? staircases.length : 0, apartments: groups.reduce((sum, g) => sum + g.apartments.length, 0) })}</Typography>
+            <Typography>{w('totals', { staircases: hasStaircases ? staircases.length : 0, apartments: groups.reduce((sum, g) => sum + g.apartments.length, 0),
+              occupants: groups.reduce((sum, g) => sum + g.apartments.reduce((total, a) => total + Number(a.householdCount), 0), 0),
+              residents: new Set(groups.flatMap(g => g.apartments.filter(a => a.addResident).map(a => a.resident.mode === 'existing' ? a.resident.residentId : a.resident.inviteResident ? a.resident.email.trim().toLowerCase() : a.id))).size,
+            })}</Typography>
             {groups.map(g => <Accordion key={g.id} disableGutters>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}><Typography sx={{ overflowWrap: 'anywhere' }}>{hasStaircases ? g.name : name} ({g.apartments.length})</Typography></AccordionSummary>
               <AccordionDetails sx={{ pt: 0 }}>
@@ -263,6 +304,9 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
                     <span>{a.usableSqm ? `${Number(a.usableSqm).toLocaleString(i18n.resolvedLanguage ?? i18n.language, { maximumFractionDigits: 2 })} m²` : '-'}</span>
                     <span>{translateApartmentSetupStatus(t, a.setupStatus)}</span>
                     <span>{w('mobile.boiler')}: {w(a.hasBoiler ? 'yes' : 'no')}</span>
+                    <span>{t('apartments.setup.householdMembers')}: {a.householdCount}</span>
+                    {a.addResident && <span>{w('owner')}: {a.resident.mode === 'existing' ? residents.find(resident => resident.id === a.resident.residentId)?.fullName : `${a.resident.firstName} ${a.resident.lastName}`}</span>}
+                    {a.addResident && a.resident.inviteResident && <span>{t('residents.fields.inviteResident')}: {a.resident.email}</span>}
                   </Box>)}
                 </Box>
               </AccordionDetails>

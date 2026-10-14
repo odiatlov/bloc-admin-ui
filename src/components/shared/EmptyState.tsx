@@ -12,19 +12,22 @@ type EmptyStateProps = {
   helperText: string
   icon?: React.ReactNode
   onAction?: () => void
+  inline?: boolean
 }
 
-const EmptyState: React.FC<EmptyStateProps> = ({ actionLabel, actionTo, headline, helperText, icon, onAction }) => {
+const EmptyState: React.FC<EmptyStateProps> = ({ actionLabel, actionTo, headline, helperText, icon, onAction, inline = false }) => {
   return (
     <Paper
-      variant="outlined"
+      variant={inline ? 'elevation' : 'outlined'}
+      elevation={0}
       sx={{
         alignItems: 'center',
         display: 'grid',
         gap: 1.5,
         justifyItems: 'center',
-        px: { xs: 2, sm: 3 },
-        py: { xs: 4, sm: 5 },
+        px: inline ? 0 : { xs: 2, sm: 3 },
+        py: inline ? 1 : { xs: 4, sm: 5 },
+        bgcolor: inline ? 'transparent' : undefined,
         textAlign: 'center',
       }}
     >
@@ -36,7 +39,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({ actionLabel, actionTo, headline
           alignItems: 'center',
           bgcolor: 'action.hover',
           borderRadius: '50%',
-          display: 'inline-flex',
+          display: inline ? 'none' : 'inline-flex',
           height: 48,
           justifyContent: 'center',
           width: 48,
@@ -44,16 +47,16 @@ const EmptyState: React.FC<EmptyStateProps> = ({ actionLabel, actionTo, headline
       >
         {icon ?? <InboxOutlinedIcon color="primary" />}
       </Typography>
-      <Typography variant="h6">{headline}</Typography>
-      <Typography color="text.secondary" sx={{ maxWidth: 460 }}>
+      <Typography variant={inline ? 'body2' : 'h6'}>{headline}</Typography>
+      <Typography color="text.secondary" sx={{ maxWidth: 460, display: helperText ? undefined : 'none' }}>
         {helperText}
       </Typography>
       {actionTo && actionLabel ? (
-        <Button variant="contained" component={RouterLink} to={actionTo}>
+        <Button variant={inline ? 'text' : 'contained'} component={RouterLink} to={actionTo}>
           {actionLabel}
         </Button>
       ) : actionLabel ? (
-        <Button variant="contained" onClick={onAction}>
+        <Button variant={inline ? 'text' : 'contained'} onClick={onAction}>
           {actionLabel}
         </Button>
       ) : null}
