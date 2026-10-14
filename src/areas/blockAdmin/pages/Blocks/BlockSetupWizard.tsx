@@ -21,7 +21,7 @@ import { residentsApi } from '../../../../services/residentsApi'
 import type { ResidentResponse } from '../../../../types/management'
 import ResidentSetupFields from './ResidentSetupFields'
 import { translateApartmentSetupStatus } from '../../../../domain/displayLabels'
-import { generateStaircases, newApartment, newGroup, planApartmentBatch, unique, validApartment, type ApartmentDraft, type GenerationSettings, type Group } from './setupDraft'
+import { apartmentValidationErrors, generateStaircases, newApartment, newGroup, planApartmentBatch, unique, type ApartmentDraft, type ApartmentValidationErrors, type ApartmentValidationField, type GenerationSettings, type Group } from './setupDraft'
 const toApartment = (a: ApartmentDraft): SetupApartment => ({ number: a.number.trim(), floor: a.floor.trim() ? Number(a.floor) : null,
   usableSqm: a.usableSqm.trim() ? Number(a.usableSqm) : null, setupStatus: a.setupStatus, hasBoiler: a.hasBoiler,
   householdCount: Number(a.householdCount), resident: a.addResident ? {
@@ -76,9 +76,10 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
   }, [current, loadResidents])
   const populated = Boolean(name || address || staircases.length || blockGroup.apartments.length)
   const ask = (action: () => void, needed = populated) => needed ? setConfirmation(() => action) : action()
-  const updateGroup = (id: string, update: (group: Group) => Group) => {
+  const updateGroup = (id: string, update: (group: Group) => Group, clearError = true) => {
     if (hasStaircases) setStaircases(value => value.map(g => g.id === id ? update(g) : g))
     else setBlockGroup(update)
+    if (clearError) setError(null)
   }
   const updateGeneration = (group: Group, patch: Partial<GenerationSettings>) => updateGroup(group.id, current => ({ ...current, generation: { ...current.generation, ...patch } }))
   const copyGeneration = (source: Group) => {
@@ -86,12 +87,51 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
     setStaircases(current => current.map(group => group.id === source.id ? group : { ...group, generation: { ...source.generation } }))
     setCopyNotice(source.name)
   }
+  const errorsFor = (group: Group, apartment: ApartmentDraft): ApartmentValidationErrors => {
+    const errors = apartmentValidationErrors(apartment)
+    if (apartment.number.trim() && group.apartments.some(other => other.id !== apartment.id && other.number.trim().toLowerCase() === apartment.number.trim().toLowerCase())) errors.number = 'duplicateNumber'
+    if (apartment.addResident && apartment.resident.mode === 'existing' && apartment.resident.residentId) {
+      if (residentsLoading) errors.residentId = 'residentsLoading'
+      else if (residentsError) errors.residentId = 'residentsLoadError'
+      else if (!residents.some(resident => resident.id === apartment.resident.residentId)) errors.residentId = 'residentUnavailable'
+    }
+    return errors
+  }
+  const fieldLabels: Record<ApartmentValidationField, string> = {
+    number: 'apartments.setup.number', floor: 'blocks.columns.floor', usableSqm: 'blocks.columns.usableSurface', setupStatus: 'apartments.setup.setupStatus',
+    householdCount: 'apartments.setup.householdMembers', residentId: 'blockSetup.existingResident', firstName: 'residents.fields.firstName',
+    lastName: 'residents.fields.lastName', phone: 'residents.fields.phone', email: 'residents.fields.email',
+  }
+  const focusInvalidApartment = (group: Group) => {
+    const container = document.getElementById(`setup-apartments-${group.id}`)
+    const field = container?.querySelector<HTMLElement>('input[aria-invalid="true"], [role="combobox"][aria-invalid="true"]')
+    if (field) {
+      field.closest('[data-setup-apartment]')?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+      field.focus({ preventScroll: true })
+    }
+  }
+  const reportValidationError = (step: string) => {
+    if (step !== 'apartments') { setError(w('validation')); return }
+    for (const group of groups) {
+      const location = hasStaircases ? t('settings.fields.staircaseName', { staircase: group.name }) : t('common.blockValue', { block: name })
+      if (group.apartments.length === 0) { setError(w('emptyLocation', { location })); return }
+      for (const [index, apartment] of group.apartments.entries()) {
+        const issue = Object.entries(errorsFor(group, apartment))[0]
+        if (!issue) continue
+        const [field, reason] = issue
+        updateGroup(group.id, value => ({ ...value, expanded: true }), false)
+        setError(w('apartmentValidation', { location, number: apartment.number.trim() || index + 1,
+          field: t(fieldLabels[field as ApartmentValidationField]), reason: w(`validationErrors.${reason}`) }))
+        window.requestAnimationFrame(() => focusInvalidApartment(group))
+        return
+      }
+    }
+    setError(w('validation'))
+  }
   const validate = (step: string) => {
     if (step === 'details') return Boolean(name.trim())
     if (step === 'staircases') return staircases.length > 0 && staircases.every(g => Boolean(g.name.trim()) && g.name.trim().length <= 100) && unique(staircases.map(g => g.name))
-    if (step === 'apartments') return groups.length > 0 && groups.every(g => g.apartments.length > 0 && g.apartments.every(a => validApartment(a)
-      && (!a.addResident || a.resident.mode !== 'existing' || (!residentsLoading && !residentsError && residents.some(resident => resident.id === a.resident.residentId))))
-      && unique(g.apartments.map(a => a.number)))
+    if (step === 'apartments') return groups.length > 0 && groups.every(g => g.apartments.length > 0 && g.apartments.every(a => Object.keys(errorsFor(g, a)).length === 0))
     return true
   }
   const batch = () => {
@@ -112,7 +152,11 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
   }
   const submit = async () => {
     if (submitting.current) return
-    if (!name.trim() || (mode === 'full' && !retryRequest && (!validate('apartments') || (hasStaircases && !validate('staircases'))))) { setError(w('validation')); return }
+    if (!name.trim()) { setError(w('validation')); return }
+    if (mode === 'full' && !retryRequest && !validate('apartments')) {
+      setStage(steps.indexOf('apartments')); reportValidationError('apartments'); return
+    }
+    if (mode === 'full' && !retryRequest && hasStaircases && !validate('staircases')) { reportValidationError('staircases'); return }
     submitting.current = true; setBusy(true); setError(null)
     try {
       if (mode === 'simple') await onSimple({ name: name.trim(), address: address.trim() || undefined, hasStaircases: false, apartmentCount: 0, residentCount: 0, staircaseCount: 0 })
@@ -134,7 +178,7 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
   const next = () => {
     setError(null)
     if (stage === -1) { setStage(0); return }
-    if (!validate(current)) { setError(w('validation')); return }
+    if (!validate(current)) { reportValidationError(current); return }
     if (mode === 'simple' || current === 'review') void submit()
     else setStage(value => value + 1)
   }
@@ -209,7 +253,9 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
             </Box>)}
             <Button startIcon={<AddIcon />} onClick={() => setStaircases(value => [...value, newGroup()])}>{w('addStaircase')}</Button>
           </>}
-          {current === 'apartments' && groups.map(g => <Accordion key={g.id} defaultExpanded disableGutters>
+          {current === 'apartments' && groups.map(g => <Accordion key={g.id} expanded={g.expanded !== false} disableGutters
+            onChange={(_event, expanded) => updateGroup(g.id, value => ({ ...value, expanded }), false)}
+            slotProps={{ transition: { onEntered: () => { if (error) focusInvalidApartment(g) } } }}>
             <Box id={`setup-header-${g.id}`} aria-controls={`setup-apartments-${g.id}`} sx={{ position: 'relative' }}>
               <AccordionSummary id={`setup-toggle-${g.id}`} aria-controls={`setup-apartments-${g.id}`} expandIcon={<ExpandMoreIcon />}
                 sx={{ '& .MuiAccordionSummary-content': { pr: hasStaircases ? 22 : 17, minWidth: 0 } }}>
@@ -234,12 +280,13 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
                 </span>
               </IconButtonTooltip>}
             </Box>
-            <AccordionDetails sx={{ display: 'grid', gap: 2 }}>
+            <AccordionDetails id={`setup-apartments-${g.id}`} sx={{ display: 'grid', gap: 2 }}>
               {batchControls(g)}
               {g.apartments.map((a, index) => {
                 const update = (patch: Partial<ApartmentDraft>) => updateGroup(g.id, value => ({ ...value, apartments: value.apartments.map(item => item.id === a.id ? { ...item, ...patch } : item) }))
                 const label = w(isMobile ? 'mobile.apartmentTitle' : 'apartmentTitle', { number: a.number.trim() || index + 1 })
-                return <Card key={a.id} component="article" aria-label={label} variant="outlined" sx={theme => ({
+                const fieldErrors: ApartmentValidationErrors = error ? Object.fromEntries(Object.entries(errorsFor(g, a)).map(([field, reason]) => [field, w(`validationErrors.${reason}`)])) : {}
+                return <Card key={a.id} component="article" data-setup-apartment aria-label={label} variant="outlined" sx={theme => ({
                   borderRadius: 1, minWidth: 0,
                   backgroundColor: theme.palette.mode === 'dark' ? lighten(theme.palette.background.paper, 0.16) : theme.palette.background.paper,
                   backgroundImage: 'none',
@@ -261,8 +308,9 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
                     gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(4, minmax(0, 1fr))' },
                     '& .MuiTextField-root': { minWidth: 0 },
                   }}>
-                    <ApartmentSetupFields value={a} onChange={update} compactLabels={isMobile} />
+                    <ApartmentSetupFields value={a} onChange={update} compactLabels={isMobile} errors={fieldErrors} />
                     <TextField fullWidth required size="small" type="number" label={t('apartments.setup.householdMembers')} value={a.householdCount}
+                      error={Boolean(fieldErrors.householdCount)} helperText={fieldErrors.householdCount}
                       slotProps={{ htmlInput: { min: 0, max: 2147483647, step: 1 } }} onChange={e => update({ householdCount: e.target.value })}
                       sx={{ gridColumn: { xs: '1 / -1', sm: 'span 2' } }} />
                   </Box>
@@ -275,6 +323,7 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
                       control={<Switch size="small" checked={a.addResident} disabled={busy || Boolean(retryRequest)} onChange={e => update({ addResident: e.target.checked })} />} />
                   </Box>
                   {a.addResident && <ResidentSetupFields value={a.resident} onChange={patch => update({ resident: { ...a.resident, ...patch } })}
+                    errors={fieldErrors}
                     residents={residents} loading={residentsLoading} error={residentsError} onRetry={() => { void loadResidents() }} disabled={busy || Boolean(retryRequest)} />}
                 </Card>
               })}
