@@ -13,6 +13,8 @@ import type {
 import { apiDelete, apiGet, apiPost, apiPut } from './apiClient'
 
 export const waterReadingsApi = {
+  updateOccupants: (apartmentId: string, year: number, month: number, householdCount: number) =>
+    apiPut<{ apartmentId: string; year: number; month: number; householdCount: number }, boolean>('/water-readings/occupants', { apartmentId, year, month, householdCount }),
   sendReminder: (apartmentId: string, year: number, month: number) =>
     apiPost<Record<string, never>, boolean>(`/water-consumptions/${apartmentId}/reminder?year=${year}&month=${month}`, {}),
   getConsumptions: (year: number | null, month: number | null, role: 'Admin' | 'Censor') =>

@@ -353,7 +353,6 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
         livesHere: true,
       })
       setAssignResidentId('')
-      setForm((value) => ({ ...value, residentCount: String(Math.max(Number(value.residentCount) || 0, 1)) }))
       await loadApartmentResidents(editingApartment.id)
       await loadData()
       void databaseBlocks.refresh()
@@ -369,7 +368,6 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
 
     try {
       await apartmentResidentsApi.delete(editingApartment.id, link.id)
-      setForm((value) => ({ ...value, residentCount: '0' }))
       await loadApartmentResidents(editingApartment.id)
       await loadData()
       void databaseBlocks.refresh()
@@ -391,10 +389,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
 
   const loadError = error || databaseBlocks.error
   const loading = isLoading || databaseBlocks.isLoading
-  const residentCountValue = Math.max(0, Number(form.residentCount) || 0)
-  const hasValidResidentCount = editingApartment
-    ? (hasAssignedResident ? residentCountValue >= 1 : residentCountValue === 0)
-    : residentCountValue === 0
+  const hasValidResidentCount = /^\d+$/.test(form.residentCount) && Number(form.residentCount) <= 2147483647
   const canSave = Boolean(
     form.blockId
     && form.number.trim()
@@ -527,7 +522,8 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
           </Select>
         </FormControl>
         <ApartmentSetupFields value={form} onChange={patch => setForm(value => ({ ...value, ...patch }))} />
-        <TextField fullWidth size="small" type="number" label={t('apartments.setup.householdMembers')} value={form.residentCount} disabled helperText={t('apartments.setup.assignOwnerBeforeCount')} />
+        <TextField fullWidth required size="small" type="number" label={t('apartments.setup.householdMembers')} value={form.residentCount}
+          slotProps={{ htmlInput: { min: 0, max: 2147483647, step: 1 } }} onChange={event => setForm(value => ({ ...value, residentCount: event.target.value }))} />
       </AppDialog>
 
       <Drawer
@@ -581,8 +577,8 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                   </FormControl>
                   <TextField
                     fullWidth
-                    helperText={hasAssignedResident ? t('apartments.setup.householdMembersHelp') : t('apartments.setup.assignOwnerBeforeCount')}
-                    slotProps={{ htmlInput: { min: hasAssignedResident ? 1 : 0 } }}
+                    helperText={t('apartments.setup.householdMembersHelp')}
+                    slotProps={{ htmlInput: { min: 0, max: 2147483647, step: 1 } }}
                     size="small"
                     type="number"
                     label={t('apartments.setup.householdMembers')}

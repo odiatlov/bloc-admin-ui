@@ -10,6 +10,7 @@ type LoadErrorStateProps = {
   headline?: string
   isRetrying?: boolean
   onRetry: () => void
+  inline?: boolean
 }
 
 const LoadErrorState: React.FC<LoadErrorStateProps> = ({
@@ -17,20 +18,23 @@ const LoadErrorState: React.FC<LoadErrorStateProps> = ({
   headline,
   isRetrying = false,
   onRetry,
+  inline = false,
 }) => {
   const { t } = useTranslation()
 
   return (
     <Paper
       role="alert"
-      variant="outlined"
+      variant={inline ? 'elevation' : 'outlined'}
+      elevation={0}
       sx={{
         alignItems: 'center',
         display: 'grid',
         gap: 1.5,
         justifyItems: 'center',
-        px: { xs: 2, sm: 3 },
-        py: { xs: 4, sm: 5 },
+        px: inline ? 0 : { xs: 2, sm: 3 },
+        py: inline ? 1 : { xs: 4, sm: 5 },
+        bgcolor: inline ? 'transparent' : undefined,
         textAlign: 'center',
       }}
     >
@@ -42,7 +46,7 @@ const LoadErrorState: React.FC<LoadErrorStateProps> = ({
           alignItems: 'center',
           bgcolor: 'action.hover',
           borderRadius: '50%',
-          display: 'inline-flex',
+          display: inline ? 'none' : 'inline-flex',
           height: 48,
           justifyContent: 'center',
           width: 48,
@@ -50,13 +54,13 @@ const LoadErrorState: React.FC<LoadErrorStateProps> = ({
       >
         <CloudOffOutlinedIcon color="error" />
       </Typography>
-      <Typography variant="h6">
+      <Typography variant={inline ? 'body2' : 'h6'}>
         {headline ?? t('loadErrorState.headline')}
       </Typography>
       <Typography color="text.secondary" sx={{ maxWidth: 460 }}>
         {helperText ?? t('loadErrorState.helperText')}
       </Typography>
-      <Button disabled={isRetrying} variant="contained" onClick={onRetry}>
+      <Button disabled={isRetrying} variant={inline ? 'text' : 'contained'} onClick={onRetry}>
         {isRetrying ? t('loadErrorState.retrying') : t('loadErrorState.retry')}
       </Button>
     </Paper>

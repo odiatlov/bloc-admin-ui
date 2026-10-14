@@ -31,6 +31,7 @@ export const useConsumptionColumns = <Row extends WaterConsumptionData = WaterCo
   const columns: DataColumn<Row>[] = [
     { key: 'apartment', label: t('consumption.columns.apartment'), cardRole: 'primary', render: apartmentLabel },
     { key: 'block', label: t('residents.filters.block'), render: (row) => row.apartment.blockName },
+    { key: 'occupants', label: t('apartments.setup.householdMembers'), render: (row) => row.householdCount ?? '-' },
     { key: 'month', label: t('finance.columns.month'), render: () => new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' }).format(new Date(`${period}-01T12:00:00`)) },
     { key: 'cold', label: t('consumption.waterType.cold'), render: (row) => renderMeters(row, 'ColdWater') },
     { key: 'hot', label: t('consumption.waterType.hot'), render: (row) => renderMeters(row, 'HotWater') },

@@ -41,6 +41,7 @@ export type UpdateApartmentWaterConfigurationRequest = {
 }
 
 export type WaterMeterReadingResponse = {
+  householdCount: number | null
   id: string
   apartmentWaterMeterId: string
   apartmentId: string
@@ -63,6 +64,7 @@ export type WaterMeterReadingResponse = {
 }
 
 export type CreateWaterMeterReadingRequest = {
+  householdCount?: number | null
   apartmentWaterMeterId: string
   year: number
   month: number
@@ -88,6 +90,7 @@ export type UpdateBlockWaterReadingSettingsRequest = {
 }
 
 export type ResidentWaterMeterRow = {
+  householdCount: number | null
   id: string
   meterId: string
   apartmentId: string
@@ -105,9 +108,10 @@ export type ResidentWaterMeterRow = {
 }
 
 export type WaterConsumptionData = {
+  householdCount: number | null
   hasMeters: boolean
   id: string
-  apartment: { id: string, blockId: string, blockName: string, staircaseName: string | null, number: string }
+  apartment: { id: string, blockId: string, blockName: string, staircaseName: string | null, number: string, householdCount: number }
   meters: Array<{
     id: string, name: string, utilityType: string, isActive: boolean,
     previous: number | null, current: number | null, usage: number | null,

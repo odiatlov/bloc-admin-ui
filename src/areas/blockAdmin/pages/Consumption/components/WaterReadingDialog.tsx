@@ -12,6 +12,8 @@ import { formatNumber } from '../../../../../utils/formatters'
 export type ReadingDialogApartment = {
   id: string
   label: string
+  householdCount: number
+  declaredHouseholdCount?: number | null
   meters: Array<{ id: string, name: string, utilityType: string, previous: number | null, current: number | null }>
 }
 
@@ -28,12 +30,16 @@ const WaterReadingDialog: React.FC<Props> = ({ apartments, initialApartmentId, y
   const { t, i18n } = useTranslation()
   const [apartmentId, setApartmentId] = React.useState(initialApartmentId ?? apartments[0]?.id ?? '')
   const [values, setValues] = React.useState<Record<string, string>>({})
+  const [counts, setCounts] = React.useState<Record<string, string>>({})
   const [saved, setSaved] = React.useState<Record<string, number>>({})
   const [submitting, setSubmitting] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const busy = React.useRef(false)
   const apartment = apartments.find((item) => item.id === apartmentId)
   const meters = apartment?.meters ?? []
+  const count = counts[apartmentId] ?? String(apartment?.declaredHouseholdCount ?? apartment?.householdCount ?? '')
+  const validCount = /^\d+$/.test(count) && Number(count) <= 2147483647
+  const countChanged = apartment?.declaredHouseholdCount == null || Number(count) !== apartment.declaredHouseholdCount
   const current = (meter: ReadingDialogApartment['meters'][number]) => saved[meter.id] ?? meter.current
   const value = (meter: ReadingDialogApartment['meters'][number]) => current(meter) !== null ? String(current(meter)) : values[meter.id] ?? ''
   const valid = (meter: ReadingDialogApartment['meters'][number]) => value(meter).trim() !== ''
@@ -42,14 +48,15 @@ const WaterReadingDialog: React.FC<Props> = ({ apartments, initialApartmentId, y
   const pending = meters.filter((meter) => current(meter) === null)
 
   const submit = async () => {
-    if (busy.current || pending.length === 0 || !pending.every(valid)) return
+    if (busy.current || !apartment || (pending.length === 0 && (!countChanged || meters.length === 0)) || !pending.every(valid) || !validCount) return
     busy.current = true
     setSubmitting(true)
     setError(null)
     try {
+      if (pending.length === 0) await waterReadingsApi.updateOccupants(apartmentId, year, month, Number(count))
       for (const meter of pending) {
         const readingValue = Number(value(meter))
-        await waterReadingsApi.createReading({ apartmentWaterMeterId: meter.id, year, month, value: readingValue })
+        await waterReadingsApi.createReading({ apartmentWaterMeterId: meter.id, year, month, value: readingValue, householdCount: Number(count) })
         setSaved((previous) => ({ ...previous, [meter.id]: readingValue }))
       }
       onClose(true)
@@ -85,7 +92,7 @@ const WaterReadingDialog: React.FC<Props> = ({ apartments, initialApartmentId, y
 
   return <AppDialog open title={title} cancelLabel={t('common.cancel')}
     confirmLabel={t(submitting ? 'consumption.actions.submitting' : 'common.save')}
-    confirmDisabled={submitting || pending.length === 0 || !pending.every(valid)}
+    confirmDisabled={submitting || meters.length === 0 || (pending.length === 0 && !countChanged) || !pending.every(valid) || !validCount}
     onCancel={() => { if (!busy.current) onClose(Object.keys(saved).length > 0) }}
     onConfirm={() => { void submit() }} contentSx={{ display: 'grid', gap: 2, pt: 1 }}>
     {error && <Typography color="error" variant="body2">{error}</Typography>}
@@ -94,6 +101,9 @@ const WaterReadingDialog: React.FC<Props> = ({ apartments, initialApartmentId, y
       onChange={(event) => { setApartmentId(event.target.value); setError(null) }}>
       {apartments.map((item) => <MenuItem key={item.id} value={item.id}>{item.label}</MenuItem>)}
     </TextField>
+    <TextField required fullWidth size="small" type="number" label={t('apartments.setup.householdMembers')} value={count}
+      disabled={submitting} error={count !== '' && !validCount} slotProps={{ htmlInput: { min: 0, max: 2147483647, step: 1 } }}
+      onChange={event => setCounts(previous => ({ ...previous, [apartmentId]: event.target.value }))} />
     {renderSection('cold')}
     {meters.some((meter) => meter.utilityType.toLowerCase().includes('cold')) && meters.some((meter) => meter.utilityType.toLowerCase().includes('hot')) && <Divider />}
     {renderSection('hot')}
