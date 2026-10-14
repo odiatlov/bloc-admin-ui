@@ -33,14 +33,14 @@ import { EntityListItem } from '../../../../../components/shared/EntityPresentat
 import ActionButtons from '../../../../../components/shared/ActionButtons'
 import IconButtonTooltip from '../../../../../components/shared/IconButtonTooltip'
 import FilterBar from '../../../../../components/shared/FilterBar'
-import SearchField from '../../../../../components/shared/SearchField'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
-import { type DataColumn } from '../../../../../components/shared/ResponsiveDataView'
 import PagedResponsiveDataView from '../../../../../components/shared/PagedResponsiveDataView'
 import StatusChip from '../../../../../components/shared/StatusChip'
+import ApartmentOverviewFilters from '../../../../../components/apartments/ApartmentOverviewFilters'
+import { useApartmentColumns } from '../../../../../components/apartments/useApartmentColumns'
+import { getApartmentFloorOptions } from '../../../../../domain/apartmentOverview'
 import { translateApartmentSetupStatus, translateResidentStatus } from '../../../../../domain/displayLabels'
 import { useBlocks } from '../../../../../hooks/useBlocks'
-import { formatSquareMeters } from '../../../../../hooks/useApartmentData'
 import { apartmentResidentsApi } from '../../../../../services/apartmentResidentsApi'
 import { apartmentsApi } from '../../../../../services/apartmentsApi'
 import { residentsApi } from '../../../../../services/residentsApi'
@@ -86,7 +86,6 @@ const emptyForm: FormState = {
 
 const setupStatuses: ApartmentSetupStatus[] = ['configured', 'unconfigured']
 const waterLocationTypes = ['Kitchen', 'Bathroom', 'SecondaryBathroom', 'ServiceToilet', 'Other']
-const tableEmptyValue = '-'
 
 const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideScopeFilters = false, initialBlockId, showOverviewFilters = false, filterActions, afterFilters }) => {
   const { t } = useTranslation()
@@ -221,15 +220,10 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
     }
   }, [selectedBlockHasStaircases, selectedStaircaseId, selectedBlockId, scopedStaircases])
 
-  const floorOptions = React.useMemo(() => {
-    const floors = new Set(scopedApartments
-      .filter(apartment => (selectedBlockId === 'all' || apartment.blockId === selectedBlockId)
-        && (selectedStaircaseId === 'all' || apartment.staircaseId === selectedStaircaseId))
-      .map(apartment => apartment.floor))
-    const values = [...floors].filter((floor): floor is number => floor !== null)
-      .sort((left, right) => left - right).map(String)
-    return floors.has(null) ? [...values, 'unassigned'] : values
-  }, [scopedApartments, selectedBlockId, selectedStaircaseId])
+  const floorOptions = React.useMemo(() => getApartmentFloorOptions(
+    scopedApartments.filter((apartment) => selectedBlockId === 'all' || apartment.blockId === selectedBlockId),
+    selectedStaircaseId,
+  ), [scopedApartments, selectedBlockId, selectedStaircaseId])
   const activeFloor = floorOptions.includes(selectedFloor) ? selectedFloor : 'all'
 
   React.useEffect(() => {
@@ -384,24 +378,16 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
     }
   }
 
-  const columns: DataColumn<ApartmentResponse>[] = [
-    { key: 'number', label: t('apartments.setup.number'), cardRole: 'primary', render: (apartment) => t('residents.apartment.number', { number: apartment.number }) },
-    { key: 'residentNames', label: t('apartments.setup.assignedResident'), cardRole: 'secondary', render: (apartment) => apartment.residentNames || t('apartments.setup.noOwner') },
-    { key: 'residents', label: t('apartments.setup.householdMembers'), render: (apartment) => apartment.residentCount },
-    { key: 'floor', label: t('blocks.columns.floor'), render: (apartment) => apartment.floor ?? tableEmptyValue },
-    { key: 'staircase', label: t('blocks.columns.staircase'), render: (apartment) => apartment.staircaseName || tableEmptyValue },
-    { key: 'usableSurface', label: t('blocks.columns.usableSurface'), render: (apartment) => apartment.usableSqm === null ? tableEmptyValue : formatSquareMeters(apartment.usableSqm) },
-    { key: 'setupStatus', label: t('apartments.setup.setupStatus'), cardRole: 'status', render: (apartment) => <StatusChip status={apartment.setupStatus} label={translateApartmentSetupStatus(t, apartment.setupStatus)} /> },
-    {
-      key: 'actions',
-      label: t('common.actions'),
-      cardRole: 'actions',
-      actions: (apartment) => [
-        { id: 'edit', label: t('apartments.actions.edit'), icon: <EditIcon />, onClick: () => openEditDialog(apartment), priority: 2 },
-        { id: 'delete', label: t('apartments.actions.delete'), icon: <DeleteIcon />, onClick: () => setDeletingApartment(apartment), disabled: isDeletingApartment, color: 'error', priority: 1 },
-      ],
-    },
-  ]
+  const columns = useApartmentColumns()
+  columns.push({
+    key: 'actions',
+    label: t('common.actions'),
+    cardRole: 'actions',
+    actions: (apartment) => [
+      { id: 'edit', label: t('apartments.actions.edit'), icon: <EditIcon />, onClick: () => openEditDialog(apartment), priority: 2 },
+      { id: 'delete', label: t('apartments.actions.delete'), icon: <DeleteIcon />, onClick: () => setDeletingApartment(apartment), disabled: isDeletingApartment, color: 'error', priority: 1 },
+    ],
+  })
 
   const loadError = error || databaseBlocks.error
   const loading = isLoading || databaseBlocks.isLoading
@@ -439,24 +425,11 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
 
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
-      {showOverviewFilters && <FilterBar actions={filterActions}>
-        <SearchField size="small" label={t('blockOverviewFilters.search')} value={search} onChange={event => setSearch(event.target.value)} onClear={() => setSearch('')}
-          disabled={loading || Boolean(loadError)} />
-        <FormControl size="small" disabled={loading || Boolean(loadError) || !selectedBlockHasStaircases}>
-          <InputLabel id="block-overview-staircase-label">{t('blocks.columns.staircase')}</InputLabel>
-          <Select labelId="block-overview-staircase-label" label={t('blocks.columns.staircase')} value={selectedStaircaseId} onChange={event => { setSelectedStaircaseId(event.target.value); setSelectedFloor('all') }}>
-            <MenuItem value="all">{t('common.all')}</MenuItem>
-            {selectedBlockStaircases.map(staircase => <MenuItem key={staircase.id} value={staircase.id}>{staircase.name}</MenuItem>)}
-          </Select>
-        </FormControl>
-        <FormControl size="small" disabled={loading || Boolean(loadError) || floorOptions.length === 0}>
-          <InputLabel id="block-overview-floor-label">{t('blocks.columns.floor')}</InputLabel>
-          <Select labelId="block-overview-floor-label" label={t('blocks.columns.floor')} value={activeFloor} onChange={event => setSelectedFloor(event.target.value)}>
-            <MenuItem value="all">{t('common.all')}</MenuItem>
-            {floorOptions.map(floor => <MenuItem key={floor} value={floor}>{floor === 'unassigned' ? t('common.notAvailable') : floor}</MenuItem>)}
-          </Select>
-        </FormControl>
-      </FilterBar>}
+      {showOverviewFilters && <ApartmentOverviewFilters actions={filterActions}
+        search={search} onSearchChange={setSearch}
+        staircaseId={selectedStaircaseId} onStaircaseChange={(value) => { setSelectedStaircaseId(value); setSelectedFloor('all') }}
+        staircases={selectedBlockStaircases} hasStaircases={selectedBlockHasStaircases}
+        floor={activeFloor} onFloorChange={setSelectedFloor} floors={floorOptions} disabled={loading || Boolean(loadError)} />}
       {afterFilters}
       {!hideScopeFilters && (
         <FilterBar

@@ -1154,6 +1154,13 @@
         "viewDetails": "View details",
         "assignAdmin": "Assign admin",
         "exportBlockData": "Export block data"
+      },
+      "apartments": {
+        "title": "Block {{block}} apartments",
+        "emptyHeadline": "No apartments in this block",
+        "emptyHelper": "Apartments added to this block will appear here.",
+        "notFoundHeadline": "Block not found",
+        "notFoundHelper": "This block is no longer available. Return to the blocks list."
       }
     },
     "residents": {

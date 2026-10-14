@@ -13,6 +13,7 @@ import Staircases from '../../areas/blockAdmin/pages/Staircases/Staircases'
 import ExportData from '../../areas/supportPlatform/pages/ExportData/ExportData'
 import ManageAdmins from '../../areas/supportPlatform/pages/ManageAdmins/ManageAdmins'
 import SuperAdminBlocks from '../../areas/supportPlatform/pages/SuperAdminBlocks/SuperAdminBlocks'
+import SuperAdminBlockApartments from '../../areas/supportPlatform/pages/SuperAdminBlocks/SuperAdminBlockApartments'
 import SuperAdminDashboard from '../../areas/supportPlatform/pages/SuperAdminDashboard/SuperAdminDashboard'
 import SuperAdminUsers from '../../areas/supportPlatform/pages/SuperAdminUsers/SuperAdminUsers'
 import SuperAdminResidents from '../../areas/supportPlatform/pages/SuperAdminResidents/SuperAdminResidents'
@@ -60,6 +61,7 @@ const AppRoutes: React.FC<AppRoutesProps> = ({ themeMode, toggleTheme }) => (
       <Route path="manage-admins" element={<ProtectedRoute permission="superAdmin"><ManageAdmins /></ProtectedRoute>} />
       <Route path="users" element={<ProtectedRoute permission="superAdmin"><SuperAdminUsers /></ProtectedRoute>} />
       <Route path="blocks" element={<ProtectedRoute permission="superAdmin"><SuperAdminBlocks /></ProtectedRoute>} />
+      <Route path="blocks/:blockId/apartments" element={<ProtectedRoute permission="superAdmin"><SuperAdminBlockApartments /></ProtectedRoute>} />
       <Route path="residents" element={<ProtectedRoute permission="superAdmin"><SuperAdminResidents /></ProtectedRoute>} />
       <Route path="consumption" element={<ProtectedRoute permission="superAdmin"><SuperAdminConsumption /></ProtectedRoute>} />
       <Route path="export" element={<ProtectedRoute permission="superAdmin"><ExportData /></ProtectedRoute>} />
