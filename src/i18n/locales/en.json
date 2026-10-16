@@ -9,6 +9,16 @@
     "operationCancelled": "The previous operation was cancelled without committing a deletion. Reload the preview to continue.",
     "diagnostic": "Server diagnostic",
     "csrfInvalid": "The session security token is no longer valid. Retry the same operation to obtain a fresh token.",
+    "userOnly": {
+      "action": "Delete user",
+      "title": "Permanently delete user",
+      "warning": "This permanently deletes this login account and its remaining roles. Buildings, resident profiles, and reading history are not deleted. References to this user in surviving records are cleared where needed.",
+      "acknowledge": "I confirm permanent deletion of this user account and its remaining roles.",
+      "success": "The user account was permanently deleted. Buildings and reading history were preserved.",
+      "login": "Delete login account",
+      "hasResident": "This user now has a resident profile. No deletion was performed. Review the resident profile first.",
+      "hasAdminAccounts": "This user now owns admin accounts. User-only deletion is blocked; review the managed-data deletion flow instead."
+    },
     "action": "Delete user and managed data", "title": "Permanently delete admin user", "confirm": "Permanently delete",
     "loading": "Loading deletion preview…", "deleting": "Confirming deletion outcome…", "success": "The user and listed managed data were permanently deleted.",
     "warning": "This permanently deletes the user's login, their admin accounts, and the listed buildings and their data, including water-reading history. Other residents' login accounts are preserved.",
@@ -789,7 +799,7 @@
     "setup": {
       "addApartment": "Add apartment",
       "assignedResident": "Assigned resident",
-      "assignOwnerBeforeCount": "Assign a resident before setting household members.",
+      "assignOwnerBeforeCount": "Assign a resident first. Without one, occupants must be 0.",
       "description": "Add and configure apartments for the selected block and staircase.",
       "familyName": "Family name",
       "householdMembers": "Number of occupants",
@@ -1251,6 +1261,7 @@
       "columns": {
         "name": "Resident name",
         "email": "Email",
+        "admins": "Linked admins",
         "phone": "Phone",
         "block": "Block",
         "staircase": "Staircase",

@@ -13,6 +13,7 @@ export type AdminUserDeletionPreview = {
   survivingBlockRoleEffects: { blockId: string; blockName: string; role: string }[]
   counts: DeletionCounts; expiresAt: string; confirmationToken: string; antiforgeryToken: string
   developmentSession: boolean
+  userOnly: boolean
 }
 export type DeleteAdminUserRequest = {
   operationId: string; confirmationToken: string; confirmationEmail: string

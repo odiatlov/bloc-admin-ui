@@ -88,8 +88,8 @@ const postDeletionCommand = <TResponse,>(path: string, request: DeleteAdminUserR
   })
 
 export const superAdminApi = {
-  getDeletionPreview: (userId: string, signal?: AbortSignal) =>
-    withPlatformDeletionSession((options) => apiGet<AdminUserDeletionPreview>(`/super-admin/users/${userId}/deletion-preview`, signal, options)),
+  getDeletionPreview: (userId: string, signal?: AbortSignal, userOnly = false) =>
+    withPlatformDeletionSession((options) => apiGet<AdminUserDeletionPreview>(`/super-admin/users/${userId}/deletion-preview${userOnly ? '?userOnly=true' : ''}`, signal, options)),
   deleteUserAndManagedData: (userId: string, request: DeleteAdminUserRequest) =>
     postDeletionCommand<AdminUserDeletionResult>(`/super-admin/users/${userId}/delete-managed-data`, request),
   getDeletionOperation: (operationId: string) =>

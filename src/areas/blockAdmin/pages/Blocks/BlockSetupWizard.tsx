@@ -24,7 +24,7 @@ import { translateApartmentSetupStatus } from '../../../../domain/displayLabels'
 import { apartmentValidationErrors, generateStaircases, newApartment, newGroup, planApartmentBatch, unique, type ApartmentDraft, type ApartmentValidationErrors, type ApartmentValidationField, type GenerationSettings, type Group } from './setupDraft'
 const toApartment = (a: ApartmentDraft): SetupApartment => ({ number: a.number.trim(), floor: a.floor.trim() ? Number(a.floor) : null,
   usableSqm: a.usableSqm.trim() ? Number(a.usableSqm) : null, setupStatus: a.setupStatus, hasBoiler: a.hasBoiler,
-  householdCount: Number(a.householdCount), resident: a.addResident ? {
+  householdCount: a.addResident ? Number(a.householdCount) : 0, resident: a.addResident ? {
     residentId: a.resident.mode === 'existing' ? a.resident.residentId : null,
     firstName: a.resident.mode === 'new' ? a.resident.firstName.trim() : '', lastName: a.resident.mode === 'new' ? a.resident.lastName.trim() : '',
     phone: a.resident.mode === 'new' ? a.resident.phone.trim() || null : null,
@@ -309,8 +309,9 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
                     '& .MuiTextField-root': { minWidth: 0 },
                   }}>
                     <ApartmentSetupFields value={a} onChange={update} compactLabels={isMobile} errors={fieldErrors} />
-                    <TextField fullWidth required size="small" type="number" label={t('apartments.setup.householdMembers')} value={a.householdCount}
-                      error={Boolean(fieldErrors.householdCount)} helperText={fieldErrors.householdCount}
+                    <TextField fullWidth required size="small" type="number" label={t('apartments.setup.householdMembers')} value={a.addResident ? a.householdCount : '0'}
+                      disabled={!a.addResident || busy || Boolean(retryRequest)}
+                      error={Boolean(fieldErrors.householdCount)} helperText={fieldErrors.householdCount || (!a.addResident ? t('apartments.setup.assignOwnerBeforeCount') : undefined)}
                       slotProps={{ htmlInput: { min: 0, max: 2147483647, step: 1 } }} onChange={e => update({ householdCount: e.target.value })}
                       sx={{ gridColumn: { xs: '1 / -1', sm: 'span 2' } }} />
                   </Box>
@@ -320,7 +321,7 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
                       control={<Switch size="small" checked={a.hasBoiler} disabled={busy || Boolean(retryRequest)} onChange={e => update({ hasBoiler: e.target.checked })} />} />
                     <FormControlLabel label={w('addResident')} labelPlacement="start"
                       sx={{ m: 0, width: '100%', justifyContent: 'space-between', gap: 2, '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
-                      control={<Switch size="small" checked={a.addResident} disabled={busy || Boolean(retryRequest)} onChange={e => update({ addResident: e.target.checked })} />} />
+                      control={<Switch size="small" checked={a.addResident} disabled={busy || Boolean(retryRequest)} onChange={e => update({ addResident: e.target.checked, ...(!e.target.checked ? { householdCount: '0' } : {}) })} />} />
                   </Box>
                   {a.addResident && <ResidentSetupFields value={a.resident} onChange={patch => update({ resident: { ...a.resident, ...patch } })}
                     errors={fieldErrors}
@@ -334,7 +335,7 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
             <Typography variant="h6" sx={{ overflowWrap: 'anywhere' }}>{name}</Typography>
             {address && <Typography sx={{ overflowWrap: 'anywhere' }}>{address}</Typography>}
             <Typography>{w('totals', { staircases: hasStaircases ? staircases.length : 0, apartments: groups.reduce((sum, g) => sum + g.apartments.length, 0),
-              occupants: groups.reduce((sum, g) => sum + g.apartments.reduce((total, a) => total + Number(a.householdCount), 0), 0),
+              occupants: groups.reduce((sum, g) => sum + g.apartments.reduce((total, a) => total + (a.addResident ? Number(a.householdCount) : 0), 0), 0),
               residents: new Set(groups.flatMap(g => g.apartments.filter(a => a.addResident).map(a => a.resident.mode === 'existing' ? a.resident.residentId : a.resident.inviteResident ? a.resident.email.trim().toLowerCase() : a.id))).size,
             })}</Typography>
             {groups.map(g => <Accordion key={g.id} disableGutters>
@@ -353,7 +354,7 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
                     <span>{a.usableSqm ? `${Number(a.usableSqm).toLocaleString(i18n.resolvedLanguage ?? i18n.language, { maximumFractionDigits: 2 })} m²` : '-'}</span>
                     <span>{translateApartmentSetupStatus(t, a.setupStatus)}</span>
                     <span>{w('mobile.boiler')}: {w(a.hasBoiler ? 'yes' : 'no')}</span>
-                    <span>{t('apartments.setup.householdMembers')}: {a.householdCount}</span>
+                    <span>{t('apartments.setup.householdMembers')}: {a.addResident ? a.householdCount : '0'}</span>
                     {a.addResident && <span>{w('owner')}: {a.resident.mode === 'existing' ? residents.find(resident => resident.id === a.resident.residentId)?.fullName : `${a.resident.firstName} ${a.resident.lastName}`}</span>}
                     {a.addResident && a.resident.inviteResident && <span>{t('residents.fields.inviteResident')}: {a.resident.email}</span>}
                   </Box>)}

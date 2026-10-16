@@ -36,7 +36,7 @@ const SuperAdminUsers = () => {
   const { t, i18n } = useTranslation()
   const users = useSuperAdminUsers()
   const { account, role, token, refreshAccounts } = React.useContext(RoleContext)
-  const [deletionTarget, setDeletionTarget] = React.useState<string | null>(null)
+  const [deletionTarget, setDeletionTarget] = React.useState<{ userId: string; userOnly: boolean } | null>(null)
   const { page } = users
   const [report, setReport] = React.useState<{ user: SuperAdminUserResponse; tab: number } | null>(null)
   const label = (key: string) => t(`superAdmin.users.${key}`)
@@ -68,7 +68,10 @@ const SuperAdminUsers = () => {
       { id: 'report', label: label('viewReport'), icon: <VisibilityIcon />, priority: 2, onClick: () => setReport({ user, tab: 0 }) },
       { id: 'resident', label: label('viewResident'), icon: <PersonIcon />, visible: Boolean(user.residentId), onClick: () => setReport({ user, tab: 1 }) },
       { id: 'delete-managed-data', label: t('adminUserDeletion.action'), icon: <DeleteForeverIcon />, color: 'error',
-        visible: role === 'SuperAdmin' && user.adminAccounts.length > 0, onClick: () => setDeletionTarget(user.userId) },
+        visible: role === 'SuperAdmin' && user.adminAccounts.length > 0, onClick: () => setDeletionTarget({ userId: user.userId, userOnly: false }) },
+      { id: 'delete-user', label: t('adminUserDeletion.userOnly.action'), icon: <DeleteForeverIcon />, color: 'error',
+        visible: role === 'SuperAdmin' && user.adminAccounts.length === 0 && !user.residentId,
+        onClick: () => setDeletionTarget({ userId: user.userId, userOnly: true }) },
     ] },
   ]
   const roleColumns: DataColumn<UserRoleAssociation>[] = [
@@ -102,8 +105,8 @@ const SuperAdminUsers = () => {
   const reportEmpty = <EmptyState headline={label('noAssociations')} helperText={label('noAssociationsHelper')} />
   const user = report?.user
   return <Box>
-    {deletionTarget && role === 'SuperAdmin' && <DeleteAdminUserDialog key={`${account.id}:${token}:${deletionTarget}`}
-      userId={deletionTarget} actorKey={account.id} onClose={() => setDeletionTarget(null)}
+    {deletionTarget && role === 'SuperAdmin' && <DeleteAdminUserDialog key={`${account.id}:${token}:${deletionTarget.userId}:${deletionTarget.userOnly}`}
+      userId={deletionTarget.userId} userOnly={deletionTarget.userOnly} actorKey={account.id} onClose={() => setDeletionTarget(null)}
       onCommitted={() => { setReport(null); users.page.setPage(1); users.refresh(); void refreshAccounts() }} />}
     <PageHeader title={label('title')} />
     <Box sx={{ mb: 2 }}><FilterBar selectWidth={180} actions={<Button variant="contained" color="primary" startIcon={<FilterAltOffIcon />} disabled={!users.hasFilters} onClick={users.clearFilters}>{t('common.clearFilters')}</Button>}>

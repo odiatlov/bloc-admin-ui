@@ -9,6 +9,16 @@
     "operationCancelled": "Operațiunea anterioară a fost anulată fără a salva o ștergere. Reîncărcați previzualizarea pentru a continua.",
     "diagnostic": "Diagnostic server",
     "csrfInvalid": "Tokenul de securitate al sesiunii nu mai este valid. Retrimiteți aceeași operațiune pentru a obține un token nou.",
+    "userOnly": {
+      "action": "Șterge utilizatorul",
+      "title": "Ștergere definitivă utilizator",
+      "warning": "Această acțiune șterge definitiv contul de autentificare și rolurile sale rămase. Blocurile, profilurile locatarilor și istoricul citirilor nu sunt șterse. Referințele la acest utilizator din înregistrările păstrate sunt eliminate unde este necesar.",
+      "acknowledge": "Confirm ștergerea definitivă a acestui cont de utilizator și a rolurilor sale rămase.",
+      "success": "Contul de utilizator a fost șters definitiv. Blocurile și istoricul citirilor au fost păstrate.",
+      "login": "Șterge contul de autentificare",
+      "hasResident": "Acest utilizator are acum un profil de locatar. Nu s-a efectuat ștergerea. Verificați mai întâi profilul locatarului.",
+      "hasAdminAccounts": "Acest utilizator deține acum conturi de administrator. Ștergerea doar a utilizatorului este blocată; verificați fluxul de ștergere a datelor administrate."
+    },
     "action": "Șterge utilizatorul și datele administrate", "title": "Ștergere definitivă utilizator administrator", "confirm": "Șterge definitiv",
     "loading": "Se încarcă previzualizarea ștergerii…", "deleting": "Se confirmă rezultatul ștergerii…", "success": "Utilizatorul și datele administrate afișate au fost șterse definitiv.",
     "warning": "Această acțiune șterge definitiv contul de autentificare, conturile de administrator și blocurile afișate cu datele lor, inclusiv istoricul citirilor de apă. Conturile de autentificare ale celorlalți locatari sunt păstrate.",
@@ -627,7 +637,7 @@
                        "setup":  {
                                      "addApartment":  "Adaugă apartament",
                                      "assignedResident":  "Locatar alocat",
-                                     "assignOwnerBeforeCount":  "Alocați un locatar înainte de a seta persoanele din apartament.",
+                                     "assignOwnerBeforeCount":  "Asociați mai întâi un locatar. Fără unul, numărul de persoane trebuie să fie 0.",
                                      "description":  "Adaugă și configurează apartamentele pentru blocul și scara selectate.",
                                     "familyName":  "Nume familie",
                                     "householdMembers":  "Număr de persoane",
@@ -1406,6 +1416,7 @@
                                          "columns":  {
                                                        "name":  "Nume locatar",
                                                        "email":  "Email",
+                                                       "admins":  "Administratori asociați",
                                                        "phone":  "Telefon",
                                                        "block":  "Bloc",
                                                        "staircase":  "Scară",

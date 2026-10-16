@@ -73,6 +73,7 @@ export type ResidentResponse = {
   status: ResidentStatus
   apartmentCount: number
   blocks: ResidentBlockSummary[]
+  adminAccounts: { adminAccountId: string; displayName: string }[]
   apartments: ResidentApartmentSummary[]
   wasExistingIdentity: boolean
   createdAt: string

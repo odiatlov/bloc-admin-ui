@@ -3,21 +3,21 @@ import { ApiError } from '../../../services/apiClient'
 import { superAdminApi } from '../../../services/superAdminApi'
 import type { AdminUserDeletionPreview, AdminUserDeletionResult, DeleteAdminUserRequest } from '../types/adminUserDeletion'
 
-type PendingDeletion = { userId: string; request: DeleteAdminUserRequest }
+type PendingDeletion = { userId: string; request: DeleteAdminUserRequest; userOnly: boolean }
 type Stage = 'loading' | 'ready' | 'error' | 'submitting' | 'resolving' | 'unknown' | 'completed' | 'cancelled'
-type State = { stage: Stage; preview?: AdminUserDeletionPreview; error?: string; diagnostic?: string; result?: AdminUserDeletionResult }
+type State = { stage: Stage; preview?: AdminUserDeletionPreview; userOnly?: boolean; error?: string; diagnostic?: string; result?: AdminUserDeletionResult }
 const errorCode = (error: unknown) => error instanceof ApiError
   ? error.status === 401 || error.status === 403 ? 'TRUSTED_AUTH_REQUIRED' : error.code ?? 'DELETION_FAILED'
   : 'DELETION_FAILED'
 
-export const useAdminUserDeletion = (userId: string, actorKey: string, onCommitted: () => void) => {
+export const useAdminUserDeletion = (userId: string, actorKey: string, onCommitted: () => void, userOnly = false) => {
   const storageKey = `admin-user-deletion:${actorKey}:${userId}`
   const [pending, setPending] = React.useState<PendingDeletion | null>(() => {
     try {
       const stored = sessionStorage.getItem(storageKey)
       if (!stored) return null
       const value = JSON.parse(stored) as PendingDeletion
-      return value.userId === userId && value.request?.operationId ? value : null
+      return value.userId === userId && value.request?.operationId ? { ...value, userOnly: value.userOnly ?? false } : null
     } catch { return null }
   })
   const [state, setState] = React.useState<State>(() => ({ stage: pending ? 'unknown' : 'loading' }))
@@ -34,12 +34,12 @@ export const useAdminUserDeletion = (userId: string, actorKey: string, onCommitt
   React.useEffect(() => {
     if (pending || state.stage !== 'loading') return
     const controller = new AbortController()
-    void superAdminApi.getDeletionPreview(userId, controller.signal).then(
+    void superAdminApi.getDeletionPreview(userId, controller.signal, userOnly).then(
       (preview) => { if (!controller.signal.aborted) setState({ stage: 'ready', preview }) },
       (error: unknown) => { if (!controller.signal.aborted) setState({ stage: 'error', error: errorCode(error) }) },
     )
     return () => controller.abort()
-  }, [userId, revision, pending, state.stage])
+  }, [userId, userOnly, revision, pending, state.stage])
 
   React.useEffect(() => {
     if (!state.preview) return
@@ -53,7 +53,7 @@ export const useAdminUserDeletion = (userId: string, actorKey: string, onCommitt
   }
   const complete = (result: AdminUserDeletionResult) => {
     clearPending()
-    setState({ stage: 'completed', result })
+    setState((previous) => ({ stage: 'completed', result, userOnly: previous.preview?.userOnly ?? pending?.userOnly ?? userOnly }))
     committed.current()
   }
   const execute = async (operation: PendingDeletion, recovering: boolean) => {
@@ -85,7 +85,7 @@ export const useAdminUserDeletion = (userId: string, actorKey: string, onCommitt
   const submit = () => {
     if (!canSubmit || !state.preview || busy.current) return
     const operation: PendingDeletion = {
-      userId,
+      userId, userOnly: state.preview.userOnly,
       request: { operationId: crypto.randomUUID(), confirmationToken: state.preview.confirmationToken,
         confirmationEmail: email.trim(), acknowledgePermanentDeletion: true, deleteWaterHistory: true },
     }
@@ -131,7 +131,7 @@ export const useAdminUserDeletion = (userId: string, actorKey: string, onCommitt
       if (mounted.current) setState((previous) => ({ ...previous, stage: 'unknown', error: errorCode(error) }))
     } finally { busy.current = false }
   }
-  return { ...state, email, setEmail, acknowledged, setAcknowledged, expired, canSubmit, submit, refresh,
+  return { ...state, userOnly: state.userOnly ?? state.preview?.userOnly ?? pending?.userOnly ?? userOnly, email, setEmail, acknowledged, setAcknowledged, expired, canSubmit, submit, refresh,
     operationId: pending?.request.operationId, checkOutcome, resolveOperation,
     retrySameOperation: () => { if (pending) void execute(pending, true) } }
 }

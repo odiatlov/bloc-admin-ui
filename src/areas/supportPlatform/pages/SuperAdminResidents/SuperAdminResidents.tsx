@@ -200,6 +200,7 @@ const SuperAdminResidents: React.FC = () => {
   const columns: DataColumn<ResidentResponse>[] = [
     { key: 'name', label: t('superAdmin.residents.columns.name'), cardRole: 'primary', render: (resident) => resident.fullName },
     { key: 'email', label: t('superAdmin.residents.columns.email'), render: (resident) => resident.email || tableEmptyValue },
+    { key: 'admins', label: t('superAdmin.residents.columns.admins'), render: (resident) => resident.adminAccounts.map((account) => account.displayName).join(', ') || tableEmptyValue },
     { key: 'phone', label: t('superAdmin.residents.columns.phone'), render: (resident) => resident.phone || tableEmptyValue },
     {
       key: 'block',
