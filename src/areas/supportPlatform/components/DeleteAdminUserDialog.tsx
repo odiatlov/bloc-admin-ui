@@ -26,7 +26,7 @@ const DeleteAdminUserDialog = ({ userId, actorKey, onClose, onCommitted }: Props
   const completed = flow.stage === 'completed'
   const unknown = flow.stage === 'unknown'
   const knownErrors: Record<string, string> = {
-    TRUSTED_AUTH_REQUIRED: 'authRequired', DELETION_DISABLED: 'disabled', DELETION_SCHEMA_REQUIRED: 'disabled', DELETION_SCOPE_CHANGED: 'scopeChanged',
+    TRUSTED_AUTH_REQUIRED: 'authRequired', DELETION_DISABLED: 'disabled', DELETION_SCHEMA_REQUIRED: 'schemaRequired', DELETION_SCOPE_CHANGED: 'scopeChanged',
     DELETION_PREVIEW_EXPIRED: 'expired', DELETION_INVALID_CONFIRMATION: 'invalidConfirmation',
     DELETION_HIERARCHY_CONFLICT: 'repairRequired', DELETION_INVITATION_CONFLICT: 'repairRequired',
     DELETION_SCOPE_TOO_LARGE: 'tooLarge', DELETION_OPERATION_CONFLICT: 'operationConflict',
@@ -65,6 +65,7 @@ const DeleteAdminUserDialog = ({ userId, actorKey, onClose, onCommitted }: Props
     {completed && <Alert severity="success" role="status">{label('success')}</Alert>}
     {preview && !completed && !unknown && flow.stage !== 'error' && <>
       <Typography variant="h6">{preview.email}</Typography>
+      {preview.developmentSession && <Alert severity="info">{label('developmentSession')}</Alert>}
       <Alert severity="warning">{label('warning')}</Alert>
       <Typography variant="subtitle1">{label('accounts')}</Typography>
       <Box component="ul" sx={{ m: 0, pl: 2.5 }}>{preview.adminAccounts.map((account) => <li key={account.id}>{account.name}</li>)}</Box>
