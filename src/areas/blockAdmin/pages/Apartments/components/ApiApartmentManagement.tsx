@@ -1,5 +1,5 @@
 import React from 'react'
-import ApartmentSetupFields from './ApartmentSetupFields'
+import ApartmentSetupFields from '../../../../../components/apartments/ApartmentSetupFields'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'

@@ -1,5 +1,13 @@
 {
   "adminUserDeletion": {
+    "residentProfile": {
+      "action": "Delete resident profile",
+      "title": "Delete unlinked resident profile",
+      "confirm": "Permanently delete {{resident}}'s resident profile? Only profiles without admin links, block memberships, apartment assignments, a phone number or block roles are eligible. Any separate login account is kept.",
+      "blocked": "This resident now has an association or phone number and cannot be deleted here. Close the dialog and refresh the list.",
+      "failed": "The profile deletion could not be confirmed. Retry or refresh the list; the login account is not deleted by this action.",
+      "success": "The unlinked resident profile was deleted. Any separate login account was kept."
+    },
     "statistics": "Deletion statistics",
     "statistic": "Record type",
     "count": "Count",
@@ -1214,8 +1222,28 @@
         "created": "Admin account created and accepted"
       }
     },
+    "creation": {
+      "selectAdmin": "Select the admin account",
+      "continue": "Continue",
+      "forAdmin": "Creating for {{admin}}",
+      "noAdmins": "No active admin accounts available",
+      "noBlocks": "No blocks for this admin yet",
+      "noApartments": "No unassigned apartments in this block",
+      "optionalHousing": "Block and apartment assignment are optional. The resident will belong to the selected admin account.",
+      "unassigned": "Unassigned",
+      "saveFailed": "The change could not be confirmed. Retry with the same details or check the list before starting again.",
+      "notificationTitle": "SuperAdmin updated your account",
+      "notifications": {
+        "block": "SuperAdmin created the block {{name}} for your account.",
+        "blockSetup": "SuperAdmin created the block {{name}}, including its configured apartments and resident assignments, for your account.",
+        "resident": "SuperAdmin added or assigned the resident {{name}} in your account."
+      }
+    },
     "blocks": {
       "title": "Blocks list",
+      "filters": {
+        "search": "Search by block name or address"
+      },
       "description": "All registered blocks in the platform database, without administrator scoping.",
       "loading": "Loading platform blocks...",
       "errors": {
@@ -1241,6 +1269,7 @@
       },
       "apartments": {
         "title": "Block {{block}} apartments",
+        "description": "View apartments, resident assignments and setup details for this block.",
         "emptyHeadline": "No apartments in this block",
         "emptyHelper": "Apartments added to this block will appear here.",
         "notFoundHeadline": "Block not found",

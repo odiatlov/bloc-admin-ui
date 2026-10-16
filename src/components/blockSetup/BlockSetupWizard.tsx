@@ -10,17 +10,17 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { lighten, useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTranslation } from 'react-i18next'
-import AppDialog from '../../../../components/shared/AppDialog'
-import IconButtonTooltip from '../../../../components/shared/IconButtonTooltip'
-import ConfirmationDialog from '../../../../components/shared/ConfirmationDialog'
-import type { BlockSetupRequest, BlockSetupResponse, CreateBlockRequest, SetupApartment } from '../../../../types/block'
+import AppDialog from '../shared/AppDialog'
+import IconButtonTooltip from '../shared/IconButtonTooltip'
+import ConfirmationDialog from '../shared/ConfirmationDialog'
+import type { BlockSetupRequest, BlockSetupResponse, CreateBlockRequest, SetupApartment } from '../../types/block'
 import BlockFields from './BlockFields'
-import ApartmentSetupFields from '../Apartments/components/ApartmentSetupFields'
-import { ApiError } from '../../../../services/apiClient'
-import { residentsApi } from '../../../../services/residentsApi'
-import type { ResidentResponse } from '../../../../types/management'
+import ApartmentSetupFields from '../apartments/ApartmentSetupFields'
+import { ApiError } from '../../services/apiClient'
+import { residentsApi } from '../../services/residentsApi'
+import type { ResidentResponse } from '../../types/management'
 import ResidentSetupFields from './ResidentSetupFields'
-import { translateApartmentSetupStatus } from '../../../../domain/displayLabels'
+import { translateApartmentSetupStatus } from '../../domain/displayLabels'
 import { apartmentValidationErrors, generateStaircases, newApartment, newGroup, planApartmentBatch, unique, type ApartmentDraft, type ApartmentValidationErrors, type ApartmentValidationField, type GenerationSettings, type Group } from './setupDraft'
 const toApartment = (a: ApartmentDraft): SetupApartment => ({ number: a.number.trim(), floor: a.floor.trim() ? Number(a.floor) : null,
   usableSqm: a.usableSqm.trim() ? Number(a.usableSqm) : null, setupStatus: a.setupStatus, hasBoiler: a.hasBoiler,
@@ -31,8 +31,9 @@ const toApartment = (a: ApartmentDraft): SetupApartment => ({ number: a.number.t
     email: a.resident.inviteResident ? a.resident.email.trim() : null, inviteResident: a.resident.inviteResident,
   } : null })
 
-export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
+export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResidentOptions = residentsApi.getAll, accountCaption }: {
   onClose: () => void; onSimple: (request: CreateBlockRequest) => Promise<void>; onSetup: (request: BlockSetupRequest) => Promise<BlockSetupResponse>
+  loadResidentOptions?: () => Promise<ResidentResponse[]>; accountCaption?: string
 }) {
   const { t, i18n } = useTranslation()
   const theme = useTheme()
@@ -65,10 +66,10 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
   const current = steps[stage]
   const loadResidents = React.useCallback(async () => {
     setResidentsLoading(true); setResidentsError(false)
-    try { setResidents((await residentsApi.getAll()).filter(resident => resident.status === 'active')) }
+    try { setResidents((await loadResidentOptions()).filter(resident => resident.status === 'active')) }
     catch { setResidents([]); setResidentsError(true) }
     finally { setResidentsLoading(false) }
-  }, [])
+  }, [loadResidentOptions])
   React.useEffect(() => {
     if (current !== 'apartments') return
     const timeout = window.setTimeout(() => { void loadResidents() }, 0)
@@ -216,6 +217,7 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup }: {
       onConfirm={next} confirmDisabled={busy} confirmLabel={busy ? t('settings.blockDialog.saving') : setupSaved ? w('retryInvitations') : stage === -1 ? w('continue') : mode === 'simple' || current === 'review' ? w('create') : w('next')}
       dialogContentSx={{ pt: '4px !important', px: { xs: 2, sm: 3 } }}
       contentSx={{ display: 'grid', gap: 2, pt: 0 }}>
+      {accountCaption && <Typography color="text.secondary">{accountCaption}</Typography>}
       {error && <Alert severity="error" onClose={() => setError(null)} closeText={t('common.close')}
         sx={{ '& .MuiAlert-action': { alignItems: 'flex-start', pt: 0 } }}>{error}</Alert>}
       {retryRequest && !setupSaved && <Alert severity="info">{w('retry')}</Alert>}

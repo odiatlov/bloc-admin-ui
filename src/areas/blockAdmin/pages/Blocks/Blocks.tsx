@@ -25,7 +25,7 @@ import { blocksApi } from '../../../../services/blocksApi'
 import type { BlockDeletionSummary, BlockOverview, CreateBlockRequest } from '../../../../types/block'
 import BlockDeletionDialog from './BlockDeletionDialog'
 import BlockDialog from './BlockDialog'
-import BlockSetupWizard from './BlockSetupWizard'
+import BlockSetupWizard from '../../../../components/blockSetup/BlockSetupWizard'
 import type { BlockSetupRequest } from '../../../../types/block'
 
 const tableEmptyValue = '-'

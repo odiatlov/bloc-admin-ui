@@ -61,6 +61,15 @@ const getNotificationDisplay = (
   t: ReturnType<typeof useTranslation>['t'],
   language: string,
 ) => {
+  if (notification.type === 'SuperAdminBlockCreated' || notification.type === 'SuperAdminBlockSetup' || notification.type === 'SuperAdminResidentAdded') {
+    const kind = notification.type === 'SuperAdminBlockSetup' ? 'blockSetup'
+      : notification.type === 'SuperAdminBlockCreated' ? 'block' : 'resident'
+    return {
+      context: null,
+      title: t('superAdmin.creation.notificationTitle'),
+      message: t(`superAdmin.creation.notifications.${kind}`, { name: notification.message }),
+    }
+  }
   const waterType = notification.type === 'WaterReadingAddedByAdmin' ? 'waterReadingAddedByAdmin'
     : notification.type === 'WaterReadingReminder' ? 'waterReadingReminder' : null
   if (waterType) return {

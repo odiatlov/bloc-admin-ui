@@ -1,8 +1,8 @@
 import { Autocomplete, Box, Checkbox, CircularProgress, FormControlLabel, MenuItem, TextField, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import EmptyState from '../../../../components/shared/EmptyState'
-import LoadErrorState from '../../../../components/shared/LoadErrorState'
-import type { ResidentResponse } from '../../../../types/management'
+import EmptyState from '../shared/EmptyState'
+import LoadErrorState from '../shared/LoadErrorState'
+import type { ResidentResponse } from '../../types/management'
 import type { ResidentDraft } from './setupDraft'
 
 type Props = {
