@@ -69,6 +69,7 @@ export type ResidentResponse = {
   email: string | null
   userId: string | null
   hasRegisteredAccount: boolean
+  canDeleteUnlinkedProfile: boolean
   roles: string[]
   status: ResidentStatus
   apartmentCount: number

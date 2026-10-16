@@ -1,5 +1,7 @@
 import { apiGet, apiPost } from './apiClient'
 import { withPlatformDeletionSession } from './developmentPlatformSession'
+import type { BlockOverviewDto, BlockSetupRequest, BlockSetupResponse, CreateBlockRequest } from '../types/block'
+import type { ResidentResponse } from '../types/management'
 import type { AdminUserDeletionPreview, AdminUserDeletionResult, DeleteAdminUserRequest, DeletionOperationStatus } from '../areas/supportPlatform/types/adminUserDeletion'
 
 export type SuperAdminDashboardResponse = {
@@ -80,22 +82,32 @@ export type SuperAdminInvitationResponse = {
   acceptedAt?: string
 }
 
-const postDeletionCommand = <TResponse,>(path: string, request: DeleteAdminUserRequest) =>
+const postPlatformCommand = <TResponse, TRequest = DeleteAdminUserRequest>(path: string, request: TRequest) =>
   withPlatformDeletionSession(async (options) => {
     const session = await apiGet<{ antiforgeryToken: string }>('/super-admin/deletion-session', undefined, options)
-    return apiPost<DeleteAdminUserRequest, TResponse>(path, request,
+    return apiPost<TRequest, TResponse>(path, request,
       { ...options, headers: { ...options.headers, 'X-CSRF-TOKEN': session.antiforgeryToken } })
   })
 
 export const superAdminApi = {
+  getAdminResidents: (adminId: string) => withPlatformDeletionSession(options =>
+    apiGet<ResidentResponse[]>(`/super-admin/admin-accounts/${adminId}/residents`, undefined, options)),
+  createBlockForAdmin: (adminId: string, requestId: string, block: CreateBlockRequest) =>
+    postPlatformCommand<BlockOverviewDto, { requestId: string; block: CreateBlockRequest }>(`/super-admin/admin-accounts/${adminId}/blocks`, { requestId, block }),
+  createBlockSetupForAdmin: (adminId: string, request: BlockSetupRequest) =>
+    postPlatformCommand<BlockSetupResponse, BlockSetupRequest>(`/super-admin/admin-accounts/${adminId}/blocks/setup`, request),
+  createResidentForAdmin: (adminId: string, request: SuperAdminResidentCreateRequest) =>
+    postPlatformCommand<ResidentResponse, SuperAdminResidentCreateRequest>(`/super-admin/admin-accounts/${adminId}/residents`, request),
+  deleteUnlinkedResident: (residentId: string) =>
+    postPlatformCommand<string, Record<string, never>>(`/super-admin/residents/${residentId}/delete-unlinked-profile`, {}),
   getDeletionPreview: (userId: string, signal?: AbortSignal, userOnly = false) =>
     withPlatformDeletionSession((options) => apiGet<AdminUserDeletionPreview>(`/super-admin/users/${userId}/deletion-preview${userOnly ? '?userOnly=true' : ''}`, signal, options)),
   deleteUserAndManagedData: (userId: string, request: DeleteAdminUserRequest) =>
-    postDeletionCommand<AdminUserDeletionResult>(`/super-admin/users/${userId}/delete-managed-data`, request),
+    postPlatformCommand<AdminUserDeletionResult>(`/super-admin/users/${userId}/delete-managed-data`, request),
   getDeletionOperation: (operationId: string) =>
     withPlatformDeletionSession((options) => apiGet<DeletionOperationStatus>(`/super-admin/deletion-operations/${operationId}`, undefined, options)),
   resolveDeletionOperation: (userId: string, request: DeleteAdminUserRequest) =>
-    postDeletionCommand<DeletionOperationStatus>(`/super-admin/users/${userId}/resolve-deletion`, request),
+    postPlatformCommand<DeletionOperationStatus>(`/super-admin/users/${userId}/resolve-deletion`, request),
   getUserFilters: (signal?: AbortSignal) => apiGet<SuperAdminUserFiltersResponse>('/super-admin/users/filters', signal),
   getDashboard: () => apiGet<SuperAdminDashboardResponse>('/super-admin/dashboard'),
   getAdminAccounts: () => apiGet<SuperAdminAdminAccountResponse[]>('/super-admin/admin-accounts'),
@@ -109,6 +121,10 @@ export const superAdminApi = {
 }
 
 export type UserBlockAssociation = { blockId: string; blockName: string }
+export type SuperAdminResidentCreateRequest = {
+  requestId: string; existingResidentId?: string; blockId?: string; apartmentId?: string
+  firstName: string; lastName: string; phone?: string; email?: string; inviteResident: boolean
+}
 export type UserRoleAssociation = UserBlockAssociation & {
   roleId: string; role: string; status: string; createdAt: string
   endedAt?: string | null; suspendedAt?: string | null; suspensionReason?: string | null

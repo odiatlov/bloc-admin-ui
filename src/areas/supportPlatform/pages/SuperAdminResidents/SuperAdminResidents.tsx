@@ -1,7 +1,6 @@
 import React from 'react'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
 import CircularProgress from '@mui/material/CircularProgress'
 import FormControl from '@mui/material/FormControl'
@@ -15,11 +14,9 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
-import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import { useTranslation } from 'react-i18next'
 import ActionBar from '../../../../components/shared/ActionBar'
 import AppDialog from '../../../../components/shared/AppDialog'
-import ConfirmationDialog from '../../../../components/shared/ConfirmationDialog'
 import EmptyState from '../../../../components/shared/EmptyState'
 import LoadErrorState from '../../../../components/shared/LoadErrorState'
 import PageHeader from '../../../../components/shared/PageHeader'
@@ -30,7 +27,10 @@ import StatusChip from '../../../../components/shared/StatusChip'
 import { translateResidentStatus } from '../../../../domain/displayLabels'
 import { useBlocks } from '../../../../hooks/useBlocks'
 import { residentsApi } from '../../../../services/residentsApi'
+import { superAdminApi } from '../../../../services/superAdminApi'
+import { ApiError } from '../../../../services/apiClient'
 import type { ResidentResponse, ResidentStatus } from '../../../../types/management'
+import CreateForAdmin from '../../components/CreateForAdmin'
 
 type FormState = {
   firstName: string
@@ -78,6 +78,7 @@ const SuperAdminResidents: React.FC = () => {
   const [editingResident, setEditingResident] = React.useState<ResidentResponse | null>(null)
   const [deletingResident, setDeletingResident] = React.useState<ResidentResponse | null>(null)
   const [isDeletingResident, setIsDeletingResident] = React.useState(false)
+  const [deletionError, setDeletionError] = React.useState<string | null>(null)
   const [notification, setNotification] = React.useState('')
   const [form, setForm] = React.useState<FormState>(emptyForm)
 
@@ -121,15 +122,6 @@ const SuperAdminResidents: React.FC = () => {
     setNameFilter('')
     setSelectedBlockId('all')
     setStatusFilter('all')
-  }
-
-  const openCreateDialog = () => {
-    setEditingResident(null)
-    setForm({
-      ...emptyForm,
-      blockId: selectedBlockFilter !== 'all' ? selectedBlockFilter : databaseBlocks.blocks[0]?.id ?? '',
-    })
-    setDialogMode('create')
   }
 
   const openEditDialog = (resident: ResidentResponse) => {
@@ -181,17 +173,22 @@ const SuperAdminResidents: React.FC = () => {
   }
 
   const deleteResident = async () => {
-    if (!deletingResident || isDeletingResident) return
+    if (!deletingResident?.canDeleteUnlinkedProfile || isDeletingResident) return
 
     setIsDeletingResident(true)
-    setError(null)
+    setDeletionError(null)
 
     try {
-      await residentsApi.delete(deletingResident.id)
+      await superAdminApi.deleteUnlinkedResident(deletingResident.id)
       setDeletingResident(null)
+      setNotification(t('adminUserDeletion.residentProfile.success'))
       await loadResidents()
     } catch (nextError) {
-      setError(nextError instanceof Error ? nextError.message : 'Unable to delete resident')
+      const code = nextError instanceof ApiError ? nextError.code : undefined
+      setDeletionError(code === 'DELETION_RESIDENT_NOT_UNLINKED' ? t('adminUserDeletion.residentProfile.blocked')
+        : code === 'TRUSTED_AUTH_REQUIRED' ? t('adminUserDeletion.authRequired')
+          : code === 'DELETION_DISABLED' ? t('adminUserDeletion.disabled')
+            : code === 'DELETION_CSRF_INVALID' ? t('adminUserDeletion.csrfInvalid') : t('adminUserDeletion.residentProfile.failed'))
     } finally {
       setIsDeletingResident(false)
     }
@@ -241,8 +238,9 @@ const SuperAdminResidents: React.FC = () => {
       label: t('superAdmin.residents.columns.quickAction'),
       cardRole: 'actions',
       actions: (resident) => [
-        { id: 'edit', label: t('residents.actions.editResident'), icon: <EditIcon />, onClick: () => openEditDialog(resident), priority: 2 },
-        { id: 'delete', label: t('residents.actions.deleteResident'), icon: <DeleteIcon />, onClick: () => setDeletingResident(resident), disabled: isDeletingResident, color: 'error', priority: 1 },
+        { id: 'edit', label: t('residents.actions.editResident'), icon: <EditIcon />, visible: false, onClick: () => openEditDialog(resident), priority: 2 },
+        { id: 'delete', label: t('adminUserDeletion.residentProfile.action'), icon: <DeleteIcon />, visible: resident.canDeleteUnlinkedProfile === true,
+          onClick: () => { setDeletionError(null); setDeletingResident(resident) }, disabled: isDeletingResident, color: 'error', priority: 1 },
       ],
     },
   ]
@@ -258,6 +256,15 @@ const SuperAdminResidents: React.FC = () => {
       <ActionBar
         title={(
           <>
+            <SearchField
+              disabled={Boolean(loadError)}
+              label={t('residents.filters.searchName')}
+              size="small"
+              value={nameFilter}
+              onClear={() => setNameFilter('')}
+              onChange={(event) => setNameFilter(event.target.value)}
+              sx={{ width: { xs: '100%', sm: 240 } }}
+            />
             <FormControl size="small" sx={{ width: { xs: '100%', sm: 180 } }} disabled={Boolean(loadError) || loading}>
               <InputLabel>{t('settings.fields.block')}</InputLabel>
               <Select
@@ -284,24 +291,11 @@ const SuperAdminResidents: React.FC = () => {
                 ))}
               </Select>
             </FormControl>
-            <SearchField
-              disabled={Boolean(loadError)}
-              label={t('residents.filters.searchName')}
-              size="small"
-              value={nameFilter}
-              onClear={() => setNameFilter('')}
-              onChange={(event) => setNameFilter(event.target.value)}
-              sx={{ width: { xs: '100%', sm: 240 } }}
-            />
           </>
         )}
       >
-        <Button startIcon={<PersonAddIcon />} variant="contained" onClick={openCreateDialog} disabled>
-          {t('residents.actions.addResident')}
-        </Button>
+        <CreateForAdmin kind="resident" onCreated={loadResidents} />
       </ActionBar>
-
-      <Alert severity="info">{t('residents.retention.adminManagementOnly')}</Alert>
 
       {loading ? (
         <Paper sx={{ alignItems: 'center', display: 'grid', gap: 1.5, justifyItems: 'center', p: 4 }}>
@@ -327,7 +321,7 @@ const SuperAdminResidents: React.FC = () => {
           paginationId="SuperAdminResidents-1"
           paginationResetKey={JSON.stringify([nameFilter, selectedBlockFilter, statusFilter])}
           ariaLabel={t('superAdmin.residents.title')}
-          columns={columns.filter((column) => column.key !== 'actions')}
+          columns={columns}
           desktopTableMinWidth={1300}
           getRowId={(resident) => resident.id}
           rows={filteredResidents}
@@ -420,21 +414,25 @@ const SuperAdminResidents: React.FC = () => {
         </FormControl>
       </AppDialog>
 
-      <ConfirmationDialog
+      <AppDialog
+        pending={isDeletingResident}
+        confirmColor="error"
+        maxWidth="xs"
         cancelLabel={t('common.cancel')}
         confirmDisabled={!deletingResident || isDeletingResident}
         confirmLabel={isDeletingResident ? t('residents.dialog.deleting') : t('residents.dialog.deleteConfirmYes')}
-        onCancel={() => setDeletingResident(null)}
+        onCancel={() => { if (!isDeletingResident) setDeletingResident(null) }}
         onConfirm={() => { void deleteResident() }}
         open={Boolean(deletingResident)}
-        title={t('residents.dialog.deleteTitle')}
+        title={t('adminUserDeletion.residentProfile.title')}
       >
         <Typography color="text.secondary">
-          {t('residents.dialog.deleteConfirm', {
+          {t('adminUserDeletion.residentProfile.confirm', {
             resident: deletingResident?.fullName ?? '',
           })}
         </Typography>
-      </ConfirmationDialog>
+        {deletionError && <Alert severity="error" sx={{ mt: 2 }}>{deletionError}</Alert>}
+      </AppDialog>
 
       <Snackbar
         autoHideDuration={5000}

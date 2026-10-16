@@ -1,6 +1,6 @@
 import React from 'react'
 import Alert from '@mui/material/Alert'
-import BlockFields from './BlockFields'
+import BlockFields from '../../../../components/blockSetup/BlockFields'
 import { useTranslation } from 'react-i18next'
 import AppDialog from '../../../../components/shared/AppDialog'
 import type {

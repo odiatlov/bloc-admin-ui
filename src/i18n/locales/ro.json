@@ -1,5 +1,13 @@
 ﻿{
   "adminUserDeletion": {
+    "residentProfile": {
+      "action": "Șterge profilul locatarului",
+      "title": "Șterge profilul de locatar neasociat",
+      "confirm": "Ștergeți definitiv profilul de locatar al persoanei {{resident}}? Sunt eligibile doar profilurile fără administratori asociați, apartenențe la blocuri, asocieri cu apartamente, număr de telefon sau roluri în blocuri. Contul de autentificare separat este păstrat.",
+      "blocked": "Acest locatar are acum o asociere sau un număr de telefon și nu poate fi șters de aici. Închideți dialogul și actualizați lista.",
+      "failed": "Ștergerea profilului nu a putut fi confirmată. Reîncercați sau actualizați lista; această acțiune nu șterge contul de autentificare.",
+      "success": "Profilul de locatar neasociat a fost șters. Contul de autentificare separat a fost păstrat."
+    },
     "statistics": "Statistici privind ștergerea",
     "statistic": "Tip de înregistrare",
     "count": "Număr",
@@ -1369,8 +1377,28 @@
                                                            "created":  "Contul de administrator a fost creat și acceptat"
                                                        }
                                         },
+                       "creation": {
+                           "selectAdmin": "Selectează contul de administrator",
+                           "continue": "Continuă",
+                           "forAdmin": "Creare pentru {{admin}}",
+                           "noAdmins": "Nu există conturi de administrator active disponibile",
+                           "noBlocks": "Acest administrator nu are încă blocuri",
+                           "noApartments": "Nu există apartamente nealocate în acest bloc",
+                           "optionalHousing": "Alocarea la bloc și apartament este opțională. Locatarul va fi asociat contului de administrator selectat.",
+                           "unassigned": "Nealocat",
+                           "saveFailed": "Modificarea nu a putut fi confirmată. Reîncearcă folosind aceleași date sau verifică lista înainte de a începe din nou.",
+                           "notificationTitle": "SuperAdmin a actualizat contul tău",
+                           "notifications": {
+                               "block": "SuperAdmin a creat blocul {{name}} pentru contul tău.",
+                               "blockSetup": "SuperAdmin a creat blocul {{name}}, inclusiv apartamentele configurate și alocările locatarilor, pentru contul tău.",
+                               "resident": "SuperAdmin a adăugat sau a alocat locatarul {{name}} în contul tău."
+                           }
+                       },
                        "blocks":  {
                                       "title":  "Lista blocurilor",
+                                      "filters": {
+                                          "search": "Caută după numele blocului sau adresă"
+                                      },
                                       "description":  "Toate blocurile înregistrate în baza de date a platformei, fără filtrare după administrator.",
                                       "loading":  "Se încarcă blocurile platformei...",
                                       "errors":  {
@@ -1396,6 +1424,7 @@
                                                 },
                                       "apartments":  {
                                                         "title":  "Apartamentele blocului {{block}}",
+                                                        "description": "Vezi apartamentele, locatarii alocați și detaliile de configurare pentru acest bloc.",
                                                         "emptyHeadline":  "Nu există apartamente în acest bloc",
                                                         "emptyHelper":  "Apartamentele adăugate în acest bloc vor apărea aici.",
                                                         "notFoundHeadline":  "Blocul nu a fost găsit",

@@ -80,6 +80,7 @@ const BlockApartmentsPage = ({ blockId }: { blockId: string }) => {
 
   return <Box sx={{ minWidth: 0, overflowWrap: 'anywhere' }}>
     <PageHeader title={filters.data ? t('superAdmin.blocks.apartments.title', { block: filters.data.blockName }) : t('sidebar.apartments')}
+      description={t('superAdmin.blocks.apartments.description')}
       actions={filters.data ? undefined : backToBlocks} />
     {filters.loading ? <LoadingState />
       : filters.notFound ? <EmptyState headline={t('superAdmin.blocks.apartments.notFoundHeadline')} helperText={t('superAdmin.blocks.apartments.notFoundHelper')} />

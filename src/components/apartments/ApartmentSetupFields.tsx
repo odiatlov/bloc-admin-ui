@@ -1,6 +1,6 @@
 import { MenuItem, TextField } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import { translateApartmentSetupStatus } from '../../../../../domain/displayLabels'
+import { translateApartmentSetupStatus } from '../../domain/displayLabels'
 
 type Fields = { number: string; floor: string; usableSqm: string; setupStatus: 'configured' | 'unconfigured' }
 export default function ApartmentSetupFields({ value, onChange, compactLabels = false, errors = {} }: { value: Fields; onChange: (patch: Partial<Fields>) => void; compactLabels?: boolean; errors?: Partial<Record<keyof Fields, string>> }) {
