@@ -1,4 +1,38 @@
 {
+  "adminUserDeletion": {
+    "action": "Delete user and managed data", "title": "Permanently delete admin user", "confirm": "Permanently delete",
+    "loading": "Loading deletion preview…", "deleting": "Confirming deletion outcome…", "success": "The user and listed managed data were permanently deleted.",
+    "warning": "This permanently deletes the user's login, their admin accounts, and the listed buildings and their data, including water-reading history. Other residents' login accounts are preserved.",
+    "accounts": "Admin accounts to delete", "buildings": "Buildings to delete", "block": "Building", "residentOutcomes": "Resident profile outcomes",
+    "residentName": "Resident", "outcome": "Outcome", "reason": "Preservation reason", "preserve": "Preserve profile", "deleteProfile": "Delete profile",
+    "association": "Surviving association", "exclusive": "No surviving associations", "removedRole": "Role to remove",
+    "roleWarning": "This user also has roles in surviving buildings. Those roles will be removed; buildings and other people's roles remain. An Admin or Censor position may become vacant.",
+    "typeEmail": "Type the user's email to confirm", "acknowledge": "I confirm permanent deletion of the listed user, buildings, resident profiles and history.",
+    "reloadPreview": "Refresh preview", "expired": "This preview has expired. Refresh it and confirm again.",
+    "scopeChanged": "The affected records have changed. Load a fresh preview and confirm again.",
+    "authRequired": "A trusted, authenticated SuperAdmin session is required. The development account picker cannot authorize permanent deletion.",
+    "disabled": "Permanent deletion is disabled until authentication, schema and release checks are complete.",
+    "invalidConfirmation": "The confirmation is invalid. Load a fresh preview and confirm again.",
+    "repairRequired": "Inconsistent building or invitation relationships need repair before deletion. Nothing was deleted by this request.",
+    "tooLarge": "This operation exceeds the supported deletion size. No records were deleted.",
+    "operationConflict": "This operation identifier is already bound to another request. Check the recorded outcome.",
+    "targetUnavailable": "The selected admin user is no longer available for this operation.",
+    "failed": "The request could not be completed. Review the outcome before trying again.",
+    "storageRequired": "Session storage is required to recover a lost deletion response. Enable it and reload the preview.",
+    "unknown": "The outcome is not yet confirmed. Check the operation or retry the same request. Do not begin a new deletion.",
+    "operation": "Operation", "checkOutcome": "Check outcome", "retrySame": "Retry same request",
+    "noBuildings": "No managed buildings", "noBuildingsHelper": "The admin accounts and eligible managed profiles are still included.",
+    "noResidents": "No affected resident profiles", "noResidentsHelper": "No resident profiles are included in this deletion.",
+    "reasons": { "membership": "Membership in a surviving building", "assignment": "Assignment in a surviving building", "management": "Managed by another admin account", "role": "Role in a surviving building" },
+    "counts": {
+      "adminAccounts": "Admin accounts to delete", "blocks": "Buildings to delete", "staircases": "Staircases to delete", "apartments": "Apartments to delete",
+      "meters": "Meters to delete", "readings": "Readings to delete", "settings": "Reading settings to delete", "memberships": "Memberships to delete", "assignments": "Apartment assignments to delete",
+      "roles": "Roles to delete", "managementLinks": "Management links to delete", "residentProfiles": "Resident profiles to delete", "preservedResidentProfiles": "Resident profiles to preserve",
+      "preservedUserAccounts": "Other affected login accounts to preserve", "deletedInvitations": "Invitations to delete", "detachedInvitations": "Invitations to detach",
+      "deletedNotifications": "Notifications to delete", "detachedNotifications": "Notifications to detach", "detachedReadings": "Surviving readings with attribution to detach",
+      "detachedCreatorReferences": "Creator references to clear", "detachedResidentLogins": "Preserved profiles to detach from this login"
+    }
+  },
   "blockOverviewFilters": {
     "search": "Search resident or apartment number",
     "noResults": "No matching apartments",

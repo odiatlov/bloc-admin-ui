@@ -1,4 +1,38 @@
 ﻿{
+  "adminUserDeletion": {
+    "action": "Șterge utilizatorul și datele administrate", "title": "Ștergere definitivă utilizator administrator", "confirm": "Șterge definitiv",
+    "loading": "Se încarcă previzualizarea ștergerii…", "deleting": "Se confirmă rezultatul ștergerii…", "success": "Utilizatorul și datele administrate afișate au fost șterse definitiv.",
+    "warning": "Această acțiune șterge definitiv contul de autentificare, conturile de administrator și blocurile afișate cu datele lor, inclusiv istoricul citirilor de apă. Conturile de autentificare ale celorlalți locatari sunt păstrate.",
+    "accounts": "Conturi de administrator de șters", "buildings": "Blocuri de șters", "block": "Bloc", "residentOutcomes": "Rezultate pentru profilurile locatarilor",
+    "residentName": "Locatar", "outcome": "Rezultat", "reason": "Motivul păstrării", "preserve": "Păstrează profilul", "deleteProfile": "Șterge profilul",
+    "association": "Asociere păstrată", "exclusive": "Fără asocieri rămase", "removedRole": "Rol de eliminat",
+    "roleWarning": "Acest utilizator are roluri și în blocuri care vor fi păstrate. Rolurile sale vor fi eliminate; blocurile și rolurile celorlalte persoane rămân. Poziția de administrator sau cenzor poate rămâne vacantă.",
+    "typeEmail": "Introduceți adresa de e-mail a utilizatorului pentru confirmare", "acknowledge": "Confirm ștergerea definitivă a utilizatorului, blocurilor, profilurilor de locatari și istoricului afișate.",
+    "reloadPreview": "Actualizează previzualizarea", "expired": "Previzualizarea a expirat. Actualizați-o și confirmați din nou.",
+    "scopeChanged": "Înregistrările afectate s-au schimbat. Încărcați o previzualizare nouă și confirmați din nou.",
+    "authRequired": "Este necesară o sesiune SuperAdmin autentificată și verificată. Selectorul de conturi pentru dezvoltare nu poate autoriza ștergerea definitivă.",
+    "disabled": "Ștergerea definitivă este dezactivată până la finalizarea autentificării, schemei și verificărilor de lansare.",
+    "invalidConfirmation": "Confirmarea nu este validă. Încărcați o previzualizare nouă și confirmați din nou.",
+    "repairRequired": "Relațiile neconcordante ale blocurilor sau invitațiilor trebuie corectate înainte de ștergere. Această cerere nu a șters nimic.",
+    "tooLarge": "Operațiunea depășește volumul de ștergere acceptat. Nu s-a șters nicio înregistrare.",
+    "operationConflict": "Identificatorul operațiunii este deja asociat altei cereri. Verificați rezultatul înregistrat.",
+    "targetUnavailable": "Utilizatorul administrator selectat nu mai este disponibil pentru această operațiune.",
+    "failed": "Cererea nu a putut fi finalizată. Verificați rezultatul înainte de a încerca din nou.",
+    "storageRequired": "Stocarea sesiunii este necesară pentru recuperarea rezultatului ștergerii. Activați-o și reîncărcați previzualizarea.",
+    "unknown": "Rezultatul nu este încă confirmat. Verificați operațiunea sau retrimiteți aceeași cerere. Nu începeți o ștergere nouă.",
+    "operation": "Operațiune", "checkOutcome": "Verifică rezultatul", "retrySame": "Retrimite aceeași cerere",
+    "noBuildings": "Niciun bloc administrat", "noBuildingsHelper": "Conturile de administrator și profilurile administrate eligibile sunt incluse în continuare.",
+    "noResidents": "Niciun profil de locatar afectat", "noResidentsHelper": "Ștergerea nu include profiluri de locatari.",
+    "reasons": { "membership": "Apartenență la un bloc păstrat", "assignment": "Asociere cu un apartament păstrat", "management": "Administrat de alt cont de administrator", "role": "Rol într-un bloc păstrat" },
+    "counts": {
+      "adminAccounts": "Conturi de administrator de șters", "blocks": "Blocuri de șters", "staircases": "Scări de șters", "apartments": "Apartamente de șters",
+      "meters": "Contoare de șters", "readings": "Citiri de șters", "settings": "Setări de citire de șters", "memberships": "Apartenențe de șters", "assignments": "Asocieri cu apartamente de șters",
+      "roles": "Roluri de șters", "managementLinks": "Legături de administrare de șters", "residentProfiles": "Profiluri de locatari de șters", "preservedResidentProfiles": "Profiluri de locatari de păstrat",
+      "preservedUserAccounts": "Alte conturi de autentificare afectate de păstrat", "deletedInvitations": "Invitații de șters", "detachedInvitations": "Invitații de detașat",
+      "deletedNotifications": "Notificări de șters", "detachedNotifications": "Notificări de detașat", "detachedReadings": "Citiri păstrate cu atribuirea de detașat",
+      "detachedCreatorReferences": "Referințe la creator de eliminat", "detachedResidentLogins": "Profiluri păstrate de detașat de acest cont"
+    }
+  },
   "blockOverviewFilters": {
     "search": "Caută locatar sau număr de apartament",
     "noResults": "Niciun apartament găsit",

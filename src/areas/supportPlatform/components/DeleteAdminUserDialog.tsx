@@ -1,0 +1,98 @@
+import Alert from '@mui/material/Alert'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
+import CircularProgress from '@mui/material/CircularProgress'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
+import RefreshIcon from '@mui/icons-material/Refresh'
+import { useTranslation } from 'react-i18next'
+import AppDialog from '../../../components/shared/AppDialog'
+import EmptyState from '../../../components/shared/EmptyState'
+import LoadErrorState from '../../../components/shared/LoadErrorState'
+import ResponsiveDataView, { type DataColumn } from '../../../components/shared/ResponsiveDataView'
+import { translatePlatformUserValue } from '../../../domain/displayLabels'
+import { useAdminUserDeletion } from '../hooks/useAdminUserDeletion'
+import type { AdminUserDeletionPreview } from '../types/adminUserDeletion'
+
+type Props = { userId: string; actorKey: string; onClose: () => void; onCommitted: () => void }
+
+const DeleteAdminUserDialog = ({ userId, actorKey, onClose, onCommitted }: Props) => {
+  const { t } = useTranslation()
+  const flow = useAdminUserDeletion(userId, actorKey, onCommitted)
+  const label = (key: string) => t(`adminUserDeletion.${key}`)
+  const pending = flow.stage === 'submitting'
+  const completed = flow.stage === 'completed'
+  const unknown = flow.stage === 'unknown'
+  const knownErrors: Record<string, string> = {
+    TRUSTED_AUTH_REQUIRED: 'authRequired', DELETION_DISABLED: 'disabled', DELETION_SCHEMA_REQUIRED: 'disabled', DELETION_SCOPE_CHANGED: 'scopeChanged',
+    DELETION_PREVIEW_EXPIRED: 'expired', DELETION_INVALID_CONFIRMATION: 'invalidConfirmation',
+    DELETION_HIERARCHY_CONFLICT: 'repairRequired', DELETION_INVITATION_CONFLICT: 'repairRequired',
+    DELETION_SCOPE_TOO_LARGE: 'tooLarge', DELETION_OPERATION_CONFLICT: 'operationConflict',
+    DELETION_TARGET_NOT_FOUND: 'targetUnavailable', DELETION_TARGET_NOT_ADMIN: 'targetUnavailable',
+    DELETION_STORAGE_REQUIRED: 'storageRequired',
+  }
+  const preview = flow.preview
+  const residents: DataColumn<AdminUserDeletionPreview['residents'][number]>[] = [
+    { key: 'name', label: label('residentName'), cardRole: 'primary', render: (row) => row.name },
+    { key: 'outcome', label: label('outcome'), render: (row) => label(row.preserved ? 'preserve' : 'deleteProfile') },
+    { key: 'reasons', label: label('reason'), render: (row) => row.reasons.map((reason) =>
+      ['membership', 'assignment', 'management', 'role'].includes(reason) ? label(`reasons.${reason}`) : label('association')).join(', ') || label('exclusive') },
+  ]
+  const roles: DataColumn<AdminUserDeletionPreview['survivingBlockRoleEffects'][number]>[] = [
+    { key: 'block', label: label('block'), cardRole: 'primary', render: (row) => row.blockName },
+    { key: 'role', label: label('removedRole'), render: (row) => translatePlatformUserValue(t, 'roles', row.role) },
+  ]
+  return <AppDialog open title={label('title')} maxWidth="md" onCancel={onClose} pending={pending}
+    cancelLabel={t('common.close')} confirmLabel={completed ? t('common.close') : unknown ? label('retrySame') : pending ? label('deleting') : label('confirm')}
+    confirmColor={completed ? 'primary' : 'error'} confirmDisabled={!completed && !unknown && !flow.canSubmit}
+    hideCancelButton={completed} onConfirm={completed ? onClose : unknown ? flow.retrySameOperation : flow.submit}
+    contentSx={{ display: 'grid', gap: 2, overflowWrap: 'anywhere' }}>
+    {flow.stage === 'loading' && <Box role="status" sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+      <CircularProgress size={24} /><Typography>{label('loading')}</Typography>
+    </Box>}
+    {pending && <Box role="status" aria-live="polite" sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+      <CircularProgress size={24} /><Typography>{label('deleting')}</Typography>
+    </Box>}
+    {flow.error && <Alert severity="error">{label(knownErrors[flow.error] ?? 'failed')}</Alert>}
+    {flow.stage === 'error' && <LoadErrorState onRetry={flow.refresh} />}
+    {unknown && <>
+      <Alert severity="warning">{label('unknown')}</Alert>
+      <Typography variant="body2">{label('operation')}: {flow.operationId}</Typography>
+      <Button variant="outlined" startIcon={<RefreshIcon />} onClick={() => { void flow.checkOutcome() }}>{label('checkOutcome')}</Button>
+    </>}
+    {completed && <Alert severity="success" role="status">{label('success')}</Alert>}
+    {preview && !completed && !unknown && flow.stage !== 'error' && <>
+      <Typography variant="h6">{preview.email}</Typography>
+      <Alert severity="warning">{label('warning')}</Alert>
+      <Typography variant="subtitle1">{label('accounts')}</Typography>
+      <Box component="ul" sx={{ m: 0, pl: 2.5 }}>{preview.adminAccounts.map((account) => <li key={account.id}>{account.name}</li>)}</Box>
+      <Typography variant="subtitle1">{label('buildings')}</Typography>
+      {preview.blocks.length ? <Box component="ul" sx={{ m: 0, pl: 2.5 }}>{preview.blocks.map((block) => <li key={block.id}>{block.name}</li>)}</Box>
+        : <EmptyState headline={label('noBuildings')} helperText={label('noBuildingsHelper')} />}
+      <Box component="dl" sx={{ m: 0, display: 'grid', gap: 1, gridTemplateColumns: 'minmax(0, 1fr) auto' }}>
+        {Object.entries(preview.counts).map(([key, count]) => <Box key={key} sx={{ display: 'contents' }}>
+          <Typography component="dt" variant="body2">{label(`counts.${key}`)}</Typography>
+          <Typography component="dd" variant="body2" sx={{ m: 0, fontVariantNumeric: 'tabular-nums' }}>{count}</Typography>
+        </Box>)}
+      </Box>
+      <Typography variant="subtitle1">{label('residentOutcomes')}</Typography>
+      <ResponsiveDataView columns={residents} rows={preview.residents} getRowId={(row) => row.id}
+        paginationId={`deletion-residents-${userId}`} ariaLabel={label('residentOutcomes')}
+        emptyState={<EmptyState headline={label('noResidents')} helperText={label('noResidentsHelper')} />} />
+      {preview.survivingBlockRoleEffects.length > 0 && <>
+        <Alert severity="warning">{label('roleWarning')}</Alert>
+        <ResponsiveDataView columns={roles} rows={preview.survivingBlockRoleEffects} getRowId={(row) => `${row.blockId}-${row.role}`}
+          paginationId={`deletion-roles-${userId}`} ariaLabel={label('removedRole')} />
+      </>}
+      {flow.expired ? <Alert severity="warning" action={<Button onClick={flow.refresh}>{label('reloadPreview')}</Button>}>{label('expired')}</Alert> : null}
+      <TextField label={label('typeEmail')} value={flow.email} onChange={(event) => flow.setEmail(event.target.value)}
+        disabled={pending || flow.expired} autoComplete="off" fullWidth />
+      <FormControlLabel sx={{ alignItems: 'flex-start', m: 0 }} control={<Checkbox checked={flow.acknowledged}
+        disabled={pending || flow.expired} onChange={(event) => flow.setAcknowledged(event.target.checked)} />} label={label('acknowledge')} />
+    </>}
+  </AppDialog>
+}
+
+export default DeleteAdminUserDialog

@@ -1,4 +1,5 @@
 import { apiGet, apiPost } from './apiClient'
+import type { AdminUserDeletionPreview, AdminUserDeletionResult, DeleteAdminUserRequest, DeletionOperationStatus } from '../areas/supportPlatform/types/adminUserDeletion'
 
 export type SuperAdminDashboardResponse = {
   totalBlocks: number
@@ -79,6 +80,13 @@ export type SuperAdminInvitationResponse = {
 }
 
 export const superAdminApi = {
+  getDeletionPreview: (userId: string, signal?: AbortSignal) =>
+    apiGet<AdminUserDeletionPreview>(`/super-admin/users/${userId}/deletion-preview`, signal, { trustedSession: true }),
+  deleteUserAndManagedData: (userId: string, request: DeleteAdminUserRequest, csrf: string) =>
+    apiPost<DeleteAdminUserRequest, AdminUserDeletionResult>(`/super-admin/users/${userId}/delete-managed-data`, request,
+      { trustedSession: true, headers: { 'X-CSRF-TOKEN': csrf } }),
+  getDeletionOperation: (operationId: string) =>
+    apiGet<DeletionOperationStatus>(`/super-admin/deletion-operations/${operationId}`, undefined, { trustedSession: true }),
   getUserFilters: (signal?: AbortSignal) => apiGet<SuperAdminUserFiltersResponse>('/super-admin/users/filters', signal),
   getDashboard: () => apiGet<SuperAdminDashboardResponse>('/super-admin/dashboard'),
   getAdminAccounts: () => apiGet<SuperAdminAdminAccountResponse[]>('/super-admin/admin-accounts'),
