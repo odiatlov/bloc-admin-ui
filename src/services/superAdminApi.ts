@@ -80,14 +80,22 @@ export type SuperAdminInvitationResponse = {
   acceptedAt?: string
 }
 
+const postDeletionCommand = <TResponse,>(path: string, request: DeleteAdminUserRequest) =>
+  withPlatformDeletionSession(async (options) => {
+    const session = await apiGet<{ antiforgeryToken: string }>('/super-admin/deletion-session', undefined, options)
+    return apiPost<DeleteAdminUserRequest, TResponse>(path, request,
+      { ...options, headers: { ...options.headers, 'X-CSRF-TOKEN': session.antiforgeryToken } })
+  })
+
 export const superAdminApi = {
   getDeletionPreview: (userId: string, signal?: AbortSignal) =>
     withPlatformDeletionSession((options) => apiGet<AdminUserDeletionPreview>(`/super-admin/users/${userId}/deletion-preview`, signal, options)),
-  deleteUserAndManagedData: (userId: string, request: DeleteAdminUserRequest, csrf: string) =>
-    withPlatformDeletionSession((options) => apiPost<DeleteAdminUserRequest, AdminUserDeletionResult>(`/super-admin/users/${userId}/delete-managed-data`, request,
-      { ...options, headers: { ...options.headers, 'X-CSRF-TOKEN': csrf } })),
+  deleteUserAndManagedData: (userId: string, request: DeleteAdminUserRequest) =>
+    postDeletionCommand<AdminUserDeletionResult>(`/super-admin/users/${userId}/delete-managed-data`, request),
   getDeletionOperation: (operationId: string) =>
     withPlatformDeletionSession((options) => apiGet<DeletionOperationStatus>(`/super-admin/deletion-operations/${operationId}`, undefined, options)),
+  resolveDeletionOperation: (userId: string, request: DeleteAdminUserRequest) =>
+    postDeletionCommand<DeletionOperationStatus>(`/super-admin/users/${userId}/resolve-deletion`, request),
   getUserFilters: (signal?: AbortSignal) => apiGet<SuperAdminUserFiltersResponse>('/super-admin/users/filters', signal),
   getDashboard: () => apiGet<SuperAdminDashboardResponse>('/super-admin/dashboard'),
   getAdminAccounts: () => apiGet<SuperAdminAdminAccountResponse[]>('/super-admin/admin-accounts'),

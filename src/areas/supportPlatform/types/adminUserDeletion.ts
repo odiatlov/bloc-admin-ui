@@ -19,4 +19,4 @@ export type DeleteAdminUserRequest = {
   acknowledgePermanentDeletion: boolean; deleteWaterHistory: boolean
 }
 export type AdminUserDeletionResult = { operationId: string; userId: string; completedAt: string; counts: DeletionCounts }
-export type DeletionOperationStatus = { status: 'unknown' | 'completed'; result: AdminUserDeletionResult | null }
+export type DeletionOperationStatus = { status: 'unknown' | 'completed' | 'cancelled'; result: AdminUserDeletionResult | null }

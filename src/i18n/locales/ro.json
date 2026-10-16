@@ -1,5 +1,14 @@
 ﻿{
   "adminUserDeletion": {
+    "statistics": "Statistici privind ștergerea",
+    "statistic": "Tip de înregistrare",
+    "count": "Număr",
+    "resolveOperation": "Rezolvă operațiunea",
+    "resolving": "Se verifică și se închide operațiunea anterioară…",
+    "operationBusy": "Operațiunea este încă în curs. Așteptați, apoi încercați din nou rezolvarea.",
+    "operationCancelled": "Operațiunea anterioară a fost anulată fără a salva o ștergere. Reîncărcați previzualizarea pentru a continua.",
+    "diagnostic": "Diagnostic server",
+    "csrfInvalid": "Tokenul de securitate al sesiunii nu mai este valid. Retrimiteți aceeași operațiune pentru a obține un token nou.",
     "action": "Șterge utilizatorul și datele administrate", "title": "Ștergere definitivă utilizator administrator", "confirm": "Șterge definitiv",
     "loading": "Se încarcă previzualizarea ștergerii…", "deleting": "Se confirmă rezultatul ștergerii…", "success": "Utilizatorul și datele administrate afișate au fost șterse definitiv.",
     "warning": "Această acțiune șterge definitiv contul de autentificare, conturile de administrator și blocurile afișate cu datele lor, inclusiv istoricul citirilor de apă. Conturile de autentificare ale celorlalți locatari sunt păstrate.",
@@ -27,12 +36,12 @@
     "noResidents": "Niciun profil de locatar afectat", "noResidentsHelper": "Ștergerea nu include profiluri de locatari.",
     "reasons": { "membership": "Apartenență la un bloc păstrat", "assignment": "Asociere cu un apartament păstrat", "management": "Administrat de alt cont de administrator", "role": "Rol într-un bloc păstrat" },
     "counts": {
-      "adminAccounts": "Conturi de administrator de șters", "blocks": "Blocuri de șters", "staircases": "Scări de șters", "apartments": "Apartamente de șters",
-      "meters": "Contoare de șters", "readings": "Citiri de șters", "settings": "Setări de citire de șters", "memberships": "Apartenențe de șters", "assignments": "Asocieri cu apartamente de șters",
-      "roles": "Roluri de șters", "managementLinks": "Legături de administrare de șters", "residentProfiles": "Profiluri de locatari de șters", "preservedResidentProfiles": "Profiluri de locatari de păstrat",
-      "preservedUserAccounts": "Alte conturi de autentificare afectate de păstrat", "deletedInvitations": "Invitații de șters", "detachedInvitations": "Invitații de detașat",
-      "deletedNotifications": "Notificări de șters", "detachedNotifications": "Notificări de detașat", "detachedReadings": "Citiri păstrate cu atribuirea de detașat",
-      "detachedCreatorReferences": "Referințe la creator de eliminat", "detachedResidentLogins": "Profiluri păstrate de detașat de acest cont"
+      "adminAccounts": "Șterge conturi admin", "blocks": "Șterge blocuri", "staircases": "Șterge scări", "apartments": "Șterge apartamente",
+      "meters": "Șterge contoare", "readings": "Șterge citiri", "settings": "Șterge setări de citire", "memberships": "Șterge apartenențe", "assignments": "Șterge asocieri cu apartamente",
+      "roles": "Șterge roluri", "managementLinks": "Șterge legături admin", "residentProfiles": "Șterge profiluri locatari", "preservedResidentProfiles": "Păstrează profiluri locatari",
+      "preservedUserAccounts": "Păstrează alte conturi", "deletedInvitations": "Șterge invitații", "detachedInvitations": "Păstrează invitații",
+      "deletedNotifications": "Șterge notificări", "detachedNotifications": "Păstrează notificări", "detachedReadings": "Elimină atribuirea citirilor",
+      "detachedCreatorReferences": "Elimină referințe la creator", "detachedResidentLogins": "Păstrează profiluri fără cont"
     }
   },
   "blockOverviewFilters": {

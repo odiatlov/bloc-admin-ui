@@ -1,5 +1,14 @@
 {
   "adminUserDeletion": {
+    "statistics": "Deletion statistics",
+    "statistic": "Record type",
+    "count": "Count",
+    "resolveOperation": "Resolve operation",
+    "resolving": "Resolving the previous operation…",
+    "operationBusy": "This operation is still running. Wait, then resolve it again.",
+    "operationCancelled": "The previous operation was cancelled without committing a deletion. Reload the preview to continue.",
+    "diagnostic": "Server diagnostic",
+    "csrfInvalid": "The session security token is no longer valid. Retry the same operation to obtain a fresh token.",
     "action": "Delete user and managed data", "title": "Permanently delete admin user", "confirm": "Permanently delete",
     "loading": "Loading deletion preview…", "deleting": "Confirming deletion outcome…", "success": "The user and listed managed data were permanently deleted.",
     "warning": "This permanently deletes the user's login, their admin accounts, and the listed buildings and their data, including water-reading history. Other residents' login accounts are preserved.",
@@ -27,12 +36,12 @@
     "noResidents": "No affected resident profiles", "noResidentsHelper": "No resident profiles are included in this deletion.",
     "reasons": { "membership": "Membership in a surviving building", "assignment": "Assignment in a surviving building", "management": "Managed by another admin account", "role": "Role in a surviving building" },
     "counts": {
-      "adminAccounts": "Admin accounts to delete", "blocks": "Buildings to delete", "staircases": "Staircases to delete", "apartments": "Apartments to delete",
-      "meters": "Meters to delete", "readings": "Readings to delete", "settings": "Reading settings to delete", "memberships": "Memberships to delete", "assignments": "Apartment assignments to delete",
-      "roles": "Roles to delete", "managementLinks": "Management links to delete", "residentProfiles": "Resident profiles to delete", "preservedResidentProfiles": "Resident profiles to preserve",
-      "preservedUserAccounts": "Other affected login accounts to preserve", "deletedInvitations": "Invitations to delete", "detachedInvitations": "Invitations to detach",
-      "deletedNotifications": "Notifications to delete", "detachedNotifications": "Notifications to detach", "detachedReadings": "Surviving readings with attribution to detach",
-      "detachedCreatorReferences": "Creator references to clear", "detachedResidentLogins": "Preserved profiles to detach from this login"
+      "adminAccounts": "Delete admin accounts", "blocks": "Delete buildings", "staircases": "Delete staircases", "apartments": "Delete apartments",
+      "meters": "Delete meters", "readings": "Delete readings", "settings": "Delete reading settings", "memberships": "Delete memberships", "assignments": "Delete apartment links",
+      "roles": "Delete roles", "managementLinks": "Delete admin links", "residentProfiles": "Delete resident profiles", "preservedResidentProfiles": "Keep resident profiles",
+      "preservedUserAccounts": "Keep other logins", "deletedInvitations": "Delete invitations", "detachedInvitations": "Keep invitations",
+      "deletedNotifications": "Delete notifications", "detachedNotifications": "Keep notifications", "detachedReadings": "Clear reading attribution",
+      "detachedCreatorReferences": "Clear creator references", "detachedResidentLogins": "Keep profiles without login"
     }
   },
   "blockOverviewFilters": {

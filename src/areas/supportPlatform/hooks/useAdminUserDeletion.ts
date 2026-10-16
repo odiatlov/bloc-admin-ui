@@ -3,9 +3,9 @@ import { ApiError } from '../../../services/apiClient'
 import { superAdminApi } from '../../../services/superAdminApi'
 import type { AdminUserDeletionPreview, AdminUserDeletionResult, DeleteAdminUserRequest } from '../types/adminUserDeletion'
 
-type PendingDeletion = { userId: string; request: DeleteAdminUserRequest; csrf: string }
-type Stage = 'loading' | 'ready' | 'error' | 'submitting' | 'unknown' | 'completed'
-type State = { stage: Stage; preview?: AdminUserDeletionPreview; error?: string; result?: AdminUserDeletionResult }
+type PendingDeletion = { userId: string; request: DeleteAdminUserRequest }
+type Stage = 'loading' | 'ready' | 'error' | 'submitting' | 'resolving' | 'unknown' | 'completed' | 'cancelled'
+type State = { stage: Stage; preview?: AdminUserDeletionPreview; error?: string; diagnostic?: string; result?: AdminUserDeletionResult }
 const errorCode = (error: unknown) => error instanceof ApiError
   ? error.status === 401 || error.status === 403 ? 'TRUSTED_AUTH_REQUIRED' : error.code ?? 'DELETION_FAILED'
   : 'DELETION_FAILED'
@@ -17,7 +17,7 @@ export const useAdminUserDeletion = (userId: string, actorKey: string, onCommitt
       const stored = sessionStorage.getItem(storageKey)
       if (!stored) return null
       const value = JSON.parse(stored) as PendingDeletion
-      return value.userId === userId && value.request?.operationId && value.csrf ? value : null
+      return value.userId === userId && value.request?.operationId ? value : null
     } catch { return null }
   })
   const [state, setState] = React.useState<State>(() => ({ stage: pending ? 'unknown' : 'loading' }))
@@ -59,15 +59,19 @@ export const useAdminUserDeletion = (userId: string, actorKey: string, onCommitt
   const execute = async (operation: PendingDeletion, recovering: boolean) => {
     if (busy.current) return
     busy.current = true
-    setState((previous) => ({ ...previous, stage: 'submitting', error: undefined }))
+    setState((previous) => ({ ...previous, stage: 'submitting', error: undefined, diagnostic: undefined }))
     try {
-      const result = await superAdminApi.deleteUserAndManagedData(operation.userId, operation.request, operation.csrf)
+      const result = await superAdminApi.deleteUserAndManagedData(operation.userId, operation.request)
       if (mounted.current) complete(result)
     } catch (error: unknown) {
       if (mounted.current) {
+        const cancelled = error instanceof ApiError && error.code === 'DELETION_OPERATION_CANCELLED'
         const knownRejection = error instanceof ApiError && error.status >= 400 && error.status < 500
-        if (knownRejection && !recovering) clearPending()
-        setState((previous) => ({ ...previous, stage: knownRejection && !recovering ? 'error' : 'unknown', error: errorCode(error) }))
+          && !['DELETION_OPERATION_BUSY', 'DELETION_OPERATION_CONFLICT'].includes(error.code ?? '')
+        const resolved = cancelled || (knownRejection && !recovering)
+        if (resolved) clearPending()
+        setState((previous) => cancelled ? { stage: 'cancelled' } : ({ ...previous, stage: resolved ? 'error' : 'unknown', error: errorCode(error),
+          diagnostic: error instanceof ApiError && error.code === 'DELETION_EXECUTION_FAILED' ? error.message : undefined }))
       }
     } finally { busy.current = false }
   }
@@ -81,7 +85,7 @@ export const useAdminUserDeletion = (userId: string, actorKey: string, onCommitt
   const submit = () => {
     if (!canSubmit || !state.preview || busy.current) return
     const operation: PendingDeletion = {
-      userId, csrf: state.preview.antiforgeryToken,
+      userId,
       request: { operationId: crypto.randomUUID(), confirmationToken: state.preview.confirmationToken,
         confirmationEmail: email.trim(), acknowledgePermanentDeletion: true, deleteWaterHistory: true },
     }
@@ -99,13 +103,35 @@ export const useAdminUserDeletion = (userId: string, actorKey: string, onCommitt
       const status = await superAdminApi.getDeletionOperation(pending.request.operationId)
       if (mounted.current) {
         if (status.status === 'completed' && status.result) complete(status.result)
+        else if (status.status === 'cancelled') {
+          clearPending()
+          setState({ stage: 'cancelled' })
+        }
         else setState((previous) => ({ ...previous, stage: 'unknown', error: undefined }))
       }
     } catch (error: unknown) {
       if (mounted.current) setState((previous) => ({ ...previous, stage: 'unknown', error: errorCode(error) }))
     } finally { busy.current = false }
   }
+  const resolveOperation = async () => {
+    if (!pending || busy.current) return
+    busy.current = true
+    setState((previous) => ({ ...previous, stage: 'resolving', error: undefined }))
+    try {
+      const status = await superAdminApi.resolveDeletionOperation(pending.userId, pending.request)
+      if (mounted.current) {
+        if (status.status === 'completed' && status.result) complete(status.result)
+        else if (status.status === 'cancelled') {
+          clearPending()
+          setEmail(''); setAcknowledged(false); setExpired(false)
+          setState({ stage: 'cancelled' })
+        } else setState((previous) => ({ ...previous, stage: 'unknown' }))
+      }
+    } catch (error: unknown) {
+      if (mounted.current) setState((previous) => ({ ...previous, stage: 'unknown', error: errorCode(error) }))
+    } finally { busy.current = false }
+  }
   return { ...state, email, setEmail, acknowledged, setAcknowledged, expired, canSubmit, submit, refresh,
-    operationId: pending?.request.operationId, checkOutcome,
+    operationId: pending?.request.operationId, checkOutcome, resolveOperation,
     retrySameOperation: () => { if (pending) void execute(pending, true) } }
 }

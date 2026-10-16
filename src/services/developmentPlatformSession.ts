@@ -6,7 +6,9 @@ const selectedToken = () => typeof window !== 'undefined' ? localStorage.getItem
 const requestOptions = () => {
   const token = selectedToken()
   const headers: Record<string, string> = {}
-  if (developmentSession && token) headers.Authorization = `Bearer ${token}`
+  // A cookie can survive reload; the matching selected-actor header must not depend on module memory.
+  // Production authorization still requires a trusted cookie and never accepts this mock bearer alone.
+  if (token?.startsWith('mock-jwt-superadmin-')) headers.Authorization = `Bearer ${token}`
   return {
     trustedSession: true,
     headers,
@@ -39,7 +41,7 @@ export const withPlatformDeletionSession = async <T,>(request: (options: ReturnT
 }
 
 export const endDevelopmentPlatformSession = () => {
-  if (!developmentSession) return
+  if (!developmentSession && !selectedToken()?.startsWith('mock-jwt-superadmin-')) return
   developmentSession = false
   void apiDelete<boolean>('/development/super-admin-session').catch(() => undefined)
 }
