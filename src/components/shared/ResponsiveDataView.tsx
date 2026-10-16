@@ -40,6 +40,7 @@ export type ResponsiveDataViewProps<T> = {
   paginationResetKey?: string
   serverPagination?: { page: number; totalCount: number; loading?: boolean; onPageChange: (page: number) => void }
   renderCardCornerActions?: (row: T) => React.ReactNode
+  renderMobileRow?: (row: T) => React.ReactNode
   rows: T[]
 }
 
@@ -51,7 +52,7 @@ const inferCardRole = (column: Pick<DataColumn<unknown>, 'cardRole' | 'key'>, in
   return 'metadata'
 }
 
-const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900, emptyState, getRowId, paginationId, paginationResetKey = '', serverPagination, renderCardCornerActions, rows }: ResponsiveDataViewProps<T>) => {
+const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900, emptyState, getRowId, paginationId, paginationResetKey = '', serverPagination, renderCardCornerActions, renderMobileRow, rows }: ResponsiveDataViewProps<T>) => {
   const { t } = useTranslation()
   const store = React.useContext(DataViewPaginationContext)
   const [localState, setLocalState] = React.useState<DataViewPageState>()
@@ -167,14 +168,18 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
       </TableContainer>
 
       <Box
+        component={renderMobileRow ? 'ul' : 'div'}
+        aria-label={renderMobileRow ? ariaLabel : undefined}
         className="ResponsiveDataView-cards"
         sx={{
-          gap: 1.5,
+          gap: renderMobileRow ? 0 : 1.5,
+          ...(renderMobileRow ? { m: 0, p: 0, listStyle: 'none' } : {}),
           maxWidth: '100%',
           overflowX: 'hidden',
         }}
       >
         {pageRows.map((row) => {
+          if (renderMobileRow) return <React.Fragment key={getRowId(row)}>{renderMobileRow(row)}</React.Fragment>
           let primary: React.ReactNode = null
           let secondary: React.ReactNode = null
           let secondaryLabel = ''

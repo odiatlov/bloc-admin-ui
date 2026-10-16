@@ -1,6 +1,7 @@
 import React from 'react'
 import { mockAccounts } from '../mocks/auth'
 import { mockLoginApi } from '../services/mockLoginApi'
+import { endDevelopmentPlatformSession } from '../services/developmentPlatformSession'
 import type { AuthRole, MockAccount } from '../types/apartment'
 
 export type Role = AuthRole
@@ -114,6 +115,7 @@ export const RoleProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
   }
 
   const logout = () => {
+    endDevelopmentPlatformSession()
     setIsAuthenticated(false)
     try {
       localStorage.setItem('mockSessionActive', 'false')

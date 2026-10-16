@@ -167,7 +167,9 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
     setError(null)
 
     try {
-      setApartmentResidentLinks(await apartmentResidentsApi.getByApartment(apartmentId))
+      const links = await apartmentResidentsApi.getByApartment(apartmentId)
+      setApartmentResidentLinks(links)
+      if (links.length === 0) setForm((value) => ({ ...value, residentCount: '0' }))
     } catch (nextError) {
       setError(nextError instanceof Error ? nextError.message : 'Unable to load apartment residents')
     } finally {
@@ -283,12 +285,13 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
     const block = blocks.find((item) => item.id === form.blockId)
     if (!block || !form.number.trim()) return
     if (formBlockHasStaircases && !form.staircaseId) return
+    if (editingApartment && (isLoadingApartmentResidents || error)) return
 
     const request = {
       blockId: form.blockId,
       staircaseId: formBlockHasStaircases ? form.staircaseId : null,
       number: form.number.trim(),
-      residentCount: Math.max(0, Number(form.residentCount) || 0),
+      residentCount: editingApartment && hasAssignedResident ? Math.max(0, Number(form.residentCount) || 0) : 0,
       floor: form.floor.trim() ? Number(form.floor) : null,
       usableSqm: form.usableSqm.trim() ? Number(form.usableSqm) : null,
       setupStatus: form.setupStatus,
@@ -395,7 +398,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
     && form.number.trim()
     && (!formBlockHasStaircases || form.staircaseId)
     && hasValidResidentCount
-    && (!editingApartment || (!isLoadingWaterConfig && !waterConfigError))
+    && (!editingApartment || (!isLoadingWaterConfig && !waterConfigError && !isLoadingApartmentResidents && !error))
   )
   const updateWaterZone = (id: string, patch: Partial<WaterZoneForm>) => {
     setWaterZones((zones) => zones.map((zone) => zone.id === id ? { ...zone, ...patch } : zone))
@@ -522,8 +525,9 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
           </Select>
         </FormControl>
         <ApartmentSetupFields value={form} onChange={patch => setForm(value => ({ ...value, ...patch }))} />
-        <TextField fullWidth required size="small" type="number" label={t('apartments.setup.householdMembers')} value={form.residentCount}
-          slotProps={{ htmlInput: { min: 0, max: 2147483647, step: 1 } }} onChange={event => setForm(value => ({ ...value, residentCount: event.target.value }))} />
+        <TextField fullWidth required disabled size="small" type="number" label={t('apartments.setup.householdMembers')} value="0"
+          helperText={t('apartments.setup.assignOwnerBeforeCount')}
+          slotProps={{ htmlInput: { min: 0, max: 2147483647, step: 1 } }} />
       </AppDialog>
 
       <Drawer
@@ -577,12 +581,13 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                   </FormControl>
                   <TextField
                     fullWidth
-                    helperText={t('apartments.setup.householdMembersHelp')}
+                    helperText={t(hasAssignedResident ? 'apartments.setup.householdMembersHelp' : 'apartments.setup.assignOwnerBeforeCount')}
+                    disabled={isLoadingApartmentResidents || !hasAssignedResident}
                     slotProps={{ htmlInput: { min: 0, max: 2147483647, step: 1 } }}
                     size="small"
                     type="number"
                     label={t('apartments.setup.householdMembers')}
-                    value={form.residentCount}
+                    value={hasAssignedResident ? form.residentCount : '0'}
                     onChange={(event) => setForm((value) => ({ ...value, residentCount: event.target.value }))}
                   />
                   <TextField fullWidth size="small" type="number" label={t('blocks.columns.usableSurface')} value={form.usableSqm} onChange={(event) => setForm((value) => ({ ...value, usableSqm: event.target.value }))} />

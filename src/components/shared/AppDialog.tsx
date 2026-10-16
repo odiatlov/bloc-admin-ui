@@ -23,6 +23,7 @@ type AppDialogProps = {
   showCloseButton?: boolean
   closeLabel?: string
   closeDisabled?: boolean
+  pending?: boolean
   backLabel?: string
   backDisabled?: boolean
   onBack?: () => void
@@ -45,6 +46,7 @@ const AppDialog: React.FC<AppDialogProps> = ({
   showCloseButton = false,
   closeLabel,
   closeDisabled = false,
+  pending = false,
   backLabel,
   backDisabled = false,
   onBack,
@@ -54,11 +56,11 @@ const AppDialog: React.FC<AppDialogProps> = ({
   open,
   title,
 }) => (
-  <Dialog open={open} onClose={onCancel} fullWidth maxWidth={maxWidth}>
+  <Dialog open={open} onClose={() => { if (!pending) onCancel() }} fullWidth maxWidth={maxWidth}>
     <DialogTitle sx={showCloseButton ? { display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 1.5 } : undefined}>
       {showCloseButton ? <Box component="span" sx={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere' }}>{title}</Box> : title}
       {showCloseButton && <IconButtonTooltip title={closeLabel ?? cancelLabel}>
-        <span><IconButton size="small" aria-label={closeLabel ?? cancelLabel} disabled={closeDisabled} onClick={onCancel}><CloseIcon /></IconButton></span>
+        <span><IconButton size="small" aria-label={closeLabel ?? cancelLabel} disabled={closeDisabled || pending} onClick={onCancel}><CloseIcon /></IconButton></span>
       </IconButtonTooltip>}
     </DialogTitle>
     <DialogContent sx={dialogContentSx}>
@@ -67,9 +69,9 @@ const AppDialog: React.FC<AppDialogProps> = ({
       </Box>
     </DialogContent>
     <DialogActions>
-      {onBack && <Button startIcon={<ArrowBackIcon />} disabled={backDisabled} onClick={onBack} sx={{ mr: 'auto' }}>{backLabel}</Button>}
-      {!hideCancelButton && <Button onClick={onCancel}>{cancelLabel}</Button>}
-      <Button variant="contained" color={confirmColor} onClick={onConfirm} disabled={confirmDisabled}>
+      {onBack && <Button startIcon={<ArrowBackIcon />} disabled={backDisabled || pending} onClick={onBack} sx={{ mr: 'auto' }}>{backLabel}</Button>}
+      {!hideCancelButton && <Button disabled={pending} onClick={onCancel}>{cancelLabel}</Button>}
+      <Button variant="contained" color={confirmColor} onClick={onConfirm} disabled={confirmDisabled || pending}>
         {confirmLabel}
       </Button>
     </DialogActions>

@@ -12,6 +12,7 @@ import Typography from '@mui/material/Typography'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import PersonIcon from '@mui/icons-material/Person'
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff'
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import { useTranslation } from 'react-i18next'
 import AppDialog from '../../../../components/shared/AppDialog'
 import EmptyState from '../../../../components/shared/EmptyState'
@@ -24,6 +25,8 @@ import StatusChip from '../../../../components/shared/StatusChip'
 import { translatePlatformUserValue } from '../../../../domain/displayLabels'
 import type { SuperAdminUserResponse, UserApartmentAssociation, UserBlockAssociation, UserRoleAssociation, UserAdminAssociation } from '../../../../services/superAdminApi'
 import { useSuperAdminUsers } from '../../hooks/useSuperAdminUsers'
+import DeleteAdminUserDialog from '../../components/DeleteAdminUserDialog'
+import { RoleContext } from '../../../../contexts/RoleContext'
 
 const associatedBlocks = (user: SuperAdminUserResponse) => [...new Map([
   ...user.roles, ...user.residentBlocks, ...user.apartments, ...user.adminAccounts.flatMap((account) => account.blocks),
@@ -32,6 +35,8 @@ const associatedBlocks = (user: SuperAdminUserResponse) => [...new Map([
 const SuperAdminUsers = () => {
   const { t, i18n } = useTranslation()
   const users = useSuperAdminUsers()
+  const { account, role, token, refreshAccounts } = React.useContext(RoleContext)
+  const [deletionTarget, setDeletionTarget] = React.useState<{ userId: string; userOnly: boolean } | null>(null)
   const { page } = users
   const [report, setReport] = React.useState<{ user: SuperAdminUserResponse; tab: number } | null>(null)
   const label = (key: string) => t(`superAdmin.users.${key}`)
@@ -62,6 +67,11 @@ const SuperAdminUsers = () => {
     { key: 'actions', label: label('columns.actions'), actions: (user) => [
       { id: 'report', label: label('viewReport'), icon: <VisibilityIcon />, priority: 2, onClick: () => setReport({ user, tab: 0 }) },
       { id: 'resident', label: label('viewResident'), icon: <PersonIcon />, visible: Boolean(user.residentId), onClick: () => setReport({ user, tab: 1 }) },
+      { id: 'delete-managed-data', label: t('adminUserDeletion.action'), icon: <DeleteForeverIcon />, color: 'error',
+        visible: role === 'SuperAdmin' && user.adminAccounts.length > 0, onClick: () => setDeletionTarget({ userId: user.userId, userOnly: false }) },
+      { id: 'delete-user', label: t('adminUserDeletion.userOnly.action'), icon: <DeleteForeverIcon />, color: 'error',
+        visible: role === 'SuperAdmin' && user.adminAccounts.length === 0 && !user.residentId,
+        onClick: () => setDeletionTarget({ userId: user.userId, userOnly: true }) },
     ] },
   ]
   const roleColumns: DataColumn<UserRoleAssociation>[] = [
@@ -95,6 +105,9 @@ const SuperAdminUsers = () => {
   const reportEmpty = <EmptyState headline={label('noAssociations')} helperText={label('noAssociationsHelper')} />
   const user = report?.user
   return <Box>
+    {deletionTarget && role === 'SuperAdmin' && <DeleteAdminUserDialog key={`${account.id}:${token}:${deletionTarget.userId}:${deletionTarget.userOnly}`}
+      userId={deletionTarget.userId} userOnly={deletionTarget.userOnly} actorKey={account.id} onClose={() => setDeletionTarget(null)}
+      onCommitted={() => { setReport(null); users.page.setPage(1); users.refresh(); void refreshAccounts() }} />}
     <PageHeader title={label('title')} />
     <Box sx={{ mb: 2 }}><FilterBar selectWidth={180} actions={<Button variant="contained" color="primary" startIcon={<FilterAltOffIcon />} disabled={!users.hasFilters} onClick={users.clearFilters}>{t('common.clearFilters')}</Button>}>
       <SearchField size="small" label={label('filters.search')} value={users.search} disabled={disabled}
