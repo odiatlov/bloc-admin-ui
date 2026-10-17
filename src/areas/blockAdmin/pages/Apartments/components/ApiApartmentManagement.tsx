@@ -44,6 +44,7 @@ import { useBlocks } from '../../../../../hooks/useBlocks'
 import { apartmentResidentsApi } from '../../../../../services/apartmentResidentsApi'
 import { apartmentsApi } from '../../../../../services/apartmentsApi'
 import { residentsApi } from '../../../../../services/residentsApi'
+import ResidentApartmentAssignments from '../../../../../components/shared/ResidentApartmentAssignments'
 import { staircasesApi } from '../../../../../services/staircasesApi'
 import { waterReadingsApi } from '../../../../../services/waterReadingsApi'
 import type { ApartmentSetupStatus } from '../../../../../types/apartment'
@@ -111,6 +112,9 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   const [isRemovingResident, setIsRemovingResident] = React.useState(false)
   const [removeResidentError, setRemoveResidentError] = React.useState<string | null>(null)
   const [assignResidentId, setAssignResidentId] = React.useState('')
+  const [additionalResident, setAdditionalResident] = React.useState<ResidentResponse | null>(null)
+  const [isAssigningResident, setIsAssigningResident] = React.useState(false)
+  const [assignmentError, setAssignmentError] = React.useState<string | null>(null)
   const [form, setForm] = React.useState<FormState>(emptyForm)
   const [waterZones, setWaterZones] = React.useState<WaterZoneForm[]>([])
   const [isLoadingWaterConfig, setIsLoadingWaterConfig] = React.useState(false)
@@ -134,7 +138,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   const formBlockHasStaircases = Boolean(formBlock?.hasStaircases || formBlockStaircases.length > 0)
   const hasAssignedResident = apartmentResidentLinks.length > 0
   const assignableResidents = React.useMemo(() => (
-    hasAssignedResident ? [] : residentRecords
+    hasAssignedResident ? [] : residentRecords.filter(resident => resident.status === 'active')
   ), [hasAssignedResident, residentRecords])
 
   const loadData = React.useCallback(async () => {
@@ -340,6 +344,9 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   }
 
   const closeEditDrawer = () => {
+    if (isAssigningResident) return
+    setAdditionalResident(null)
+    setAssignmentError(null)
     setEditingApartment(null)
     setApartmentResidentLinks([])
     setAssignResidentId('')
@@ -347,22 +354,37 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
     setWaterConfigError(null)
   }
 
-  const assignResident = async () => {
-    if (!editingApartment || !assignResidentId) return
+  const assignResident = async (confirmed = false) => {
+    if (!editingApartment || !assignResidentId || isAssigningResident) return
 
     setError(null)
+    setAssignmentError(null)
+    setIsAssigningResident(true)
 
     try {
+      if (!confirmed) {
+        const resident = await residentsApi.getById(assignResidentId)
+        const existing = resident.apartments.filter(apartment => allowedBlockIds.has(apartment.blockId) && apartment.apartmentId !== editingApartment.id)
+        if (existing.length > 0) {
+          setAdditionalResident({ ...resident, apartments: existing })
+          return
+        }
+      } else if (additionalResident?.id !== assignResidentId) return
       await apartmentResidentsApi.create(editingApartment.id, {
         residentId: assignResidentId,
         livesHere: true,
+        confirmAdditionalApartment: confirmed,
+        expectedApartmentIds: confirmed ? additionalResident?.apartments.map(apartment => apartment.apartmentId) : [],
       })
+      setAdditionalResident(null)
       setAssignResidentId('')
       await loadApartmentResidents(editingApartment.id)
       await loadData()
       void databaseBlocks.refresh()
     } catch (nextError) {
-      setError(nextError instanceof Error ? nextError.message : 'Unable to assign resident')
+      setAssignmentError(nextError instanceof Error ? nextError.message : t('residents.retention.saveFailed'))
+    } finally {
+      setIsAssigningResident(false)
     }
   }
 
@@ -725,7 +747,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                   ))}
                   <Divider />
                   <Box sx={{ alignItems: 'center', display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                    <FormControl size="small" sx={{ flex: '1 1 220px', minWidth: 220 }} disabled={hasAssignedResident}>
+                    <FormControl size="small" sx={{ flex: '1 1 220px', minWidth: 220 }} disabled={hasAssignedResident || isAssigningResident}>
                       <InputLabel>{t('apartments.actions.assignResident')}</InputLabel>
                       <Select
                         label={t('apartments.actions.assignResident')}
@@ -743,11 +765,12 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                       startIcon={<PersonAddIcon />}
                       variant="outlined"
                       onClick={() => { void assignResident() }}
-                      disabled={!assignResidentId || hasAssignedResident}
+                      disabled={!assignResidentId || hasAssignedResident || isAssigningResident || isLoadingApartmentResidents}
                     >
                       {t('residents.actions.assign')}
                     </Button>
                   </Box>
+                  {assignmentError && <Alert severity="error">{assignmentError}</Alert>}
                 </Box>
               )}
             </Box>
@@ -755,6 +778,17 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
           </Box>
         )}
       </Drawer>
+
+      <ConfirmationDialog open={Boolean(additionalResident)} title={t('residents.assignments.additionalTitle')}
+        cancelLabel={t('common.cancel')} confirmLabel={t('residents.assignments.additionalConfirm')}
+        confirmDisabled={isAssigningResident}
+        onCancel={() => { if (!isAssigningResident) { setAdditionalResident(null); setAssignmentError(null) } }}
+        onConfirm={() => { void assignResident(true) }}>
+        {assignmentError && <Alert severity="error">{assignmentError}</Alert>}
+        <Typography sx={{ mb: 2 }}>{t('residents.assignments.additionalMessage', { name: additionalResident?.fullName })}</Typography>
+        <ResidentApartmentAssignments apartments={additionalResident?.apartments ?? []} />
+        <Typography sx={{ mt: 2 }}>{t('residents.assignments.destination')}: {editingApartment ? `${editingApartment.blockName}/${editingApartment.staircaseName || '—'}/${editingApartment.number}` : ''}</Typography>
+      </ConfirmationDialog>
 
       <AppDialog
         cancelLabel={t('common.cancel')}

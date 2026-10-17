@@ -624,6 +624,21 @@
                                      "deleteTitle":  "Elimină locatar",
                                      "deleting":  "Se elimină..."
                                  },
+                      "assignments": {
+                        "title": "Repartizări la apartamente",
+                        "createWithoutHousing": "Adăugați locatarul fără bloc sau apartament. Repartizați-l ulterior din pagina Apartamente.",
+                        "registeredEmailLocked": "Locatarii înregistrați își schimbă adresa de e-mail din propriul profil.",
+                        "censorAssigned": "Acest locatar este deja cenzor pentru {{block}}.",
+                        "empty": "Fără repartizări la apartamente",
+                        "blocks": "Blocuri atribuite",
+                        "clear": "Dezasociază de la toate blocurile",
+                        "clearConfirm": "Dezasociați locatarul {{name}} de la toate blocurile dumneavoastră și de la apartamentele acestora? Numărul curent de ocupanți al apartamentelor afectate va deveni zero. Declarațiile lunare, contul de utilizator și relațiile cu alți administratori se păstrează. Confirmați, apoi salvați pentru aplicare.",
+                        "staged": "Repartizările vor fi eliminate la salvare. Anulați editarea pentru a renunța la această modificare.",
+                        "additionalTitle": "Adăugați încă un apartament?",
+                        "additionalMessage": "Locatarul {{name}} are deja aceste repartizări la apartamente în blocurile dumneavoastră. Continuați și adăugați încă un apartament, păstrând repartizările existente?",
+                        "additionalConfirm": "Da, adaugă apartamentul",
+                        "destination": "Apartament de adăugat"
+                      },
                       "retention": {
                                       "noBlock": "Fără bloc",
                                       "adminManagementOnly": "Modificarea locatarilor necesită un cont de administrator. Această listă globală permite doar consultarea.",

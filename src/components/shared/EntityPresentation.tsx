@@ -9,6 +9,7 @@ export type EntityMetadataItem = {
   key: string
   label: string
   value: React.ReactNode
+  fullWidth?: boolean
 }
 
 type MetadataLabelProps = {
@@ -50,7 +51,7 @@ export const MetadataGrid: React.FC<MetadataGridProps> = ({ items }) => {
       }}
     >
       {items.map((item) => (
-        <Box key={item.key} sx={{ minWidth: 0 }}>
+        <Box key={item.key} sx={{ minWidth: 0, gridColumn: item.fullWidth ? '1 / -1' : undefined }}>
           <MetadataLabel>{item.label}</MetadataLabel>
           <Box
             component="dd"
@@ -110,7 +111,7 @@ export const EntityListItem: React.FC<EntityListItemProps> = ({ actions, cornerA
     sx={{
       bgcolor: (theme) => theme.palette.mode === 'dark' && actions ? 'action.hover' : 'background.paper',
       display: 'grid',
-      gridTemplateColumns: '1fr',
+      gridTemplateColumns: 'minmax(0, 1fr)',
       gap: 0,
       alignItems: 'center',
       maxWidth: '100%',
@@ -139,7 +140,7 @@ export const EntityListItem: React.FC<EntityListItemProps> = ({ actions, cornerA
       </Box>
       <MetadataGrid
         items={[
-          ...(secondary ? [{ key: 'secondary', label: secondaryLabel ?? '', value: secondary }] : []),
+          ...(secondary ? [{ key: 'secondary', label: secondaryLabel ?? '', value: secondary, fullWidth: true }] : []),
           ...metadata,
         ]}
       />

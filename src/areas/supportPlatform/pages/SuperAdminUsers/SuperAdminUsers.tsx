@@ -1,7 +1,6 @@
 import React from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Chip from '@mui/material/Chip'
 import CircularProgress from '@mui/material/CircularProgress'
 import LinearProgress from '@mui/material/LinearProgress'
 import MenuItem from '@mui/material/MenuItem'
@@ -22,6 +21,7 @@ import PageHeader from '../../../../components/shared/PageHeader'
 import ResponsiveDataView, { type DataColumn } from '../../../../components/shared/ResponsiveDataView'
 import SearchField from '../../../../components/shared/SearchField'
 import StatusChip from '../../../../components/shared/StatusChip'
+import AssociationBadge from '../../../../components/shared/AssociationBadge'
 import { translatePlatformUserValue } from '../../../../domain/displayLabels'
 import type { SuperAdminUserResponse, UserApartmentAssociation, UserBlockAssociation, UserRoleAssociation, UserAdminAssociation } from '../../../../services/superAdminApi'
 import { useSuperAdminUsers } from '../../hooks/useSuperAdminUsers'
@@ -51,8 +51,7 @@ const SuperAdminUsers = () => {
   }
   const date = (value?: string | null) => value ? new Intl.DateTimeFormat(i18n.language).format(new Date(value)) : '-'
   const badges = (values: string[]) => values.length ? <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-    {values.map((value, index) => <Chip key={`${value}-${index}`} size="small" label={value}
-      sx={{ maxWidth: '100%', height: 'auto', minHeight: 24, '& .MuiChip-label': { whiteSpace: 'normal', overflowWrap: 'anywhere', py: 0.25 } }} />)}
+    {values.map((value, index) => <AssociationBadge key={`${value}-${index}`} label={value} />)}
   </Box> : label('none')
   const columns: DataColumn<SuperAdminUserResponse>[] = [
     { key: 'name', label: label('columns.name'), cardRole: 'primary', render: (user) => user.displayName },

@@ -44,12 +44,12 @@ export default function ResidentSetupFields({ value, onChange, residents, loadin
           onChange={(_event, resident) => onChange({ residentId: resident?.id ?? '', inviteResident: false, email: '' })}
           renderInput={params => <TextField {...params} required size="small" error={Boolean(errors.residentId)} helperText={errors.residentId} label={t('blockSetup.existingResident')} />} />}
     </Box>}
-    <FormControlLabel sx={{ gridColumn: '1 / -1', m: 0 }} label={t('residents.fields.inviteResident')}
-      control={<Checkbox checked={!registered && value.inviteResident} disabled={disabled || Boolean(registered) || (value.mode === 'existing' && !selected)}
-        onChange={event => onChange({ inviteResident: event.target.checked })} />} />
     {!registered && value.inviteResident && <TextField required fullWidth size="small" type="email" label={t('residents.fields.email')}
       error={Boolean(errors.email)} helperText={errors.email}
       value={value.email} disabled={disabled} slotProps={{ htmlInput: { maxLength: 200 } }}
       onChange={event => onChange({ email: event.target.value })} sx={{ gridColumn: '1 / -1' }} />}
+    <FormControlLabel sx={{ gridColumn: '1 / -1', m: 0 }} label={t('residents.fields.inviteResident')}
+      control={<Checkbox checked={!registered && value.inviteResident} disabled={disabled || Boolean(registered) || (value.mode === 'existing' && !selected)}
+        onChange={event => onChange({ inviteResident: event.target.checked })} />} />
   </Box>
 }

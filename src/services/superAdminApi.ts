@@ -122,7 +122,7 @@ export const superAdminApi = {
 
 export type UserBlockAssociation = { blockId: string; blockName: string }
 export type SuperAdminResidentCreateRequest = {
-  requestId: string; existingResidentId?: string; blockId?: string; apartmentId?: string
+  requestId: string; existingResidentId?: string
   firstName: string; lastName: string; phone?: string; email?: string; inviteResident: boolean
 }
 export type UserRoleAssociation = UserBlockAssociation & {

@@ -32,11 +32,11 @@ import { blocksApi } from '../../../../../services/blocksApi'
 import { residentsApi } from '../../../../../services/residentsApi'
 import type { ResidentResponse, ResidentStatus } from '../../../../../types/management'
 import { RoleContext } from '../../../../../contexts/RoleContext'
+import ResidentApartmentAssignments from '../../../../../components/shared/ResidentApartmentAssignments'
 
 type FormState = {
   firstName: string
   lastName: string
-  blockId: string
   inviteResident: boolean
   email: string
   phone: string
@@ -46,7 +46,6 @@ type FormState = {
 const emptyForm: FormState = {
   firstName: '',
   lastName: '',
-  blockId: '',
   inviteResident: false,
   email: '',
   phone: '',
@@ -57,17 +56,6 @@ const residentStatuses: ResidentStatus[] = ['active', 'inactive']
 const tableEmptyValue = '-'
 
 const normalizeFilterValue = (value: string | null | undefined) => value?.trim().toLowerCase() ?? ''
-
-const getUniqueApartmentValues = (
-  apartments: ResidentResponse['apartments'],
-  getValue: (apartment: ResidentResponse['apartments'][number]) => string | null,
-) => {
-  const values = apartments
-    .map(getValue)
-    .filter((value): value is string => Boolean(value))
-
-  return Array.from(new Set(values)).join(', ')
-}
 
 const getRoleLabel = (t: ReturnType<typeof useTranslation>['t'], role: string) => (
   t(`residents.roles.${role}`, { defaultValue: role })
@@ -100,6 +88,9 @@ const ApiResidentsOverview: React.FC = () => {
   const [isAssigningCensor, setIsAssigningCensor] = React.useState(false)
   const [notification, setNotification] = React.useState('')
   const [form, setForm] = React.useState<FormState>(emptyForm)
+  const [clearAssignments, setClearAssignments] = React.useState(false)
+  const [confirmClearAssignments, setConfirmClearAssignments] = React.useState(false)
+  const [censorBlockId, setCensorBlockId] = React.useState('')
   const allowedBlockIds = React.useMemo(
     () => new Set(databaseBlocks.blocks.map((block) => block.id)),
     [databaseBlocks.blocks],
@@ -169,22 +160,23 @@ const ApiResidentsOverview: React.FC = () => {
   }
 
   const openCreateDialog = () => {
+    setClearAssignments(false)
+    setConfirmClearAssignments(false)
     setMutationError(null)
     setEditingResident(null)
-    setForm({
-      ...emptyForm,
-      blockId: allowedBlockIds.has(selectedBlockFilter) ? selectedBlockFilter : databaseBlocks.blocks[0]?.id ?? '',
-    })
+    setForm(emptyForm)
     setDialogMode('create')
   }
 
   const openEditDialog = (resident: ResidentResponse) => {
+    setClearAssignments(false)
+    setConfirmClearAssignments(false)
+    setCensorBlockId(resident.apartments.find(apartment => allowedBlockIds.has(apartment.blockId))?.blockId ?? '')
     setMutationError(null)
     setEditingResident(resident)
     setForm({
       firstName: resident.firstName,
       lastName: resident.lastName,
-      blockId: resident.blocks.find((block) => allowedBlockIds.has(block.blockId))?.blockId ?? databaseBlocks.blocks[0]?.id ?? '',
       inviteResident: resident.hasRegisteredAccount,
       email: resident.email ?? '',
       phone: resident.phone ?? '',
@@ -194,12 +186,14 @@ const ApiResidentsOverview: React.FC = () => {
   }
 
   const saveResident = async () => {
-    if (!form.firstName.trim() || !form.lastName.trim() || !form.blockId || isSaving || !canManage) return
+    if (!form.firstName.trim() || !form.lastName.trim() || isSaving || isAssigningCensor || !canManage) return
 
     const request = {
       firstName: form.firstName.trim(),
       lastName: form.lastName.trim(),
-      blockId: form.blockId,
+      clearBlockAssignments: Boolean(editingResident && clearAssignments),
+      expectedApartmentIds: clearAssignments ? editingResident?.apartments.filter(apartment => allowedBlockIds.has(apartment.blockId)).map(apartment => apartment.apartmentId) : undefined,
+      expectedBlockIds: clearAssignments ? editingResident?.blocks.filter(block => allowedBlockIds.has(block.blockId)).map(block => block.blockId) : undefined,
       inviteResident: form.inviteResident,
       email: form.inviteResident ? form.email.trim() || null : null,
       phone: form.phone.trim() || null,
@@ -222,6 +216,7 @@ const ApiResidentsOverview: React.FC = () => {
 
       setDialogMode(null)
       setEditingResident(null)
+      if (!editingResident) clearFilters()
       await loadResidents()
       await databaseBlocks.refresh()
     } catch (nextError) {
@@ -253,14 +248,16 @@ const ApiResidentsOverview: React.FC = () => {
   }
 
   const assignCensor = async () => {
-    if (!editingResident || !form.blockId || isAssigningCensor) return
+    if (!editingResident || !censorBlockId || isAssigningCensor || isSaving || clearAssignments) return
 
     setIsAssigningCensor(true)
     setMutationError(null)
 
     try {
-      await blocksApi.assignCensor(form.blockId, { residentId: editingResident.id })
+      await blocksApi.assignCensor(censorBlockId, { residentId: editingResident.id })
       setNotification(t('residents.notifications.censorAssigned'))
+      const updated = await residentsApi.getById(editingResident.id)
+      setEditingResident(updated)
       await loadResidents()
     } catch (nextError) {
       setMutationError(nextError instanceof Error ? nextError.message : t('residents.retention.saveFailed'))
@@ -279,36 +276,9 @@ const ApiResidentsOverview: React.FC = () => {
       render: (resident) => getDisplayRoles(resident).map((role) => getRoleLabel(t, role)).join(', '),
     },
     {
-      key: 'block',
-      label: t('settings.fields.block'),
-      render: (resident) => {
-        const visibleBlocks = resident.blocks.filter((block) => allowedBlockIds.has(block.blockId))
-        return visibleBlocks.length === 0
-          ? resident.apartments.length > 0
-            ? Array.from(new Set(resident.apartments.map((apartment) => apartment.blockName))).join(', ')
-            : <StatusChip status="unassigned" label={t('residents.retention.noBlock')} />
-          : Array.from(new Set(visibleBlocks.map((block) => block.blockName))).join(', ') || tableEmptyValue
-      },
-    },
-    {
-      key: 'staircase',
-      label: t('blocks.columns.staircase'),
-      render: (resident) => {
-        const visibleApartments = resident.apartments.filter((apartment) => allowedBlockIds.has(apartment.blockId))
-        return visibleApartments.length === 0
-          ? tableEmptyValue
-          : getUniqueApartmentValues(visibleApartments, (apartment) => apartment.staircaseName) || tableEmptyValue
-      },
-    },
-    {
-      key: 'apartment',
-      label: t('apartments.setup.number'),
-      render: (resident) => {
-        const visibleApartments = resident.apartments.filter((apartment) => allowedBlockIds.has(apartment.blockId))
-        return visibleApartments.length === 0
-          ? tableEmptyValue
-          : getUniqueApartmentValues(visibleApartments, (apartment) => apartment.apartmentNumber) || tableEmptyValue
-      },
+      key: 'assignments',
+      label: t('residents.assignments.title'),
+      render: resident => <ResidentApartmentAssignments apartments={resident.apartments.filter(apartment => allowedBlockIds.has(apartment.blockId))} />,
     },
     {
       key: 'status',
@@ -332,25 +302,28 @@ const ApiResidentsOverview: React.FC = () => {
       label: t('common.actions'),
       cardRole: 'actions',
       actions: (resident) => [
-        { id: 'edit', label: t('residents.actions.editResident'), icon: <EditIcon />, onClick: () => openEditDialog(resident), disabled: !canManage || databaseBlocks.blocks.length === 0 || isDeletingResident, priority: 2 },
+        { id: 'edit', label: t('residents.actions.editResident'), icon: <EditIcon />, onClick: () => openEditDialog(resident), disabled: !canManage || isDeletingResident, priority: 2 },
         { id: 'delete', label: t('residents.actions.deleteResident'), icon: <DeleteIcon />, onClick: () => { setMutationError(null); setIsDeletingAll(false); setDeletingResidents([resident]) }, disabled: !canManage || isDeletingResident, color: 'error', priority: 1 },
       ],
     },
   ]
 
   const hasValidInviteEmail = !form.inviteResident || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())
-  const canSave = Boolean(canManage && !isSaving && form.firstName.trim() && form.lastName.trim() && allowedBlockIds.has(form.blockId) && hasValidInviteEmail)
-  const selectedCensorBlockName = databaseBlocks.blocks.find((block) => block.id === form.blockId)?.displayName ?? ''
+  const canSave = Boolean(canManage && !isSaving && !isAssigningCensor && form.firstName.trim() && form.lastName.trim() && hasValidInviteEmail)
+  const selectedCensorBlockName = databaseBlocks.blocks.find((block) => block.id === censorBlockId)?.displayName ?? ''
+  const isSelectedCensor = editingResident?.blockRoles?.some(role => role.blockId === censorBlockId && role.role === 'Censor') ?? false
   const canAssignCensor = Boolean(
     editingResident?.hasRegisteredAccount
-    && form.blockId
-    && editingResident.apartments.some((apartment) => apartment.blockId === form.blockId),
+    && censorBlockId && !clearAssignments && !isSelectedCensor
+    && editingResident.apartments.some((apartment) => apartment.blockId === censorBlockId),
   )
   const censorAssignmentHelper = !editingResident
     ? ''
+    : isSelectedCensor
+      ? t('residents.assignments.censorAssigned', { block: selectedCensorBlockName })
     : !editingResident.hasRegisteredAccount
       ? t('residents.censorAssignment.requiresAccount')
-      : !editingResident.apartments.some((apartment) => apartment.blockId === form.blockId)
+      : !editingResident.apartments.some((apartment) => apartment.blockId === censorBlockId)
         ? t('residents.censorAssignment.requiresApartment')
         : t('residents.censorAssignment.helper', { block: selectedCensorBlockName })
   const loadError = error || databaseBlocks.error
@@ -363,6 +336,15 @@ const ApiResidentsOverview: React.FC = () => {
       <ActionBar
         title={(
           <>
+            <SearchField
+              disabled={Boolean(loadError)}
+              label={t('residents.filters.searchName')}
+              size="small"
+              value={nameFilter}
+              onClear={() => setNameFilter('')}
+              onChange={(event) => setNameFilter(event.target.value)}
+              sx={{ width: { xs: '100%', sm: 240 } }}
+            />
             <FormControl size="small" sx={{ width: { xs: '100%', sm: 180 } }} disabled={Boolean(loadError) || loading}>
               <InputLabel>{t('settings.fields.block')}</InputLabel>
               <Select
@@ -386,15 +368,6 @@ const ApiResidentsOverview: React.FC = () => {
               onChange={(event) => setStaircaseFilter(event.target.value)}
               sx={{ width: { xs: '100%', sm: 180 } }}
             />
-            <SearchField
-              disabled={Boolean(loadError)}
-              label={t('residents.filters.searchName')}
-              size="small"
-              value={nameFilter}
-              onClear={() => setNameFilter('')}
-              onChange={(event) => setNameFilter(event.target.value)}
-              sx={{ width: { xs: '100%', sm: 240 } }}
-            />
           </>
         )}
       >
@@ -405,7 +378,7 @@ const ApiResidentsOverview: React.FC = () => {
             {t('residents.retention.deleteAll')}
           </Button>
         )}
-        <Button startIcon={<PersonAddIcon />} variant="contained" onClick={openCreateDialog} disabled={!canManage || Boolean(loadError) || loading || databaseBlocks.blocks.length === 0}>
+        <Button startIcon={<PersonAddIcon />} variant="contained" onClick={openCreateDialog} disabled={!canManage || isLoading || Boolean(error)}>
           {t('residents.actions.addResident')}
         </Button>
       </ActionBar>
@@ -423,10 +396,10 @@ const ApiResidentsOverview: React.FC = () => {
         <LoadErrorState helperText={t('residents.errors.loadFailed')} onRetry={() => { void loadResidents(); void databaseBlocks.refresh() }} />
       ) : scopedResidents.length === 0 ? (
         <EmptyState
-          actionLabel={canManage && databaseBlocks.blocks.length > 0 ? t('emptyState.action', { information: t('emptyState.information.residents') }) : undefined}
+          actionLabel={canManage ? t('emptyState.action', { information: t('emptyState.information.residents') }) : undefined}
           headline={t('emptyState.headline', { information: t('emptyState.information.residents') })}
           helperText={t('emptyState.helper.dedicated', { information: t('emptyState.information.residents') })}
-          onAction={canManage && databaseBlocks.blocks.length > 0 ? openCreateDialog : undefined}
+          onAction={canManage ? openCreateDialog : undefined}
         />
       ) : filteredResidents.length === 0 ? (
         <EmptyState
@@ -441,7 +414,7 @@ const ApiResidentsOverview: React.FC = () => {
           paginationResetKey={JSON.stringify([nameFilter, selectedBlockFilter, staircaseFilter])}
           ariaLabel={t('sidebar.residents')}
           columns={columns}
-          desktopTableMinWidth={1400}
+          desktopTableMinWidth={1100}
           getRowId={(resident) => resident.id}
           rows={filteredResidents}
         />
@@ -451,14 +424,16 @@ const ApiResidentsOverview: React.FC = () => {
         cancelLabel={t('common.cancel')}
         confirmDisabled={!canSave}
         confirmLabel={t('common.save')}
+        pending={isSaving || isAssigningCensor}
         contentSx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' }, gap: 2 }}
         maxWidth="sm"
-        onCancel={() => { if (!isSaving) setDialogMode(null) }}
+        onCancel={() => { if (!isSaving && !isAssigningCensor) setDialogMode(null) }}
         onConfirm={() => { void saveResident() }}
         open={Boolean(dialogMode)}
         title={dialogMode === 'edit' ? t('residents.actions.editResident') : t('residents.actions.addResident')}
       >
         {mutationError && <Alert severity="error" sx={{ gridColumn: '1 / -1' }}>{mutationError}</Alert>}
+        {dialogMode === 'create' && <Alert severity="info" sx={{ gridColumn: '1 / -1' }}>{t('residents.assignments.createWithoutHousing')}</Alert>}
         <TextField
           autoFocus
           fullWidth
@@ -476,41 +451,14 @@ const ApiResidentsOverview: React.FC = () => {
           value={form.lastName}
           onChange={(event) => setForm((value) => ({ ...value, lastName: event.target.value }))}
         />
-        <FormControl fullWidth required size="small">
-          <InputLabel>{t('settings.fields.block')}</InputLabel>
-          <Select
-            label={t('settings.fields.block')}
-            value={form.blockId}
-            onChange={(event: SelectChangeEvent) => setForm((value) => ({ ...value, blockId: event.target.value }))}
-          >
-            {databaseBlocks.blocks.map((block) => (
-              <MenuItem key={block.id} value={block.id}>{block.displayName}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControlLabel
-          control={(
-            <Checkbox
-              checked={form.inviteResident}
-              disabled={Boolean(editingResident?.hasRegisteredAccount)}
-              onChange={(event) => setForm((value) => ({ ...value, inviteResident: event.target.checked, email: event.target.checked ? value.email : '' }))}
-            />
-          )}
-          label={t('residents.fields.inviteResident')}
-        />
-        {form.inviteResident && (
-          <TextField
-            fullWidth
-            required
-            size="small"
-            label={t('residents.fields.email')}
-            type="email"
-            value={form.email}
-            error={Boolean(form.email.trim()) && !hasValidInviteEmail}
-            helperText={Boolean(form.email.trim()) && !hasValidInviteEmail ? t('residents.errors.invalidEmail') : undefined}
-            onChange={(event) => setForm((value) => ({ ...value, email: event.target.value }))}
-          />
-        )}
+        {editingResident && <Paper variant="outlined" sx={{ gridColumn: '1 / -1', p: 1.5, display: 'grid', gap: 1 }}>
+          <Typography variant="subtitle2">{t('residents.assignments.title')}</Typography>
+          <ResidentApartmentAssignments apartments={clearAssignments ? [] : editingResident.apartments.filter(apartment => allowedBlockIds.has(apartment.blockId))} />
+          {clearAssignments ? <Alert severity="info">{t('residents.assignments.staged')}</Alert> :
+            (editingResident.blocks.length > 0 || editingResident.apartments.length > 0) && <Button
+              color="error" variant="outlined" sx={{ justifySelf: 'start' }} disabled={isSaving || isAssigningCensor}
+              onClick={() => setConfirmClearAssignments(true)}>{t('residents.assignments.clear')}</Button>}
+        </Paper>}
         <TextField
           fullWidth
           size="small"
@@ -535,11 +483,17 @@ const ApiResidentsOverview: React.FC = () => {
         {editingResident && (
           <Paper variant="outlined" sx={{ gridColumn: '1 / -1', p: 1.5, display: 'grid', gap: 1 }}>
             <Typography variant="subtitle2">{t('residents.censorAssignment.title')}</Typography>
+            <FormControl fullWidth size="small" disabled={isSaving || isAssigningCensor || clearAssignments}>
+              <InputLabel>{t('settings.fields.block')}</InputLabel>
+              <Select label={t('settings.fields.block')} value={censorBlockId} onChange={event => setCensorBlockId(event.target.value)}>
+                {databaseBlocks.blocks.map(block => <MenuItem key={block.id} value={block.id}>{block.displayName}</MenuItem>)}
+              </Select>
+            </FormControl>
             <Typography variant="body2" color="text.secondary">
               {censorAssignmentHelper}
             </Typography>
             <Button
-              disabled={!canAssignCensor || isAssigningCensor}
+              disabled={!canAssignCensor || isAssigningCensor || isSaving}
               onClick={() => { void assignCensor() }}
               sx={{ justifySelf: 'start' }}
               variant="outlined"
@@ -548,7 +502,43 @@ const ApiResidentsOverview: React.FC = () => {
             </Button>
           </Paper>
         )}
+        {form.inviteResident && (
+          <TextField
+            fullWidth
+            required
+            size="small"
+            sx={{ gridColumn: '1 / -1' }}
+            label={t('residents.fields.email')}
+            type="email"
+            disabled={Boolean(editingResident?.hasRegisteredAccount)}
+            value={form.email}
+            error={Boolean(form.email.trim()) && !hasValidInviteEmail}
+            helperText={editingResident?.hasRegisteredAccount ? t('residents.assignments.registeredEmailLocked') : Boolean(form.email.trim()) && !hasValidInviteEmail ? t('residents.errors.invalidEmail') : undefined}
+            onChange={(event) => setForm((value) => ({ ...value, email: event.target.value }))}
+          />
+        )}
+        <FormControlLabel
+          sx={{ gridColumn: '1 / -1', m: 0 }}
+          control={(
+            <Checkbox
+              checked={form.inviteResident}
+              disabled={Boolean(editingResident?.hasRegisteredAccount)}
+              onChange={(event) => setForm((value) => ({ ...value, inviteResident: event.target.checked, email: event.target.checked ? value.email : '' }))}
+            />
+          )}
+          label={t('residents.fields.inviteResident')}
+        />
       </AppDialog>
+
+      <ConfirmationDialog open={confirmClearAssignments} title={t('residents.assignments.clear')}
+        confirmColor="error"
+        cancelLabel={t('common.cancel')} confirmLabel={t('residents.assignments.clear')}
+        onCancel={() => setConfirmClearAssignments(false)}
+        onConfirm={() => { setClearAssignments(true); setConfirmClearAssignments(false) }}>
+        <Typography sx={{ mb: 2 }}>{t('residents.assignments.clearConfirm', { name: editingResident?.fullName })}</Typography>
+        <ResidentApartmentAssignments apartments={editingResident?.apartments.filter(apartment => allowedBlockIds.has(apartment.blockId)) ?? []} />
+        <Typography sx={{ mt: 2 }}>{t('residents.assignments.blocks')}: {editingResident?.blocks.filter(block => allowedBlockIds.has(block.blockId)).map(block => block.blockName).join(', ') || '—'}</Typography>
+      </ConfirmationDialog>
 
       <ConfirmationDialog
         cancelLabel={t('common.cancel')}

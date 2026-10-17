@@ -24,6 +24,7 @@ import SearchField from '../../../../components/shared/SearchField'
 import { type DataColumn } from '../../../../components/shared/ResponsiveDataView'
 import PagedResponsiveDataView from '../../../../components/shared/PagedResponsiveDataView'
 import StatusChip from '../../../../components/shared/StatusChip'
+import ResidentApartmentAssignments from '../../../../components/shared/ResidentApartmentAssignments'
 import { translateResidentStatus } from '../../../../domain/displayLabels'
 import { useBlocks } from '../../../../hooks/useBlocks'
 import { residentsApi } from '../../../../services/residentsApi'
@@ -55,15 +56,6 @@ const emptyForm: FormState = {
 const residentStatuses: ResidentStatus[] = ['active', 'inactive']
 const tableEmptyValue = '-'
 const normalizeFilterValue = (value: string | null | undefined) => value?.trim().toLowerCase() ?? ''
-
-const getUniqueApartmentValues = (
-  apartments: ResidentResponse['apartments'],
-  getValue: (apartment: ResidentResponse['apartments'][number]) => string | null,
-) => {
-  const values = apartments.map(getValue).filter((value): value is string => Boolean(value))
-
-  return Array.from(new Set(values)).join(', ')
-}
 
 const SuperAdminResidents: React.FC = () => {
   const { t } = useTranslation()
@@ -200,21 +192,9 @@ const SuperAdminResidents: React.FC = () => {
     { key: 'admins', label: t('superAdmin.residents.columns.admins'), render: (resident) => resident.adminAccounts.map((account) => account.displayName).join(', ') || tableEmptyValue },
     { key: 'phone', label: t('superAdmin.residents.columns.phone'), render: (resident) => resident.phone || tableEmptyValue },
     {
-      key: 'block',
-      label: t('superAdmin.residents.columns.block'),
-      render: (resident) => resident.blocks.length === 0
-        ? tableEmptyValue
-        : Array.from(new Set(resident.blocks.map((block) => block.blockName))).join(', ') || tableEmptyValue,
-    },
-    {
-      key: 'staircase',
-      label: t('superAdmin.residents.columns.staircase'),
-      render: (resident) => getUniqueApartmentValues(resident.apartments, (apartment) => apartment.staircaseName) || tableEmptyValue,
-    },
-    {
-      key: 'apartment',
-      label: t('superAdmin.residents.columns.apartment'),
-      render: (resident) => getUniqueApartmentValues(resident.apartments, (apartment) => apartment.apartmentNumber) || tableEmptyValue,
+      key: 'assignments',
+      label: t('residents.assignments.title'),
+      render: resident => <ResidentApartmentAssignments apartments={resident.apartments} />,
     },
     {
       key: 'accountStatus',
@@ -294,7 +274,7 @@ const SuperAdminResidents: React.FC = () => {
           </>
         )}
       >
-        <CreateForAdmin kind="resident" onCreated={loadResidents} />
+        <CreateForAdmin kind="resident" onCreated={async () => { clearFilters(); await loadResidents() }} />
       </ActionBar>
 
       {loading ? (
@@ -322,7 +302,7 @@ const SuperAdminResidents: React.FC = () => {
           paginationResetKey={JSON.stringify([nameFilter, selectedBlockFilter, statusFilter])}
           ariaLabel={t('superAdmin.residents.title')}
           columns={columns}
-          desktopTableMinWidth={1300}
+          desktopTableMinWidth={1100}
           getRowId={(resident) => resident.id}
           rows={filteredResidents}
         />
