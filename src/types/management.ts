@@ -71,6 +71,7 @@ export type ResidentResponse = {
   hasRegisteredAccount: boolean
   canDeleteUnlinkedProfile: boolean
   roles: string[]
+  blockRoles?: { blockId: string; role: string }[]
   status: ResidentStatus
   apartmentCount: number
   blocks: ResidentBlockSummary[]
@@ -90,7 +91,6 @@ export type ResidentBlockSummary = {
 export type CreateResidentRequest = {
   firstName: string
   lastName: string
-  blockId: string
   inviteResident: boolean
   phone?: string | null
   email?: string | null
@@ -98,7 +98,11 @@ export type CreateResidentRequest = {
   status: ResidentStatus
 }
 
-export type UpdateResidentRequest = CreateResidentRequest
+export type UpdateResidentRequest = CreateResidentRequest & {
+  clearBlockAssignments?: boolean
+  expectedApartmentIds?: string[]
+  expectedBlockIds?: string[]
+}
 
 export type UpdateResidentProfileRequest = {
   firstName: string
@@ -129,6 +133,8 @@ export type ApartmentResidentResponse = {
 export type CreateApartmentResidentRequest = {
   residentId: string
   livesHere: boolean
+  confirmAdditionalApartment?: boolean
+  expectedApartmentIds?: string[]
 }
 
 export type UpdateApartmentResidentRequest = CreateApartmentResidentRequest

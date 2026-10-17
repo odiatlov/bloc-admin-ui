@@ -165,21 +165,25 @@ const createThemeConfig = (mode: 'light' | 'dark' = 'dark') =>
 
             // Styles for Contained variant (Contained Button)
             ...(ownerState.variant === 'contained' && ownerState.color === 'primary' && {
-              backgroundColor: primaryContainedButtonColors[mode].background,
-              color: '#ffffff',
-              '&:hover': {
-                backgroundColor: primaryContainedButtonColors[mode].hover,
+              '&:not(.Mui-disabled)': {
+                backgroundColor: primaryContainedButtonColors[mode].background,
+                color: '#ffffff',
+                '&:hover': {
+                  backgroundColor: primaryContainedButtonColors[mode].hover,
+                },
               },
             }),
 
             // Styles for Outlined variant (Outlined Button)
             ...(ownerState.variant === 'outlined' && ownerState.color === 'primary' && {
-              borderColor: mode === 'dark' ? '#818CF8' : '#4F46E5',
-              color: mode === 'dark' ? '#818CF8' : '#4F46E5',
-              backgroundColor: 'transparent',
-              '&:hover': {
-                borderColor: mode === 'dark' ? '#818CF8' : '#4338CA',
-                backgroundColor: mode === 'dark' ? 'rgba(99, 102, 241, 0.15)' : 'rgba(79, 70, 229, 0.05)',
+              '&:not(.Mui-disabled)': {
+                borderColor: mode === 'dark' ? '#818CF8' : '#4F46E5',
+                color: mode === 'dark' ? '#818CF8' : '#4F46E5',
+                backgroundColor: 'transparent',
+                '&:hover': {
+                  borderColor: mode === 'dark' ? '#818CF8' : '#4338CA',
+                  backgroundColor: mode === 'dark' ? 'rgba(99, 102, 241, 0.15)' : 'rgba(79, 70, 229, 0.05)',
+                },
               },
             }),
           }),

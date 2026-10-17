@@ -590,6 +590,21 @@
       "deleteTitle": "Remove resident",
       "deleting": "Removing..."
     },
+    "assignments": {
+      "title": "Apartment assignments",
+      "createWithoutHousing": "Add the resident without a block or apartment. Assign their apartment later from Apartments.",
+      "registeredEmailLocked": "Registered residents change their email through their own profile.",
+      "censorAssigned": "This resident is already the censor for {{block}}.",
+      "empty": "No apartment assignments",
+      "blocks": "Assigned blocks",
+      "clear": "Unassign from all blocks",
+      "clearConfirm": "Unassign {{name}} from all your blocks and their apartments? Current occupant counts for those apartments will become zero. Monthly declarations, the login and other administrators' relationships will be preserved. Confirm, then Save to apply.",
+      "staged": "Assignments will be removed when you save. Cancel the editor to discard this change.",
+      "additionalTitle": "Add another apartment?",
+      "additionalMessage": "{{name}} already has these apartment assignments in your blocks. Continue and add another apartment while keeping the existing assignments?",
+      "additionalConfirm": "Yes, add apartment",
+      "destination": "Apartment to add"
+    },
     "retention": {
       "noBlock": "No block",
       "adminManagementOnly": "Resident changes require an administrator account. This global overview is read-only.",
