@@ -1,11 +1,13 @@
 export type ResidentDraft = { mode: 'new' | 'existing'; residentId: string; firstName: string; lastName: string; phone: string; email: string; inviteResident: boolean }
-export type ApartmentDraft = { id: string; number: string; floor: string; usableSqm: string; setupStatus: 'configured' | 'unconfigured'; hasBoiler: boolean; householdCount: string; addResident: boolean; resident: ResidentDraft }
-export type GenerationSettings = { start: string; quantity: string; startingFloor: string; apartmentsPerFloor: string; usableSqm: string }
-export const defaultGenerationSettings: GenerationSettings = { start: '1', quantity: '1', startingFloor: '', apartmentsPerFloor: '', usableSqm: '' }
-export type Group = { id: string; name: string; apartments: ApartmentDraft[]; generation: GenerationSettings; expanded?: boolean }
+export type ApartmentDraft = { id: string; number: string; floor: string; usableSqm: string; setupStatus: 'configured' | 'unconfigured'; hasBoiler: boolean; householdCount: string; addResident: boolean; resident: ResidentDraft; expanded?: boolean }
+export type GenerationSettings = { start: string; quantity: string; startingFloor: string; floorCount: string; usableSqm: string }
+export const defaultGenerationSettings: GenerationSettings = { start: '1', quantity: '1', startingFloor: '0', floorCount: '1', usableSqm: '' }
+export type FloorDraft = { id: string; level: number; expanded: boolean }
+export type Group = { id: string; name: string; floors: FloorDraft[]; apartments: ApartmentDraft[]; generation: GenerationSettings; expanded?: boolean; unassignedExpanded?: boolean }
 export const newApartment = (number = ''): ApartmentDraft => ({ id: crypto.randomUUID(), number, floor: '', usableSqm: '', setupStatus: 'unconfigured', hasBoiler: false,
   householdCount: '0', addResident: false, resident: { mode: 'new', residentId: '', firstName: '', lastName: '', phone: '', email: '', inviteResident: false } })
-export const newGroup = (name = ''): Group => ({ id: crypto.randomUUID(), name, apartments: [], generation: { ...defaultGenerationSettings } })
+export const newFloor = (level: number, expanded = true): FloorDraft => ({ id: crypto.randomUUID(), level, expanded })
+export const newGroup = (name = ''): Group => ({ id: crypto.randomUUID(), name, floors: [], apartments: [], generation: { ...defaultGenerationSettings } })
 export const unique = (values: string[]) => new Set(values.map(v => v.trim().toLowerCase())).size === values.length
 export type ApartmentValidationField = 'number' | 'floor' | 'usableSqm' | 'setupStatus' | 'householdCount' | 'residentId' | 'firstName' | 'lastName' | 'phone' | 'email'
 export type ApartmentValidationErrors = Partial<Record<ApartmentValidationField, string>>
@@ -52,15 +54,19 @@ export function generateStaircases(naming: 'alphabetical' | 'numeric', quantity:
 
 export function planApartmentBatch(group: Group) {
   const settings = group.generation
-  if (!settings.start.trim() || !settings.quantity.trim()) return { error: 'completeGenerationSettings' } as const
+  if (![settings.start, settings.quantity, settings.startingFloor, settings.floorCount].every(value => value.trim())) return { error: 'completeGenerationSettings' } as const
   const usableSqm = settings.usableSqm.trim()
   if (usableSqm && (!/^\d+(\.\d{1,2})?$/.test(usableSqm) || Number(usableSqm) >= 1e16)) return { error: 'usableSqmError' } as const
-  const floor = Number(settings.startingFloor), perFloor = Number(settings.apartmentsPerFloor)
-  const hasFloor = Boolean(settings.startingFloor.trim()), hasPerFloor = Boolean(settings.apartmentsPerFloor.trim())
-  if ((hasFloor && (!Number.isInteger(floor) || floor < -2147483648 || floor > 2147483647))
-    || (hasPerFloor && (!hasFloor || !Number.isSafeInteger(perFloor) || perFloor < 1))
-    || (hasFloor && hasPerFloor && floor + Math.floor((Number(settings.quantity) - 1) / perFloor) > 2147483647)) return { error: 'floorDistributionError' } as const
+  const floor = Number(settings.startingFloor), floorCount = Number(settings.floorCount)
+  if (!Number.isInteger(floor) || floor < -2147483648 || floor > 2147483647
+    || !Number.isInteger(floorCount) || floorCount < 1 || floorCount > 1000
+    || floor + floorCount - 1 > 2147483647) return { error: 'floorDistributionError' } as const
   const result = generateBatch(Number(settings.start), Number(settings.quantity), '', group.apartments.map(apartment => apartment.number), 50)
   if (result.error) return result
-  return { values: result.values.map((number, index) => ({ number, floor: hasFloor && hasPerFloor ? String(floor + Math.floor(index / perFloor)) : '', usableSqm })) } as const
+  const floors = Array.from({ length: floorCount }, (_, index) => floor + index)
+  const base = Math.floor(result.values.length / floorCount), remainder = result.values.length % floorCount
+  let index = 0
+  return { floors, values: floors.flatMap((level, floorIndex) => Array.from({ length: base + (floorIndex < remainder ? 1 : 0) }, () => ({
+    number: result.values[index++], floor: String(level), usableSqm,
+  }))) } as const
 }

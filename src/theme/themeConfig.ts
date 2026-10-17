@@ -1,5 +1,10 @@
 import { createTheme } from '@mui/material/styles'
 
+export const primaryContainedButtonColors = {
+  dark: { background: '#6366F1', hover: '#4F46E5' },
+  light: { background: '#4F46E5', hover: '#4338CA' },
+}
+
 const createThemeConfig = (mode: 'light' | 'dark' = 'dark') =>
   createTheme({
     palette: {
@@ -160,10 +165,10 @@ const createThemeConfig = (mode: 'light' | 'dark' = 'dark') =>
 
             // Styles for Contained variant (Contained Button)
             ...(ownerState.variant === 'contained' && ownerState.color === 'primary' && {
-              backgroundColor: mode === 'dark' ? '#6366F1' : '#4F46E5',
+              backgroundColor: primaryContainedButtonColors[mode].background,
               color: '#ffffff',
               '&:hover': {
-                backgroundColor: mode === 'dark' ? '#4F46E5' : '#4338CA',
+                backgroundColor: primaryContainedButtonColors[mode].hover,
               },
             }),
 
