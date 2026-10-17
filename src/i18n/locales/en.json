@@ -812,7 +812,10 @@
       "deleteConfirmYes": "Yes, delete",
       "deleteTitle": "Delete apartment",
       "deleting": "Deleting...",
-      "editTitle": "Edit apartment"
+      "editTitle": "Edit apartment",
+      "unassignTitle": "Unassign resident",
+      "unassignConfirm_one": "You are about to unassign resident {{name}} and remove {{count}} occupant from this apartment. The occupant count will be reset to 0.",
+      "unassignConfirm_other": "You are about to unassign resident {{name}} and remove {{count}} occupants from this apartment. The occupant count will be reset to 0."
     },
     "errors": {
       "loadFailed": "Apartments could not be loaded. Please try again."
