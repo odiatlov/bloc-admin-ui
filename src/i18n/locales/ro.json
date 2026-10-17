@@ -716,7 +716,11 @@
                                       "deleteConfirmYes":  "Da, șterge",
                                       "deleteTitle":  "Șterge apartamentul",
                                       "deleting":  "Se șterge...",
-                                      "editTitle":  "Editează apartamentul"
+                                      "editTitle":  "Editează apartamentul",
+                                      "unassignTitle":  "Dezalocă locatarul",
+                                      "unassignConfirm_one":  "Urmează să dezalocați locatarul {{name}} și să eliminați {{count}} persoană din acest apartament. Numărul de persoane va fi resetat la 0.",
+                                      "unassignConfirm_few":  "Urmează să dezalocați locatarul {{name}} și să eliminați {{count}} persoane din acest apartament. Numărul de persoane va fi resetat la 0.",
+                                      "unassignConfirm_other":  "Urmează să dezalocați locatarul {{name}} și să eliminați {{count}} de persoane din acest apartament. Numărul de persoane va fi resetat la 0."
                                   },
                        "errors":  {
                                       "loadFailed":  "Apartamentele nu au putut fi încărcate. Încercați din nou."

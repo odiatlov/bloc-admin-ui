@@ -39,7 +39,7 @@ export default function SetupFloorSection({ id, floor, apartmentCount, expanded,
     </SetupAccordionHeader>
     <AccordionDetails id={`${id}-content`} sx={{ display: 'grid', gap: 1.5, p: { xs: 1, sm: 1.5 }, borderTop: '1px solid', borderColor: 'divider', minWidth: 0 }}>
       {apartmentCount === 0 ? <Typography variant="body2" color="text.secondary">{t('blockSetup.emptyFloor')} {t('blockSetup.deleteFloorHint')}</Typography> : children}
-      <Button fullWidth variant="outlined" startIcon={<AddIcon />} disabled={disabled} onClick={onAdd}
+      <Button fullWidth variant="text" startIcon={<AddIcon />} disabled={disabled} onClick={onAdd}
         sx={{ minWidth: 0, whiteSpace: 'normal', overflowWrap: 'anywhere' }}>{t('blockSetup.addApartment')}</Button>
     </AccordionDetails>
   </Accordion>

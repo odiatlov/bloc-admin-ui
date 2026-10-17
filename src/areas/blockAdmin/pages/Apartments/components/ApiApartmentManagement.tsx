@@ -107,6 +107,9 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   const [deletingApartment, setDeletingApartment] = React.useState<ApartmentResponse | null>(null)
   const [isDeletingApartment, setIsDeletingApartment] = React.useState(false)
   const [isLoadingApartmentResidents, setIsLoadingApartmentResidents] = React.useState(false)
+  const [removingResident, setRemovingResident] = React.useState<ApartmentResidentResponse | null>(null)
+  const [isRemovingResident, setIsRemovingResident] = React.useState(false)
+  const [removeResidentError, setRemoveResidentError] = React.useState<string | null>(null)
   const [assignResidentId, setAssignResidentId] = React.useState('')
   const [form, setForm] = React.useState<FormState>(emptyForm)
   const [waterZones, setWaterZones] = React.useState<WaterZoneForm[]>([])
@@ -169,7 +172,6 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
     try {
       const links = await apartmentResidentsApi.getByApartment(apartmentId)
       setApartmentResidentLinks(links)
-      if (links.length === 0) setForm((value) => ({ ...value, residentCount: '0' }))
     } catch (nextError) {
       setError(nextError instanceof Error ? nextError.message : 'Unable to load apartment residents')
     } finally {
@@ -291,7 +293,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
       blockId: form.blockId,
       staircaseId: formBlockHasStaircases ? form.staircaseId : null,
       number: form.number.trim(),
-      residentCount: editingApartment && hasAssignedResident ? Math.max(0, Number(form.residentCount) || 0) : 0,
+      residentCount: editingApartment ? Math.max(0, Number(form.residentCount) || 0) : 0,
       floor: form.floor.trim() ? Number(form.floor) : null,
       usableSqm: form.usableSqm.trim() ? Number(form.usableSqm) : null,
       setupStatus: form.setupStatus,
@@ -365,17 +367,24 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   }
 
   const removeResidentLink = async (link: ApartmentResidentResponse) => {
-    if (!editingApartment) return
+    if (!editingApartment || isRemovingResident) return
 
+    setIsRemovingResident(true)
+    setRemoveResidentError(null)
     setError(null)
 
     try {
       await apartmentResidentsApi.delete(editingApartment.id, link.id)
+      setForm((value) => ({ ...value, residentCount: '0' }))
+      setEditingApartment((value) => value ? { ...value, residentCount: 0 } : value)
+      setRemovingResident(null)
       await loadApartmentResidents(editingApartment.id)
       await loadData()
       void databaseBlocks.refresh()
     } catch (nextError) {
-      setError(nextError instanceof Error ? nextError.message : 'Unable to remove resident')
+      setRemoveResidentError(nextError instanceof Error ? nextError.message : 'Unable to remove resident')
+    } finally {
+      setIsRemovingResident(false)
     }
   }
 
@@ -410,7 +419,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
       {
         id: crypto.randomUUID(),
         locationType: 'Kitchen',
-        name: t('consumption.waterLocation.kitchen'),
+        name: t('apartments.waterIndex.locations.Kitchen'),
         coldWaterCount: 1,
         hotWaterCount: form.hasBoiler ? 0 : 1,
       },
@@ -587,7 +596,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                     size="small"
                     type="number"
                     label={t('apartments.setup.householdMembers')}
-                    value={hasAssignedResident ? form.residentCount : '0'}
+                    value={form.residentCount}
                     onChange={(event) => setForm((value) => ({ ...value, residentCount: event.target.value }))}
                   />
                   <TextField fullWidth size="small" type="number" label={t('blocks.columns.usableSurface')} value={form.usableSqm} onChange={(event) => setForm((value) => ({ ...value, usableSqm: event.target.value }))} />
@@ -649,7 +658,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                               const locationType = event.target.value
                               updateWaterZone(zone.id, {
                                 locationType,
-                                name: zone.name.trim() ? zone.name : locationType,
+                                name: t(`apartments.waterIndex.locations.${locationType}`),
                               })
                             }}
                           >
@@ -709,7 +718,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                       status={<StatusChip status={link.residentStatus} label={translateResidentStatus(t, link.residentStatus)} />}
                       actions={(
                         <ActionButtons variant="card" actions={[
-                          { id: 'unassign', label: t('residents.actions.unassign'), icon: <PersonRemoveIcon />, onClick: () => { void removeResidentLink(link) } },
+                          { id: 'unassign', label: t('residents.actions.unassign'), icon: <PersonRemoveIcon />, onClick: () => { setRemoveResidentError(null); setRemovingResident(link) } },
                         ]} />
                       )}
                     />
@@ -746,6 +755,26 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
           </Box>
         )}
       </Drawer>
+
+      <AppDialog
+        cancelLabel={t('common.cancel')}
+        confirmLabel={t('residents.actions.unassign')}
+        confirmDisabled={!removingResident}
+        pending={isRemovingResident}
+        maxWidth="xs"
+        onCancel={() => { if (!isRemovingResident) setRemovingResident(null) }}
+        onConfirm={() => { if (removingResident) void removeResidentLink(removingResident) }}
+        open={Boolean(removingResident)}
+        title={t('apartments.dialog.unassignTitle')}
+      >
+        {removeResidentError && <Alert severity="error">{removeResidentError}</Alert>}
+        <Typography color="text.secondary">
+          {t('apartments.dialog.unassignConfirm', {
+            name: removingResident?.residentFullName ?? '',
+            count: editingApartment?.residentCount ?? 0,
+          })}
+        </Typography>
+      </AppDialog>
 
       <ConfirmationDialog
         cancelLabel={t('common.cancel')}

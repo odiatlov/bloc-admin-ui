@@ -62,6 +62,7 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
   const [notice, setNotice] = React.useState<DraftNotice | null>(null)
   const [undo, setUndo] = React.useState<Group | null>(null)
   const pendingFocus = React.useRef<FocusTarget | null>(null)
+  const hasGeneratedApartments = React.useRef(false)
   const [staircaseNaming, setStaircaseNaming] = React.useState<'alphabetical' | 'numeric'>('alphabetical')
   const [staircaseQuantity, setStaircaseQuantity] = React.useState('1')
   const [error, setError] = React.useState<string | null>(null)
@@ -193,10 +194,15 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
     setError(null)
   }
   const generateApartments = (group: Group) => {
-    applyLayout(group, value => {
+    const generated = applyLayout(group, value => {
       const result = appendApartmentBatch(value)
-      return result.error !== undefined ? result : { group: { ...result.group, expanded: true } }
+      if (result.error !== undefined) return result
+      const nextGroup = { ...result.group, expanded: true }
+      const firstApartment = orderedApartments(nextGroup)[0]
+      return { group: !hasGeneratedApartments.current && firstApartment
+        ? expandApartment(nextGroup, firstApartment.id) : nextGroup }
     }, 'apartmentsGenerated')
+    if (generated) hasGeneratedApartments.current = true
   }
   const submit = async () => {
     if (submitting.current) return
