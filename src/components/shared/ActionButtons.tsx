@@ -23,6 +23,7 @@ export type ActionButtonDefinition = {
   loading?: boolean
   color?: 'primary' | 'error'
   priority?: number
+  alwaysInline?: boolean
   cardLabel?: string
   cardIcon?: boolean
 }
@@ -57,7 +58,8 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ actions, variant }) => {
   const { t } = useTranslation()
   const menuId = React.useId()
   const visible = actions.filter((action) => action.visible !== false)
-  const inline = [...visible].sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0)).slice(0, 1)
+  const inline = [...visible].sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0))
+    .filter((action, index) => index === 0 || action.alwaysInline)
   const overflow = visible.filter((action) => !inline.includes(action))
   const actionIds = overflow.map((action) => action.id).join('|')
   const [menu, setMenu] = React.useState<{ anchor: HTMLElement; actionIds: string } | null>(null)

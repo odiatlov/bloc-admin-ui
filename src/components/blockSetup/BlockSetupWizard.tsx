@@ -1,5 +1,5 @@
 import React from 'react'
-import { Accordion, AccordionDetails, AccordionSummary, Alert, Box, Button, Card, Checkbox, FormControlLabel, IconButton, MenuItem, Radio, RadioGroup, Snackbar, Step, StepLabel, Stepper, Switch, TextField, Tooltip, Typography } from '@mui/material'
+import { Accordion, AccordionDetails, AccordionSummary, Alert, Box, Button, Checkbox, FormControlLabel, IconButton, InputAdornment, MenuItem, Radio, RadioGroup, Snackbar, Step, StepLabel, Stepper, TextField, Typography } from '@mui/material'
 import ApartmentIcon from '@mui/icons-material/Apartment'
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import AddIcon from '@mui/icons-material/Add'
@@ -7,7 +7,7 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import DeleteIcon from '@mui/icons-material/Delete'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import { lighten, useTheme } from '@mui/material/styles'
+import { darken, lighten, useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTranslation } from 'react-i18next'
 import AppDialog from '../shared/AppDialog'
@@ -15,13 +15,19 @@ import IconButtonTooltip from '../shared/IconButtonTooltip'
 import ConfirmationDialog from '../shared/ConfirmationDialog'
 import type { BlockSetupRequest, BlockSetupResponse, CreateBlockRequest, SetupApartment } from '../../types/block'
 import BlockFields from './BlockFields'
-import ApartmentSetupFields from '../apartments/ApartmentSetupFields'
+import EmptyState from '../shared/EmptyState'
 import { ApiError } from '../../services/apiClient'
 import { residentsApi } from '../../services/residentsApi'
 import type { ResidentResponse } from '../../types/management'
-import ResidentSetupFields from './ResidentSetupFields'
+import SetupApartmentCard from './SetupApartmentCard'
+import SetupFloorSection from './SetupFloorSection'
+import SetupAccordionHeader from './SetupAccordionHeader'
 import { translateApartmentSetupStatus } from '../../domain/displayLabels'
-import { apartmentValidationErrors, generateStaircases, newApartment, newGroup, planApartmentBatch, unique, type ApartmentDraft, type ApartmentValidationErrors, type ApartmentValidationField, type GenerationSettings, type Group } from './setupDraft'
+import { primaryContainedButtonColors } from '../../theme/themeConfig'
+import { apartmentValidationErrors, generateStaircases, newGroup, unique, type ApartmentDraft, type ApartmentValidationErrors, type ApartmentValidationField, type GenerationSettings, type Group } from './setupDraft'
+import { addApartmentToFloor, addFloor, appendApartmentBatch, deleteApartment, deleteEmptyFloor, expandApartment, floorLevel, floorSections, moveApartment, orderedApartments, orderedFloors, type LayoutResult } from './setupFloorLayout'
+type DraftNotice = { id: string; key: string; values?: Record<string, unknown>; groupId?: string }
+type FocusTarget = { id: string; selector?: string }
 const toApartment = (a: ApartmentDraft): SetupApartment => ({ number: a.number.trim(), floor: a.floor.trim() ? Number(a.floor) : null,
   usableSqm: a.usableSqm.trim() ? Number(a.usableSqm) : null, setupStatus: a.setupStatus, hasBoiler: a.hasBoiler,
   householdCount: a.addResident ? Number(a.householdCount) : 0, resident: a.addResident ? {
@@ -37,6 +43,12 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
 }) {
   const { t, i18n } = useTranslation()
   const theme = useTheme()
+  const groupSurfaceSx = {
+    backgroundColor: theme.palette.mode === 'dark'
+      ? lighten(theme.palette.background.paper, 0.06)
+      : darken(theme.palette.background.default, 0.04),
+    backgroundImage: 'none',
+  }
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const w = (key: string, values?: Record<string, unknown>) => t(`blockSetup.${key}`, values)
   const caption = (key: string) => w(isMobile ? `mobile.${key}` : key)
@@ -47,7 +59,9 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
   const [hasStaircases, setHasStaircases] = React.useState(true)
   const [staircases, setStaircases] = React.useState<Group[]>([])
   const [blockGroup, setBlockGroup] = React.useState<Group>(() => newGroup())
-  const [copyNotice, setCopyNotice] = React.useState<string | null>(null)
+  const [notice, setNotice] = React.useState<DraftNotice | null>(null)
+  const [undo, setUndo] = React.useState<Group | null>(null)
+  const pendingFocus = React.useRef<FocusTarget | null>(null)
   const [staircaseNaming, setStaircaseNaming] = React.useState<'alphabetical' | 'numeric'>('alphabetical')
   const [staircaseQuantity, setStaircaseQuantity] = React.useState('1')
   const [error, setError] = React.useState<string | null>(null)
@@ -61,9 +75,31 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
   const [residents, setResidents] = React.useState<ResidentResponse[]>([])
   const [residentsLoading, setResidentsLoading] = React.useState(true)
   const [residentsError, setResidentsError] = React.useState(false)
+  const locked = busy || Boolean(retryRequest) || setupSaved
   const groups = hasStaircases ? staircases : [blockGroup]
   const steps = ['details', ...(hasStaircases ? ['staircases'] : []), 'apartments', 'review']
   const current = steps[stage]
+  const goToStage = (nextStage: number) => {
+    if (steps[nextStage] === 'apartments' && current !== 'apartments') {
+      if (hasStaircases) setStaircases(value => value.map((group, index) => ({ ...group, expanded: index === 0 })))
+      else setBlockGroup(value => ({ ...value, expanded: true }))
+    }
+    setStage(nextStage)
+  }
+  const focusPending = React.useCallback(() => {
+    const target = pendingFocus.current
+    if (!target) return
+    const container = document.getElementById(target.id)
+    const element = target.selector ? container?.querySelector<HTMLElement>(target.selector) : container
+    if (!element || !element.getClientRects().length) return
+    element.scrollIntoView({ block: 'nearest' })
+    element.focus({ preventScroll: true })
+    pendingFocus.current = null
+  }, [])
+  React.useEffect(() => {
+    const frame = window.requestAnimationFrame(focusPending)
+    return () => window.cancelAnimationFrame(frame)
+  }, [staircases, blockGroup, stage, focusPending])
   const loadResidents = React.useCallback(async () => {
     setResidentsLoading(true); setResidentsError(false)
     try { setResidents((await loadResidentOptions()).filter(resident => resident.status === 'active')) }
@@ -77,19 +113,42 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
   }, [current, loadResidents])
   const populated = Boolean(name || address || staircases.length || blockGroup.apartments.length)
   const ask = (action: () => void, needed = populated) => needed ? setConfirmation(() => action) : action()
-  const updateGroup = (id: string, update: (group: Group) => Group, clearError = true) => {
+  const updateGroup = (id: string, update: (group: Group) => Group, clearError = true, invalidateUndo = clearError) => {
+    if (clearError && (locked || submitting.current)) return
     if (hasStaircases) setStaircases(value => value.map(g => g.id === id ? update(g) : g))
     else setBlockGroup(update)
+    if (invalidateUndo) setUndo(value => value?.id === id ? null : value)
     if (clearError) setError(null)
   }
+  const applyLayout = (group: Group, change: (value: Group) => LayoutResult, key: string, values?: Record<string, unknown>) => {
+    if (locked || submitting.current) return null
+    const result = change(group)
+    if (result.error !== undefined) { setError(w('generationError', { location: hasStaircases ? group.name : name, reason: w(result.error) })); return null }
+    const nextGroup = result.group
+    if (nextGroup === group) return null
+    setUndo(structuredClone(group))
+    updateGroup(group.id, () => nextGroup, true, false)
+    setNotice({ id: crypto.randomUUID(), key, values, groupId: group.id })
+    return nextGroup
+  }
+  const undoLayout = () => {
+    if (!undo || locked || submitting.current || !groups.some(group => group.id === undo.id)) return
+    updateGroup(undo.id, () => structuredClone(undo), true, false)
+    pendingFocus.current = { id: `setup-toggle-${undo.id}` }
+    setUndo(null)
+    setNotice({ id: crypto.randomUUID(), key: 'layoutUndone' })
+  }
+  const dismissNotice = () => { setNotice(null); setUndo(null) }
   const updateGeneration = (group: Group, patch: Partial<GenerationSettings>) => updateGroup(group.id, current => ({ ...current, generation: { ...current.generation, ...patch } }))
   const copyGeneration = (source: Group) => {
-    if (busy || retryRequest) return
+    if (locked || submitting.current) return
     setStaircases(current => current.map(group => group.id === source.id ? group : { ...group, generation: { ...source.generation } }))
-    setCopyNotice(source.name)
+    setUndo(null)
+    setNotice({ id: crypto.randomUUID(), key: 'generationCopied', values: { staircase: source.name } })
   }
   const errorsFor = (group: Group, apartment: ApartmentDraft): ApartmentValidationErrors => {
     const errors = apartmentValidationErrors(apartment)
+    if (apartment.floor.trim() && !group.floors.some(floor => floor.level === floorLevel(apartment.floor))) errors.floor = 'floorUnavailable'
     if (apartment.number.trim() && group.apartments.some(other => other.id !== apartment.id && other.number.trim().toLowerCase() === apartment.number.trim().toLowerCase())) errors.number = 'duplicateNumber'
     if (apartment.addResident && apartment.resident.mode === 'existing' && apartment.resident.residentId) {
       if (residentsLoading) errors.residentId = 'residentsLoading'
@@ -103,27 +162,19 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
     householdCount: 'apartments.setup.householdMembers', residentId: 'blockSetup.existingResident', firstName: 'residents.fields.firstName',
     lastName: 'residents.fields.lastName', phone: 'residents.fields.phone', email: 'residents.fields.email',
   }
-  const focusInvalidApartment = (group: Group) => {
-    const container = document.getElementById(`setup-apartments-${group.id}`)
-    const field = container?.querySelector<HTMLElement>('input[aria-invalid="true"], [role="combobox"][aria-invalid="true"]')
-    if (field) {
-      field.closest('[data-setup-apartment]')?.scrollIntoView({ block: 'center', behavior: 'smooth' })
-      field.focus({ preventScroll: true })
-    }
-  }
   const reportValidationError = (step: string) => {
     if (step !== 'apartments') { setError(w('validation')); return }
     for (const group of groups) {
       const location = hasStaircases ? t('settings.fields.staircaseName', { staircase: group.name }) : t('common.blockValue', { block: name })
       if (group.apartments.length === 0) { setError(w('emptyLocation', { location })); return }
-      for (const [index, apartment] of group.apartments.entries()) {
+      for (const [index, apartment] of orderedApartments(group).entries()) {
         const issue = Object.entries(errorsFor(group, apartment))[0]
         if (!issue) continue
         const [field, reason] = issue
-        updateGroup(group.id, value => ({ ...value, expanded: true }), false)
+        pendingFocus.current = { id: `setup-apartment-${apartment.id}`, selector: 'input[aria-invalid="true"], [role="combobox"][aria-invalid="true"]' }
+        updateGroup(group.id, value => expandApartment(value, apartment.id), false)
         setError(w('apartmentValidation', { location, number: apartment.number.trim() || index + 1,
           field: t(fieldLabels[field as ApartmentValidationField]), reason: w(`validationErrors.${reason}`) }))
-        window.requestAnimationFrame(() => focusInvalidApartment(group))
         return
       }
     }
@@ -142,29 +193,25 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
     setError(null)
   }
   const generateApartments = (group: Group) => {
-    if (busy || retryRequest) return
-    const result = planApartmentBatch(group)
-    if (result.error) {
-      setError(w('generationError', { location: hasStaircases ? group.name : name, reason: w(result.error) })); return
-    }
-    const generated = result.values.map(value => ({ ...newApartment(value.number), ...value }))
-    updateGroup(group.id, current => ({ ...current, apartments: [...current.apartments, ...generated] }))
-    setError(null)
+    applyLayout(group, value => {
+      const result = appendApartmentBatch(value)
+      return result.error !== undefined ? result : { group: { ...result.group, expanded: true } }
+    }, 'apartmentsGenerated')
   }
   const submit = async () => {
     if (submitting.current) return
     if (!name.trim()) { setError(w('validation')); return }
     if (mode === 'full' && !retryRequest && !validate('apartments')) {
-      setStage(steps.indexOf('apartments')); reportValidationError('apartments'); return
+      goToStage(steps.indexOf('apartments')); reportValidationError('apartments'); return
     }
     if (mode === 'full' && !retryRequest && hasStaircases && !validate('staircases')) { reportValidationError('staircases'); return }
-    submitting.current = true; setBusy(true); setError(null)
+    submitting.current = true; setBusy(true); setError(null); setUndo(null); setNotice(null); pendingFocus.current = null
     try {
       if (mode === 'simple') await onSimple({ name: name.trim(), address: address.trim() || undefined, hasStaircases: false, apartmentCount: 0, residentCount: 0, staircaseCount: 0 })
       else {
         const request = retryRequest ?? { requestId, name: name.trim(), address: address.trim(), hasStaircases,
-          staircases: hasStaircases ? staircases.map(g => ({ name: g.name.trim(), apartments: g.apartments.map(toApartment) })) : [],
-          apartments: hasStaircases ? [] : blockGroup.apartments.map(toApartment) }
+          staircases: hasStaircases ? staircases.map(g => ({ name: g.name.trim(), apartments: orderedApartments(g).map(toApartment) })) : [],
+          apartments: hasStaircases ? [] : orderedApartments(blockGroup).map(toApartment) }
         setRetryRequest(request)
         const result = await onSetup(request)
         setSetupSaved(true)
@@ -178,10 +225,10 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
   }
   const next = () => {
     setError(null)
-    if (stage === -1) { setStage(0); return }
+    if (stage === -1) { goToStage(0); return }
     if (!validate(current)) { reportValidationError(current); return }
     if (mode === 'simple' || current === 'review') void submit()
-    else setStage(value => value + 1)
+    else goToStage(stage + 1)
   }
   const batchControls = (group?: Group) => <Box sx={{
     display: 'grid', gap: 1.5, alignItems: 'start',
@@ -198,10 +245,16 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
       onChange={e => group ? updateGeneration(group, { quantity: e.target.value }) : setStaircaseQuantity(e.target.value)}
       slotProps={{ htmlInput: { min: 1, max: !group && staircaseNaming === 'alphabetical' ? 26 : 1000, step: 1 } }} />
     {group && <>
-      <TextField size="small" type="number" label={caption('startingFloor')} value={group.generation.startingFloor} onChange={e => updateGeneration(group, { startingFloor: e.target.value, ...(!e.target.value.trim() ? { apartmentsPerFloor: '' } : {}) })}
-        slotProps={{ htmlInput: { min: -2147483648, max: 2147483647, step: 1 } }} />
-      <TextField size="small" type="number" disabled={!group.generation.startingFloor.trim()} label={caption('apartmentsPerFloor')} value={group.generation.apartmentsPerFloor} onChange={e => updateGeneration(group, { apartmentsPerFloor: e.target.value })}
-        slotProps={{ htmlInput: { min: 1, step: 1 } }} />
+      <TextField required size="small" type="number" label={caption('startingFloor')} value={group.generation.startingFloor} onChange={e => updateGeneration(group, { startingFloor: e.target.value })}
+        slotProps={{
+          htmlInput: { min: -2147483648, max: 2147483647, step: 1,
+            'aria-valuetext': floorLevel(group.generation.startingFloor) === 0 ? `0 (${w('groundFloor')})` : undefined },
+          input: { endAdornment: floorLevel(group.generation.startingFloor) === 0 ? <InputAdornment position="end" sx={{ ml: 0.5, maxWidth: '60%' }}>
+            <Typography variant="caption" sx={{ whiteSpace: 'normal', lineHeight: 1.2 }}>({w('groundFloor')})</Typography>
+          </InputAdornment> : undefined },
+        }} />
+      <TextField required size="small" type="number" label={caption('floorCount')} value={group.generation.floorCount} onChange={e => updateGeneration(group, { floorCount: e.target.value })}
+        slotProps={{ htmlInput: { min: 1, max: 1000, step: 1 } }} />
       <TextField size="small" type="number" label={isMobile ? w('mobile.usableSqm') : t('blocks.columns.usableSurface')} value={group.generation.usableSqm} onChange={e => updateGeneration(group, { usableSqm: e.target.value })}
         slotProps={{ htmlInput: { min: 0, step: 0.01 } }} sx={{ gridColumn: { xs: '1 / -1', md: 'auto' } }} />
     </>}
@@ -212,9 +265,10 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
     <AppDialog open title={w(stage === -1 ? 'chooseTitle' : 'title')} maxWidth="md"
       onCancel={() => { if (!busy) ask(onClose, !setupSaved && populated) }} cancelLabel={t('common.cancel')}
       hideCancelButton showCloseButton closeLabel={t('common.close')} closeDisabled={busy}
-      onBack={stage >= 0 ? () => { setError(null); setStage(value => value - 1) } : undefined}
+      onBack={stage >= 0 ? () => { setError(null); goToStage(stage - 1) } : undefined}
       backLabel={w('back')} backDisabled={busy || Boolean(retryRequest)}
       onConfirm={next} confirmDisabled={busy} confirmLabel={busy ? t('settings.blockDialog.saving') : setupSaved ? w('retryInvitations') : stage === -1 ? w('continue') : mode === 'simple' || current === 'review' ? w('create') : w('next')}
+      confirmButtonSx={{ '&:not(.Mui-disabled):hover': { backgroundColor: primaryContainedButtonColors[theme.palette.mode].background } }}
       dialogContentSx={{ pt: '4px !important', px: { xs: 2, sm: 3 } }}
       contentSx={{ display: 'grid', gap: 2, pt: 0 }}>
       {accountCaption && <Typography color="text.secondary">{accountCaption}</Typography>}
@@ -224,7 +278,7 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
       {failedInvitations.length > 0 && <Alert severity="warning" sx={{ overflowWrap: 'anywhere' }}>{w('invitationFailed', { emails: failedInvitations.join(', ') })}</Alert>}
       {stage === -1 ? <RadioGroup value={mode} onChange={e => {
         const selected = e.target.value as 'simple' | 'full'
-        ask(() => { setMode(selected); setName(''); setAddress(''); setStaircases([]); setBlockGroup(newGroup()) })
+        ask(() => { setMode(selected); setName(''); setAddress(''); setStaircases([]); setBlockGroup(newGroup()); dismissNotice() })
       }} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
         {(['simple', 'full'] as const).map(option => <Box key={option} component="label" sx={{ border: '2px solid', borderColor: mode === option ? 'primary.main' : 'divider', borderRadius: 1, p: 2, display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, '&:focus-within': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2 } }}>
           <Radio value={option} />{option === 'simple' ? <ApartmentIcon /> : <AccountTreeIcon />}<Typography>{w(option)}</Typography>
@@ -239,98 +293,94 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
             </Step>)}
           </Stepper>
         </>}
-        <Box component="fieldset" disabled={busy || Boolean(retryRequest)} sx={{ border: 0, p: 0, m: 0, minWidth: 0, display: 'grid', gap: 2 }}>
+        <Box component="fieldset" disabled={locked} sx={{ border: 0, p: 0, m: 0, minWidth: 0, display: 'grid', gap: 2 }}>
           {current === 'details' && <>
             <BlockFields name={name} address={address} onChange={(field, value) => field === 'name' ? setName(value) : setAddress(value)} />
             {mode === 'full' && <FormControlLabel label={w('hasStaircases')} control={<Checkbox checked={hasStaircases} onChange={e => {
               const checked = e.target.checked
-              ask(() => { setHasStaircases(checked); setStaircases([]); setBlockGroup(newGroup()) }, staircases.length > 0 || blockGroup.apartments.length > 0)
+              ask(() => { setHasStaircases(checked); setStaircases([]); setBlockGroup(newGroup()); dismissNotice() }, staircases.length > 0 || blockGroup.apartments.length > 0 || blockGroup.floors.length > 0)
             }} />} />}
           </>}
           {current === 'staircases' && <>
             {batchControls()}
             {staircases.map(g => <Box key={g.id} sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
               <TextField required fullWidth label={w('staircaseName')} value={g.name} onChange={e => updateGroup(g.id, value => ({ ...value, name: e.target.value }))} />
-              {removeButton(() => ask(() => setStaircases(value => value.filter(s => s.id !== g.id)), g.apartments.length > 0))}
+              {removeButton(() => ask(() => { setStaircases(value => value.filter(s => s.id !== g.id)); if (undo?.id === g.id) dismissNotice() }, g.apartments.length > 0))}
             </Box>)}
             <Button startIcon={<AddIcon />} onClick={() => setStaircases(value => [...value, newGroup()])}>{w('addStaircase')}</Button>
           </>}
-          {current === 'apartments' && groups.map(g => <Accordion key={g.id} expanded={g.expanded !== false} disableGutters
+          {current === 'apartments' && groups.map(g => <Accordion key={g.id} expanded={g.expanded !== false} disableGutters sx={groupSurfaceSx}
             onChange={(_event, expanded) => updateGroup(g.id, value => ({ ...value, expanded }), false)}
-            slotProps={{ transition: { onEntered: () => { if (error) focusInvalidApartment(g) } } }}>
-            <Box id={`setup-header-${g.id}`} aria-controls={`setup-apartments-${g.id}`} sx={{ position: 'relative' }}>
-              <AccordionSummary id={`setup-toggle-${g.id}`} aria-controls={`setup-apartments-${g.id}`} expandIcon={<ExpandMoreIcon />}
-                sx={{ '& .MuiAccordionSummary-content': { pr: hasStaircases ? 22 : 17, minWidth: 0 } }}>
-                <Typography sx={{ overflowWrap: 'anywhere' }}>{hasStaircases ? g.name : name} ({g.apartments.length})</Typography>
-              </AccordionSummary>
-              <Tooltip title={hasStaircases ? w('generateStaircase', { staircase: g.name }) : w('generate')}>
-                <Box component="span" sx={{ position: 'absolute', right: hasStaircases ? 80 : 44, top: '50%', transform: 'translateY(-50%)' }}>
-                  <Button size="small" variant="outlined" startIcon={<AutoAwesomeIcon fontSize="small" />} aria-label={hasStaircases ? w('generateStaircase', { staircase: g.name }) : w('generate')}
-                    disabled={busy || Boolean(retryRequest)}
-                    sx={{ width: 112, minHeight: 32, px: 1 }}
-                    onClick={event => { event.stopPropagation(); generateApartments(g) }}>
-                    {w('generate')}
-                  </Button>
-                </Box>
-              </Tooltip>
+            slotProps={{ transition: { onEntered: focusPending } }}>
+            <SetupAccordionHeader id={`setup-header-${g.id}`} aria-controls={`setup-apartments-${g.id}`} toggleId={`setup-toggle-${g.id}`}
+              sectionLabel={hasStaircases ? g.name : name} expanded={g.expanded !== false} disabled={locked}
+              onExpandedChange={expanded => updateGroup(g.id, value => ({ ...value, expanded }), false)}
+              actions={<Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              {isMobile ? <IconButtonTooltip title={hasStaircases ? w('generateStaircase', { staircase: g.name }) : w('generate')}>
+                <IconButton size="small" color="primary" aria-label={hasStaircases ? w('generateStaircase', { staircase: g.name }) : w('generate')}
+                  disabled={locked} sx={{ width: 32, height: 32 }}
+                  onClick={event => { event.stopPropagation(); generateApartments(g) }}>
+                  <AutoAwesomeIcon fontSize="small" />
+                </IconButton>
+              </IconButtonTooltip> : <Button size="small" variant="outlined" startIcon={<AutoAwesomeIcon fontSize="small" />} aria-label={hasStaircases ? w('generateStaircase', { staircase: g.name }) : w('generate')}
+                disabled={locked} sx={{ width: 112, minHeight: 32, px: 1 }}
+                onClick={event => { event.stopPropagation(); generateApartments(g) }}>
+                {w('generate')}
+              </Button>}
               {hasStaircases && <IconButtonTooltip title={w('copyGeneration')}>
-                <span style={{ position: 'absolute', right: 44, top: '50%', transform: 'translateY(-50%)' }}>
-                  <IconButton size="small" aria-label={w('copyGeneration')} color="primary" disabled={busy || Boolean(retryRequest) || staircases.length < 2}
+                <span>
+                  <IconButton size="small" aria-label={w('copyGeneration')} color="primary" disabled={locked || staircases.length < 2} sx={{ width: 32, height: 32 }}
                     onClick={event => { event.stopPropagation(); copyGeneration(g) }}>
                     <ContentCopyIcon fontSize="small" />
                   </IconButton>
                 </span>
               </IconButtonTooltip>}
-            </Box>
-            <AccordionDetails id={`setup-apartments-${g.id}`} sx={{ display: 'grid', gap: 2 }}>
+              </Box>}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography sx={{ overflowWrap: 'anywhere' }}>{hasStaircases ? g.name : name}</Typography>
+                <Typography variant="caption" color="text.secondary">{w('apartmentsCount', { count: g.apartments.length })} · {w('floorsCount', { count: g.floors.length })}</Typography>
+              </Box>
+            </SetupAccordionHeader>
+            <AccordionDetails id={`setup-apartments-content-${g.id}`} sx={{ display: 'grid', gap: 2, px: { xs: 1, sm: 2 }, minWidth: 0 }}>
               {batchControls(g)}
-              {g.apartments.map((a, index) => {
-                const update = (patch: Partial<ApartmentDraft>) => updateGroup(g.id, value => ({ ...value, apartments: value.apartments.map(item => item.id === a.id ? { ...item, ...patch } : item) }))
-                const label = w(isMobile ? 'mobile.apartmentTitle' : 'apartmentTitle', { number: a.number.trim() || index + 1 })
-                const fieldErrors: ApartmentValidationErrors = error ? Object.fromEntries(Object.entries(errorsFor(g, a)).map(([field, reason]) => [field, w(`validationErrors.${reason}`)])) : {}
-                return <Card key={a.id} component="article" data-setup-apartment aria-label={label} variant="outlined" sx={theme => ({
-                  borderRadius: 1, minWidth: 0,
-                  backgroundColor: theme.palette.mode === 'dark' ? lighten(theme.palette.background.paper, 0.16) : theme.palette.background.paper,
-                  backgroundImage: 'none',
-                })}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, px: 2, py: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
-                      <ApartmentIcon fontSize="small" color="action" />
-                      <Typography variant="subtitle2" sx={{ overflowWrap: 'anywhere', minWidth: 0 }}>{label}</Typography>
-                    </Box>
-                    <IconButtonTooltip title={w('removeApartment', { number: a.number.trim() || index + 1 })}>
-                      <IconButton size="small" color="error" aria-label={w('removeApartment', { number: a.number.trim() || index + 1 })}
-                        disabled={busy || Boolean(retryRequest)}
-                        onClick={() => updateGroup(g.id, value => ({ ...value, apartments: value.apartments.filter(item => item.id !== a.id) }))}>
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </IconButtonTooltip>
-                  </Box>
-                  <Box sx={{ p: 1.5, display: 'grid', gap: 1.5, alignItems: 'start',
-                    gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(4, minmax(0, 1fr))' },
-                    '& .MuiTextField-root': { minWidth: 0 },
-                  }}>
-                    <ApartmentSetupFields value={a} onChange={update} compactLabels={isMobile} errors={fieldErrors} />
-                    <TextField fullWidth required size="small" type="number" label={t('apartments.setup.householdMembers')} value={a.addResident ? a.householdCount : '0'}
-                      disabled={!a.addResident || busy || Boolean(retryRequest)}
-                      error={Boolean(fieldErrors.householdCount)} helperText={fieldErrors.householdCount || (!a.addResident ? t('apartments.setup.assignOwnerBeforeCount') : undefined)}
-                      slotProps={{ htmlInput: { min: 0, max: 2147483647, step: 1 } }} onChange={e => update({ householdCount: e.target.value })}
-                      sx={{ gridColumn: { xs: '1 / -1', sm: 'span 2' } }} />
-                  </Box>
-                  <Box sx={{ px: 2, py: 0.75, borderTop: '1px solid', borderColor: 'divider' }}>
-                    <FormControlLabel label={w('boiler')} labelPlacement="start"
-                      sx={{ m: 0, width: '100%', justifyContent: 'space-between', gap: 2, '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
-                      control={<Switch size="small" checked={a.hasBoiler} disabled={busy || Boolean(retryRequest)} onChange={e => update({ hasBoiler: e.target.checked })} />} />
-                    <FormControlLabel label={w('addResident')} labelPlacement="start"
-                      sx={{ m: 0, width: '100%', justifyContent: 'space-between', gap: 2, '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
-                      control={<Switch size="small" checked={a.addResident} disabled={busy || Boolean(retryRequest)} onChange={e => update({ addResident: e.target.checked, ...(!e.target.checked ? { householdCount: '0' } : {}) })} />} />
-                  </Box>
-                  {a.addResident && <ResidentSetupFields value={a.resident} onChange={patch => update({ resident: { ...a.resident, ...patch } })}
-                    errors={fieldErrors}
-                    residents={residents} loading={residentsLoading} error={residentsError} onRetry={() => { void loadResidents() }} disabled={busy || Boolean(retryRequest)} />}
-                </Card>
-              })}
-              <Button startIcon={<AddIcon />} onClick={() => updateGroup(g.id, value => ({ ...value, apartments: [...value.apartments, newApartment()] }))}>{w('addApartment')}</Button>
+              {g.floors.length === 0 && g.apartments.length === 0 && <EmptyState inline headline={w('noFloors')} helperText={w('addFloorHint')} />}
+              {floorSections(g).map(({ floor, apartments }) => <SetupFloorSection key={floor?.id ?? `${g.id}-unassigned`}
+                id={floor ? `setup-floor-${floor.id}` : `setup-unassigned-${g.id}`} floor={floor} apartmentCount={apartments.length}
+                expanded={floor ? floor.expanded : g.unassignedExpanded !== false} disabled={locked} onEntered={focusPending}
+                onExpandedChange={expanded => updateGroup(g.id, value => floor
+                  ? { ...value, floors: value.floors.map(item => item.id === floor.id ? { ...item, expanded } : item) }
+                  : { ...value, unassignedExpanded: expanded }, false)}
+                onAdd={() => {
+                  const nextGroup = applyLayout(g, value => addApartmentToFloor(value, floor?.level ?? null), 'apartmentAdded')
+                  const existingIds = new Set(g.apartments.map(apartment => apartment.id))
+                  const added = nextGroup?.apartments.find(apartment => !existingIds.has(apartment.id))
+                  if (added) pendingFocus.current = { id: `setup-apartment-${added.id}-toggle` }
+                }}
+                onRemove={floor ? () => {
+                  const nextGroup = applyLayout(g, value => deleteEmptyFloor(value, floor.id), 'floorRemoved', { floor: floor.level })
+                  if (nextGroup) pendingFocus.current = { id: `setup-toggle-${g.id}` }
+                } : undefined}>
+                {apartments.map(a => <SetupApartmentCard key={a.id} apartment={a} fallbackNumber={g.apartments.indexOf(a) + 1}
+                  floors={orderedFloors(g)} compactLabels={isMobile} disabled={locked} onEntered={focusPending}
+                  errors={error ? Object.fromEntries(Object.entries(errorsFor(g, a)).map(([field, reason]) => [field, w(`validationErrors.${reason}`)])) : {}}
+                  residents={residents} residentsLoading={residentsLoading} residentsError={residentsError} onRetryResidents={() => { void loadResidents() }}
+                  onExpandedChange={expanded => updateGroup(g.id, value => ({ ...value, apartments: value.apartments.map(item => item.id === a.id ? { ...item, expanded } : item) }), false)}
+                  onChange={patch => {
+                    if (patch.floor !== undefined) {
+                      const nextGroup = applyLayout(g, value => moveApartment(value, a.id, patch.floor!), 'apartmentMoved', { number: a.number })
+                      if (nextGroup) pendingFocus.current = { id: `setup-apartment-${a.id}`, selector: '[data-setup-floor-choice] [role="combobox"]' }
+                    } else updateGroup(g.id, value => ({ ...value, apartments: value.apartments.map(item => item.id === a.id ? { ...item, ...patch } : item) }))
+                  }}
+                  onRemove={() => {
+                    const nextGroup = applyLayout(g, value => deleteApartment(value, a.id), 'apartmentRemoved', { number: a.number })
+                    if (nextGroup) pendingFocus.current = { id: floor ? `setup-floor-${floor.id}-toggle` : `setup-toggle-${g.id}` }
+                  }} />)}
+              </SetupFloorSection>)}
+              <Button id={`setup-add-floor-${g.id}`} variant="outlined" startIcon={<AddIcon />} disabled={locked} onClick={() => {
+                const nextGroup = applyLayout(g, addFloor, 'floorAdded')
+                const added = nextGroup?.floors.find(floor => !g.floors.some(existing => existing.id === floor.id))
+                if (added) pendingFocus.current = { id: `setup-floor-${added.id}-toggle` }
+              }}>{w('addFloor')}</Button>
             </AccordionDetails>
           </Accordion>)}
           {current === 'review' && <>
@@ -340,11 +390,14 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
               occupants: groups.reduce((sum, g) => sum + g.apartments.reduce((total, a) => total + (a.addResident ? Number(a.householdCount) : 0), 0), 0),
               residents: new Set(groups.flatMap(g => g.apartments.filter(a => a.addResident).map(a => a.resident.mode === 'existing' ? a.resident.residentId : a.resident.inviteResident ? a.resident.email.trim().toLowerCase() : a.id))).size,
             })}</Typography>
-            {groups.map(g => <Accordion key={g.id} disableGutters>
+            {groups.map(g => <Accordion key={g.id} disableGutters sx={groupSurfaceSx}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}><Typography sx={{ overflowWrap: 'anywhere' }}>{hasStaircases ? g.name : name} ({g.apartments.length})</Typography></AccordionSummary>
               <AccordionDetails sx={{ pt: 0 }}>
-                <Box component="ul" sx={{ listStyle: 'none', m: 0, p: 0, minWidth: 0 }}>
-                  {g.apartments.map(a => <Box component="li" key={a.id} sx={{
+                {floorSections(g).map(({ floor, apartments }) => <Box key={floor?.id ?? `${g.id}-unassigned`} sx={{ minWidth: 0, pt: 1.5 }}>
+                  <Typography variant="subtitle2">{floor ? w('floorLabel', { floor: floor.level }) : w('unassignedFloor')} · {w('apartmentsCount', { count: apartments.length })}</Typography>
+                  {apartments.length === 0 && <Typography variant="body2" color="text.secondary">{w('emptyFloor')}</Typography>}
+                  <Box component="ul" sx={{ listStyle: 'none', m: 0, p: 0, minWidth: 0 }}>
+                  {apartments.map(a => <Box component="li" key={a.id} sx={{
                     display: 'grid', gridTemplateColumns: { xs: 'repeat(6, minmax(0, 1fr))', sm: 'repeat(5, minmax(0, 1fr))' },
                     columnGap: 1, rowGap: 0.5, py: 1.25, borderBottom: '1px solid', borderColor: 'divider',
                     '&:last-child': { borderBottom: 0 },
@@ -360,17 +413,22 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
                     {a.addResident && <span>{w('owner')}: {a.resident.mode === 'existing' ? residents.find(resident => resident.id === a.resident.residentId)?.fullName : `${a.resident.firstName} ${a.resident.lastName}`}</span>}
                     {a.addResident && a.resident.inviteResident && <span>{t('residents.fields.inviteResident')}: {a.resident.email}</span>}
                   </Box>)}
-                </Box>
+                  </Box>
+                </Box>)}
               </AccordionDetails>
             </Accordion>)}
           </>}
         </Box>
       </>}
+      <Snackbar key={notice?.id ?? 'closed'} open={notice !== null} autoHideDuration={6000} onClose={(_event, reason) => { if (reason !== 'clickaway') dismissNotice() }}>
+        <Alert severity="success" onClose={dismissNotice} closeText={t('common.close')}
+          action={undo && notice?.groupId === undo.id ? <Button size="small" color="inherit" disabled={locked} onClick={undoLayout}>{w('undo')}</Button> : undefined}
+          sx={{ minWidth: 0, '& .MuiAlert-message': { overflowWrap: 'anywhere' } }}>
+          {notice ? w(notice.key, notice.values) : ''}
+        </Alert>
+      </Snackbar>
     </AppDialog>
     <ConfirmationDialog open={Boolean(confirmation)} title={w('discardTitle')} cancelLabel={t('common.cancel')} confirmLabel={w('discard')}
       onCancel={() => setConfirmation(null)} onConfirm={() => { confirmation?.(); setConfirmation(null) }}><Typography>{w('discardMessage')}</Typography></ConfirmationDialog>
-    <Snackbar open={copyNotice !== null} autoHideDuration={3000} onClose={() => setCopyNotice(null)}>
-      <Alert severity="success" onClose={() => setCopyNotice(null)}>{w('generationCopied', { staircase: copyNotice })}</Alert>
-    </Snackbar>
   </>
 }
