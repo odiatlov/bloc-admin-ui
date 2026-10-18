@@ -1,5 +1,5 @@
 import React from 'react'
-import { Alert, Box, Button, CircularProgress, Paper, Typography } from '@mui/material'
+import { Alert, Box, Button, CircularProgress } from '@mui/material'
 import SaveIcon from '@mui/icons-material/Save'
 import { useTranslation } from 'react-i18next'
 import AppDatePicker from '../../../../../components/shared/AppDatePicker'
@@ -7,6 +7,7 @@ import LoadErrorState from '../../../../../components/shared/LoadErrorState'
 import { waterReadingsApi } from '../../../../../services/waterReadingsApi'
 import FinanceWorkspacePanel from '../../Finance/components/FinanceWorkspacePanel'
 import FinanceConfigurationEditor from '../../Finance/components/FinanceConfigurationEditor'
+import FinanceSection from '../../Finance/components/FinanceSection'
 
 const WaterSubmissionSettings: React.FC<{ blockId: string }> = ({ blockId }) => {
   const { t } = useTranslation()
@@ -28,14 +29,13 @@ const WaterSubmissionSettings: React.FC<{ blockId: string }> = ({ blockId }) => 
     } catch (error) { setMessage(error instanceof Error ? error.message : t('finance.billing.saveFailed')) }
     finally { setSaving(false) }
   }
-  return <Paper sx={{ p: 2, display: 'grid', gap: 2 }}>
-    <Typography variant="h6">{t('finance.billing.submissionCalendar')}</Typography>
+  return <FinanceSection title={t('finance.billing.submissionCalendar')}>
     {!state.loaded ? <CircularProgress size={24} /> : state.error ? <LoadErrorState helperText={state.error} onRetry={() => setRetry((value) => value + 1)} /> : <>
       <AppDatePicker label={t('settings.fields.waterIndexFirstSubmissionDate')} value={state.date} onChange={(date) => setState({ ...state, date })} disabled={saving} />
       {message && <Alert severity="info">{message}</Alert>}
       <Button variant="outlined" startIcon={<SaveIcon />} disabled={saving} onClick={() => void save()}>{t('common.save')}</Button>
     </>}
-  </Paper>
+  </FinanceSection>
 }
 
 const BlockFinanceSettings: React.FC = () => <FinanceWorkspacePanel>{(workspace, block, refresh, onDirty) => <Box sx={{ display: 'grid', gap: 2 }}>

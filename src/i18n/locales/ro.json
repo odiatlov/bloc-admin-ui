@@ -1133,6 +1133,15 @@
                  },
     "consumption":  {
                         "readingEligibility": {
+                            "viewAffected": "Vezi apartamentele afectate",
+                            "affectedApartments": "Apartamente de configurat",
+                            "adminReasons": {
+                                "apartmentNotConfigured": "Finalizați configurarea apartamentului.",
+                                "noActiveMeters": "Configurați apometre active.",
+                                "invalidMeterConfiguration": "Corectați tipul, amplasarea sau numele apometrelor.",
+                                "hotMetersWithBoiler": "Eliminați apometrele active de apă caldă din apartamentul cu centrală proprie.",
+                                "submissionNotConfigured": "Configurați calendarul de trimitere a citirilor pentru bloc."
+                            },
                             "adminSummary": "Citirile sunt blocate pentru {{count}} apartamente. Finalizați mai întâi configurarea acestora.",
                             "apartmentNotConfigured": "Cereți administratorului să finalizeze configurarea apartamentului înainte de trimiterea citirilor.",
                             "noActiveMeters": "Administratorul trebuie să configureze contoare de apă active înainte de trimiterea citirilor.",

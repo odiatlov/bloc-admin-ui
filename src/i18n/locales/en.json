@@ -1143,6 +1143,15 @@
   },
   "consumption": {
     "readingEligibility": {
+      "viewAffected": "View affected apartments",
+      "affectedApartments": "Apartments requiring setup",
+      "adminReasons": {
+        "apartmentNotConfigured": "Complete the apartment setup.",
+        "noActiveMeters": "Configure active water meters.",
+        "invalidMeterConfiguration": "Correct the meter type, location or name.",
+        "hotMetersWithBoiler": "Remove active hot-water meters from this boiler apartment.",
+        "submissionNotConfigured": "Configure the block's reading submission calendar."
+      },
       "adminSummary": "Water readings are blocked for {{count}} apartment(s). Complete their setup first.",
       "apartmentNotConfigured": "Ask the administrator to complete the apartment setup before submitting readings.",
       "noActiveMeters": "The administrator must configure active water meters before readings can be submitted.",

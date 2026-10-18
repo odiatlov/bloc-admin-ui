@@ -11,8 +11,10 @@ import type { FinanceApartment, FinanceExpense, FinancePeriodData, FinanceSupply
 import { useFinanceActionScope } from '../../../../../hooks/useFinanceWorkspace'
 import { FinanceNumber, FinanceSelect } from './FinanceFields'
 import { financeGrid } from './financePresentation'
+import FinanceSection from './FinanceSection'
 
 type Props = { workspace: FinanceWorkspace; refresh: () => void; onDirty: (dirty: boolean) => void }
+
 const FinancePeriodEditor: React.FC<Props> = ({ workspace, refresh, onDirty }) => {
   const { t, i18n } = useTranslation()
   const [data, setData] = React.useState<FinancePeriodData>(() => structuredClone(workspace.periodData))
@@ -56,8 +58,7 @@ const FinancePeriodEditor: React.FC<Props> = ({ workspace, refresh, onDirty }) =
       const coverage = group ?? charge
       const eligible = workspace.apartments.filter((row) => (coverage.scope === 'Block' || (coverage.scope === 'Staircase' ? row.staircaseId === coverage.staircaseId : coverage.apartmentIds.includes(row.id))) && (!group || row.meters.some((meter) => meter.utilityType === group.utilityType)))
       const manualTotal = value.manualAmounts.reduce((sum, row) => sum + row.amount, 0)
-      return <Paper key={charge.id} sx={{ p: 2, display: 'grid', gap: 1.5 }}>
-        <Typography variant="h6">{charge.name}</Typography>
+      return <FinanceSection key={charge.id} title={charge.name}>
         <Typography color="text.secondary" variant="body2">{t(`finance.billing.values.${charge.amountMode}`)} · {t(`finance.billing.values.${charge.basis}`)} · {charge.supplyGroupId ? workspace.configuration.supplyGroups.find((group) => group.id === charge.supplyGroupId)?.name : charge.scope === 'Staircase' ? workspace.apartments.find((row) => row.staircaseId === charge.staircaseId)?.staircaseName : t(`finance.billing.values.${charge.scope}`)}</Typography>
         {charge.amountMode === 'Rate' && <Typography>{t('finance.billing.configuredRate', { value: money(charge.rate ?? 0) })}</Typography>}
         <FormControlLabel label={t('finance.billing.notApplicable')} control={<Checkbox checked={value.notApplicable} onChange={(event) => setExpense(charge.id, { notApplicable: event.target.checked, ...(event.target.checked ? { amount: null, manualAmounts: [] } : {}) })} />} />
@@ -89,13 +90,12 @@ const FinancePeriodEditor: React.FC<Props> = ({ workspace, refresh, onDirty }) =
             {charge.amountMode === 'Pool' && value.manualAmounts.length > 0 && <Alert severity={value.amount != null && manualTotal > value.amount ? 'warning' : 'info'}>{t('finance.billing.poolReconciliation', { allocated: money(manualTotal), remaining: value.amount == null ? '—' : money(value.amount - manualTotal), method: charge.remainderBasis ? t(`finance.billing.values.${charge.remainderBasis}`) : t('finance.billing.fullManualRequired') })}</Alert>}
           </>}
         </>}
-      </Paper>
+      </FinanceSection>
     })}
     {workspace.configuration.supplyGroups.filter((group) => group.differenceMode !== 'None').map((group) => {
       const value = supply(group.id)
       const eligible = workspace.apartments.filter((row) => (group.scope === 'Block' || (group.scope === 'Staircase' ? row.staircaseId === group.staircaseId : group.apartmentIds.includes(row.id))) && row.meters.some((meter) => meter.utilityType === group.utilityType))
-      return <Paper key={group.id} sx={{ p: 2, display: 'grid', gap: 1.5 }}>
-        <Typography variant="h6">{t('finance.billing.supplyDifference', { name: group.name })}</Typography>
+      return <FinanceSection key={group.id} title={t('finance.billing.supplyDifference', { name: group.name })}>
         <Typography color="text.secondary" variant="body2">{t(`finance.billing.values.${group.differenceMode}`)} · {t(`finance.billing.values.${group.differenceBasis}`)}</Typography>
         <Box sx={financeGrid}>
           {group.differenceMode === 'Manual' && <FinanceNumber min={-1000000000} label={t('finance.billing.differenceQuantity')} value={value.manualDifference} onChange={(manualDifference) => setSupply(group.id, { manualDifference })} />}
@@ -112,15 +112,13 @@ const FinancePeriodEditor: React.FC<Props> = ({ workspace, refresh, onDirty }) =
             <TextField size="small" label={t('finance.billing.reason')} value={entry?.reason ?? ''} onChange={(event) => change({ reason: event.target.value })} />
           </Box> })}
         </>}
-      </Paper>
+      </FinanceSection>
     })}
-    <Paper sx={{ p: 2, display: 'grid', gap: 2 }}>
-      <Typography variant="h6">{t('finance.billing.periodApartments')}</Typography>
+    <FinanceSection title={t('finance.billing.periodApartments')}>
       <Typography color="text.secondary" variant="body2">{t('finance.billing.periodOccupantsHelp')}</Typography>
       <ResponsiveDataView paginationId="finance-occupants" paginationResetKey={`${workspace.blockId}:${workspace.year}:${workspace.month}`} ariaLabel={t('finance.billing.periodApartments')} rows={workspace.apartments} columns={occupantColumns} getRowId={(row) => row.id} />
-    </Paper>
-    <Paper sx={{ p: 2, display: 'grid', gap: 2 }}>
-      <Typography variant="h6">{t('finance.billing.adjustments')}</Typography>
+    </FinanceSection>
+    <FinanceSection title={t('finance.billing.adjustments')}>
       {data.adjustments.map((entry, index) => {
         const change = (changes: Partial<typeof entry>) => update({ ...data, adjustments: data.adjustments.map((item, position) => position === index ? { ...item, ...changes } : item) })
         return <Paper key={entry.id} variant="outlined" sx={{ p: 2, display: 'grid', gap: 1.5 }}>
@@ -135,7 +133,7 @@ const FinancePeriodEditor: React.FC<Props> = ({ workspace, refresh, onDirty }) =
         </Paper>
       })}
       <Button variant="outlined" startIcon={<AddIcon />} onClick={() => update({ ...data, adjustments: [...data.adjustments, { id: crypto.randomUUID(), apartmentId: '', kind: 'Arrears', name: '', amount: 0, reason: '' }] })}>{t('finance.billing.addAdjustment')}</Button>
-    </Paper>
+    </FinanceSection>
     {error && <Alert severity="error">{error}</Alert>}
     <Button startIcon={<SaveIcon />} variant="contained" disabled={(!dirty && !hasStaleInputs) || saving} onClick={() => void save()}>{saving ? t('finance.billing.saving') : t('finance.billing.saveMonth')}</Button>
   </Box>

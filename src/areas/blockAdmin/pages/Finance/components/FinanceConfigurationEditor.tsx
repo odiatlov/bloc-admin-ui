@@ -13,6 +13,7 @@ import type { FinanceApartment, FinanceBasis, FinanceBlock, FinanceConfiguration
 import { useFinanceActionScope } from '../../../../../hooks/useFinanceWorkspace'
 import { FinanceNumber, FinanceScopeFields, FinanceSelect } from './FinanceFields'
 import { financeGrid } from './financePresentation'
+import FinanceSection from './FinanceSection'
 
 const bases: FinanceBasis[] = ['People', 'Equal', 'Area', 'HeatingMp', 'ColdConsumption', 'HotConsumption', 'Manual']
 type Props = { workspace: FinanceWorkspace; block: FinanceBlock; refresh: () => void; onDirty: (dirty: boolean) => void }
@@ -64,8 +65,7 @@ const FinanceConfigurationEditor: React.FC<Props> = ({ workspace, block, refresh
     { key: 'effective', label: t('finance.billing.heatingMp'), render: heatingMp },
   ]
   return <Box component="fieldset" disabled={saving} sx={{ border: 0, p: 0, m: 0, minWidth: 0, display: 'grid', gap: 2 }}>
-    <Paper sx={{ p: 2, display: 'grid', gap: 2 }}>
-      <Typography variant="h6">{t('finance.billing.configurationTitle', { block: block.name })}</Typography>
+    <FinanceSection title={t('finance.billing.configurationTitle', { block: block.name })}>
       <Typography color="text.secondary" variant="body2">{t('finance.billing.configurationHelp')}</Typography>
       <Box sx={financeGrid}>
         <AppDatePicker monthOnly confirmOnAccept label={t('finance.billing.effectiveFrom')} value={`${config.effectiveFromYear}-${String(config.effectiveFromMonth).padStart(2, '0')}`} onChange={(value) => { const [effectiveFromYear, effectiveFromMonth] = value.split('-').map(Number); update({ ...config, effectiveFromYear, effectiveFromMonth }) }} />
@@ -73,9 +73,8 @@ const FinanceConfigurationEditor: React.FC<Props> = ({ workspace, block, refresh
         <FinanceNumber decimal={1} label={t('finance.billing.defaultPercentage')} value={config.defaultHeatingPercentage} helperText={t('finance.billing.defaultPercentageHelp')} onChange={(defaultHeatingPercentage) => update({ ...config, defaultHeatingPercentage })} />
       </Box>
       {config.effectiveToYear && <Button onClick={() => update({ ...config, effectiveToYear: null, effectiveToMonth: null })}>{t('finance.billing.clearEnd')}</Button>}
-    </Paper>
-    <Paper sx={{ p: 2, display: 'grid', gap: 2 }}>
-      <Typography variant="h6">{t('finance.billing.supplyGroups')}</Typography>
+    </FinanceSection>
+    <FinanceSection title={t('finance.billing.supplyGroups')}>
       <Typography color="text.secondary" variant="body2">{t('finance.billing.supplyGroupsHelp')}</Typography>
       {config.supplyGroups.map((group, index) => {
         const change = (changes: Partial<typeof group>) => update({ ...config, supplyGroups: config.supplyGroups.map((item, position) => position === index ? { ...item, ...changes } : item) })
@@ -95,9 +94,8 @@ const FinanceConfigurationEditor: React.FC<Props> = ({ workspace, block, refresh
         </Paper>
       })}
       <Button startIcon={<AddIcon />} variant="outlined" onClick={() => update({ ...config, supplyGroups: [...config.supplyGroups, { id: crypto.randomUUID(), name: '', utilityType: 'ColdWater', scope: 'Block', apartmentIds: [], differenceMode: 'None', differenceBasis: 'Equal', order: config.supplyGroups.length }] })}>{t('finance.billing.addSupply')}</Button>
-    </Paper>
-    <Paper sx={{ p: 2, display: 'grid', gap: 2 }}>
-      <Typography variant="h6">{t('finance.billing.chargeDefinitions')}</Typography>
+    </FinanceSection>
+    <FinanceSection title={t('finance.billing.chargeDefinitions')}>
       <Typography color="text.secondary" variant="body2">{t('finance.billing.chargesHelp')}</Typography>
       {config.charges.map((charge, index) => {
         const change = (changes: Partial<typeof charge>) => update({ ...config, charges: config.charges.map((item, position) => position === index ? { ...item, ...changes } : item) })
@@ -128,9 +126,8 @@ const FinanceConfigurationEditor: React.FC<Props> = ({ workspace, block, refresh
         </Paper>
       })}
       <Button startIcon={<AddIcon />} variant="outlined" onClick={() => update({ ...config, charges: [...config.charges, { id: crypto.randomUUID(), name: '', scope: 'Block', apartmentIds: [], amountMode: 'Pool', basis: 'People', required: true, enabled: true, order: config.charges.length, oneOff: false }] })}>{t('finance.billing.addCharge')}</Button>
-    </Paper>
-    <Paper sx={{ p: 2, display: 'grid', gap: 2 }}>
-      <Typography variant="h6">{t('finance.billing.apartmentHeating')}</Typography>
+    </FinanceSection>
+    <FinanceSection title={t('finance.billing.apartmentHeating')}>
       <Typography color="text.secondary" variant="body2">{t('finance.billing.heatingHelp')}</Typography>
       <Button variant="outlined" disabled={config.defaultHeatingPercentage == null} onClick={() => update({ ...config, apartmentHeating: [...config.apartmentHeating, ...workspace.apartments.filter((row) => !config.apartmentHeating.some((item) => item.apartmentId === row.id)).map((row) => ({ apartmentId: row.id, mode: 'Percentage' as const }))] })}>{t('finance.billing.applyDefaultHeating')}</Button>
       <ResponsiveDataView desktopTableMinWidth={1100} paginationId="finance-heating" paginationResetKey={`${block.id}:${workspace.configurationVersion}`} ariaLabel={t('finance.billing.apartmentHeating')} rows={workspace.apartments} columns={heatingColumns} getRowId={(row) => row.id} renderMobileRow={(row) => <Box component="li" sx={{ pb: 1.5 }}><EntityListItem
@@ -143,7 +140,7 @@ const FinanceConfigurationEditor: React.FC<Props> = ({ workspace, block, refresh
           { key: 'input', label: t(config.apartmentHeating.find((item) => item.apartmentId === row.id)?.mode === 'Manual' ? 'finance.billing.manualMp' : config.apartmentHeating.some((item) => item.apartmentId === row.id) ? 'finance.billing.percentageOverride' : 'finance.billing.heatingInput'), value: heatingInput(row), fullWidth: true },
         ]}
       /></Box>} />
-    </Paper>
+    </FinanceSection>
     {error && <Alert severity="error">{error}</Alert>}
     <Button variant="contained" startIcon={<SaveIcon />} disabled={!dirty || saving} onClick={() => void save()}>{saving ? t('finance.billing.saving') : t('finance.billing.saveConfiguration')}</Button>
   </Box>
