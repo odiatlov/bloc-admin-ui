@@ -23,6 +23,7 @@ export type BlockDeletionSummary = {
   apartmentCount: number
   waterMeterCount: number
   waterReadingCount: number
+  financeRecordCount: number
 }
 
 export type DeleteBlockRequest = {

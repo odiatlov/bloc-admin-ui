@@ -1,6 +1,6 @@
 import React from 'react'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
+import Alert from '@mui/material/Alert'
 import CircularProgress from '@mui/material/CircularProgress'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
@@ -9,20 +9,23 @@ import Paper from '@mui/material/Paper'
 import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
-import FileDownloadIcon from '@mui/icons-material/FileDownload'
-import PreviewIcon from '@mui/icons-material/Preview'
 import { useTranslation } from 'react-i18next'
 import FilterBar from '../../../../../components/shared/FilterBar'
-import { formatCurrency, formatNumber, formatSquareMeters, useReports } from '../../../../../hooks/useApartmentData'
+import { formatNumber, formatSquareMeters } from '../../../../../utils/formatters'
 import { useWaterConsumptions } from '../../../../../hooks/useWaterConsumptions'
 import { apartmentsApi } from '../../../../../services/apartmentsApi'
 import type { ApartmentResponse } from '../../../../../types/management'
+import { RoleContext } from '../../../../../contexts/RoleContext'
+import { useFinanceIdentity } from '../../../../../hooks/useFinanceWorkspace'
+import GeneratedReportsList from './GeneratedReportsList'
+import LoadErrorState from '../../../../../components/shared/LoadErrorState'
 
 const ReportGenerator: React.FC = () => {
   const { t, i18n } = useTranslation()
+  const { role } = React.useContext(RoleContext)
+  const identity = useFinanceIdentity()
   const water = useWaterConsumptions({ registeredPeriodsOnly: true })
   const { period: month, setPeriod: setMonth, blockFilter: block, setBlockFilter: setBlock } = water
-  const { preview } = useReports(month)
   const monthOptions = water.availablePeriods.map((period) => {
     const date = new Date(`${period}-01T12:00:00`)
     return {
@@ -30,14 +33,16 @@ const ReportGenerator: React.FC = () => {
       label: new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' }).format(date),
     }
   })
-  const [databaseApartments, setDatabaseApartments] = React.useState<ApartmentResponse[]>([])
+  const [apartmentState, setApartmentState] = React.useState<{ identity: string; data: ApartmentResponse[]; error: string | null }>()
+  const apartmentError = apartmentState?.identity === identity ? apartmentState.error : null
+  const apartmentLoading = apartmentState?.identity !== identity
   const allowedBlockIds = React.useMemo(
     () => new Set(water.blocks.map((item) => item.id)),
     [water.blocks],
   )
   const scopedApartments = React.useMemo(
-    () => databaseApartments.filter((apartment) => allowedBlockIds.has(apartment.blockId)),
-    [allowedBlockIds, databaseApartments],
+    () => (apartmentState?.identity === identity ? apartmentState.data : []).filter((apartment) => allowedBlockIds.has(apartment.blockId)),
+    [allowedBlockIds, apartmentState, identity],
   )
 
   React.useEffect(() => {
@@ -46,9 +51,9 @@ const ReportGenerator: React.FC = () => {
     const loadApartments = async () => {
       try {
         const nextApartments = await apartmentsApi.getAll()
-        if (isMounted) setDatabaseApartments(nextApartments)
-      } catch {
-        if (isMounted) setDatabaseApartments([])
+        if (isMounted) setApartmentState({ identity, data: nextApartments, error: null })
+      } catch (error) {
+        if (isMounted) setApartmentState({ identity, data: [], error: error instanceof Error ? error.message : t('finance.billing.statisticsUnavailable') })
       }
     }
 
@@ -57,7 +62,7 @@ const ReportGenerator: React.FC = () => {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [identity, t])
 
   const surfaceTotal = React.useMemo(() => {
     if (scopedApartments.length === 0) return 0
@@ -77,31 +82,19 @@ const ReportGenerator: React.FC = () => {
     ? `${t('reports.preview.waterUsage')} (${t(`consumption.report.${readingStatus}`)})`
     : t('reports.preview.waterUsage')
   const waterValue = water.loading ? <CircularProgress size={24} aria-label={t('consumption.loading')} />
-    : knownMeters.length === 0 || water.error ? `0 ${t('reports.preview.units.water')}`
+    : knownMeters.length === 0 || water.error ? '—'
       : `${formatNumber(waterTotal)} ${t('reports.preview.units.water')}`
 
   const metrics = [
-    { key: 'invoices', label: t('reports.preview.invoices'), value: preview.invoiceCount },
-    { key: 'revenue', label: t('reports.preview.revenue'), value: formatCurrency(preview.revenue) },
+    { key: 'apartments', label: t('finance.billing.apartmentCount'), value: water.loading || water.error ? '—' : water.rows.length },
+    { key: 'incomplete', label: t('finance.billing.incompleteCount'), value: water.loading || water.error ? '—' : water.rows.filter((row) => row.status !== 'complete').length },
     { key: 'waterUsage', label: waterLabel, value: waterValue },
-    { key: 'surfaceTotal', label: t('reports.preview.surfaceTotal'), value: formatSquareMeters(surfaceTotal) },
-    { key: 'boilerTax', label: t('reports.preview.boilerTax'), value: formatCurrency(preview.boilerTax) },
+    { key: 'surfaceTotal', label: t('reports.preview.surfaceTotal'), value: apartmentLoading || apartmentError ? '—' : formatSquareMeters(surfaceTotal) },
   ]
 
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
-      <FilterBar
-        actions={(
-          <>
-            <Button startIcon={<PreviewIcon />} variant="outlined">
-              {t('reports.actions.preview')}
-            </Button>
-            <Button startIcon={<FileDownloadIcon />} variant="contained">
-              {t('reports.actions.export')}
-            </Button>
-          </>
-        )}
-      >
+      <FilterBar>
         <TextField select size="small" disabled={water.loading || !!water.error} label={t('reports.filters.month')}
           value={monthOptions.some((option) => option.value === month) ? month : 'all'}
           onChange={(event) => setMonth(event.target.value)}
@@ -126,6 +119,8 @@ const ReportGenerator: React.FC = () => {
         <Typography variant="h6" gutterBottom>
           {t('reports.preview.title')}
         </Typography>
+        {water.error && <LoadErrorState inline helperText={t('finance.billing.statisticsUnavailable')} onRetry={water.refresh} />}
+        {apartmentError && <Alert severity="warning">{apartmentError}</Alert>}
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gridAutoRows: '1fr', gap: 2 }}>
           {metrics.map((metric) => (
             <Paper key={metric.key} variant="outlined" sx={{ p: 2, minHeight: 84, display: 'grid', alignContent: 'start', gap: 0.75 }}>
@@ -139,6 +134,7 @@ const ReportGenerator: React.FC = () => {
           ))}
         </Box>
       </Paper>
+      {role === 'Admin' && <GeneratedReportsList key={identity} />}
     </Box>
   )
 }

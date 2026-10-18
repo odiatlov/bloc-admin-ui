@@ -3,6 +3,7 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { ContentCard } from './DashboardSystem'
+import { RoleContext } from '../../../../../contexts/RoleContext'
 
 const items = [
   { textKey: 'invoiceGenerated', timeKey: 'twoHoursAgo' },
@@ -12,10 +13,13 @@ const items = [
 
 const AdminActivityFeed: React.FC = () => {
   const { t } = useTranslation()
+  const { account } = React.useContext(RoleContext)
+  const isDemo = account.dataMode === 'mock-populated' || account.dataMode === 'mock-configured-block'
   return (
     <ContentCard title={t('dashboard.admin.activity.title')}>
       <Box sx={{ display: 'grid', gap: 1.5 }}>
-        {items.map((i, idx) => (
+        {!isDemo && <Typography variant="body2" color="text.secondary">{t('financeAvailability.activityPending')}</Typography>}
+        {isDemo && items.map((i, idx) => (
           <Box key={idx} sx={{ display: 'grid', gridTemplateColumns: '12px minmax(0, 1fr)', gap: 1.25, alignItems: 'start' }}>
             <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'primary.main', mt: '0.5rem', boxShadow: (theme) => `0 0 0 4px ${theme.palette.action.hover}` }} />
             <Box sx={{ minWidth: 0 }}>

@@ -1,278 +1,88 @@
 import React from 'react'
-import Box from '@mui/material/Box'
-import FormControl from '@mui/material/FormControl'
-import InputLabel from '@mui/material/InputLabel'
-import Chip from '@mui/material/Chip'
-import MenuItem from '@mui/material/MenuItem'
-import Paper from '@mui/material/Paper'
-import Select, { type SelectChangeEvent } from '@mui/material/Select'
-import Tab from '@mui/material/Tab'
-import Tabs from '@mui/material/Tabs'
-import Typography from '@mui/material/Typography'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
-import LocalAtmIcon from '@mui/icons-material/LocalAtm'
-import PaidIcon from '@mui/icons-material/Paid'
-import PointOfSaleIcon from '@mui/icons-material/PointOfSale'
+import { Alert, Box, Button, Chip, Paper, Tab, Tabs, Typography } from '@mui/material'
+import CalculateIcon from '@mui/icons-material/Calculate'
+import EditIcon from '@mui/icons-material/Edit'
+import RefreshIcon from '@mui/icons-material/Refresh'
+import SettingsIcon from '@mui/icons-material/Settings'
+import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import AppDialog from '../../../../../components/shared/AppDialog'
-import EmptyState from '../../../../../components/shared/EmptyState'
-import MetricCard from '../../../../../components/shared/MetricCard'
 import ResponsiveDataView, { type DataColumn } from '../../../../../components/shared/ResponsiveDataView'
-import StatusChip from '../../../../../components/shared/StatusChip'
-import { formatCurrency, formatFriendlyDateTime, formatMonth, formatNumber, useFinance } from '../../../../../hooks/useApartmentData'
-import type { PaymentMethod } from '../../../mocks/apartmentData'
+import { financeApi } from '../../../../../services/financeApi'
+import { ApiError } from '../../../../../services/apiClient'
+import { RoleContext } from '../../../../../contexts/RoleContext'
+import { useFinanceActionScope } from '../../../../../hooks/useFinanceWorkspace'
+import type { FinanceIssue, FinanceWorkspace } from '../../../../../types/finance'
+import FinanceWorkspacePanel from './FinanceWorkspacePanel'
+import FinancePeriodEditor from './FinancePeriodEditor'
 
-const FinanceSections: React.FC = () => {
-  const { t } = useTranslation()
-  const {
-    cashAwaitingVerification,
-    cashEntries,
-    invoices,
-    maintenanceRuns,
-    monthlyRevenue,
-    paymentMethodFilter,
-    payments,
-    registerCashPayment,
-    setCashStatus,
-    setPaymentMethodFilter,
-    unpaidInvoices,
-  } = useFinance()
+const MonthlyWorkspace: React.FC<{ workspace: FinanceWorkspace; refresh: () => void; onDirty: (dirty: boolean) => void }> = ({ workspace, refresh, onDirty }) => {
+  const { t, i18n } = useTranslation()
+  const { account } = React.useContext(RoleContext)
   const [tab, setTab] = React.useState(0)
-  const [dialogInvoiceId, setDialogInvoiceId] = React.useState<string | null>(null)
-  const selectedInvoice = invoices.find((invoice) => invoice.id === dialogInvoiceId)
-  const formatGeneratedDate = (value: string) => formatFriendlyDateTime(value, { atLabel: t('common.at'), todayLabel: t('common.today') })
-  const renderTabLabel = (fullKey: string, shortKey: string) => (
-    <>
-      <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>{t(fullKey)}</Box>
-      <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>{t(shortKey)}</Box>
-    </>
-  )
-
-  const invoiceColumns: DataColumn<(typeof invoices)[number]>[] = [
-    { key: 'id', label: t('finance.columns.invoice'), cardRole: 'primary', render: (invoice) => invoice.id },
-    { key: 'apartment', label: t('finance.columns.apartment'), cardRole: 'secondary', render: (invoice) => invoice.familyLabel },
-    { key: 'residents', label: t('residents.family.members'), render: (invoice) => invoice.apartment?.residentCount ?? 0 },
-    { key: 'month', label: t('finance.columns.month'), render: (invoice) => formatMonth(invoice.month) },
-    { key: 'amount', label: t('finance.columns.amount'), render: (invoice) => formatCurrency(invoice.totalAmount) },
-    {
-      key: 'status',
-      label: t('finance.columns.status'),
-      cardRole: 'status',
-      render: (invoice) => <StatusChip status={invoice.status} label={t(`status.invoice.${invoice.status}`)} />,
-    },
-    {
-      key: 'actions',
-      label: t('common.actions'),
-      cardRole: 'actions',
-      actions: (invoice) => [
-        { id: 'register-cash', label: t('finance.actions.registerCash'), icon: <PointOfSaleIcon />, disabled: invoice.status === 'paid', onClick: () => setDialogInvoiceId(invoice.id), priority: 1 },
-      ],
-    },
-  ]
-
-  const paymentColumns: DataColumn<(typeof payments)[number]>[] = [
-    { key: 'id', label: t('finance.columns.payment'), cardRole: 'primary', render: (payment) => payment.id },
-    { key: 'apartment', label: t('finance.columns.apartment'), cardRole: 'secondary', render: (payment) => payment.familyLabel },
-    { key: 'method', label: t('finance.columns.method'), render: (payment) => t(`finance.method.${payment.method}`) },
-    { key: 'amount', label: t('finance.columns.amount'), render: (payment) => formatCurrency(payment.amount) },
-    {
-      key: 'status',
-      label: t('finance.columns.verification'),
-      cardRole: 'status',
-      render: (payment) => <StatusChip status={payment.verificationStatus} label={t(`status.cash.${payment.verificationStatus}`)} />,
-    },
-  ]
-
-  const cashColumns: DataColumn<(typeof cashEntries)[number]>[] = [
-    { key: 'id', label: t('finance.columns.cash'), cardRole: 'primary', render: (entry) => entry.id },
-    { key: 'apartment', label: t('finance.columns.apartment'), cardRole: 'secondary', render: (entry) => entry.familyLabel },
-    { key: 'amount', label: t('finance.columns.amount'), render: (entry) => formatCurrency(entry.amount) },
-    {
-      key: 'status',
-      label: t('finance.columns.status'),
-      cardRole: 'status',
-      render: (entry) => <StatusChip status={entry.status} label={t(`status.cash.${entry.status}`)} />,
-    },
-    { key: 'notes', label: t('finance.columns.notes'), render: (entry) => t(entry.notesKey) },
-    {
-      key: 'actions',
-      label: t('common.actions'),
-      cardRole: 'actions',
-      actions: (entry) => [
-        { id: 'verify', label: t('finance.actions.verify'), icon: <CheckCircleIcon />, disabled: entry.status !== 'unverified', onClick: () => setCashStatus(entry.id, 'verified'), priority: 2 },
-        { id: 'deposit', label: t('finance.actions.deposit'), icon: <AccountBalanceIcon />, disabled: entry.status !== 'verified', onClick: () => setCashStatus(entry.id, 'deposited'), priority: 1 },
-      ],
-    },
-  ]
-
-  const confirmRegisterCash = () => {
-    if (selectedInvoice) registerCashPayment(selectedInvoice)
-    setDialogInvoiceId(null)
+  const [dirty, setDirty] = React.useState(false)
+  const [generating, setGenerating] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
+  const busy = React.useRef(false)
+  const active = useFinanceActionScope()
+  const month = new Intl.DateTimeFormat(i18n.language, { year: 'numeric', month: 'long' }).format(new Date(workspace.year, workspace.month - 1, 1))
+  const generate = async () => {
+    if (busy.current || !workspace.canGenerate || dirty) return
+    busy.current = true; setGenerating(true); setError(null)
+    const storageKey = `finance-generation:${account.id}:${workspace.blockId}:${workspace.year}-${workspace.month}:${workspace.inputVersion}`
+    let requestId: string
+    try { requestId = sessionStorage.getItem(storageKey) || crypto.randomUUID(); sessionStorage.setItem(storageKey, requestId) }
+    catch { requestId = crypto.randomUUID() }
+    try {
+      await financeApi.generate(workspace.blockId, workspace.year, workspace.month, requestId, workspace.inputVersion)
+      try { sessionStorage.removeItem(storageKey) } catch { /* Session storage can be disabled by the browser. */ }
+      if (active.current) refresh()
+    }
+    catch (nextError) {
+      if (nextError instanceof ApiError && nextError.code === 'INPUTS_CHANGED') { try { sessionStorage.removeItem(storageKey) } catch { /* Keep the server error visible. */ } }
+      if (active.current) setError(nextError instanceof Error ? nextError.message : t('finance.billing.generateFailed'))
+    }
+    finally { busy.current = false; if (active.current) setGenerating(false) }
   }
-
-  return (
-    <Box sx={{ display: 'grid', gap: 2 }}>
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' }, gap: 2 }}>
-        <MetricCard icon={<PaidIcon color="primary" />} label={t('finance.metrics.monthlyRevenue')} value={formatCurrency(monthlyRevenue)} />
-        <MetricCard icon={<CheckCircleIcon color="warning" />} label={t('finance.metrics.unpaidInvoices')} value={unpaidInvoices} />
-        <MetricCard icon={<LocalAtmIcon color="error" />} label={t('finance.metrics.cashAwaiting')} value={cashAwaitingVerification} />
-      </Box>
-
-      <Paper sx={{ maxWidth: '100%', overflow: 'hidden' }}>
-        <Tabs value={tab} onChange={(_, nextTab: number) => setTab(nextTab)} variant="fullWidth">
-          <Tab label={renderTabLabel('finance.tabs.invoices', 'finance.tabsShort.invoices')} sx={{ minWidth: 0 }} />
-          <Tab label={renderTabLabel('finance.tabs.payments', 'finance.tabsShort.payments')} sx={{ minWidth: 0 }} />
-          <Tab label={renderTabLabel('finance.tabs.cashRegister', 'finance.tabsShort.cashRegister')} sx={{ minWidth: 0 }} />
-          <Tab label={renderTabLabel('finance.tabs.maintenance', 'finance.tabsShort.maintenance')} sx={{ minWidth: 0 }} />
-        </Tabs>
+  const resolve = (issue: FinanceIssue) => {
+    if (issue.apartmentId && /PREVIOUS_READING_MISSING|CURRENT_READING_MISSING|INVALID_READING|OCCUPANTS_INCONSISTENT|INACTIVE_METER_HISTORY/.test(issue.code)) {
+      const query = new URLSearchParams({ blockId: workspace.blockId, period: `${issue.year ?? workspace.year}-${String(issue.month ?? workspace.month).padStart(2, '0')}`, ...(issue.apartmentId ? { apartmentId: issue.apartmentId } : {}) })
+      return `/admin/consumption?${query}`
+    }
+    if (/APARTMENT_SETUP_REQUIRED|APARTMENT_STAIRCASE_REQUIRED|APARTMENTS_MISSING|USABLE_AREA_MISSING|OCCUPANT_CONTACT_MISSING/.test(issue.code)) return `/admin/apartments?blockId=${workspace.blockId}`
+    if (/CONFIGURATION_MISSING|HEATING_MP_MISSING|SUPPLY_COVERAGE_REQUIRED|CHARGES_REQUIRED/.test(issue.code)) return `/admin/settings?blockId=${workspace.blockId}&period=${workspace.year}-${String(workspace.month).padStart(2, '0')}`
+    return undefined
+  }
+  const issueColumns: DataColumn<FinanceIssue & { id: string }>[] = [
+    { key: 'location', label: t('finance.billing.location'), cardRole: 'primary', render: (issue) => [issue.staircaseName, issue.apartmentNumber && t('finance.billing.apartmentNumber', { number: issue.apartmentNumber }), issue.meterName].filter(Boolean).join(' / ') || workspace.blockName },
+    { key: 'context', label: t('finance.billing.issueContext'), render: (issue) => [issue.chargeId && workspace.configuration.charges.find((charge) => charge.id === issue.chargeId)?.name, issue.supplyGroupId && workspace.configuration.supplyGroups.find((group) => group.id === issue.supplyGroupId)?.name, issue.year && issue.month ? new Intl.DateTimeFormat(i18n.language, { year: 'numeric', month: 'long' }).format(new Date(issue.year, issue.month - 1, 1)) : month].filter(Boolean).join(' · ') },
+    { key: 'issue', label: t('finance.billing.issue'), cardRole: 'secondary', render: (issue) => t(`finance.billing.issues.${issue.code}`, { defaultValue: issue.message }) },
+    { key: 'actions', label: t('common.actions'), cardRole: 'actions', actions: (issue) => [{ id: 'resolve', label: t('finance.billing.resolve'), icon: <EditIcon />, priority: 1, ...(resolve(issue) ? { to: resolve(issue) } : { onClick: () => setTab(1) }) }] },
+  ]
+  return <Box sx={{ display: 'grid', gap: 2 }}>
+    <Paper><Tabs value={tab} onChange={(_, value: number) => setTab(value)} variant="fullWidth"><Tab label={t('finance.billing.maintenance')} /><Tab label={t('finance.billing.monthlyExpenses')} /></Tabs></Paper>
+    <Box hidden={tab !== 0} sx={{ display: tab === 0 ? 'grid' : 'none', gap: 2 }}>
+      <Paper sx={{ p: 2, display: 'grid', gap: 2 }}>
+        <Typography variant="h6">{workspace.blockName} · {month}</Typography>
+        <Typography color="text.secondary">{t('finance.billing.periodExplanation')}</Typography>
+        <Alert severity={workspace.canGenerate ? 'success' : 'warning'}>{workspace.canGenerate ? t('finance.billing.ready') : t('finance.billing.blocked', { count: workspace.issues.length })}</Alert>
+        {dirty && <Alert severity="warning">{t('finance.billing.saveBeforeGenerate')}</Alert>}
+        {error && <Alert severity="error">{error}</Alert>}
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          <Button variant="contained" startIcon={<CalculateIcon />} disabled={!workspace.canGenerate || dirty || generating} onClick={() => void generate()}>{generating ? t('finance.billing.generating') : t(workspace.latestReport ? 'finance.billing.regenerate' : 'finance.billing.generate', { block: workspace.blockName })}</Button>
+          <Button variant="outlined" startIcon={<RefreshIcon />} disabled={dirty || generating} onClick={refresh}>{t('finance.billing.refreshReadiness')}</Button>
+          <Button component={RouterLink} to={`/admin/settings?blockId=${workspace.blockId}&period=${workspace.year}-${String(workspace.month).padStart(2, '0')}`} startIcon={<SettingsIcon />}>{t('finance.billing.configureBlock')}</Button>
+        </Box>
       </Paper>
-
-      {tab === 0 && (
-        <Box sx={{ display: 'grid', gap: 1.5 }}>
-          <ResponsiveDataView
-            paginationId="FinanceSections-1"
-            ariaLabel={t('finance.tabs.invoices')}
-            columns={invoiceColumns}
-            emptyState={(
-              <EmptyState
-                actionLabel={t('emptyState.action', { information: t('emptyState.information.invoices') })}
-                actionTo="/admin/settings"
-                headline={t('emptyState.headline', { information: t('emptyState.information.invoices') })}
-                helperText={t('emptyState.helper.settings', { information: t('emptyState.information.invoices') })}
-              />
-            )}
-            getRowId={(invoice) => invoice.id}
-            rows={invoices}
-          />
-        </Box>
-      )}
-
-      {tab === 1 && (
-        <Box sx={{ display: 'grid', gap: 1.5 }}>
-          <FormControl size="small" sx={{ width: { xs: '100%', sm: 'auto' }, minWidth: { sm: 260 } }}>
-            <InputLabel>{t('finance.filters.method')}</InputLabel>
-            <Select
-              label={t('finance.filters.method')}
-              value={paymentMethodFilter}
-              onChange={(event: SelectChangeEvent) => setPaymentMethodFilter(event.target.value as PaymentMethod | 'all')}
-            >
-              <MenuItem value="all">{t('common.all')}</MenuItem>
-              <MenuItem value="cash">{t('finance.method.cash')}</MenuItem>
-              <MenuItem value="bank">{t('finance.method.bank')}</MenuItem>
-            </Select>
-          </FormControl>
-          <ResponsiveDataView
-            paginationId="FinanceSections-2"
-            paginationResetKey={paymentMethodFilter}
-            ariaLabel={t('finance.tabs.payments')}
-            columns={paymentColumns}
-            emptyState={(
-              <EmptyState
-                actionLabel={t('emptyState.action', { information: t('emptyState.information.payments') })}
-                actionTo="/admin/finance"
-                headline={t('emptyState.headline', { information: t('emptyState.information.payments') })}
-                helperText={t('emptyState.helper.finance', { information: t('emptyState.information.payments') })}
-              />
-            )}
-            getRowId={(payment) => payment.id}
-            rows={payments}
-          />
-        </Box>
-      )}
-
-      {tab === 2 && (
-        <ResponsiveDataView
-          paginationId="FinanceSections-3"
-          ariaLabel={t('finance.tabs.cashRegister')}
-          columns={cashColumns}
-          emptyState={(
-            <EmptyState
-              actionLabel={t('finance.actions.registerCash')}
-              actionTo="/admin/finance"
-              headline={t('emptyState.headline', { information: t('emptyState.information.cashEntries') })}
-              helperText={t('emptyState.helper.finance', { information: t('emptyState.information.cashEntries') })}
-            />
-          )}
-          getRowId={(entry) => entry.id}
-          rows={cashEntries}
-        />
-      )}
-
-      {tab === 3 && (
-        <Box sx={{ display: 'grid', gap: 2 }}>
-          {maintenanceRuns.length === 0 ? (
-            <EmptyState
-              actionLabel={t('emptyState.action', { information: t('emptyState.information.invoices') })}
-              actionTo="/admin/settings"
-              headline={t('emptyState.headline', { information: t('emptyState.information.invoices') })}
-              helperText={t('emptyState.helper.settings', { information: t('emptyState.information.invoices') })}
-            />
-          ) : maintenanceRuns.map((run) => (
-            <Paper key={run.id} sx={{ p: 2, display: 'grid', gap: 1.5 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, flexWrap: 'wrap' }}>
-                <Box>
-                  <Typography variant="h6">{t('finance.maintenance.blockMonth', { block: run.blockId.replace('block-', '').toUpperCase(), month: formatMonth(run.month) })}</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {t('finance.maintenance.generatedAt', { generatedAt: formatGeneratedDate(run.generatedAt) })}
-                  </Typography>
-                </Box>
-                <Chip color={run.status === 'published' ? 'success' : 'warning'} label={t(`finance.maintenance.status.${run.status}`)} />
-              </Box>
-              <Box sx={{ display: 'grid', gap: 1 }}>
-                {run.apartmentTotals.map((total) => {
-                  const invoice = invoices.find((candidate) => candidate.apartmentId === total.apartmentId && candidate.month === run.month)
-                  return (
-                    <Paper key={total.apartmentId} variant="outlined" sx={{ p: 1.5, display: 'grid', gap: 1 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, flexWrap: 'wrap' }}>
-                        <Typography sx={{ fontWeight: 700 }}>{invoice?.familyLabel ?? total.apartmentId}</Typography>
-                        <Typography sx={{ fontWeight: 700 }}>{formatCurrency(total.total)}</Typography>
-                      </Box>
-                      {total.lines.slice(0, 3).map((line) => (
-                        <Typography key={line.expenseId} variant="body2" color="text.secondary">
-                          {t(line.textKey, {
-                            label: t(line.labelKey),
-                            amount: formatCurrency(line.amount),
-                            basis: formatNumber(line.basis),
-                            totalBasis: formatNumber(line.totalBasis),
-                            percentage: typeof line.values.percentage === 'number' ? formatNumber(line.values.percentage) : line.values.percentage,
-                          })}
-                        </Typography>
-                      ))}
-                      {(total.debts.length > 0 || total.penalties.length > 0) && (
-                        <Typography variant="body2" color="warning.main">
-                          {t('finance.maintenance.adjustments', {
-                            debts: formatCurrency(total.debts.reduce((sum, debt) => sum + debt.principal, 0)),
-                            penalties: formatCurrency(total.penalties.reduce((sum, penalty) => sum + penalty.amount, 0)),
-                          })}
-                        </Typography>
-                      )}
-                    </Paper>
-                  )
-                })}
-              </Box>
-            </Paper>
-          ))}
-        </Box>
-      )}
-
-      <AppDialog
-        cancelLabel={t('common.cancel')}
-        confirmLabel={t('finance.actions.registerCash')}
-        onCancel={() => setDialogInvoiceId(null)}
-        onConfirm={confirmRegisterCash}
-        open={Boolean(selectedInvoice)}
-        title={t('finance.dialog.cashTitle')}
-      >
-          <Typography>
-            {t('finance.dialog.cashBody', {
-              invoice: selectedInvoice?.id,
-              amount: selectedInvoice ? formatCurrency(selectedInvoice.totalAmount) : '',
-            })}
-          </Typography>
-      </AppDialog>
+      {workspace.latestReport && <Paper sx={{ p: 2, display: 'grid', gap: 1.5 }}>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}><Typography variant="h6">{t('finance.billing.savedReport')}</Typography><Chip size="small" color={workspace.latestReport.status === 'Outdated' ? 'warning' : 'default'} label={t(`finance.billing.values.${workspace.latestReport.status}`)} /></Box>
+        <Typography>{t('finance.billing.revision', { revision: workspace.latestReport.revision })} · {new Intl.NumberFormat(i18n.language, { style: 'currency', currency: 'RON' }).format(workspace.latestReport.totalDue)}</Typography>
+        <Button component={RouterLink} to={`/admin/reports/maintenance/${workspace.latestReport.id}`} variant="outlined">{t('finance.billing.openReport')}</Button>
+      </Paper>}
+      {workspace.issues.length > 0 && <ResponsiveDataView paginationId="finance-readiness" paginationResetKey={workspace.inputVersion} ariaLabel={t('finance.billing.prerequisites')} rows={workspace.issues.map((issue, index) => ({ ...issue, id: String(index) }))} columns={issueColumns} getRowId={(issue) => issue.id} />}
     </Box>
-  )
+    <Box hidden={tab !== 1} sx={{ display: tab === 1 ? 'block' : 'none' }}><FinancePeriodEditor workspace={workspace} refresh={refresh} onDirty={(value) => { setDirty(value); onDirty(value) }} /></Box>
+  </Box>
 }
 
+const FinanceSections: React.FC = () => <FinanceWorkspacePanel>{(workspace, _block, refresh, onDirty) => <MonthlyWorkspace key={`${workspace.blockId}:${workspace.year}:${workspace.month}:${workspace.configurationVersion}:${workspace.periodVersion}:${workspace.inputVersion}`} workspace={workspace} refresh={refresh} onDirty={onDirty} />}</FinanceWorkspacePanel>
 export default FinanceSections

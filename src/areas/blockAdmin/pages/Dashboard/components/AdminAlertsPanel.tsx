@@ -8,15 +8,15 @@ import { ContentCard } from './DashboardSystem'
 
 const AdminAlertsPanel: React.FC = () => {
   const { t } = useTranslation()
-  const { invoices: enrichedInvoices } = useFinance()
+  const { financeAvailable, invoices: enrichedInvoices } = useFinance()
   const { readings } = useConsumption()
   const overdueInvoices = enrichedInvoices.filter((invoice) => invoice.status === 'overdue').length
   const unusualConsumption = readings.filter((reading) => reading.usageValue > 20).length
-  const alerts = [
+  const alerts = financeAvailable ? [
     t('dashboard.admin.alerts.overdueInvoices', { count: overdueInvoices }),
     t('dashboard.admin.alerts.unusualConsumption', { count: unusualConsumption }),
     t('dashboard.admin.alerts.cashWorkflow'),
-  ]
+  ] : [t('financeAvailability.accountingPending')]
 
   return (
     <ContentCard title={t('dashboard.admin.alerts.title')} accent="warning">

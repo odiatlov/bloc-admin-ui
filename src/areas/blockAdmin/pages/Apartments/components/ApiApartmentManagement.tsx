@@ -26,6 +26,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove'
 import SaveIcon from '@mui/icons-material/Save'
 import { useTranslation } from 'react-i18next'
+import { Link as RouterLink } from 'react-router-dom'
 import AppDialog from '../../../../../components/shared/AppDialog'
 import ConfirmationDialog from '../../../../../components/shared/ConfirmationDialog'
 import EmptyState from '../../../../../components/shared/EmptyState'
@@ -622,6 +623,12 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                     onChange={(event) => setForm((value) => ({ ...value, residentCount: event.target.value }))}
                   />
                   <TextField fullWidth size="small" type="number" label={t('blocks.columns.usableSurface')} value={form.usableSqm} onChange={(event) => setForm((value) => ({ ...value, usableSqm: event.target.value }))} />
+                  <Box sx={{ gridColumn: '1 / -1' }}>
+                    <Typography variant="body2" color="text.secondary">{t('financeAvailability.heatingHelp')}</Typography>
+                    <Button component={RouterLink} to={`/admin/settings?blockId=${editingApartment.blockId}`}>
+                      {t('financeAvailability.configureHeating')}
+                    </Button>
+                  </Box>
                   <Box sx={{ display: 'grid', gap: 1.5, gridColumn: '1 / -1', pt: 1 }}>
                     <Divider />
                     <Box sx={{ alignItems: 'center', display: 'flex', gap: 1, justifyContent: 'space-between' }}>

@@ -16,7 +16,7 @@ import { formatCurrency, formatMonth, useResidentPortal } from '../../../../../h
 
 const ResidentBills: React.FC = () => {
   const { t } = useTranslation()
-  const { residentInvoices } = useResidentPortal()
+  const { financeAvailable, residentInvoices } = useResidentPortal()
   const [invoiceId, setInvoiceId] = React.useState<string | null>(null)
   const [paymentInvoiceId, setPaymentInvoiceId] = React.useState<string | null | undefined>(undefined)
   const selectedInvoice = residentInvoices.find((invoice) => invoice.id === invoiceId)
@@ -51,6 +51,10 @@ const ResidentBills: React.FC = () => {
       ],
     },
   ]
+
+  if (!financeAvailable) {
+    return <EmptyState headline={t('financeAvailability.notPublished')} helperText={t('financeAvailability.residentHelp')} />
+  }
 
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>

@@ -28,6 +28,9 @@ export type ApartmentWaterConfigurationZone = {
 
 export type ApartmentWaterConfigurationResponse = {
   apartmentId: string
+  setupStatus: string
+  canSubmitReadings: boolean
+  readingSetupIssue: WaterReadingSetupIssue | null
   hasBoiler: boolean
   coldWaterTotal: number
   hotWaterTotal: number
@@ -108,6 +111,8 @@ export type ResidentWaterMeterRow = {
 }
 
 export type WaterConsumptionData = {
+  canSubmitReadings: boolean
+  readingSetupIssue: WaterReadingSetupIssue | null
   householdCount: number | null
   hasMeters: boolean
   id: string
@@ -119,6 +124,8 @@ export type WaterConsumptionData = {
   usage: number | null
   status: 'complete' | 'incomplete' | 'invalid' | 'noMeters'
 }
+
+export type WaterReadingSetupIssue = 'apartmentNotConfigured' | 'noActiveMeters' | 'invalidMeterConfiguration' | 'hotMetersWithBoiler' | 'submissionNotConfigured'
 
 export type WaterConsumptionRow = WaterConsumptionData & { canRemind: boolean, reminderSent: boolean }
 

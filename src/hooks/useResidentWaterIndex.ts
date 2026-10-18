@@ -3,7 +3,7 @@ import { RoleContext } from '../contexts/RoleContext'
 import { residentsApi } from '../services/residentsApi'
 import { waterReadingsApi } from '../services/waterReadingsApi'
 import type { ResidentApartmentSummary, ResidentResponse } from '../types/management'
-import type { ApartmentWaterMeterResponse, BlockWaterReadingSettingsResponse, ResidentWaterMeterRow } from '../types/waterReadings'
+import type { ApartmentWaterMeterResponse, BlockWaterReadingSettingsResponse, ResidentWaterMeterRow, WaterReadingSetupIssue } from '../types/waterReadings'
 
 const getCurrentPeriod = () => {
   const now = new Date()
@@ -49,6 +49,7 @@ export const useResidentWaterIndex = () => {
   const [meters, setMeters] = React.useState<ApartmentWaterMeterResponse[]>([])
   const [rows, setRows] = React.useState<ResidentWaterMeterRow[]>([])
   const [hasConfiguredSubmissionDate, setHasConfiguredSubmissionDate] = React.useState(false)
+  const [readingEligibility, setReadingEligibility] = React.useState<Record<string, { canSubmitReadings: boolean, readingSetupIssue: WaterReadingSetupIssue | null }>>({})
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
 
@@ -58,6 +59,7 @@ export const useResidentWaterIndex = () => {
       setMeters([])
       setRows([])
       setHasConfiguredSubmissionDate(false)
+      setReadingEligibility({})
       setError(null)
       return
     }
@@ -72,9 +74,10 @@ export const useResidentWaterIndex = () => {
       const settings = await Promise.all(blockIds.map((blockId) => waterReadingsApi.getBlockSettings(blockId)))
       const configuredPeriods = buildConfiguredPeriods(settings)
       const configuredBlockIds = new Set(configuredPeriods.map((period) => period.blockId))
-      const nextMeters = (await Promise.all(
-        nextResident.apartments.map((apartment) => waterReadingsApi.getMetersByApartment(apartment.apartmentId)),
-      )).flat().filter((meter) => meter.isActive)
+      const configurations = await Promise.all(
+        nextResident.apartments.map((apartment) => waterReadingsApi.getApartmentConfiguration(apartment.apartmentId)),
+      )
+      const nextMeters = configurations.flatMap(configuration => configuration.meters).filter((meter) => meter.isActive)
       const readings = (await Promise.all(
         configuredPeriods.map((period) => waterReadingsApi.getReadingsByBlock(period.blockId, period.year, period.month)),
       )).flat().filter((reading) => apartmentIds.has(reading.apartmentId))
@@ -84,6 +87,14 @@ export const useResidentWaterIndex = () => {
       ]))
 
       setResident(nextResident)
+      setReadingEligibility(Object.fromEntries(configurations.map(configuration => {
+        const apartment = nextResident.apartments.find(item => item.apartmentId === configuration.apartmentId)
+        const hasSubmissionSettings = !!apartment && configuredBlockIds.has(apartment.blockId)
+        return [configuration.apartmentId, {
+          canSubmitReadings: configuration.canSubmitReadings && hasSubmissionSettings,
+          readingSetupIssue: configuration.readingSetupIssue ?? (hasSubmissionSettings ? null : 'submissionNotConfigured'),
+        }]
+      })))
       setHasConfiguredSubmissionDate(configuredPeriods.length > 0)
       setMeters(nextMeters.filter((meter) => {
         const apartment = nextResident.apartments.find((item) => item.apartmentId === meter.apartmentId)
@@ -121,6 +132,7 @@ export const useResidentWaterIndex = () => {
       setMeters([])
       setRows([])
       setHasConfiguredSubmissionDate(false)
+      setReadingEligibility({})
       setError(nextError instanceof Error ? nextError.message : 'Water index data could not be loaded.')
     } finally {
       setLoading(false)
@@ -139,6 +151,7 @@ export const useResidentWaterIndex = () => {
     apartments: resident?.apartments ?? [],
     error,
     hasConfiguredSubmissionDate,
+    readingEligibility,
     loading,
     meters,
     month,
