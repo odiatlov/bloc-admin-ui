@@ -58,37 +58,48 @@ const FinancePeriodEditor: React.FC<Props> = ({ workspace, refresh, onDirty }) =
       const coverage = group ?? charge
       const eligible = workspace.apartments.filter((row) => (coverage.scope === 'Block' || (coverage.scope === 'Staircase' ? row.staircaseId === coverage.staircaseId : coverage.apartmentIds.includes(row.id))) && (!group || row.meters.some((meter) => meter.utilityType === group.utilityType)))
       const manualTotal = value.manualAmounts.reduce((sum, row) => sum + row.amount, 0)
+      const apartmentAmounts = <>
+        {value.manualAmounts.map((entry, index) => {
+          const change = (changes: Partial<typeof entry>) => setExpense(charge.id, { manualAmounts: value.manualAmounts.map((item, position) => position === index ? { ...item, ...changes } : item) })
+          return <Box key={index} sx={{ ...financeGrid, alignItems: 'start' }}>
+            <TextField select size="small" label={t('finance.billing.apartment')} value={entry.apartmentId} onChange={(event) => change({ apartmentId: event.target.value })}>
+              <MenuItem value="">{t('finance.billing.notSet')}</MenuItem>
+              {eligible.filter((item) => item.id === entry.apartmentId || !value.manualAmounts.some((row) => row.apartmentId === item.id)).map((row) => <MenuItem key={row.id} value={row.id}>{apartmentLabel(row.id)}</MenuItem>)}
+            </TextField>
+            <FinanceNumber label={t('finance.billing.amount')} value={entry.amount} onChange={(amount) => change({ amount: amount ?? 0 })} />
+            <TextField size="small" required label={t('finance.billing.reason')} value={entry.reason} onChange={(event) => change({ reason: event.target.value })} />
+            <ActionButtons variant="row" actions={[{ id: 'remove', label: t('finance.billing.remove'), icon: <DeleteIcon />, color: 'error', onClick: () => setExpense(charge.id, { manualAmounts: value.manualAmounts.filter((_, position) => position !== index) }) }]} />
+          </Box>
+        })}
+        <Button startIcon={<AddIcon />} variant="outlined" disabled={value.manualAmounts.length >= eligible.length} onClick={() => setExpense(charge.id, { manualAmounts: [...value.manualAmounts, { apartmentId: eligible.find((row) => !value.manualAmounts.some((entry) => entry.apartmentId === row.id))?.id ?? '', amount: 0, reason: '' }] })}>{t('finance.billing.addManualAmount')}</Button>
+        {charge.amountMode === 'Pool' && value.manualAmounts.length > 0 && <Alert severity={value.amount != null && manualTotal > value.amount ? 'warning' : 'info'}>{t('finance.billing.poolReconciliation', { allocated: money(manualTotal), remaining: value.amount == null ? '—' : money(value.amount - manualTotal), method: charge.remainderBasis ? t(`finance.billing.values.${charge.remainderBasis}`) : t('finance.billing.fullManualRequired') })}</Alert>}
+      </>
       return <FinanceSection key={charge.id} title={charge.name}>
         <Typography color="text.secondary" variant="body2">{t(`finance.billing.values.${charge.amountMode}`)} · {t(`finance.billing.values.${charge.basis}`)} · {charge.supplyGroupId ? workspace.configuration.supplyGroups.find((group) => group.id === charge.supplyGroupId)?.name : charge.scope === 'Staircase' ? workspace.apartments.find((row) => row.staircaseId === charge.staircaseId)?.staircaseName : t(`finance.billing.values.${charge.scope}`)}</Typography>
         {charge.amountMode === 'Rate' && <Typography>{t('finance.billing.configuredRate', { value: money(charge.rate ?? 0) })}</Typography>}
         <FormControlLabel label={t('finance.billing.notApplicable')} control={<Checkbox checked={value.notApplicable} onChange={(event) => setExpense(charge.id, { notApplicable: event.target.checked, ...(event.target.checked ? { amount: null, manualAmounts: [] } : {}) })} />} />
         {!value.notApplicable && <>
-          <Box sx={financeGrid}>
-            {charge.amountMode === 'Pool' && <FinanceNumber label={t('finance.billing.billTotal')} value={value.amount} onChange={(amount) => setExpense(charge.id, { amount })} />}
-            {charge.amountMode !== 'Pool' && <FinanceNumber label={t('finance.billing.controlTotal')} value={value.amount} onChange={(amount) => setExpense(charge.id, { amount })} />}
-            <TextField size="small" label={t('finance.billing.supplier')} value={value.supplier ?? ''} onChange={(event) => setExpense(charge.id, { supplier: event.target.value })} />
-            <TextField size="small" label={t('finance.billing.documentReference')} value={value.documentReference ?? ''} onChange={(event) => setExpense(charge.id, { documentReference: event.target.value })} />
-            <TextField size="small" label={t('finance.billing.sourceDocument')} helperText={t('finance.billing.sourceDocumentHelp')} value={value.sourceDocumentId ?? ''} onChange={(event) => setExpense(charge.id, { sourceDocumentId: event.target.value || null })} />
-            <FinanceNumber label={t('finance.billing.sourceTotal')} value={value.sourceTotal} onChange={(sourceTotal) => setExpense(charge.id, { sourceTotal })} />
-            <TextField size="small" label={t('finance.billing.description')} value={value.description ?? ''} onChange={(event) => setExpense(charge.id, { description: event.target.value })} />
-          </Box>
-          {<>
-            <Typography variant="subtitle2">{t('finance.billing.manualAmounts')}</Typography>
-            {value.manualAmounts.map((entry, index) => {
-              const change = (changes: Partial<typeof entry>) => setExpense(charge.id, { manualAmounts: value.manualAmounts.map((item, position) => position === index ? { ...item, ...changes } : item) })
-              return <Box key={index} sx={{ ...financeGrid, alignItems: 'start' }}>
-                <TextField select size="small" label={t('finance.billing.apartment')} value={entry.apartmentId} onChange={(event) => change({ apartmentId: event.target.value })}>
-                  <MenuItem value="">{t('finance.billing.notSet')}</MenuItem>
-                  {eligible.filter((item) => item.id === entry.apartmentId || !value.manualAmounts.some((row) => row.apartmentId === item.id)).map((row) => <MenuItem key={row.id} value={row.id}>{apartmentLabel(row.id)}</MenuItem>)}
-                </TextField>
-                <FinanceNumber label={t('finance.billing.amount')} value={entry.amount} onChange={(amount) => change({ amount: amount ?? 0 })} />
-                <TextField size="small" required label={t('finance.billing.reason')} value={entry.reason} onChange={(event) => change({ reason: event.target.value })} />
-                <ActionButtons variant="row" actions={[{ id: 'remove', label: t('finance.billing.remove'), icon: <DeleteIcon />, color: 'error', onClick: () => setExpense(charge.id, { manualAmounts: value.manualAmounts.filter((_, position) => position !== index) }) }]} />
-              </Box>
-            })}
-            <Button startIcon={<AddIcon />} variant="outlined" disabled={value.manualAmounts.length >= eligible.length} onClick={() => setExpense(charge.id, { manualAmounts: [...value.manualAmounts, { apartmentId: eligible.find((row) => !value.manualAmounts.some((entry) => entry.apartmentId === row.id))?.id ?? '', amount: 0, reason: '' }] })}>{t('finance.billing.addManualAmount')}</Button>
-            {charge.amountMode === 'Pool' && value.manualAmounts.length > 0 && <Alert severity={value.amount != null && manualTotal > value.amount ? 'warning' : 'info'}>{t('finance.billing.poolReconciliation', { allocated: money(manualTotal), remaining: value.amount == null ? '—' : money(value.amount - manualTotal), method: charge.remainderBasis ? t(`finance.billing.values.${charge.remainderBasis}`) : t('finance.billing.fullManualRequired') })}</Alert>}
-          </>}
+          {charge.amountMode === 'Pool' && <Box sx={financeGrid}>
+            <FinanceNumber label={t('finance.billing.billTotal')} value={value.amount} onChange={(amount) => setExpense(charge.id, { amount })} />
+          </Box>}
+          <FinanceSection compact title={t('finance.billing.optionalDetails')}>
+            <Typography color="text.secondary" variant="body2">{t('finance.billing.optionalDetailsHelp')}</Typography>
+            <Box sx={financeGrid}>
+              {charge.amountMode !== 'Pool' && <FinanceNumber label={t('finance.billing.controlTotal')} value={value.amount} onChange={(amount) => setExpense(charge.id, { amount })} />}
+              <TextField size="small" label={t('finance.billing.supplier')} value={value.supplier ?? ''} onChange={(event) => setExpense(charge.id, { supplier: event.target.value })} />
+              <TextField size="small" label={t('finance.billing.documentReference')} value={value.documentReference ?? ''} onChange={(event) => setExpense(charge.id, { documentReference: event.target.value })} />
+              <TextField size="small" label={t('finance.billing.sourceDocument')} helperText={t('finance.billing.sourceDocumentHelp')} value={value.sourceDocumentId ?? ''} onChange={(event) => setExpense(charge.id, { sourceDocumentId: event.target.value || null })} />
+              <FinanceNumber label={t('finance.billing.sourceTotal')} value={value.sourceTotal} onChange={(sourceTotal) => setExpense(charge.id, { sourceTotal })} />
+              <TextField size="small" label={t('finance.billing.description')} value={value.description ?? ''} onChange={(event) => setExpense(charge.id, { description: event.target.value })} />
+            </Box>
+          </FinanceSection>
+          {charge.amountMode === 'Manual' ? <>
+              <Typography variant="subtitle2">{t('finance.billing.manualAmounts')}</Typography>
+              {apartmentAmounts}
+            </> : <FinanceSection compact title={`${t('finance.billing.apartmentExceptions')}${value.manualAmounts.length ? ` (${value.manualAmounts.length})` : ''}`}>
+              {apartmentAmounts}
+            </FinanceSection>
+          }
         </>}
       </FinanceSection>
     })}
