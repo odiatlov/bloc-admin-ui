@@ -797,6 +797,14 @@
       "preview": "Preview report",
       "exportExcel": "Export Excel",
       "exportFailed": "The Excel report could not be downloaded.",
+      "reportFormat": "Report format",
+      "exportFormatHelp": "Choose an Excel format. Both use this saved report and include a separate sheet for each staircase.",
+      "downloadExcel": "Download Excel",
+      "downloading": "Downloading…",
+      "exportFormats": {
+        "maintenance-list": { "title": "Maintenance list", "description": "A compact table for residents and printing: apartment charges, arrears, total due and supporting summaries." },
+        "detailed": { "title": "Detailed report", "description": "The complete report with consumption, allocation details and block reconciliation." }
+      },
       "noReports": "No generated reports",
       "noReportsHelp": "Prepare a block and month in Finance, then generate its first maintenance table.",
       "prepareMonth": "Prepare maintenance",

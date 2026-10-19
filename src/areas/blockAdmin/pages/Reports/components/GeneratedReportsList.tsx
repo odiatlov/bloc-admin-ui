@@ -11,6 +11,7 @@ import ResponsiveDataView, { type DataColumn } from '../../../../../components/s
 import { useFinanceBlocks, useFinanceIdentity } from '../../../../../hooks/useFinanceWorkspace'
 import { financeApi } from '../../../../../services/financeApi'
 import type { FinanceReportSummary } from '../../../../../types/finance'
+import FinanceExportDialog from './FinanceExportDialog'
 
 const GeneratedReportsList: React.FC = () => {
   const { t, i18n } = useTranslation()
@@ -22,8 +23,7 @@ const GeneratedReportsList: React.FC = () => {
   const [page, setPage] = React.useState(1)
   const [retry, setRetry] = React.useState(0)
   const [state, setState] = React.useState<{ key: string; rows: FinanceReportSummary[]; count: number; error: string | null }>()
-  const [exporting, setExporting] = React.useState<string | null>(null)
-  const [exportError, setExportError] = React.useState<string | null>(null)
+  const [exportId, setExportId] = React.useState<string | null>(null)
   const key = `${identity}:${blockId}:${period}:${history}:${page}:${retry}`
   React.useEffect(() => {
     const abort = new AbortController()
@@ -33,13 +33,6 @@ const GeneratedReportsList: React.FC = () => {
     }).catch((error) => { if (!abort.signal.aborted) setState({ key, rows: [], count: 0, error: error.message }) })
     return () => abort.abort()
   }, [blockId, history, key, page, period])
-  const download = async (id: string) => {
-    if (exporting) return
-    setExporting(id); setExportError(null)
-    try { await financeApi.export(id, i18n.language) }
-    catch (error) { setExportError(error instanceof Error ? error.message : t('finance.billing.exportFailed')) }
-    finally { setExporting(null) }
-  }
   const columns: DataColumn<FinanceReportSummary>[] = [
     { key: 'block', label: t('finance.billing.block'), cardRole: 'primary', render: (row) => row.blockName },
     { key: 'period', label: t('finance.billing.billingMonth'), cardRole: 'secondary', render: (row) => new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' }).format(new Date(row.year, row.month - 1, 1)) },
@@ -49,7 +42,7 @@ const GeneratedReportsList: React.FC = () => {
     { key: 'total', label: t('finance.billing.totalDue'), render: (row) => new Intl.NumberFormat(i18n.language, { style: 'currency', currency: 'RON' }).format(row.totalDue) },
     { key: 'actions', label: t('common.actions'), cardRole: 'actions', actions: (row) => [
       { id: 'preview', label: t('finance.billing.preview'), icon: <PreviewIcon />, to: `/admin/reports/maintenance/${row.id}`, priority: 2 },
-      { id: 'export', label: t('finance.billing.exportExcel'), icon: <FileDownloadIcon />, disabled: !!exporting, loading: exporting === row.id, onClick: () => void download(row.id), priority: 1 },
+      { id: 'export', label: t('finance.billing.exportExcel'), icon: <FileDownloadIcon />, onClick: () => setExportId(row.id), priority: 1 },
     ] },
   ]
   const current = state?.key === key ? state : undefined
@@ -63,7 +56,7 @@ const GeneratedReportsList: React.FC = () => {
       <FormControlLabel label={t('finance.billing.showHistory')} control={<Checkbox checked={history} onChange={(event) => { setHistory(event.target.checked); setPage(1) }} />} />
     </FilterBar>
     {blocks.error && <Alert severity="warning">{blocks.error}</Alert>}
-    {exportError && <Alert severity="error">{exportError}</Alert>}
+    {exportId && <FinanceExportDialog key={`${identity}:${exportId}`} reportId={exportId} onClose={() => setExportId(null)} />}
     {!current ? <CircularProgress aria-label={t('finance.billing.loading')} /> : current.error ? <LoadErrorState helperText={current.error} onRetry={() => setRetry((value) => value + 1)} /> : <ResponsiveDataView paginationId="generated-maintenance-reports" paginationResetKey={`${identity}:${blockId}:${period}:${history}`} rows={current.rows} columns={columns} getRowId={(row) => row.id} ariaLabel={t('finance.billing.generatedReports')} serverPagination={{ page, totalCount: current.count, onPageChange: setPage }} emptyState={<EmptyState headline={t('finance.billing.noReports')} helperText={t('finance.billing.noReportsHelp')} actionLabel={t('finance.billing.prepareMonth')} actionTo="/admin/finance" />} />}
   </Box>
 }

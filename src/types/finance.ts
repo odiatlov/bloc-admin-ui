@@ -1,4 +1,5 @@
 export type FinanceScope = 'Block' | 'Staircase' | 'Apartments'
+export type FinanceExportFormat = 'detailed' | 'maintenance-list'
 export type FinanceBasis = 'People' | 'Equal' | 'Area' | 'HeatingMp' | 'ColdConsumption' | 'HotConsumption' | 'Manual'
 export type FinanceBlock = { id: string; name: string; hasStaircases: boolean; staircases: { id: string; name: string }[] }
 export type FinanceSupplyGroup = { id: string; name: string; utilityType: 'ColdWater' | 'HotWater'; scope: FinanceScope; staircaseId?: string | null; apartmentIds: string[]; differenceMode: 'None' | 'Manual' | 'IncomingIndexes' | 'SupplierQuantity'; differenceBasis: 'Equal' | 'People' | 'Consumption' | 'Manual'; incomingMeterName?: string | null; order: number }

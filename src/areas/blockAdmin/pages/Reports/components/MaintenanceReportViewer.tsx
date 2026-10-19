@@ -13,22 +13,16 @@ import { RoleContext } from '../../../../../contexts/RoleContext'
 import { useFinanceIdentity } from '../../../../../hooks/useFinanceWorkspace'
 import { financeApi } from '../../../../../services/financeApi'
 import type { FinanceReportRow, MaintenanceReport } from '../../../../../types/finance'
+import FinanceExportDialog from './FinanceExportDialog'
 
 const ReportSheets: React.FC<{ report: MaintenanceReport }> = ({ report }) => {
   const { t, i18n } = useTranslation()
   const [sheetIndex, setSheetIndex] = React.useState(0)
   const [selected, setSelected] = React.useState<FinanceReportRow | null>(null)
-  const [exporting, setExporting] = React.useState(false)
-  const [error, setError] = React.useState<string | null>(null)
+  const [exportOpen, setExportOpen] = React.useState(false)
   const sheet = report.sheets[sheetIndex]
   const money = (value: number) => new Intl.NumberFormat(i18n.language, { style: 'currency', currency: report.currency }).format(value)
   const number = (value: number, digits = 2) => new Intl.NumberFormat(i18n.language, { maximumFractionDigits: digits }).format(value)
-  const download = async () => {
-    setExporting(true); setError(null)
-    try { await financeApi.export(report.id, i18n.language) }
-    catch (nextError) { setError(nextError instanceof Error ? nextError.message : t('finance.billing.exportFailed')) }
-    finally { setExporting(false) }
-  }
   const columns: DataColumn<FinanceReportRow>[] = [
     { key: 'number', label: t('finance.billing.apartment'), cardRole: 'primary', render: (row) => row.number },
     { key: 'contact', label: t('finance.billing.contact'), cardRole: 'secondary', render: (row) => row.contactName || '—' },
@@ -48,9 +42,9 @@ const ReportSheets: React.FC<{ report: MaintenanceReport }> = ({ report }) => {
     { key: 'actions', label: t('common.actions'), cardRole: 'actions', actions: (row) => [{ id: 'details', label: t('finance.billing.calculationDetails'), icon: <InfoOutlinedIcon />, onClick: () => setSelected(row) }] },
   ]
   return <Box sx={{ display: 'grid', gap: 2 }}>
-    <PageHeader title={`${report.blockName} · ${new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' }).format(new Date(report.year, report.month - 1, 1))}`} description={t('finance.billing.reportDescription', { revision: report.revision })} actions={<><Button component={RouterLink} to="/admin/reports" startIcon={<ArrowBackIcon />} variant="outlined">{t('finance.billing.backReports')}</Button><Button startIcon={<FileDownloadIcon />} variant="contained" disabled={exporting} onClick={() => void download()}>{t('finance.billing.exportExcel')}</Button></>} />
+    <PageHeader title={`${report.blockName} · ${new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' }).format(new Date(report.year, report.month - 1, 1))}`} description={t('finance.billing.reportDescription', { revision: report.revision })} actions={<><Button component={RouterLink} to="/admin/reports" startIcon={<ArrowBackIcon />} variant="outlined">{t('finance.billing.backReports')}</Button><Button startIcon={<FileDownloadIcon />} variant="contained" onClick={() => setExportOpen(true)}>{t('finance.billing.exportExcel')}</Button></>} />
     <Alert severity={report.status === 'Outdated' ? 'warning' : 'info'}>{t(report.status === 'Outdated' ? 'finance.billing.outdatedHelp' : 'finance.billing.draftHelp')}</Alert>
-    {error && <Alert severity="error">{error}</Alert>}
+    {exportOpen && <FinanceExportDialog reportId={report.id} onClose={() => setExportOpen(false)} />}
     <Paper sx={{ overflow: 'hidden' }}><Tabs variant="scrollable" scrollButtons="auto" value={sheetIndex} onChange={(_, value: number) => setSheetIndex(value)}>{report.sheets.map((item, index) => <Tab key={item.staircaseId ?? index} label={item.name} />)}<Tab label={t('finance.billing.reconciliation')} /></Tabs></Paper>
     {sheet ? <>
       <Paper sx={{ p: 2, display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'space-between' }}><Typography variant="h6">{sheet.name}</Typography><Chip label={t('finance.billing.sheetTotal', { amount: money(sheet.totalDue) })} /></Paper>

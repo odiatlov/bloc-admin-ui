@@ -39,7 +39,8 @@ const WaterSubmissionSettings: React.FC<{ blockId: string }> = ({ blockId }) => 
 }
 
 const BlockFinanceSettings: React.FC = () => <FinanceWorkspacePanel>{(workspace, block, refresh, onDirty) => <Box sx={{ display: 'grid', gap: 2 }}>
-  <FinanceConfigurationEditor key={`${block.id}:${workspace.configurationVersion}:${workspace.year}:${workspace.month}`} workspace={workspace} block={block} refresh={refresh} onDirty={onDirty} />
-  <WaterSubmissionSettings key={block.id} blockId={block.id} />
+  <FinanceConfigurationEditor key={`${block.id}:${workspace.configurationVersion}:${workspace.year}:${workspace.month}`} workspace={workspace} block={block} refresh={refresh} onDirty={onDirty}>
+    <WaterSubmissionSettings key={block.id} blockId={block.id} />
+  </FinanceConfigurationEditor>
 </Box>}</FinanceWorkspacePanel>
 export default BlockFinanceSettings

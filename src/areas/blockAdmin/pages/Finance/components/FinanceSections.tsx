@@ -67,7 +67,7 @@ const MonthlyWorkspace: React.FC<{ workspace: FinanceWorkspace; refresh: () => v
         <Alert severity={workspace.canGenerate ? 'success' : 'warning'}>{workspace.canGenerate ? t('finance.billing.ready') : t('finance.billing.blocked', { count: workspace.issues.length })}</Alert>
         {dirty && <Alert severity="warning">{t('finance.billing.saveBeforeGenerate')}</Alert>}
         {error && <Alert severity="error">{error}</Alert>}
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1, flexWrap: 'wrap', '& > .MuiButton-root': { width: { xs: '100%', sm: 'auto' }, justifyContent: 'center', textAlign: 'center' } }}>
           <Button variant="contained" startIcon={<CalculateIcon />} disabled={!workspace.canGenerate || dirty || generating} onClick={() => void generate()}>{generating ? t('finance.billing.generating') : t(workspace.latestReport ? 'finance.billing.regenerate' : 'finance.billing.generate', { block: workspace.blockName })}</Button>
           <Button variant="outlined" startIcon={<RefreshIcon />} disabled={dirty || generating} onClick={refresh}>{t('finance.billing.refreshReadiness')}</Button>
           <Button component={RouterLink} to={`/admin/settings?blockId=${workspace.blockId}&period=${workspace.year}-${String(workspace.month).padStart(2, '0')}`} startIcon={<SettingsIcon />}>{t('finance.billing.configureBlock')}</Button>

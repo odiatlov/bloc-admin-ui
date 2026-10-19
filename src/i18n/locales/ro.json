@@ -880,6 +880,14 @@
         "preview": "Previzualizează raportul",
         "exportExcel": "Exportă Excel",
         "exportFailed": "Raportul Excel nu a putut fi descărcat.",
+        "reportFormat": "Format raport",
+        "exportFormatHelp": "Alegeți formatul Excel. Ambele folosesc raportul salvat și includ o foaie separată pentru fiecare scară.",
+        "downloadExcel": "Descarcă Excel",
+        "downloading": "Se descarcă…",
+        "exportFormats": {
+          "maintenance-list": { "title": "Listă de întreținere", "description": "Un tabel compact pentru locatari și tipărire: cheltuieli pe apartament, restanțe, total de plată și situații centralizate." },
+          "detailed": { "title": "Raport detaliat", "description": "Raportul complet cu consumuri, detalii de repartizare și reconcilierea blocului." }
+        },
         "noReports": "Nu există rapoarte generate",
         "noReportsHelp": "Pregătiți blocul și luna în Finanțe, apoi generați primul tabel de întreținere.",
         "prepareMonth": "Pregătește întreținerea",

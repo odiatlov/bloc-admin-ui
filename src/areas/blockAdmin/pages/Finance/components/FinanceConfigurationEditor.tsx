@@ -16,8 +16,8 @@ import { financeGrid } from './financePresentation'
 import FinanceSection from './FinanceSection'
 
 const bases: FinanceBasis[] = ['People', 'Equal', 'Area', 'HeatingMp', 'ColdConsumption', 'HotConsumption', 'Manual']
-type Props = { workspace: FinanceWorkspace; block: FinanceBlock; refresh: () => void; onDirty: (dirty: boolean) => void }
-const FinanceConfigurationEditor: React.FC<Props> = ({ workspace, block, refresh, onDirty }) => {
+type Props = { workspace: FinanceWorkspace; block: FinanceBlock; refresh: () => void; onDirty: (dirty: boolean) => void; children?: React.ReactNode }
+const FinanceConfigurationEditor: React.FC<Props> = ({ workspace, block, refresh, onDirty, children }) => {
   const { t, i18n } = useTranslation()
   const [config, setConfig] = React.useState<FinanceConfiguration>(() => structuredClone(workspace.configuration))
   const [dirty, setDirty] = React.useState(false)
@@ -141,6 +141,7 @@ const FinanceConfigurationEditor: React.FC<Props> = ({ workspace, block, refresh
         ]}
       /></Box>} />
     </FinanceSection>
+    {children}
     {error && <Alert severity="error">{error}</Alert>}
     <Button variant="contained" startIcon={<SaveIcon />} disabled={!dirty || saving} onClick={() => void save()}>{saving ? t('finance.billing.saving') : t('finance.billing.saveConfiguration')}</Button>
   </Box>
