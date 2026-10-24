@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { usePageFilter } from '../../../../../hooks/usePageFilter'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import Drawer from '@mui/material/Drawer'
@@ -21,12 +22,14 @@ import MeterIndexChart from './MeterIndexChart'
 
 const HistoryContent = ({ history, onClose }: { history: ApartmentMeterHistory, onClose: () => void }) => {
   const { t, i18n } = useTranslation()
-  const [selection, setSelection] = useState(() => {
+  const [savedSelection, setSelection] = usePageFilter(`meterHistory.${history.apartment.id}`, () => {
     const meter = history.meters.find((item) => item.isActive) ?? history.meters[0]
     return { meterId: meter?.id ?? '', ...fitHistoryRange(recordedMonths(meter?.readings ?? [])) }
   })
-  const meter = history.meters.find((item) => item.id === selection.meterId)
+  const meter = history.meters.find((item) => item.id === savedSelection.meterId)
+    ?? history.meters.find(item => item.isActive) ?? history.meters[0]
   const months = recordedMonths(meter?.readings ?? [])
+  const selection = { meterId: meter?.id ?? '', ...fitHistoryRange(months, savedSelection) }
   const rows = (meter?.readings ?? []).filter((reading) => readingPeriod(reading) >= selection.from && readingPeriod(reading) <= selection.to)
     .sort((a, b) => a.year - b.year || a.month - b.month)
   const periodLabel = (reading: IndexReading) => new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' })

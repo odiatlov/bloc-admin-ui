@@ -1,4 +1,5 @@
 import React from 'react'
+import { usePageFilter } from '../../../../hooks/usePageFilter'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -34,9 +35,10 @@ const BlockApartmentOverview = ({ filters, backToBlocks }: {
 }) => {
   const { t } = useTranslation()
   const columns = useApartmentColumns()
-  const [search, setSearch] = React.useState('')
-  const [staircaseId, setStaircaseId] = React.useState('all')
-  const [floor, setFloor] = React.useState('all')
+  const [search, setSearch] = usePageFilter('blockApartments.search', '')
+  const [savedStaircaseId, setStaircaseId] = usePageFilter('blockApartments.staircase', 'all')
+  const staircaseId = filters.staircases.some(staircase => staircase.id === savedStaircaseId) ? savedStaircaseId : 'all'
+  const [floor, setFloor] = usePageFilter('blockApartments.floor', 'all')
   const floors = getApartmentFloorOptions(filters.floors, staircaseId)
   const activeFloor = floors.includes(floor) ? floor : 'all'
   const paginationId = `SuperAdminBlockApartments-${filters.blockId}`

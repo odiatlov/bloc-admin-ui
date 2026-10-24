@@ -1,4 +1,5 @@
 import React from 'react'
+import { usePageFilter } from '../../../../hooks/usePageFilter'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -72,8 +73,8 @@ const ManageAdmins: React.FC = () => {
   const [isCreatingAdmin, setIsCreatingAdmin] = React.useState(false)
   const [snackbar, setSnackbar] = React.useState('')
   const [form, setForm] = React.useState({ name: '', email: '', blockId: '' })
-  const [adminNameFilter, setAdminNameFilter] = React.useState('')
-  const [blockFilter, setBlockFilter] = React.useState('')
+  const [adminNameFilter, setAdminNameFilter] = usePageFilter('admins.name', '')
+  const [blockFilter, setBlockFilter] = usePageFilter('admins.block', '')
 
   const loadAdmins = React.useCallback(async () => {
     setIsLoading(true)

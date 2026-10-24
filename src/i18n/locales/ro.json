@@ -713,7 +713,15 @@
                                      "noApartments":  "Nu există apartamente pentru blocul și scara selectate.",
                                      "number":  "Număr apartament",
                                      "setupStatus":  "Status configurare",
-                                     "title":  "Configurare apartamente"
+                                     "title":  "Configurare apartamente",
+                                     "configurationStatus": "Status configurare",
+                                     "configurationUnavailable": "Statusul nu poate fi determinat",
+                                     "configurationReady": "Cerințele sunt îndeplinite. Salvați pentru a aplica modificările.",
+                                     "configurationRequirements": "Introduceți o suprafață utilă mai mare decât 0 și adăugați cel puțin o zonă de consum.",
+                                     "configurationNeedsSurface": "Introduceți o suprafață utilă mai mare decât 0.",
+                                     "configurationNeedsZone": "Adăugați cel puțin o zonă de consum. Salvați pentru a aplica modificările.",
+                                     "configurationZonesAfterCreate": "După creare, deschideți configurarea apartamentului pentru a adăuga zonele de consum.",
+                                     "saveFailed": "Apartamentul nu a putut fi salvat. Modificările sunt păstrate; încercați din nou."
                                  },
                        "waterIndex":  {
                                           "addZone":  "Adaugă zonă",

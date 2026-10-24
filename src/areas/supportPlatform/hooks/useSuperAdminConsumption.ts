@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
+import { usePageFilter } from '../../../hooks/usePageFilter'
 import { superAdminWaterApi, type SuperAdminConsumptionReport, type WaterAdministrator } from '../services/superAdminWaterApi'
 import { getConsumptionStart } from '../../../utils/readingPeriods'
 
 export const useSuperAdminConsumption = () => {
-  const [admin, setAdmin] = useState('all')
-  const [block, setBlock] = useState('all')
-  const [period, setPeriod] = useState(() => {
+  const [admin, setAdmin] = usePageFilter('water.admin', 'all')
+  const [block, setBlock] = usePageFilter('water.block', 'all')
+  const [period, setPeriod] = usePageFilter('water.period', () => {
     const now = new Date()
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
   })

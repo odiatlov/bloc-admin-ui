@@ -1,4 +1,5 @@
 import React from 'react'
+import { usePageFilter } from './usePageFilter'
 import { RoleContext } from '../contexts/RoleContext'
 import { residentsApi } from '../services/residentsApi'
 import { waterReadingsApi } from '../services/waterReadingsApi'
@@ -44,7 +45,7 @@ export const formatResidentApartmentLabel = (apartment: ResidentApartmentSummary
 
 export const useResidentWaterIndex = () => {
   const { account } = React.useContext(RoleContext)
-  const [{ year, month }, setPeriod] = React.useState(getCurrentPeriod)
+  const [{ year, month }, setPeriod] = usePageFilter('residentWater.period', getCurrentPeriod)
   const [resident, setResident] = React.useState<ResidentResponse | null>(null)
   const [meters, setMeters] = React.useState<ApartmentWaterMeterResponse[]>([])
   const [rows, setRows] = React.useState<ResidentWaterMeterRow[]>([])

@@ -1,4 +1,5 @@
 import React from 'react'
+import { usePageFilter } from '../../../../../hooks/usePageFilter'
 import { Alert, Box, Button, Checkbox, Chip, CircularProgress, FormControlLabel, MenuItem, TextField, Typography } from '@mui/material'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import PreviewIcon from '@mui/icons-material/Preview'
@@ -17,13 +18,18 @@ const GeneratedReportsList: React.FC = () => {
   const { t, i18n } = useTranslation()
   const identity = useFinanceIdentity()
   const blocks = useFinanceBlocks()
-  const [blockId, setBlockId] = React.useState('')
-  const [period, setPeriod] = React.useState('')
-  const [history, setHistory] = React.useState(false)
-  const [page, setPage] = React.useState(1)
+  const [blockId, setBlockId] = usePageFilter('generatedReports.block', '')
+  const [period, setPeriod] = usePageFilter('generatedReports.period', '')
+  const [history, setHistory] = usePageFilter('generatedReports.history', false)
+  const [page, setPage] = usePageFilter('generatedReports.page', 1)
   const [retry, setRetry] = React.useState(0)
   const [state, setState] = React.useState<{ key: string; rows: FinanceReportSummary[]; count: number; error: string | null }>()
   const [exportId, setExportId] = React.useState<string | null>(null)
+  React.useEffect(() => {
+    if (blocks.loading || blocks.error || !blockId || blocks.blocks.some(block => block.id === blockId)) return
+    const timer = window.setTimeout(() => { setBlockId(''); setPage(1) }, 0)
+    return () => window.clearTimeout(timer)
+  }, [blocks.loading, blocks.error, blocks.blocks, blockId, setBlockId, setPage])
   const key = `${identity}:${blockId}:${period}:${history}:${page}:${retry}`
   React.useEffect(() => {
     const abort = new AbortController()

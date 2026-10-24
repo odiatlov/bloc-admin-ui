@@ -1,4 +1,5 @@
 import React from 'react'
+import { usePageFilter } from '../../../../../hooks/usePageFilter'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -79,11 +80,12 @@ const ResidentWaterIndexSection: React.FC = () => {
     year,
   } = useResidentWaterIndex()
   const [submitOpen, setSubmitOpen] = React.useState(false)
-  const [selectedApartmentId, setSelectedApartmentId] = React.useState('')
+  const [selectedApartmentId, setSelectedApartmentId] = usePageFilter('residentWater.apartment', '')
   const [dialogPeriod, setDialogPeriod] = React.useState({ year, month })
   const [selectedReadingDate, setSelectedReadingDate] = React.useState(getTodayDate)
 
-  const effectiveApartmentId = selectedApartmentId || apartments[0]?.apartmentId || ''
+  const effectiveApartmentId = apartments.some(apartment => apartment.apartmentId === selectedApartmentId)
+    ? selectedApartmentId : apartments[0]?.apartmentId || ''
   const getPreviousMonthValue = React.useCallback((row: ResidentWaterMeterRow) => {
     const previousPeriod = new Date(row.year, row.month - 2, 1)
     const previousRow = rows.find((item) =>

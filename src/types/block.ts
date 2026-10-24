@@ -46,7 +46,7 @@ export type SetupApartment = {
   number: string
   floor: number | null
   usableSqm: number | null
-  setupStatus: 'configured' | 'unconfigured'
+  setupStatus?: 'configured' | 'unconfigured'
   hasBoiler: boolean
   householdCount: number
   resident: SetupResident | null

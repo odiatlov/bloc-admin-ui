@@ -1,4 +1,5 @@
 import React from 'react'
+import { usePageFilter } from './usePageFilter'
 import {
   adminExpenses,
   administrators,
@@ -316,7 +317,7 @@ export const getBlockStaircases = (blockId: string) => staircases.filter((stairc
 
 export const useBlocksOverview = () => {
   const { account, role } = React.useContext(RoleContext)
-  const [search, setSearch] = React.useState('')
+  const [search, setSearch] = usePageFilter('overview.search', '')
   const scopedBlocks = React.useMemo(() => filterBlocksForAccount(blocks, toScope(account, role), buildingAdminAssignments, residentApartments, apartments), [account, role])
   const scopedApartments = React.useMemo(() => filterApartmentsForAccount(apartments, toScope(account, role), buildingAdminAssignments, residentApartments), [account, role])
 
@@ -358,8 +359,8 @@ export const useBlocksOverview = () => {
 
 export const useResidents = () => {
   const { account, role } = React.useContext(RoleContext)
-  const [blockFilter, setBlockFilter] = React.useState('all')
-  const [financialStatusFilter, setFinancialStatusFilter] = React.useState<FinancialStatus | 'all'>('all')
+  const [blockFilter, setBlockFilter] = usePageFilter('residents.block', 'all')
+  const [financialStatusFilter, setFinancialStatusFilter] = usePageFilter<FinancialStatus | 'all'>('residents.financialStatus', 'all')
   const [selectedApartmentId, setSelectedApartmentId] = React.useState<string | null>(null)
   const [residentRecords, setResidentRecords] = React.useState<Resident[]>(residents)
   const [residentApartmentRecords, setResidentApartmentRecords] = React.useState<ResidentApartment[]>(residentApartments)
@@ -491,7 +492,7 @@ export const useResidents = () => {
 export const useFinance = () => {
   const { account, role } = React.useContext(RoleContext)
   const financeAvailable = account.dataMode === 'mock-populated' || account.dataMode === 'mock-configured-block'
-  const [paymentMethodFilter, setPaymentMethodFilter] = React.useState<PaymentMethod | 'all'>('all')
+  const [paymentMethodFilter, setPaymentMethodFilter] = usePageFilter<PaymentMethod | 'all'>('finance.paymentMethod', 'all')
   const [cashEntries, setCashEntries] = React.useState<CashPayment[]>(cashPayments)
   const scopedApartmentIds = React.useMemo(
     () => new Set(financeAvailable ? filterApartmentsForAccount(apartments, toMockAdminScope(account, role), buildingAdminAssignments, residentApartments).map((apartment) => apartment.id) : []),
@@ -574,7 +575,7 @@ export const useFinance = () => {
 
 export const useConsumption = () => {
   const { account, role } = React.useContext(RoleContext)
-  const [blockFilter, setBlockFilter] = React.useState('all')
+  const [blockFilter, setBlockFilter] = usePageFilter('consumption.block', 'all')
   const scopedApartments = React.useMemo(() => filterApartmentsForAccount(apartments, toMockAdminScope(account, role), buildingAdminAssignments, residentApartments), [account, role])
   const scopedBlocks = React.useMemo(() => filterBlocksForAccount(blocks, toMockAdminScope(account, role), buildingAdminAssignments, residentApartments, apartments), [account, role])
   const scopedApartmentIds = React.useMemo(() => new Set(scopedApartments.map((apartment) => apartment.id)), [scopedApartments])
@@ -618,9 +619,9 @@ export const useConsumption = () => {
 
 export const useReports = (selectedMonth?: string) => {
   const { account, role } = React.useContext(RoleContext)
-  const [storedMonth, setMonth] = React.useState(reportMonths[0])
+  const [storedMonth, setMonth] = usePageFilter('reports.month', reportMonths[0])
   const month = selectedMonth ?? storedMonth
-  const [block, setBlock] = React.useState('all')
+  const [block, setBlock] = usePageFilter('reports.block', 'all')
   const scopedApartments = React.useMemo(() => filterApartmentsForAccount(apartments, toScope(account, role), buildingAdminAssignments, residentApartments), [account, role])
   const scopedBlocks = React.useMemo(() => filterBlocksForAccount(blocks, toScope(account, role), buildingAdminAssignments, residentApartments, apartments), [account, role])
   const scopedApartmentIds = React.useMemo(() => new Set(scopedApartments.map((apartment) => apartment.id)), [scopedApartments])

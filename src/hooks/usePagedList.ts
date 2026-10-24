@@ -1,5 +1,5 @@
 import React from 'react'
-import { DataViewPaginationContext } from '../components/shared/DataViewPaginationProvider'
+import { usePageFilter } from './usePageFilter'
 import { RoleContext } from '../contexts/RoleContext'
 import { apiGet } from '../services/apiClient'
 import { acquirePagedListRequest } from '../services/pagedListRequests'
@@ -8,9 +8,8 @@ export type ListQuery = Record<string, string | number | boolean | null | undefi
 export type PagedResponse<T> = { items: T[]; pageNumber: number; pageSize: number; totalCount: number }
 
 export const usePagedList = <T,>(id: string, endpoint: string, query: ListQuery, revision: string) => {
-  const store = React.useContext(DataViewPaginationContext)
   const { account, role, token } = React.useContext(RoleContext)
-  const [localPage, setLocalPage] = React.useState({ page: 1, resetKey: '' })
+  const [localPage, setLocalPage] = usePageFilter(`pagination.server.${id}`, { page: 1, resetKey: '' })
   const [retry, setRetry] = React.useState(0)
   const params = new URLSearchParams()
   Object.entries(query).sort(([left], [right]) => left.localeCompare(right)).forEach(([name, value]) => {
@@ -18,14 +17,13 @@ export const usePagedList = <T,>(id: string, endpoint: string, query: ListQuery,
   })
   params.set('role', role)
   const resetKey = `${endpoint}?${params}:${account.id}`
-  const saved = store ? store.pages.get(id) : localPage
+  const saved = localPage
   const page = saved?.resetKey === resetKey ? saved.page : 1
   params.set('pageNumber', String(page))
   params.set('pageSize', '10')
   const url = `${endpoint}?${params}`
   const key = JSON.stringify([id, url, account.id, token, revision, retry])
   const [result, setResult] = React.useState<{ key: string; resetKey: string; revision: string; data?: PagedResponse<T>; error?: string }>()
-  const rememberPage = store?.rememberPage
   const loading = result?.key !== key
   const data = result?.key === key || (loading && result?.resetKey === resetKey && result.revision === revision) ? result?.data : undefined
 
@@ -50,16 +48,18 @@ export const usePagedList = <T,>(id: string, endpoint: string, query: ListQuery,
   }, [key, url, resetKey, revision])
 
   React.useEffect(() => {
-    if (data && rememberPage && !loading) rememberPage(id, { page: data.pageNumber, resetKey })
-  }, [data, id, rememberPage, resetKey, loading])
+    if (data && !loading) {
+      const next = { page: data.pageNumber, resetKey }
+      if (localPage.page !== next.page || localPage.resetKey !== next.resetKey) setLocalPage(next)
+    }
+  }, [data, resetKey, loading, localPage.page, localPage.resetKey, setLocalPage])
 
   return {
     data, loading, error: result?.key === key ? result.error : undefined,
     refresh: () => setRetry((value) => value + 1),
     setPage: (next: number) => {
       const state = { page: next, resetKey }
-      if (rememberPage) rememberPage(id, state)
-      else setLocalPage(state)
+      setLocalPage(state)
     },
   }
 }

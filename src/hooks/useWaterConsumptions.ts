@@ -1,4 +1,5 @@
 import React from 'react'
+import { usePageFilter } from './usePageFilter'
 import { RoleContext } from '../contexts/RoleContext'
 import { waterReadingsApi } from '../services/waterReadingsApi'
 import type { WaterConsumptionReportResponse } from '../types/waterReadings'
@@ -16,8 +17,8 @@ const withBaselinePeriods = (blocks: WaterConsumptionReportResponse['blocks']) =
 
 export const useWaterConsumptions = ({ registeredPeriodsOnly = false, submissionPeriodsOnly = false, includeBaselinePeriod = false } = {}) => {
   const { account, role, accountsLoading, accountsError, refreshAccounts } = React.useContext(RoleContext)
-  const [selection, setSelection] = React.useState({ scope: '', blockId: 'all' })
-  const [period, setPeriod] = React.useState(() => {
+  const [selection, setSelection] = usePageFilter('water.block', { scope: `${account.id}:${role}`, blockId: 'all' })
+  const [period, setPeriod] = usePageFilter('water.period', () => {
     const now = new Date()
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
   })

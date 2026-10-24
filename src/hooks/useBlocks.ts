@@ -1,4 +1,5 @@
 import React from 'react'
+import { usePageFilter } from './usePageFilter'
 import { RoleContext } from '../contexts/RoleContext'
 import { fetchBlockOverview } from '../services/blocksApi'
 import type { BlockOverview } from '../types/block'
@@ -12,7 +13,7 @@ export const useBlocks = ({ enabled = true }: UseBlocksOptions = {}) => {
   const [blocks, setBlocks] = React.useState<BlockOverview[]>([])
   const [error, setError] = React.useState<string | null>(null)
   const [isLoading, setIsLoading] = React.useState(enabled)
-  const [search, setSearch] = React.useState('')
+  const [search, setSearch] = usePageFilter('blocks.search', '')
 
   const loadBlocks = React.useCallback(async () => {
     if (!enabled) {

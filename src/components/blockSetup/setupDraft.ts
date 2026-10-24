@@ -1,15 +1,15 @@
 export type ResidentDraft = { mode: 'new' | 'existing'; residentId: string; firstName: string; lastName: string; phone: string; email: string; inviteResident: boolean }
-export type ApartmentDraft = { id: string; number: string; floor: string; usableSqm: string; setupStatus: 'configured' | 'unconfigured'; hasBoiler: boolean; householdCount: string; addResident: boolean; resident: ResidentDraft; expanded?: boolean }
+export type ApartmentDraft = { id: string; number: string; floor: string; usableSqm: string; hasBoiler: boolean; householdCount: string; addResident: boolean; resident: ResidentDraft; expanded?: boolean }
 export type GenerationSettings = { start: string; quantity: string; startingFloor: string; floorCount: string; usableSqm: string }
 export const defaultGenerationSettings: GenerationSettings = { start: '1', quantity: '1', startingFloor: '0', floorCount: '1', usableSqm: '' }
 export type FloorDraft = { id: string; level: number; expanded: boolean }
 export type Group = { id: string; name: string; floors: FloorDraft[]; apartments: ApartmentDraft[]; generation: GenerationSettings; expanded?: boolean; unassignedExpanded?: boolean }
-export const newApartment = (number = ''): ApartmentDraft => ({ id: crypto.randomUUID(), number, floor: '', usableSqm: '', setupStatus: 'unconfigured', hasBoiler: false,
+export const newApartment = (number = ''): ApartmentDraft => ({ id: crypto.randomUUID(), number, floor: '', usableSqm: '', hasBoiler: false,
   householdCount: '0', addResident: false, resident: { mode: 'new', residentId: '', firstName: '', lastName: '', phone: '', email: '', inviteResident: false } })
 export const newFloor = (level: number, expanded = true): FloorDraft => ({ id: crypto.randomUUID(), level, expanded })
 export const newGroup = (name = ''): Group => ({ id: crypto.randomUUID(), name, floors: [], apartments: [], generation: { ...defaultGenerationSettings } })
 export const unique = (values: string[]) => new Set(values.map(v => v.trim().toLowerCase())).size === values.length
-export type ApartmentValidationField = 'number' | 'floor' | 'usableSqm' | 'setupStatus' | 'householdCount' | 'residentId' | 'firstName' | 'lastName' | 'phone' | 'email'
+export type ApartmentValidationField = 'number' | 'floor' | 'usableSqm' | 'householdCount' | 'residentId' | 'firstName' | 'lastName' | 'phone' | 'email'
 export type ApartmentValidationErrors = Partial<Record<ApartmentValidationField, string>>
 
 export function apartmentValidationErrors(a: ApartmentDraft): ApartmentValidationErrors {
@@ -20,7 +20,6 @@ export function apartmentValidationErrors(a: ApartmentDraft): ApartmentValidatio
   if (a.usableSqm.trim() && (!/^\d+(\.\d{1,2})?$/.test(a.usableSqm.trim()) || Number(a.usableSqm) >= 1e16)) errors.usableSqm = 'surface'
   if (!a.householdCount.trim()) errors.householdCount = 'required'
   else if (!Number.isInteger(Number(a.householdCount)) || Number(a.householdCount) < 0 || Number(a.householdCount) > 2147483647) errors.householdCount = 'occupants'
-  if (a.setupStatus !== 'configured' && a.setupStatus !== 'unconfigured') errors.setupStatus = 'selection'
   if (!a.addResident) return errors
   if (a.resident.mode === 'existing') {
     if (!a.resident.residentId) errors.residentId = 'selection'

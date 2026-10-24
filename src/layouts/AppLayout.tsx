@@ -7,7 +7,6 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
 import Sidebar from '../components/layout/sidebar/Sidebar'
 import Topbar from '../components/layout/topbar/Topbar'
-import DataViewPaginationProvider from '../components/shared/DataViewPaginationProvider'
 import { RoleContext } from '../contexts/RoleContext'
 
 const drawerWidth = 240
@@ -65,9 +64,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ toggleTheme, themeMode }) => {
         }}
       >
         <Toolbar />
-        <DataViewPaginationProvider key={`${location.pathname}:${account.id}:${role}`}>
+        <React.Fragment key={`${location.pathname}:${account.id}:${role}`}>
           <Outlet />
-        </DataViewPaginationProvider>
+        </React.Fragment>
       </Box>
     </Box>
   )

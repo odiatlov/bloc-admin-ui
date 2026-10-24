@@ -1,4 +1,5 @@
 import React from 'react'
+import { usePageFilter } from '../../../../hooks/usePageFilter'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
@@ -45,9 +46,9 @@ const downloadMockExport = (row: PlatformExportHistoryRow) => {
 
 const ExportData: React.FC = () => {
   const { t } = useTranslation()
-  const [exportType, setExportType] = React.useState<ExportType>('all_data')
-  const [blockId, setBlockId] = React.useState('')
-  const [format, setFormat] = React.useState<ExportFormat>('csv')
+  const [exportType, setExportType] = usePageFilter<ExportType>('exports.type', 'all_data')
+  const [blockId, setBlockId] = usePageFilter('exports.block', '')
+  const [format, setFormat] = usePageFilter<ExportFormat>('exports.format', 'csv')
   const [history, setHistory] = React.useState<PlatformExportHistoryRow[]>(mockExportHistory)
   const [snackbar, setSnackbar] = React.useState('')
 
