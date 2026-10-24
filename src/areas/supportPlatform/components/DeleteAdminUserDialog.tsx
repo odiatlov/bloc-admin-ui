@@ -69,7 +69,7 @@ const DeleteAdminUserDialog = ({ userId, actorKey, userOnly = false, onClose, on
     {pending && <Box role="status" aria-live="polite" sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
       <CircularProgress size={24} /><Typography>{label(flow.stage === 'resolving' ? 'resolving' : 'deleting')}</Typography>
     </Box>}
-    {flow.error && <Alert severity="error">{label(knownErrors[flow.error] ?? 'failed')}</Alert>}
+    {flow.error && <Alert severity="error">{flow.error === 'DELETION_FINANCE_HISTORY_PROTECTED' ? t('financeAvailability.historyProtected') : label(knownErrors[flow.error] ?? 'failed')}</Alert>}
     {flow.diagnostic && <Typography variant="body2" sx={{ overflowWrap: 'anywhere' }}>{label('diagnostic')}: {flow.diagnostic}</Typography>}
     {flow.stage === 'error' && <LoadErrorState onRetry={flow.refresh} />}
     {flow.stage === 'cancelled' && <Alert severity="info" action={<Button onClick={flow.refresh}>{label('reloadPreview')}</Button>}>{label('operationCancelled')}</Alert>}

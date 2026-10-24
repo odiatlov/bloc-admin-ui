@@ -13,6 +13,7 @@ import Typography from '@mui/material/Typography'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { useTranslation } from 'react-i18next'
+import type { Theme } from '@mui/material/styles'
 import { EntityListItem, type EntityMetadataItem, metadataLabelSx } from './EntityPresentation'
 import ActionButtons, { type ActionButtonDefinition } from './ActionButtons'
 import IconButtonTooltip from './IconButtonTooltip'
@@ -34,6 +35,8 @@ export type ResponsiveDataViewProps<T> = {
   ariaLabel: string
   columns: DataColumn<T>[]
   desktopTableMinWidth?: number
+  tableMinWidth?: number
+  stickyColumnCount?: number
   emptyState?: React.ReactNode
   getRowId: (row: T) => string
   paginationId: string
@@ -52,7 +55,7 @@ const inferCardRole = (column: Pick<DataColumn<unknown>, 'cardRole' | 'key'>, in
   return 'metadata'
 }
 
-const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900, emptyState, getRowId, paginationId, paginationResetKey = '', serverPagination, renderCardCornerActions, renderMobileRow, rows }: ResponsiveDataViewProps<T>) => {
+const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900, tableMinWidth, stickyColumnCount = 0, emptyState, getRowId, paginationId, paginationResetKey = '', serverPagination, renderCardCornerActions, renderMobileRow, rows }: ResponsiveDataViewProps<T>) => {
   const { t } = useTranslation()
   const store = React.useContext(DataViewPaginationContext)
   const [localState, setLocalState] = React.useState<DataViewPageState>()
@@ -63,8 +66,51 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
   const totalCount = serverPagination?.totalCount ?? rows.length
   const rememberPage = store?.rememberPage
   const viewRef = React.useRef<HTMLDivElement>(null)
+  const headerRef = React.useRef<HTMLTableRowElement>(null)
+  const pinnedCount = Math.min(columns.length, Math.max(0, Math.floor(stickyColumnCount)))
+  const rendersTable = rows.length > 0 || !emptyState
   const totalPages = Math.max(1, Math.ceil(totalCount / DATA_VIEW_PAGE_SIZE))
   const pageRows = serverPagination ? rows : getDataViewPage(rows, page)
+
+  React.useLayoutEffect(() => {
+    const header = headerRef.current
+    const view = viewRef.current
+    if (!header || !view || pinnedCount === 0) return
+    // Use rendered widths so translations, fonts and resizing cannot misalign adjacent pinned cells.
+    const cells = Array.from(header.cells).slice(0, pinnedCount)
+    const updateOffsets = () => {
+      let left = 0
+      cells.forEach((cell, index) => {
+        view.style.setProperty(`--data-view-sticky-left-${index}`, `${left}px`)
+        left += cell.getBoundingClientRect().width
+      })
+    }
+    updateOffsets()
+    const observer = new ResizeObserver(updateOffsets)
+    cells.forEach((cell) => observer.observe(cell))
+    return () => observer.disconnect()
+  }, [pinnedCount, rendersTable])
+
+  const stickyCellSx = (index: number, head = false) => index < pinnedCount ? {
+    position: 'sticky' as const,
+    left: `var(--data-view-sticky-left-${index}, 0px)`,
+    zIndex: head ? 2 : 1,
+    backgroundColor: 'background.paper',
+    backgroundImage: 'var(--Paper-overlay, none)',
+    ...(index === pinnedCount - 1 && { '&::after': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      bottom: -1,
+      right: 0,
+      width: 3,
+      backgroundColor: 'text.disabled',
+      pointerEvents: 'none',
+    } }),
+    ...(!head && { '.MuiTableRow-hover:hover &': {
+      backgroundImage: (theme: Theme) => `linear-gradient(${theme.palette.action.hover}, ${theme.palette.action.hover}), var(--Paper-overlay, linear-gradient(transparent, transparent))`,
+    } }),
+  } : {}
 
   React.useEffect(() => {
     if (rememberPage && !serverPagination) rememberPage(paginationId, { page, resetKey })
@@ -119,10 +165,10 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
         component={Paper}
         sx={{
           maxWidth: '100%',
-          overflowX: 'hidden',
+          overflowX: tableMinWidth || pinnedCount ? 'auto' : 'hidden',
         }}
       >
-        <Table size="small" aria-label={ariaLabel} sx={{ width: '100%' }}>
+        <Table size="small" aria-label={ariaLabel} sx={{ width: '100%', minWidth: tableMinWidth }}>
           <colgroup>
             {columns.map((column, index) => (
               <col
@@ -132,12 +178,13 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
             ))}
           </colgroup>
           <TableHead>
-            <TableRow>
+            <TableRow ref={headerRef}>
               {columns.map((column, index) => (
                 <TableCell
                   key={column.key}
                   sx={{
                     ...metadataLabelSx,
+                    ...stickyCellSx(index, true),
                     whiteSpace: inferCardRole(column, index) === 'actions' ? 'nowrap' : undefined,
                   }}
                 >
@@ -151,9 +198,9 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
               const actions = actionColumns.flatMap((column) => column.actions!(row))
               return (
                 <TableRow key={getRowId(row)} hover>
-                {columns.map((column) => {
+                {columns.map((column, index) => {
                   return (
-                    <TableCell key={column.key}>
+                    <TableCell key={column.key} sx={stickyCellSx(index)}>
                       {column.actions
                         ? column === firstActionColumn && <ActionButtons actions={actions} variant="row" />
                         : column.render(row)}

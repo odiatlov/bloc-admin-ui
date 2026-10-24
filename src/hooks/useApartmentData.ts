@@ -490,11 +490,12 @@ export const useResidents = () => {
 
 export const useFinance = () => {
   const { account, role } = React.useContext(RoleContext)
+  const financeAvailable = account.dataMode === 'mock-populated' || account.dataMode === 'mock-configured-block'
   const [paymentMethodFilter, setPaymentMethodFilter] = React.useState<PaymentMethod | 'all'>('all')
   const [cashEntries, setCashEntries] = React.useState<CashPayment[]>(cashPayments)
   const scopedApartmentIds = React.useMemo(
-    () => new Set(filterApartmentsForAccount(apartments, toMockAdminScope(account, role), buildingAdminAssignments, residentApartments).map((apartment) => apartment.id)),
-    [account, role],
+    () => new Set(financeAvailable ? filterApartmentsForAccount(apartments, toMockAdminScope(account, role), buildingAdminAssignments, residentApartments).map((apartment) => apartment.id) : []),
+    [account, financeAvailable, role],
   )
 
   const enrichedInvoices = React.useMemo(() => invoices.filter((invoice) => scopedApartmentIds.has(invoice.apartmentId)).map(enrichInvoice), [scopedApartmentIds])
@@ -553,9 +554,10 @@ export const useFinance = () => {
     .filter((payment) => payment.verificationStatus !== 'unverified')
     .reduce((sum, payment) => sum + payment.amount, 0)
   const scopedBlocks = filterBlocksForAccount(blocks, toMockAdminScope(account, role), buildingAdminAssignments, residentApartments, apartments)
-  const maintenanceRuns = scopedBlocks.map((block) => getMaintenanceRun(block.id, reportMonths[0]))
+  const maintenanceRuns = financeAvailable ? scopedBlocks.map((block) => getMaintenanceRun(block.id, reportMonths[0])) : []
 
   return {
+    financeAvailable,
     cashAwaitingVerification: enrichedCashEntries.filter((entry) => entry.status === 'unverified').length,
     cashEntries: enrichedCashEntries,
     invoices: enrichedInvoices,
@@ -771,7 +773,8 @@ export const useBlockContext = (blockId?: string, month = reportMonths[0]) => {
 
 export const useResidentPortal = () => {
   const { account, role } = React.useContext(RoleContext)
-  const resident = residents.find((item) => item.id === account.residentId) ?? residents[0]
+  const financeAvailable = account.dataMode === 'mock-populated' || account.dataMode === 'mock-configured-block'
+  const resident = financeAvailable ? residents.find((item) => item.id === account.residentId) : undefined
   const residentApartmentLinks = residentApartments.filter((link) => link.residentId === resident?.id && !link.ownershipEndDate)
   const residentApartmentIds = new Set(residentApartmentLinks.map((link) => link.apartmentId))
   const residentApartmentsList = apartments
@@ -786,7 +789,7 @@ export const useResidentPortal = () => {
         block,
       }
     })
-  const apartment = residentApartmentsList.find((item) => item.residentApartment?.isPrimaryResidence) ?? residentApartmentsList[0] ?? enrichApartment(apartments[0])
+  const apartment = residentApartmentsList.find((item) => item.residentApartment?.isPrimaryResidence) ?? residentApartmentsList[0]
   const residentInvoices = invoices.filter((invoice) => residentApartmentIds.has(invoice.apartmentId)).map(enrichInvoice)
   const residentPayments = payments.filter((payment) => residentApartmentIds.has(payment.apartmentId))
   const residentReadings = getWaterReadingRows(waterReadings
@@ -803,7 +806,8 @@ export const useResidentPortal = () => {
     apartments: residentApartmentsList,
     apartmentsByBlock,
     currentBalance,
-    familyLabel: formatApartment(apartment),
+    familyLabel: apartment ? formatApartment(apartment) : '',
+    financeAvailable,
     lastPayment: residentPayments[0],
     resident,
     residentInvoices,

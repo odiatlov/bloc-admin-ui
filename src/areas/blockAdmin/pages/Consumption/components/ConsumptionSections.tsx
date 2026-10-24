@@ -8,8 +8,12 @@ import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 import AddIcon from '@mui/icons-material/Add'
 import GroupsIcon from '@mui/icons-material/Groups'
+import EditIcon from '@mui/icons-material/Edit'
 import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router-dom'
 import AppDatePicker from '../../../../../components/shared/AppDatePicker'
+import AppDialog from '../../../../../components/shared/AppDialog'
+import ResponsiveDataView from '../../../../../components/shared/ResponsiveDataView'
 import { useConsumptionColumns } from '../../../../../components/water/useConsumptionColumns'
 import EmptyState from '../../../../../components/shared/EmptyState'
 import FilterBar from '../../../../../components/shared/FilterBar'
@@ -28,9 +32,33 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => mo
 
 const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
   const { t } = useTranslation()
-  const { blocks, blockFilter, setBlockFilter, period, setPeriod, minimumPeriod, rows, loading, error, refresh } = useWaterConsumptions({ submissionPeriodsOnly: true })
+  const { blocks, blockFilter, setBlockFilter, period, setPeriod, minimumPeriod, rows, loading, error, refresh } = useWaterConsumptions({ submissionPeriodsOnly: true, includeBaselinePeriod: mode === 'admin' })
   const [open, setOpen] = React.useState(false)
+  const [showSetupIssues, setShowSetupIssues] = React.useState(false)
   const [readingApartmentId, setReadingApartmentId] = React.useState<string | undefined>()
+  const [searchParams] = useSearchParams()
+  const requestedBlock = searchParams.get('blockId')
+  const requestedPeriod = searchParams.get('period')
+  const requestedApartment = searchParams.get('apartmentId')
+  const requestKey = `${requestedBlock}:${requestedPeriod}:${requestedApartment}`
+  const openedRequest = React.useRef('')
+  React.useEffect(() => {
+    if (mode !== 'admin' || loading || error || openedRequest.current === requestKey
+      || (!requestedBlock && !requestedPeriod && !requestedApartment)) return
+    const timeout = window.setTimeout(() => {
+      if (requestedBlock && blocks.some(block => block.id === requestedBlock) && blockFilter !== requestedBlock) {
+        setBlockFilter(requestedBlock)
+      } else if (requestedPeriod && /^(20\d{2}|2100)-(0[1-9]|1[0-2])$/.test(requestedPeriod)
+        && (!minimumPeriod || requestedPeriod >= minimumPeriod) && period !== requestedPeriod) {
+        setPeriod(requestedPeriod)
+      } else if (requestedApartment && (!requestedPeriod || requestedPeriod === period) && rows.some(row => row.id === requestedApartment)) {
+        openedRequest.current = requestKey
+        setReadingApartmentId(requestedApartment)
+        setOpen(true)
+      }
+    }, 0)
+    return () => window.clearTimeout(timeout)
+  }, [mode, loading, error, requestKey, requestedBlock, requestedPeriod, requestedApartment, blocks, blockFilter, period, minimumPeriod, rows, setBlockFilter, setPeriod])
   const [reminderStates, setReminderStates] = React.useState<Record<string, 'sending' | 'sent' | 'error'>>({})
   const reminderRequests = React.useRef(new Set<string>())
   const sendReminder = async (row: WaterConsumptionRow) => {
@@ -73,16 +101,22 @@ const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) 
       }, {
         id: 'occupants', label: t('blockSetup.editOccupants'), icon: <GroupsIcon />,
         visible: row.meters.some(meter => meter.current !== null), priority: 0,
+        disabled: !row.canSubmitReadings,
         onClick: () => { setReadingApartmentId(row.id); setOpen(true) },
       }]
     },
   })
   const incompleteApartments = rows.filter((row) => row.meters.some((meter) => meter.isActive && meter.current === null))
+  const blockedApartments = rows.filter(row => !row.canSubmitReadings)
 
   return <Box sx={{ display: 'grid', gap: 2 }}>
     {rows.some((row) => reminderStates[`${period}:${row.id}`] === 'error') && <Alert severity="error">{t('consumption.reminder.failed')}</Alert>}
-    <FilterBar actions={mode === 'admin' ? <Button startIcon={<AddIcon />} variant="contained" disabled={loading || !!error || incompleteApartments.length === 0} onClick={() => {
-      setReadingApartmentId(undefined)
+    {mode === 'admin' && !loading && !error && blockedApartments.length > 0 && <Alert severity="warning" sx={{ '& .MuiAlert-message': { width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 } }}>
+      {t('consumption.readingEligibility.adminSummary', { count: blockedApartments.length })}
+      <Button size="small" color="inherit" onClick={() => setShowSetupIssues(true)}>{t('consumption.readingEligibility.viewAffected')}</Button>
+    </Alert>}
+    <FilterBar actions={mode === 'admin' ? <Button startIcon={<AddIcon />} variant="contained" disabled={loading || !!error || !incompleteApartments.some(row => row.canSubmitReadings)} onClick={() => {
+      setReadingApartmentId(incompleteApartments.find(row => row.canSubmitReadings)?.id)
       setOpen(true)
     }}>{t('consumption.actions.addReading')}</Button> : undefined}>
       <TextField select size="small" disabled={loading || !!error} label={t('residents.filters.block')} value={blockFilter} onChange={(event) => setBlockFilter(event.target.value)} sx={{ minWidth: 180 }}>
@@ -97,11 +131,21 @@ const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) 
         : rows.length === 0 ? <EmptyState headline={t('consumption.report.empty')} helperText={t('consumption.report.emptyHelper')}
           actionLabel={t('common.retry')} onAction={refresh} />
           : <PagedResponsiveDataView endpoint="/water-consumptions/page" query={{ blockId: blockFilter === 'all' ? undefined : blockFilter, year: period === 'all' ? undefined : Number(period.slice(0, 4)), month: period === 'all' ? undefined : Number(period.slice(5)) }} paginationId="ConsumptionSections-1" paginationResetKey={JSON.stringify([blockFilter, period])} ariaLabel={t('consumption.sections.readings')} columns={columns} getRowId={(row) => row.id} rows={rows} />}
+    {mode === 'admin' && <AppDialog open={showSetupIssues} maxWidth="md" title={t('consumption.readingEligibility.affectedApartments')}
+      hideCancelButton cancelLabel={t('common.close')} confirmLabel={t('common.close')} onCancel={() => setShowSetupIssues(false)} onConfirm={() => setShowSetupIssues(false)}>
+      <ResponsiveDataView desktopTableMinWidth={700} paginationId="consumption-setup-issues" paginationResetKey={JSON.stringify([blockFilter, period])}
+        ariaLabel={t('consumption.readingEligibility.affectedApartments')} rows={blockedApartments} getRowId={(row) => row.id} columns={[
+          { key: 'apartment', label: t('finance.columns.apartment'), cardRole: 'primary', render: label },
+          { key: 'issue', label: t('finance.billing.issue'), render: (row) => t(`consumption.readingEligibility.adminReasons.${row.readingSetupIssue ?? 'apartmentNotConfigured'}`) },
+          { key: 'actions', label: t('common.actions'), actions: (row) => [{ id: 'configure', label: t('finance.billing.resolve'), icon: <EditIcon />, to: `/admin/apartments?blockId=${row.apartment.blockId}` }] },
+        ]} />
+    </AppDialog>}
     {mode === 'admin' && open && <WaterReadingDialog
       title={t('consumption.dialog.adminTitle')} year={Number(period.split('-')[0])} month={Number(period.split('-')[1])}
       initialApartmentId={readingApartmentId}
       apartments={rows.filter(row => incompleteApartments.includes(row) || row.id === readingApartmentId).map((row) => ({ id: row.id, label: label(row),
         householdCount: row.apartment.householdCount, declaredHouseholdCount: row.householdCount,
+        canSubmitReadings: row.canSubmitReadings, readingSetupIssue: row.readingSetupIssue,
         meters: row.meters.filter((meter) => meter.isActive || meter.current !== null),
       }))}
       onClose={(changed) => { setOpen(false); if (changed) refresh() }} />}

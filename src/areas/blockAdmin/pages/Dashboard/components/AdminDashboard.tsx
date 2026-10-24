@@ -54,7 +54,7 @@ const PropertyStat: React.FC<PropertyStatProps> = ({ label, shortLabel, value })
 const AdminDashboard: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { cashAwaitingVerification, monthlyRevenue, unpaidInvoices } = useFinance()
+  const { cashAwaitingVerification, financeAvailable, monthlyRevenue, unpaidInvoices } = useFinance()
   const { blocks: blockOverviews } = useBlocks()
   const blockCount = blockOverviews.length
   const apartmentCount = blockOverviews.reduce((sum, overview) => sum + overview.apartmentCount, 0)
@@ -66,7 +66,7 @@ const AdminDashboard: React.FC = () => {
 
       <ActionBar title={t('dashboard.admin.quickActions')}>
         <Button startIcon={<ReceiptLongIcon />} variant="contained" onClick={() => navigate('/admin/finance')}>
-          {t('dashboard.admin.options.newInvoice')}
+          {t('finance.billing.prepareMonth')}
         </Button>
         <Button startIcon={<OpacityIcon />} variant="outlined" onClick={() => navigate('/admin/consumption')}>
           {t('dashboard.admin.options.addWaterReading')}
@@ -79,8 +79,9 @@ const AdminDashboard: React.FC = () => {
       <StatGrid>
         <StatCard
           label={t('dashboard.admin.keyMetrics.monthlyRevenue')}
-          value={formatCurrency(monthlyRevenue)}
-          badge={(
+          value={financeAvailable ? formatCurrency(monthlyRevenue) : t('common.notAvailable')}
+          secondary={!financeAvailable ? t('financeAvailability.accountingPending') : undefined}
+          badge={financeAvailable && (
             <>
               <Chip size="small" color="success" icon={<TrendingUpIcon />} label={t('dashboard.admin.keyMetrics.monthlyRevenueTrendShort')} sx={{ display: { xs: 'inline-flex', sm: 'none' }, justifySelf: 'start' }} />
               <Chip size="small" color="success" icon={<TrendingUpIcon />} label={t('dashboard.admin.keyMetrics.monthlyRevenueTrend')} sx={{ display: { xs: 'none', sm: 'inline-flex' }, justifySelf: 'start' }} />
@@ -89,8 +90,9 @@ const AdminDashboard: React.FC = () => {
         />
         <StatCard
           label={t('dashboard.admin.keyMetrics.outstanding')}
-          value={t('dashboard.admin.keyMetrics.outstandingValue', { count: unpaidInvoices })}
-          badge={(
+          value={financeAvailable ? t('dashboard.admin.keyMetrics.outstandingValue', { count: unpaidInvoices }) : t('common.notAvailable')}
+          secondary={!financeAvailable ? t('financeAvailability.accountingPending') : undefined}
+          badge={financeAvailable && (
             <>
               <Chip size="small" color="warning" icon={<WarningAmberIcon />} label={t('dashboard.admin.keyMetrics.outstandingTrendShort')} sx={{ display: { xs: 'inline-flex', sm: 'none' }, justifySelf: 'start' }} />
               <Chip size="small" color="warning" icon={<WarningAmberIcon />} label={t('dashboard.admin.keyMetrics.outstandingTrend')} sx={{ display: { xs: 'none', sm: 'inline-flex' }, justifySelf: 'start' }} />
@@ -99,8 +101,9 @@ const AdminDashboard: React.FC = () => {
         />
         <StatCard
           label={t('dashboard.admin.keyMetrics.cashVerification')}
-          value={t('dashboard.admin.keyMetrics.cashVerificationValue', { count: cashAwaitingVerification })}
-          badge={<Chip size="small" color="info" icon={<TaskAltIcon />} label={t('dashboard.admin.keyMetrics.pendingReview')} sx={{ justifySelf: 'start' }} />}
+          value={financeAvailable ? t('dashboard.admin.keyMetrics.cashVerificationValue', { count: cashAwaitingVerification }) : t('common.notAvailable')}
+          secondary={!financeAvailable ? t('financeAvailability.accountingPending') : undefined}
+          badge={financeAvailable && <Chip size="small" color="info" icon={<TaskAltIcon />} label={t('dashboard.admin.keyMetrics.pendingReview')} sx={{ justifySelf: 'start' }} />}
         />
         <StatCard label={t('dashboard.admin.overview.propertyStats')}>
           <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: { xs: 0.5, sm: 1 } }}>

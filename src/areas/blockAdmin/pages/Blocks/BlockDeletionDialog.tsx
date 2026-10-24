@@ -45,7 +45,7 @@ const BlockDeletionDialog: React.FC<Props> = ({ blockId, isDeleting, onCancel, o
   }
 
   const confirm = async () => {
-    if (!summary || isLoading || hasError || isDeleting) return
+    if (!summary || summary.financeRecordCount > 0 || isLoading || hasError || isDeleting) return
     if (!isFinalConfirmation) {
       setIsFinalConfirmation(true)
       return
@@ -68,7 +68,7 @@ const BlockDeletionDialog: React.FC<Props> = ({ blockId, isDeleting, onCancel, o
       cancelLabel={t('common.cancel')}
       confirmLabel={isDeleting ? t('settings.blockDialog.deleting') : t(isFinalConfirmation ? 'blocks.deletion.deleteAll' : 'blocks.deletion.delete')}
       confirmColor="error"
-      confirmDisabled={!summary || isLoading || hasError || isDeleting}
+      confirmDisabled={!summary || summary.financeRecordCount > 0 || isLoading || hasError || isDeleting}
       onCancel={() => { if (!isDeleting) onCancel() }}
       onConfirm={() => void confirm()}
     >
@@ -93,6 +93,8 @@ const BlockDeletionDialog: React.FC<Props> = ({ blockId, isDeleting, onCancel, o
                 </React.Fragment>
               ))}
             </Box>
+            <Typography>{t('financeAvailability.financeRecords')}: {summary.financeRecordCount}</Typography>
+            {summary.financeRecordCount > 0 && <Alert severity="warning">{t('financeAvailability.historyProtected')}</Alert>}
             <Typography>{t('blocks.deletion.residentsPreserved')}</Typography>
             {isFinalConfirmation && <Alert severity="warning">{t('blocks.deletion.irreversible')}</Alert>}
           </>

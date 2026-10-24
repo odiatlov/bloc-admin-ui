@@ -4,16 +4,20 @@ import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+import Alert from '@mui/material/Alert'
 import { useTranslation } from 'react-i18next'
 import AppDialog from '../../../../../components/shared/AppDialog'
 import { waterReadingsApi } from '../../../../../services/waterReadingsApi'
 import { formatNumber } from '../../../../../utils/formatters'
+import type { WaterReadingSetupIssue } from '../../../../../types/waterReadings'
 
 export type ReadingDialogApartment = {
   id: string
   label: string
   householdCount: number
   declaredHouseholdCount?: number | null
+  canSubmitReadings: boolean
+  readingSetupIssue: WaterReadingSetupIssue | null
   meters: Array<{ id: string, name: string, utilityType: string, previous: number | null, current: number | null }>
 }
 
@@ -37,6 +41,7 @@ const WaterReadingDialog: React.FC<Props> = ({ apartments, initialApartmentId, y
   const busy = React.useRef(false)
   const apartment = apartments.find((item) => item.id === apartmentId)
   const meters = apartment?.meters ?? []
+  const eligible = apartment?.canSubmitReadings === true
   const count = counts[apartmentId] ?? String(apartment?.declaredHouseholdCount ?? apartment?.householdCount ?? '')
   const validCount = /^\d+$/.test(count) && Number(count) <= 2147483647
   const countChanged = apartment?.declaredHouseholdCount == null || Number(count) !== apartment.declaredHouseholdCount
@@ -48,7 +53,7 @@ const WaterReadingDialog: React.FC<Props> = ({ apartments, initialApartmentId, y
   const pending = meters.filter((meter) => current(meter) === null)
 
   const submit = async () => {
-    if (busy.current || !apartment || (pending.length === 0 && (!countChanged || meters.length === 0)) || !pending.every(valid) || !validCount) return
+    if (busy.current || !apartment || !eligible || (pending.length === 0 && (!countChanged || meters.length === 0)) || !pending.every(valid) || !validCount) return
     busy.current = true
     setSubmitting(true)
     setError(null)
@@ -78,7 +83,7 @@ const WaterReadingDialog: React.FC<Props> = ({ apartments, initialApartmentId, y
     return <Box sx={{ display: 'grid', gap: 1 }}>
       <Typography variant="subtitle1">{t(`consumption.dialog.${utility}WaterReadings`)}</Typography>
       {section.map((meter) => <TextField key={meter.id} label={meter.name} fullWidth size="small" type="number"
-        disabled={submitting || current(meter) !== null} value={value(meter)}
+        disabled={submitting || !eligible || current(meter) !== null} value={value(meter)}
         error={value(meter) !== '' && !valid(meter)}
         helperText={meter.previous !== null ? t('consumption.errors.previousReadingHelper', { value: formatNumber(meter.previous) }) : undefined}
         slotProps={{ htmlInput: { min: meter.previous ?? 0, step: '0.01' } }}
@@ -92,7 +97,7 @@ const WaterReadingDialog: React.FC<Props> = ({ apartments, initialApartmentId, y
 
   return <AppDialog open title={title} cancelLabel={t('common.cancel')}
     confirmLabel={t(submitting ? 'consumption.actions.submitting' : 'common.save')}
-    confirmDisabled={submitting || meters.length === 0 || (pending.length === 0 && !countChanged) || !pending.every(valid) || !validCount}
+    confirmDisabled={submitting || !eligible || meters.length === 0 || (pending.length === 0 && !countChanged) || !pending.every(valid) || !validCount}
     onCancel={() => { if (!busy.current) onClose(Object.keys(saved).length > 0) }}
     onConfirm={() => { void submit() }} contentSx={{ display: 'grid', gap: 2, pt: 1 }}>
     {error && <Typography color="error" variant="body2">{error}</Typography>}
@@ -101,8 +106,9 @@ const WaterReadingDialog: React.FC<Props> = ({ apartments, initialApartmentId, y
       onChange={(event) => { setApartmentId(event.target.value); setError(null) }}>
       {apartments.map((item) => <MenuItem key={item.id} value={item.id}>{item.label}</MenuItem>)}
     </TextField>
+    {!eligible && <Alert severity="warning">{t(`consumption.readingEligibility.${apartment?.readingSetupIssue ?? 'apartmentNotConfigured'}`)}</Alert>}
     <TextField required fullWidth size="small" type="number" label={t('apartments.setup.householdMembers')} value={count}
-      disabled={submitting} error={count !== '' && !validCount} slotProps={{ htmlInput: { min: 0, max: 2147483647, step: 1 } }}
+      disabled={submitting || !eligible} error={count !== '' && !validCount} slotProps={{ htmlInput: { min: 0, max: 2147483647, step: 1 } }}
       onChange={event => setCounts(previous => ({ ...previous, [apartmentId]: event.target.value }))} />
     {renderSection('cold')}
     {meters.some((meter) => meter.utilityType.toLowerCase().includes('cold')) && meters.some((meter) => meter.utilityType.toLowerCase().includes('hot')) && <Divider />}

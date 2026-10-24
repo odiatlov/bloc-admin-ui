@@ -4,6 +4,7 @@ import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
+import Alert from '@mui/material/Alert'
 import EditNoteIcon from '@mui/icons-material/EditNote'
 import GroupsIcon from '@mui/icons-material/Groups'
 import { useTranslation } from 'react-i18next'
@@ -68,6 +69,7 @@ const ResidentWaterIndexSection: React.FC = () => {
     apartments,
     error,
     hasConfiguredSubmissionDate,
+    readingEligibility,
     loading,
     meters,
     month,
@@ -114,7 +116,7 @@ const ResidentWaterIndexSection: React.FC = () => {
     year: 'numeric',
   }).format(new Date(periodYear, periodMonth - 1, 1))
 
-  const canSubmitIndex = hasConfiguredSubmissionDate && meters.length > 0
+  const canSubmitIndex = hasConfiguredSubmissionDate && Object.values(readingEligibility).some(item => item.canSubmitReadings)
 
   const summaryRows = React.useMemo<ApartmentWaterSummaryRow[]>(() => (
     apartments.flatMap((apartment) => {
@@ -175,7 +177,10 @@ const ResidentWaterIndexSection: React.FC = () => {
 
   const openSubmitDialog = (row?: ApartmentWaterSummaryRow) => {
     if (!canSubmitIndex) return
-    setSelectedApartmentId(row?.apartmentId ?? effectiveApartmentId)
+    const apartmentId = row?.apartmentId ?? (readingEligibility[effectiveApartmentId]?.canSubmitReadings
+      ? effectiveApartmentId : apartments.find(apartment => readingEligibility[apartment.apartmentId]?.canSubmitReadings)?.apartmentId)
+    if (!apartmentId || !readingEligibility[apartmentId]?.canSubmitReadings) return
+    setSelectedApartmentId(apartmentId)
     setDialogPeriod(row ? { year: row.year, month: row.month } : { year, month })
     setSubmitOpen(true)
   }
@@ -215,8 +220,8 @@ const ResidentWaterIndexSection: React.FC = () => {
       label: t('common.actions'),
       cardRole: 'actions',
       actions: (row) => [
-        { id: 'submit', label: t('consumption.actions.submitIndex'), icon: <EditNoteIcon />, visible: row.missingCount > 0, onClick: () => openSubmitDialog(row), priority: 1, cardIcon: false },
-        { id: 'occupants', label: t('blockSetup.editOccupants'), icon: <GroupsIcon />, visible: row.submittedCount > 0, onClick: () => openSubmitDialog(row), priority: 0 },
+        { id: 'submit', label: t('consumption.actions.submitIndex'), icon: <EditNoteIcon />, visible: row.missingCount > 0, disabled: !readingEligibility[row.apartmentId]?.canSubmitReadings, onClick: () => openSubmitDialog(row), priority: 1, cardIcon: false },
+        { id: 'occupants', label: t('blockSetup.editOccupants'), icon: <GroupsIcon />, visible: row.submittedCount > 0, disabled: !readingEligibility[row.apartmentId]?.canSubmitReadings, onClick: () => openSubmitDialog(row), priority: 0 },
       ],
     },
   ]
@@ -247,6 +252,9 @@ const ResidentWaterIndexSection: React.FC = () => {
 
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
+      {apartments.filter(apartment => !readingEligibility[apartment.apartmentId]?.canSubmitReadings).map(apartment => <Alert key={apartment.apartmentId} severity="warning">
+        {formatApartmentLabel(apartment.apartmentId)}: {t(`consumption.readingEligibility.${readingEligibility[apartment.apartmentId]?.readingSetupIssue ?? 'apartmentNotConfigured'}`)}
+      </Alert>)}
       <FilterBar
         actions={(
           <Button variant="contained" onClick={() => openSubmitDialog()} disabled={!canSubmitIndex}>
@@ -306,6 +314,8 @@ const ResidentWaterIndexSection: React.FC = () => {
         apartments={apartments.map((apartment) => ({
           id: apartment.apartmentId, label: formatApartmentLabel(apartment.apartmentId),
           householdCount: apartment.householdCount,
+          canSubmitReadings: readingEligibility[apartment.apartmentId]?.canSubmitReadings === true,
+          readingSetupIssue: readingEligibility[apartment.apartmentId]?.readingSetupIssue ?? null,
           declaredHouseholdCount: rows.find(row => row.apartmentId === apartment.apartmentId
             && row.year === dialogPeriod.year && row.month === dialogPeriod.month && row.householdCount !== null)?.householdCount ?? null,
           meters: rows.filter((row) => row.apartmentId === apartment.apartmentId

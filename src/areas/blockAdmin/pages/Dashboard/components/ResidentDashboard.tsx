@@ -28,7 +28,7 @@ const ResidentDashboard: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { account } = React.useContext(RoleContext)
-  const { currentBalance, resident, residentInvoices } = useResidentPortal()
+  const { currentBalance, financeAvailable, resident, residentInvoices } = useResidentPortal()
   const { rows: waterIndexRows } = useResidentWaterIndex()
   const [databaseResident, setDatabaseResident] = React.useState<ResidentResponse | null>(null)
   const [databaseBlocks, setDatabaseBlocks] = React.useState<BlockOverview[]>([])
@@ -218,7 +218,7 @@ const ResidentDashboard: React.FC = () => {
 
   return (
     <DashboardPage>
-      <DashboardHeader title={t('dashboard.resident.title')} context={databaseResident?.fullName ?? account.name ?? resident.name} />
+      <DashboardHeader title={t('dashboard.resident.title')} context={databaseResident?.fullName ?? account.name ?? resident?.name ?? ''} />
 
       <ActionBar title={t('dashboard.resident.quickActions')}>
         {residentInvoices.length > 0 && (
@@ -234,8 +234,8 @@ const ResidentDashboard: React.FC = () => {
       <StatGrid columns={{ xs: 'repeat(2, minmax(0, 1fr))' }}>
         <StatCard
           label={t('dashboard.resident.currentDue')}
-          value={formatCurrency(currentBalance)}
-          secondary={t('dashboard.resident.currentDueSubtitle')}
+          value={financeAvailable ? formatCurrency(currentBalance) : t('common.notAvailable')}
+          secondary={t(financeAvailable ? 'dashboard.resident.currentDueSubtitle' : 'financeAvailability.notPublished')}
         />
 
         <StatCard label={t('dashboard.resident.lastMonthWaterConsumption')}>

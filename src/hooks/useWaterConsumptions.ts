@@ -4,7 +4,17 @@ import { waterReadingsApi } from '../services/waterReadingsApi'
 import type { WaterConsumptionReportResponse } from '../types/waterReadings'
 import { getConsumptionStart, getReadingPeriods } from '../utils/readingPeriods'
 
-export const useWaterConsumptions = ({ registeredPeriodsOnly = false, submissionPeriodsOnly = false } = {}) => {
+// The administrator can enter the initial baseline month accepted by the backend,
+// including when no reading has yet been recorded for that month.
+const withBaselinePeriods = (blocks: WaterConsumptionReportResponse['blocks']) => blocks.map(block => {
+  const submission = block.firstSubmissionPeriod
+  if (!submission) return block
+  const baseline = new Date(Math.floor(submission / 100), submission % 100 - 2, 1)
+  const baselinePeriod = Math.max(200001, baseline.getFullYear() * 100 + baseline.getMonth() + 1)
+  return { ...block, firstReadingPeriod: null, firstSubmissionPeriod: baselinePeriod }
+})
+
+export const useWaterConsumptions = ({ registeredPeriodsOnly = false, submissionPeriodsOnly = false, includeBaselinePeriod = false } = {}) => {
   const { account, role, accountsLoading, accountsError, refreshAccounts } = React.useContext(RoleContext)
   const [selection, setSelection] = React.useState({ scope: '', blockId: 'all' })
   const [period, setPeriod] = React.useState(() => {
@@ -22,7 +32,7 @@ export const useWaterConsumptions = ({ registeredPeriodsOnly = false, submission
   const blockFilter = selection.scope === scope && (selection.blockId === 'all' || blocks.some((block) => block.id === selection.blockId))
     ? selection.blockId : 'all'
   const availablePeriods = getReadingPeriods(blocks, blockFilter)
-  const minimumPeriod = submissionPeriodsOnly ? getConsumptionStart(blocks, blockFilter) : null
+  const minimumPeriod = submissionPeriodsOnly ? getConsumptionStart(includeBaselinePeriod ? withBaselinePeriods(blocks) : blocks, blockFilter) : null
   const invalidPeriod = ready && !result.error && period !== 'all' && (
     (registeredPeriodsOnly && !availablePeriods.includes(period)) || (minimumPeriod !== null && period < minimumPeriod))
 
@@ -35,7 +45,7 @@ export const useWaterConsumptions = ({ registeredPeriodsOnly = false, submission
           ? await waterReadingsApi.getConsumptions(year, month, role) : { blocks: [], rows: [] }
         if (!cancelled) {
           const selectedBlock = selection.scope === scope ? selection.blockId : 'all'
-          const minimum = submissionPeriodsOnly ? getConsumptionStart(report.blocks, selectedBlock) : null
+          const minimum = submissionPeriodsOnly ? getConsumptionStart(includeBaselinePeriod ? withBaselinePeriods(report.blocks) : report.blocks, selectedBlock) : null
           if (minimum && period < minimum) setPeriod(minimum)
           if (registeredPeriodsOnly && period !== 'all'
             && !getReadingPeriods(report.blocks, selectedBlock).includes(period)) setPeriod('all')
@@ -47,19 +57,19 @@ export const useWaterConsumptions = ({ registeredPeriodsOnly = false, submission
     }
     if (!accountsLoading && !accountsError) void load()
     return () => { cancelled = true }
-  }, [accountsError, accountsLoading, key, period, role, registeredPeriodsOnly, submissionPeriodsOnly, scope, selection.scope, selection.blockId])
+  }, [accountsError, accountsLoading, key, period, role, registeredPeriodsOnly, submissionPeriodsOnly, includeBaselinePeriod, scope, selection.scope, selection.blockId])
 
   return {
     blocks, availablePeriods, minimumPeriod, blockFilter, setBlockFilter: (blockId: string) => {
       setSelection({ scope, blockId })
-      const minimum = submissionPeriodsOnly ? getConsumptionStart(blocks, blockId) : null
+      const minimum = submissionPeriodsOnly ? getConsumptionStart(includeBaselinePeriod ? withBaselinePeriods(blocks) : blocks, blockId) : null
       if (minimum && period < minimum) setPeriod(minimum)
       if (registeredPeriodsOnly && period !== 'all') {
         if (!getReadingPeriods(blocks, blockId).includes(period)) setPeriod('all')
       }
     }, period, setPeriod,
     rows: ready && !invalidPeriod ? result.report.rows.filter((row) => {
-      const start = submissionPeriodsOnly ? getConsumptionStart(blocks, row.apartment.blockId) : null
+      const start = submissionPeriodsOnly ? getConsumptionStart(includeBaselinePeriod ? withBaselinePeriods(blocks) : blocks, row.apartment.blockId) : null
       return (blockFilter === 'all' || row.apartment.blockId === blockFilter) && (!start || period >= start)
     }) : [],
     loading: accountsLoading || invalidPeriod || (!accountsError && result.key !== key),

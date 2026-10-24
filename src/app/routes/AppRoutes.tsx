@@ -7,6 +7,7 @@ import Consumption from '../../areas/blockAdmin/pages/Consumption/Consumption'
 import Dashboard from '../../areas/blockAdmin/pages/Dashboard/Dashboard'
 import Finance from '../../areas/blockAdmin/pages/Finance/Finance'
 import Reports from '../../areas/blockAdmin/pages/Reports/Reports'
+import MaintenanceReportViewer from '../../areas/blockAdmin/pages/Reports/components/MaintenanceReportViewer'
 import Residents from '../../areas/blockAdmin/pages/Residents/Residents'
 import Settings from '../../areas/blockAdmin/pages/Settings/Settings'
 import Staircases from '../../areas/blockAdmin/pages/Staircases/Staircases'
@@ -50,6 +51,7 @@ const AppRoutes: React.FC<AppRoutesProps> = ({ themeMode, toggleTheme }) => (
         <Route path="finance" element={<ProtectedRoute permission="finance"><Finance /></ProtectedRoute>} />
         <Route path="consumption" element={<ProtectedRoute permission="consumption"><Consumption /></ProtectedRoute>} />
         <Route path="reports" element={<ProtectedRoute permission="reports"><Reports /></ProtectedRoute>} />
+        <Route path="reports/maintenance/:runId" element={<ProtectedRoute permission="reports"><MaintenanceReportViewer /></ProtectedRoute>} />
         <Route path="settings" element={<ProtectedRoute permission="settings"><Settings /></ProtectedRoute>} />
         <Route path="blocks/:blockId/:section" element={<ProtectedRoute permission="blocks"><BlockContext /></ProtectedRoute>} />
         <Route path="super/*" element={<Navigate to="/superadmin/dashboard" replace />} />
