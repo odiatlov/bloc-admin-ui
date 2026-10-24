@@ -1,4 +1,5 @@
 import React from 'react'
+import { usePageFilter } from '../../../../../hooks/usePageFilter'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
@@ -58,9 +59,9 @@ const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ hideScopeFilt
     [account, role],
   )
   const initialScopedBlockId = scopedBlocks.find((block) => block.id === initialBlockId)?.id ?? scopedBlocks[0]?.id ?? ''
-  const [selectedBlockId, setSelectedBlockId] = React.useState(initialScopedBlockId)
-  const [selectedStaircaseId, setSelectedStaircaseId] = React.useState('all')
-  const [setupStatusFilter, setSetupStatusFilter] = React.useState<ApartmentSetupStatus | 'all'>('all')
+  const [selectedBlockId, setSelectedBlockId] = usePageFilter('apartments.block', initialScopedBlockId, initialBlockId)
+  const [selectedStaircaseId, setSelectedStaircaseId] = usePageFilter('apartments.staircase', 'all')
+  const [setupStatusFilter, setSetupStatusFilter] = usePageFilter<ApartmentSetupStatus | 'all'>('apartments.status', 'all')
   const [selectedApartmentId, setSelectedApartmentId] = React.useState('')
   const [apartmentRecords, setApartmentRecords] = React.useState<Apartment[]>(apartments)
   const [residentApartmentRecords, setResidentApartmentRecords] = React.useState<ResidentApartment[]>(residentApartments)

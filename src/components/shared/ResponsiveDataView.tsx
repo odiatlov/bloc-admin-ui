@@ -1,4 +1,5 @@
 import React from 'react'
+import { usePageFilter } from '../../hooks/usePageFilter'
 import Box from '@mui/material/Box'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -17,7 +18,6 @@ import type { Theme } from '@mui/material/styles'
 import { EntityListItem, type EntityMetadataItem, metadataLabelSx } from './EntityPresentation'
 import ActionButtons, { type ActionButtonDefinition } from './ActionButtons'
 import IconButtonTooltip from './IconButtonTooltip'
-import { DataViewPaginationContext } from './DataViewPaginationProvider'
 import { DATA_VIEW_PAGE_SIZE, getDataViewPage, resolveDataViewPage, type DataViewPageState } from '../../utils/dataViewPagination'
 
 export type DataColumn<T> = {
@@ -57,14 +57,12 @@ const inferCardRole = (column: Pick<DataColumn<unknown>, 'cardRole' | 'key'>, in
 
 const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900, tableMinWidth, stickyColumnCount = 0, emptyState, getRowId, paginationId, paginationResetKey = '', serverPagination, renderCardCornerActions, renderMobileRow, rows }: ResponsiveDataViewProps<T>) => {
   const { t } = useTranslation()
-  const store = React.useContext(DataViewPaginationContext)
-  const [localState, setLocalState] = React.useState<DataViewPageState>()
-  const savedState = store ? store.pages.get(paginationId) : localState
+  const [localState, setLocalState] = usePageFilter<DataViewPageState>(`pagination.client.${paginationId}`, { page: 1, resetKey: '' })
+  const savedState = localState
   const resolved = resolveDataViewPage(savedState, paginationResetKey, rows.length)
   const page = serverPagination?.page ?? resolved.page
   const resetKey = resolved.resetKey
   const totalCount = serverPagination?.totalCount ?? rows.length
-  const rememberPage = store?.rememberPage
   const viewRef = React.useRef<HTMLDivElement>(null)
   const headerRef = React.useRef<HTMLTableRowElement>(null)
   const pinnedCount = Math.min(columns.length, Math.max(0, Math.floor(stickyColumnCount)))
@@ -113,14 +111,15 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
   } : {}
 
   React.useEffect(() => {
-    if (rememberPage && !serverPagination) rememberPage(paginationId, { page, resetKey })
-  }, [rememberPage, paginationId, page, resetKey, serverPagination])
+    if (!serverPagination && (localState.page !== page || localState.resetKey !== resetKey)) setLocalState({ page, resetKey })
+  }, [page, resetKey, serverPagination, localState.page, localState.resetKey, setLocalState])
 
   const changePage = (nextPage: number) => {
     const state = { page: nextPage, resetKey }
     if (serverPagination) serverPagination.onPageChange(nextPage)
-    else if (rememberPage) rememberPage(paginationId, state)
-    else setLocalState(state)
+    else {
+      setLocalState(state)
+    }
     if (viewRef.current && viewRef.current.getBoundingClientRect().top < 0) {
       viewRef.current.scrollIntoView({ block: 'start', behavior: 'auto' })
     }

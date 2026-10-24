@@ -1,5 +1,7 @@
 import React from 'react'
+import { usePageFilter } from '../../../../../hooks/usePageFilter'
 import ApartmentSetupFields from '../../../../../components/apartments/ApartmentSetupFields'
+import ApartmentConfigurationBadge from '../../../../../components/apartments/ApartmentConfigurationBadge'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -67,7 +69,6 @@ type FormState = {
   residentCount: string
   floor: string
   usableSqm: string
-  setupStatus: ApartmentSetupStatus
   hasBoiler: boolean
 }
 
@@ -82,7 +83,6 @@ const emptyForm: FormState = {
   residentCount: '0',
   floor: '',
   usableSqm: '',
-  setupStatus: 'unconfigured',
   hasBoiler: false,
 }
 
@@ -96,11 +96,11 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   const [residentRecords, setResidentRecords] = React.useState<ResidentResponse[]>([])
   const [apartmentResidentLinks, setApartmentResidentLinks] = React.useState<ApartmentResidentResponse[]>([])
   const [staircases, setStaircases] = React.useState<StaircaseResponse[]>([])
-  const [selectedBlockId, setSelectedBlockId] = React.useState(initialBlockId ?? 'all')
-  const [selectedStaircaseId, setSelectedStaircaseId] = React.useState('all')
-  const [selectedFloor, setSelectedFloor] = React.useState('all')
-  const [setupStatusFilter, setSetupStatusFilter] = React.useState<ApartmentSetupStatus | 'all'>('all')
-  const [search, setSearch] = React.useState('')
+  const [selectedBlockId, setSelectedBlockId] = usePageFilter('apartments.block', 'all', initialBlockId)
+  const [selectedStaircaseId, setSelectedStaircaseId] = usePageFilter('apartments.staircase', 'all')
+  const [selectedFloor, setSelectedFloor] = usePageFilter('apartments.floor', 'all')
+  const [setupStatusFilter, setSetupStatusFilter] = usePageFilter<ApartmentSetupStatus | 'all'>('apartments.status', 'all')
+  const [search, setSearch] = usePageFilter('apartments.search', '')
   const [error, setError] = React.useState<string | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
   const [dialogMode, setDialogMode] = React.useState<'create' | 'edit' | null>(null)
@@ -120,6 +120,9 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   const [waterZones, setWaterZones] = React.useState<WaterZoneForm[]>([])
   const [isLoadingWaterConfig, setIsLoadingWaterConfig] = React.useState(false)
   const [waterConfigError, setWaterConfigError] = React.useState<string | null>(null)
+  const [saveError, setSaveError] = React.useState(false)
+  const [isSaving, setIsSaving] = React.useState(false)
+  const saveLock = React.useRef(false)
 
   const blocks = databaseBlocks.blocks
   const allowedBlockIds = React.useMemo(() => new Set(blocks.map((block) => block.id)), [blocks])
@@ -207,7 +210,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   }, [])
 
   React.useEffect(() => {
-    if (databaseBlocks.isLoading) return
+    if (databaseBlocks.isLoading || databaseBlocks.error) return
 
     if (selectedBlockId !== 'all' && !blocks.some((block) => block.id === selectedBlockId)) {
       const timeoutId = window.setTimeout(() => {
@@ -217,9 +220,10 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
 
       return () => window.clearTimeout(timeoutId)
     }
-  }, [blocks, databaseBlocks.isLoading, selectedBlockId])
+  }, [blocks, databaseBlocks.isLoading, databaseBlocks.error, selectedBlockId, setSelectedBlockId, setSelectedStaircaseId])
 
   React.useEffect(() => {
+    if (isLoading || databaseBlocks.isLoading || error || databaseBlocks.error) return
     if (!selectedBlockHasStaircases || (selectedStaircaseId !== 'all' && !scopedStaircases.some(staircase => staircase.id === selectedStaircaseId && staircase.blockId === selectedBlockId))) {
       const timeoutId = window.setTimeout(() => {
         setSelectedStaircaseId('all')
@@ -227,7 +231,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
 
       return () => window.clearTimeout(timeoutId)
     }
-  }, [selectedBlockHasStaircases, selectedStaircaseId, selectedBlockId, scopedStaircases])
+  }, [isLoading, databaseBlocks.isLoading, error, databaseBlocks.error, selectedBlockHasStaircases, selectedStaircaseId, selectedBlockId, scopedStaircases, setSelectedStaircaseId])
 
   const floorOptions = React.useMemo(() => getApartmentFloorOptions(
     scopedApartments.filter((apartment) => selectedBlockId === 'all' || apartment.blockId === selectedBlockId),
@@ -236,10 +240,10 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   const activeFloor = floorOptions.includes(selectedFloor) ? selectedFloor : 'all'
 
   React.useEffect(() => {
-    if (isLoading || databaseBlocks.isLoading || selectedFloor === 'all' || floorOptions.includes(selectedFloor)) return
+    if (isLoading || databaseBlocks.isLoading || error || databaseBlocks.error || selectedFloor === 'all' || floorOptions.includes(selectedFloor)) return
     const timeoutId = window.setTimeout(() => setSelectedFloor('all'), 0)
     return () => window.clearTimeout(timeoutId)
-  }, [isLoading, databaseBlocks.isLoading, selectedFloor, floorOptions])
+  }, [isLoading, databaseBlocks.isLoading, error, databaseBlocks.error, selectedFloor, floorOptions, setSelectedFloor])
 
   const filteredApartments = React.useMemo(() => (
     scopedApartments.filter((apartment) => {
@@ -255,6 +259,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   ), [scopedApartments, selectedBlockId, selectedStaircaseId, setupStatusFilter, search, showOverviewFilters, activeFloor])
 
   const openCreateDialog = () => {
+    setSaveError(false)
     const blockId = selectedBlockId !== 'all' ? selectedBlockId : blocks[0]?.id ?? ''
     const block = blocks.find((item) => item.id === blockId)
     setEditingApartment(null)
@@ -268,6 +273,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   }
 
   const openEditDialog = (apartment: ApartmentResponse) => {
+    setSaveError(false)
     setEditingApartment(apartment)
     setApartmentResidentLinks([])
     setAssignResidentId('')
@@ -278,7 +284,6 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
       residentCount: String(apartment.residentCount),
       floor: apartment.floor === null ? '' : String(apartment.floor),
       usableSqm: apartment.usableSqm === null ? '' : String(apartment.usableSqm),
-      setupStatus: apartment.setupStatus,
       hasBoiler: apartment.hasBoiler,
     })
     setWaterZones([])
@@ -289,10 +294,11 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   }
 
   const saveApartment = async () => {
+    if (saveLock.current) return
     const block = blocks.find((item) => item.id === form.blockId)
     if (!block || !form.number.trim()) return
     if (formBlockHasStaircases && !form.staircaseId) return
-    if (editingApartment && (isLoadingApartmentResidents || error)) return
+    if (editingApartment && (isLoadingApartmentResidents || error || isLoadingWaterConfig || waterConfigError)) return
 
     const request = {
       blockId: form.blockId,
@@ -301,29 +307,34 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
       residentCount: editingApartment ? Math.max(0, Number(form.residentCount) || 0) : 0,
       floor: form.floor.trim() ? Number(form.floor) : null,
       usableSqm: form.usableSqm.trim() ? Number(form.usableSqm) : null,
-      setupStatus: form.setupStatus,
       hasBoiler: form.hasBoiler,
     }
 
-    if (editingApartment) {
-      await apartmentsApi.update(editingApartment.id, request)
-      await waterReadingsApi.updateApartmentConfiguration(editingApartment.id, {
-        hasBoiler: form.hasBoiler,
-        zones: waterZones.map((zone) => ({
+    saveLock.current = true
+    setIsSaving(true)
+    setSaveError(false)
+    try {
+      if (editingApartment) {
+        await apartmentsApi.update(editingApartment.id, { ...request, zones: waterZones.map((zone) => ({
           locationType: zone.locationType,
           name: zone.name.trim() || zone.locationType,
           coldWaterCount: 1,
           hotWaterCount: form.hasBoiler ? 0 : 1,
-        })),
-      })
-    } else {
-      await apartmentsApi.create(request)
-    }
+        })) })
+      } else {
+        await apartmentsApi.create(request)
+      }
 
-    setDialogMode(null)
-    setEditingApartment(null)
-    await loadData()
-    void databaseBlocks.refresh()
+      setDialogMode(null)
+      setEditingApartment(null)
+      await loadData()
+      void databaseBlocks.refresh()
+    } catch {
+      setSaveError(true)
+    } finally {
+      saveLock.current = false
+      setIsSaving(false)
+    }
   }
 
   const deleteApartment = async () => {
@@ -345,6 +356,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   }
 
   const closeEditDrawer = () => {
+    if (saveLock.current) return
     if (isAssigningResident) return
     setAdditionalResident(null)
     setAssignmentError(null)
@@ -426,7 +438,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   const loading = isLoading || databaseBlocks.isLoading
   const hasValidResidentCount = /^\d+$/.test(form.residentCount) && Number(form.residentCount) <= 2147483647
   const canSave = Boolean(
-    form.blockId
+    !isSaving && form.blockId
     && form.number.trim()
     && (!formBlockHasStaircases || form.staircaseId)
     && hasValidResidentCount
@@ -530,15 +542,17 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
 
       <AppDialog
         cancelLabel={t('common.cancel')}
+        pending={isSaving}
         confirmDisabled={!canSave}
         confirmLabel={t('common.save')}
         contentSx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' }, gap: 2 }}
         maxWidth="md"
-        onCancel={() => setDialogMode(null)}
+        onCancel={() => { if (!saveLock.current) setDialogMode(null) }}
         onConfirm={() => { void saveApartment() }}
         open={dialogMode === 'create'}
         title={t('apartments.setup.addApartment')}
       >
+        {saveError && <Alert severity="error" sx={{ gridColumn: '1 / -1' }}>{t('apartments.setup.saveFailed')}</Alert>}
         <FormControl fullWidth size="small" required>
           <InputLabel>{t('settings.fields.block')}</InputLabel>
           <Select label={t('settings.fields.block')} value={form.blockId} onChange={(event: SelectChangeEvent) => setForm((value) => ({ ...value, blockId: event.target.value, staircaseId: '' }))}>
@@ -572,7 +586,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
           <Box sx={{ display: 'grid', gap: 2 }}>
             <Box sx={{ alignItems: 'flex-start', display: 'flex', gap: 1.5 }}>
               <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
-                <Button startIcon={<ArrowBackIcon />} onClick={closeEditDrawer}>
+                <Button startIcon={<ArrowBackIcon />} disabled={isSaving} onClick={closeEditDrawer}>
                   {t('residents.actions.backToList')}
                 </Button>
                 <Box>
@@ -591,17 +605,12 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
               </Tabs>
 
               {editTab === 0 && (
-                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' }, gap: 1.5 }}>
+                <Box component="fieldset" disabled={isSaving} sx={{ border: 0, p: 0, m: 0, minWidth: 0, display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' }, gap: 1.5 }}>
+                  <ApartmentConfigurationBadge usableSqm={form.usableSqm} hasConsumptionZone={waterZones.length > 0}
+                    loading={isLoadingWaterConfig} unavailable={Boolean(waterConfigError)} />
+                  {saveError && <Alert severity="error" sx={{ gridColumn: '1 / -1' }}>{t('apartments.setup.saveFailed')}</Alert>}
                   <TextField fullWidth required size="small" label={t('apartments.setup.number')} value={form.number} onChange={(event) => setForm((value) => ({ ...value, number: event.target.value }))} />
                   <TextField fullWidth size="small" type="number" label={t('blocks.columns.floor')} value={form.floor} onChange={(event) => setForm((value) => ({ ...value, floor: event.target.value }))} />
-                  <FormControl fullWidth size="small" required>
-                    <InputLabel>{t('apartments.setup.setupStatus')}</InputLabel>
-                    <Select label={t('apartments.setup.setupStatus')} value={form.setupStatus} onChange={(event: SelectChangeEvent) => setForm((value) => ({ ...value, setupStatus: event.target.value as ApartmentSetupStatus }))}>
-                      {setupStatuses.map((status) => (
-                        <MenuItem key={status} value={status}>{translateApartmentSetupStatus(t, status)}</MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
                   <FormControl fullWidth size="small" required={formBlockHasStaircases} disabled={!formBlockHasStaircases}>
                     <InputLabel>{t('blocks.columns.staircase')}</InputLabel>
                     <Select label={t('blocks.columns.staircase')} value={form.staircaseId} onChange={(event: SelectChangeEvent) => setForm((value) => ({ ...value, staircaseId: event.target.value }))}>
@@ -611,6 +620,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                       ))}
                     </Select>
                   </FormControl>
+                  <TextField fullWidth size="small" type="number" label={t('blocks.columns.usableSurface')} value={form.usableSqm} onChange={(event) => setForm((value) => ({ ...value, usableSqm: event.target.value }))} />
                   <TextField
                     fullWidth
                     helperText={t(hasAssignedResident ? 'apartments.setup.householdMembersHelp' : 'apartments.setup.assignOwnerBeforeCount')}
@@ -622,7 +632,6 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                     value={form.residentCount}
                     onChange={(event) => setForm((value) => ({ ...value, residentCount: event.target.value }))}
                   />
-                  <TextField fullWidth size="small" type="number" label={t('blocks.columns.usableSurface')} value={form.usableSqm} onChange={(event) => setForm((value) => ({ ...value, usableSqm: event.target.value }))} />
                   <Box sx={{ gridColumn: '1 / -1' }}>
                     <Typography variant="body2" color="text.secondary">{t('financeAvailability.heatingHelp')}</Typography>
                     <Button component={RouterLink} to={`/admin/settings?blockId=${editingApartment.blockId}`}>

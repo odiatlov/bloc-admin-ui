@@ -29,7 +29,7 @@ import { addApartmentToFloor, addFloor, appendApartmentBatch, deleteApartment, d
 type DraftNotice = { id: string; key: string; values?: Record<string, unknown>; groupId?: string }
 type FocusTarget = { id: string; selector?: string }
 const toApartment = (a: ApartmentDraft): SetupApartment => ({ number: a.number.trim(), floor: a.floor.trim() ? Number(a.floor) : null,
-  usableSqm: a.usableSqm.trim() ? Number(a.usableSqm) : null, setupStatus: a.setupStatus, hasBoiler: a.hasBoiler,
+  usableSqm: a.usableSqm.trim() ? Number(a.usableSqm) : null, hasBoiler: a.hasBoiler,
   householdCount: a.addResident ? Number(a.householdCount) : 0, resident: a.addResident ? {
     residentId: a.resident.mode === 'existing' ? a.resident.residentId : null,
     firstName: a.resident.mode === 'new' ? a.resident.firstName.trim() : '', lastName: a.resident.mode === 'new' ? a.resident.lastName.trim() : '',
@@ -159,7 +159,7 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
     return errors
   }
   const fieldLabels: Record<ApartmentValidationField, string> = {
-    number: 'apartments.setup.number', floor: 'blocks.columns.floor', usableSqm: 'blocks.columns.usableSurface', setupStatus: 'apartments.setup.setupStatus',
+    number: 'apartments.setup.number', floor: 'blocks.columns.floor', usableSqm: 'blocks.columns.usableSurface',
     householdCount: 'apartments.setup.householdMembers', residentId: 'blockSetup.existingResident', firstName: 'residents.fields.firstName',
     lastName: 'residents.fields.lastName', phone: 'residents.fields.phone', email: 'residents.fields.email',
   }
@@ -413,7 +413,7 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
                     <Box component="span" sx={{ fontWeight: 600 }}>{w('mobile.apartmentTitle', { number: a.number })}</Box>
                     <span>{w('mobile.floor')}: {a.floor || '-'}</span>
                     <span>{a.usableSqm ? `${Number(a.usableSqm).toLocaleString(i18n.resolvedLanguage ?? i18n.language, { maximumFractionDigits: 2 })} m²` : '-'}</span>
-                    <span>{translateApartmentSetupStatus(t, a.setupStatus)}</span>
+                    <span>{translateApartmentSetupStatus(t, 'unconfigured')}</span>
                     <span>{w('mobile.boiler')}: {w(a.hasBoiler ? 'yes' : 'no')}</span>
                     <span>{t('apartments.setup.householdMembers')}: {a.addResident ? a.householdCount : '0'}</span>
                     {a.addResident && <span>{w('owner')}: {a.resident.mode === 'existing' ? residents.find(resident => resident.id === a.resident.residentId)?.fullName : `${a.resident.firstName} ${a.resident.lastName}`}</span>}

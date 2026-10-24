@@ -1092,7 +1092,15 @@
       "noApartments": "No apartments match the selected block and staircase.",
       "number": "Apartment number",
       "setupStatus": "Setup status",
-      "title": "Apartments setup"
+      "title": "Apartments setup",
+      "configurationStatus": "Configuration status",
+      "configurationUnavailable": "Unable to determine status",
+      "configurationReady": "Requirements met. Save to apply changes.",
+      "configurationRequirements": "Enter a usable surface greater than 0 and add at least one consumption zone.",
+      "configurationNeedsSurface": "Enter a usable surface greater than 0.",
+      "configurationNeedsZone": "Add at least one consumption zone. Save to apply changes.",
+      "configurationZonesAfterCreate": "After creation, open the apartment configuration to add consumption zones.",
+      "saveFailed": "The apartment could not be saved. Your changes are still available; please try again."
     },
     "waterIndex": {
       "addZone": "Add zone",

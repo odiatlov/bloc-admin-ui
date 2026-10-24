@@ -1,4 +1,5 @@
 import React from 'react'
+import { usePageFilter } from '../../../../../hooks/usePageFilter'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
@@ -29,7 +30,7 @@ const CensorReviewWorkspace: React.FC = () => {
   const { t } = useTranslation()
   const { anomalyReviews, invoiceReviews, maintenanceReviews, pendingCount, rejectedCount, reviewItems, setReviewState } = useCensorReviews()
   const formatReviewDate = (value: string) => formatFriendlyDateTime(value, { atLabel: t('common.at'), todayLabel: t('common.today') })
-  const [tab, setTab] = React.useState(0)
+  const [tab, setTab] = usePageFilter('reviews.tab', 0)
   const [invoiceId, setInvoiceId] = React.useState<string | null>(null)
   const [activeReview, setActiveReview] = React.useState<CensorReview | null>(null)
   const selectedInvoice = invoiceReviews.find((item) => item.invoice.id === invoiceId)?.invoice ?? null

@@ -1,4 +1,5 @@
 import React from 'react'
+import { usePageFilter } from '../../../../hooks/usePageFilter'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -32,8 +33,8 @@ const Staircases: React.FC = () => {
   const { t } = useTranslation()
   const databaseBlocks = useBlocks()
   const [staircases, setStaircases] = React.useState<StaircaseResponse[]>([])
-  const [selectedBlockId, setSelectedBlockId] = React.useState('all')
-  const [search, setSearch] = React.useState('')
+  const [selectedBlockId, setSelectedBlockId] = usePageFilter('staircases.block', 'all')
+  const [search, setSearch] = usePageFilter('staircases.search', '')
   const [error, setError] = React.useState<string | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
   const [dialogMode, setDialogMode] = React.useState<'create' | 'edit' | null>(null)
@@ -75,6 +76,13 @@ const Staircases: React.FC = () => {
       return matchesBlock && matchesSearch
     })
   }, [scopedStaircases, search, selectedBlockId])
+
+  React.useEffect(() => {
+    if (databaseBlocks.isLoading || databaseBlocks.error || selectedBlockId === 'all'
+      || blocks.some(block => block.id === selectedBlockId)) return
+    const timer = window.setTimeout(() => setSelectedBlockId('all'), 0)
+    return () => window.clearTimeout(timer)
+  }, [databaseBlocks.isLoading, databaseBlocks.error, selectedBlockId, blocks, setSelectedBlockId])
 
   const openCreateDialog = () => {
     setEditingStaircase(null)

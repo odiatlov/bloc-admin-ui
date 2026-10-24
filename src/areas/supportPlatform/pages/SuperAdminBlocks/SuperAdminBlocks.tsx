@@ -1,4 +1,5 @@
 import React from 'react'
+import { usePageFilter } from '../../../../hooks/usePageFilter'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import FormControl from '@mui/material/FormControl'
@@ -28,9 +29,9 @@ const SuperAdminBlocks: React.FC = () => {
   const { t } = useTranslation()
   const [blocks, setBlocks] = React.useState<SuperAdminBlockResponse[]>([])
   const [admins, setAdmins] = React.useState<SuperAdminAdminAccountResponse[]>([])
-  const [search, setSearch] = React.useState('')
-  const [blockId, setBlockId] = React.useState('all')
-  const [adminId, setAdminId] = React.useState('all')
+  const [search, setSearch] = usePageFilter('platformBlocks.search', '')
+  const [blockId, setBlockId] = usePageFilter('platformBlocks.block', 'all')
+  const [adminId, setAdminId] = usePageFilter('platformBlocks.admin', 'all')
   const [error, setError] = React.useState<string | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
 

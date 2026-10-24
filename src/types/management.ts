@@ -40,11 +40,13 @@ export type CreateApartmentRequest = {
   residentCount: number
   floor?: number | null
   usableSqm?: number | null
-  setupStatus: ApartmentSetupStatus
+  setupStatus?: ApartmentSetupStatus
   hasBoiler?: boolean
 }
 
-export type UpdateApartmentRequest = CreateApartmentRequest
+export type UpdateApartmentRequest = CreateApartmentRequest & {
+  zones?: import('./waterReadings').ApartmentWaterConfigurationZone[]
+}
 
 export type ResidentStatus = 'active' | 'inactive'
 

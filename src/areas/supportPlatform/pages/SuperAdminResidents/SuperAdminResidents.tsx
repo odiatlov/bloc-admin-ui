@@ -1,4 +1,5 @@
 import React from 'react'
+import { usePageFilter } from '../../../../hooks/usePageFilter'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
@@ -61,9 +62,9 @@ const SuperAdminResidents: React.FC = () => {
   const { t } = useTranslation()
   const databaseBlocks = useBlocks()
   const [residents, setResidents] = React.useState<ResidentResponse[]>([])
-  const [nameFilter, setNameFilter] = React.useState('')
-  const [selectedBlockId, setSelectedBlockId] = React.useState('all')
-  const [statusFilter, setStatusFilter] = React.useState<'all' | ResidentStatus>('all')
+  const [nameFilter, setNameFilter] = usePageFilter('platformResidents.name', '')
+  const [selectedBlockId, setSelectedBlockId] = usePageFilter('platformResidents.block', 'all')
+  const [statusFilter, setStatusFilter] = usePageFilter<'all' | ResidentStatus>('platformResidents.status', 'all')
   const [error, setError] = React.useState<string | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
   const [dialogMode, setDialogMode] = React.useState<'create' | 'edit' | null>(null)

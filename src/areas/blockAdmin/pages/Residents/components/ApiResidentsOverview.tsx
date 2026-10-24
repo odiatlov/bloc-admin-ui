@@ -1,4 +1,5 @@
 import React from 'react'
+import { usePageFilter } from '../../../../../hooks/usePageFilter'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -73,9 +74,9 @@ const ApiResidentsOverview: React.FC = () => {
   const canManage = role === 'Admin'
   const databaseBlocks = useBlocks()
   const [residents, setResidents] = React.useState<ResidentResponse[]>([])
-  const [nameFilter, setNameFilter] = React.useState('')
-  const [selectedBlockId, setSelectedBlockId] = React.useState('all')
-  const [staircaseFilter, setStaircaseFilter] = React.useState('')
+  const [nameFilter, setNameFilter] = usePageFilter('residents.name', '')
+  const [selectedBlockId, setSelectedBlockId] = usePageFilter('residents.block', 'all')
+  const [staircaseFilter, setStaircaseFilter] = usePageFilter('residents.staircase', '')
   const [error, setError] = React.useState<string | null>(null)
   const [mutationError, setMutationError] = React.useState<string | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
@@ -125,13 +126,13 @@ const ApiResidentsOverview: React.FC = () => {
     : 'all'
 
   React.useEffect(() => {
-    if (databaseBlocks.isLoading || selectedBlockId === selectedBlockFilter) return
+    if (databaseBlocks.isLoading || databaseBlocks.error || selectedBlockId === selectedBlockFilter) return
     const timer = window.setTimeout(() => {
       setSelectedBlockId('all')
       setStaircaseFilter('')
     }, 0)
     return () => window.clearTimeout(timer)
-  }, [databaseBlocks.isLoading, selectedBlockFilter, selectedBlockId])
+  }, [databaseBlocks.isLoading, databaseBlocks.error, selectedBlockFilter, selectedBlockId, setSelectedBlockId, setStaircaseFilter])
 
   const filteredResidents = React.useMemo(() => {
     const normalizedNameFilter = normalizeFilterValue(nameFilter)
