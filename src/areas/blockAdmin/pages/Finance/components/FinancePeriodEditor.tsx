@@ -34,7 +34,7 @@ const FinancePeriodEditor: React.FC<Props> = ({ workspace, refresh, onDirty }) =
     setSaving(true); setError(null)
     try {
       const payload = { ...data, expenses: data.expenses.filter((entry) => workspace.configuration.charges.some((charge) => charge.id === entry.chargeId)), supplyInputs: data.supplyInputs.filter((entry) => workspace.configuration.supplyGroups.some((group) => group.id === entry.supplyGroupId)) }
-      await financeApi.savePeriod(workspace.blockId, workspace.year, workspace.month, workspace.periodVersion, payload)
+      await financeApi.savePeriod(workspace.blockId, workspace.year, workspace.month, workspace.periodVersion, payload, workspace.configurationVersion)
       if (!active.current) return
       setDirty(false); onDirty(false); refresh()
     }
@@ -105,14 +105,16 @@ const FinancePeriodEditor: React.FC<Props> = ({ workspace, refresh, onDirty }) =
     })}
     {workspace.configuration.supplyGroups.filter((group) => group.differenceMode !== 'None').map((group) => {
       const value = supply(group.id)
+      const mainMeter = workspace.mainMeters?.find((meter) => meter.supplyGroupId === group.id)
       const eligible = workspace.apartments.filter((row) => (group.scope === 'Block' || (group.scope === 'Staircase' ? row.staircaseId === group.staircaseId : group.apartmentIds.includes(row.id))) && row.meters.some((meter) => meter.utilityType === group.utilityType))
       return <FinanceSection key={group.id} title={t('finance.billing.supplyDifference', { name: group.name })}>
         <Typography color="text.secondary" variant="body2">{t(`finance.billing.values.${group.differenceMode}`)} · {t(`finance.billing.values.${group.differenceBasis}`)}</Typography>
         <Box sx={financeGrid}>
           {group.differenceMode === 'Manual' && <FinanceNumber min={-1000000000} label={t('finance.billing.differenceQuantity')} value={value.manualDifference} onChange={(manualDifference) => setSupply(group.id, { manualDifference })} />}
           {group.differenceMode === 'IncomingIndexes' && <>
-            <FinanceNumber label={t('finance.billing.previousIndex')} value={value.previousIndex} onChange={(previousIndex) => setSupply(group.id, { previousIndex })} />
+            <FinanceNumber label={t('finance.billing.previousIndex')} value={value.previousIndex} disabled={!mainMeter?.canEnterBaseline} helperText={t(mainMeter?.canEnterBaseline ? value.previousIndex == null ? 'finance.billing.mainMeterStartingHelp' : 'finance.billing.mainMeterBaselineHelp' : value.previousIndex == null ? 'finance.billing.mainMeterMissingHelp' : 'finance.billing.mainMeterPreviousHelp')} onChange={(previousIndex) => setSupply(group.id, { previousIndex })} />
             <FinanceNumber label={t('finance.billing.currentIndex')} value={value.currentIndex} onChange={(currentIndex) => setSupply(group.id, { currentIndex })} />
+            {mainMeter && (mainMeter.currentIndex != null && value.currentIndex !== mainMeter.currentIndex || mainMeter.previousIndex != null && value.previousIndex !== mainMeter.previousIndex) && <TextField fullWidth size="small" required label={t('finance.billing.mainMeterCorrectionReason')} value={value.correctionReason ?? ''} onChange={(event) => setSupply(group.id, { correctionReason: event.target.value })} />}
           </>}
           {group.differenceMode === 'SupplierQuantity' && <FinanceNumber label={t('finance.billing.supplierQuantity')} value={value.supplierQuantity} onChange={(supplierQuantity) => setSupply(group.id, { supplierQuantity })} />}
         </Box>
