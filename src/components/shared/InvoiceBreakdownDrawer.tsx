@@ -9,6 +9,7 @@ import Drawer from '@mui/material/Drawer'
 import Paper from '@mui/material/Paper'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
+import CircularProgress from '@mui/material/CircularProgress'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
@@ -16,6 +17,9 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import { useTranslation } from 'react-i18next'
 import type { ApartmentMaintenanceTotal } from '../../types/apartment'
 import { formatMonth, formatNumber } from '../../utils/formatters'
+import type { ResidentBillDetail } from '../../types/finance'
+import ResidentBillBreakdown from './ResidentBillBreakdown'
+import LoadErrorState from './LoadErrorState'
 
 type InvoiceWithBreakdown = {
   id: string
@@ -31,9 +35,14 @@ type InvoiceBreakdownDrawerProps = {
   onClose: () => void
   formatCurrency: (value: number) => string
   onPay?: () => void
+  bill?: ResidentBillDetail | null
+  open?: boolean
+  loading?: boolean
+  error?: string
+  onRetry?: () => void
 }
 
-const InvoiceBreakdownDrawer: React.FC<InvoiceBreakdownDrawerProps> = ({ formatCurrency, invoice, onClose, onPay }) => {
+const InvoiceBreakdownDrawer: React.FC<InvoiceBreakdownDrawerProps> = ({ formatCurrency, invoice, onClose, onPay, bill, open, loading, error, onRetry }) => {
   const { t } = useTranslation()
   const maintenanceTotal = invoice?.maintenanceTotal
   const expenseTotal = maintenanceTotal?.lines.reduce((total, line) => total + line.amount, 0) ?? invoice?.totalAmount ?? 0
@@ -42,7 +51,11 @@ const InvoiceBreakdownDrawer: React.FC<InvoiceBreakdownDrawerProps> = ({ formatC
   const balance = invoice ? Math.max(invoice.totalAmount - invoice.paidAmount, 0) : 0
 
   return (
-    <Drawer anchor="right" open={Boolean(invoice)} onClose={onClose} slotProps={{ paper: { sx: { width: { xs: '100%', sm: 560 }, p: 2 } } }}>
+    <Drawer anchor="right" open={open ?? Boolean(invoice || bill)} onClose={onClose} slotProps={{ paper: { role: 'dialog', 'aria-label': t('resident.bills.detailsTitle'), sx: { boxSizing: 'border-box', width: { xs: '100%', sm: 560 }, p: 2 } } }}>
+      {loading ? <CircularProgress aria-label={t('finance.billing.loading')} /> : error ? <Box sx={{ display: 'grid', gap: 2 }}>
+        <Button onClick={onClose} startIcon={<ArrowBackIcon />}>{t('resident.bills.backToBills')}</Button>
+        <LoadErrorState helperText={error} onRetry={onRetry ?? onClose} />
+      </Box> : bill ? <ResidentBillBreakdown detail={bill} onClose={onClose} /> : null}
       {invoice && (
         <Box sx={{ display: 'grid', gap: 2 }}>
           <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>

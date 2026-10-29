@@ -1,121 +1,54 @@
-import React from 'react'
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
-import FileDownloadIcon from '@mui/icons-material/FileDownload'
-import PaymentIcon from '@mui/icons-material/Payment'
+import { useContext, useState } from 'react'
+import { Box, Button, Chip, CircularProgress } from '@mui/material'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import { useTranslation } from 'react-i18next'
-import ActionBar from '../../../../../components/shared/ActionBar'
-import ConfirmationDialog from '../../../../../components/shared/ConfirmationDialog'
+import { RoleContext } from '../../../../../contexts/RoleContext'
 import EmptyState from '../../../../../components/shared/EmptyState'
 import InvoiceBreakdownDrawer from '../../../../../components/shared/InvoiceBreakdownDrawer'
+import LoadErrorState from '../../../../../components/shared/LoadErrorState'
 import ResponsiveDataView, { type DataColumn } from '../../../../../components/shared/ResponsiveDataView'
-import StatusChip from '../../../../../components/shared/StatusChip'
-import { formatCurrency, formatMonth, useResidentPortal } from '../../../../../hooks/useApartmentData'
+import { usePageFilter } from '../../../../../hooks/usePageFilter'
+import { useResidentBill, useResidentBills } from '../../../../../hooks/useResidentFinance'
+import { useFinanceIdentity } from '../../../../../hooks/useFinanceWorkspace'
+import type { ResidentBillSummary } from '../../../../../types/finance'
+import ResidentBillsDemo from './ResidentBillsDemo'
 
-const ResidentBills: React.FC = () => {
-  const { t } = useTranslation()
-  const { financeAvailable, residentInvoices } = useResidentPortal()
-  const [invoiceId, setInvoiceId] = React.useState<string | null>(null)
-  const [paymentInvoiceId, setPaymentInvoiceId] = React.useState<string | null | undefined>(undefined)
-  const selectedInvoice = residentInvoices.find((invoice) => invoice.id === invoiceId)
-  const paymentInvoice = residentInvoices.find((invoice) => invoice.id === paymentInvoiceId)
-  const paymentDialogOpen = paymentInvoiceId !== undefined
-  const paymentInvoiceBalance = paymentInvoice ? Math.max(paymentInvoice.totalAmount - paymentInvoice.paidAmount, 0) : 0
-  const totalOutstandingBalance = residentInvoices.reduce(
-    (total, invoice) => total + Math.max(invoice.totalAmount - invoice.paidAmount, 0),
-    0,
-  )
-
-  const closePaymentDialog = () => setPaymentInvoiceId(undefined)
-
-  const openInvoicePayment = () => {
-    if (!selectedInvoice) return
-    setInvoiceId(null)
-    setPaymentInvoiceId(selectedInvoice.id)
-  }
-
-  const columns: DataColumn<(typeof residentInvoices)[number]>[] = [
-    { key: 'id', label: t('finance.columns.invoice'), render: (invoice) => invoice.id },
-    { key: 'apartment', label: t('finance.columns.apartment'), render: (invoice) => invoice.familyLabel },
-    { key: 'month', label: t('finance.columns.month'), render: (invoice) => formatMonth(invoice.month) },
-    { key: 'amount', label: t('finance.columns.amount'), render: (invoice) => formatCurrency(invoice.totalAmount) },
-    { key: 'status', label: t('finance.columns.status'), render: (invoice) => <StatusChip status={invoice.status} label={t(`status.invoice.${invoice.status}`)} /> },
-    {
-      key: 'actions',
-      label: t('common.actions'),
-      actions: (invoice) => [
-        { id: 'details', label: t('resident.bills.viewDetails'), icon: <VisibilityIcon />, onClick: () => setInvoiceId(invoice.id), priority: 2 },
-        { id: 'download', label: t('resident.bills.download'), icon: <FileDownloadIcon />, priority: 1 },
-      ],
-    },
+const PublishedResidentBills = () => {
+  const { t, i18n } = useTranslation()
+  const identity = useFinanceIdentity()
+  const [page, setPage] = usePageFilter('residentBills.page', 1)
+  const [selection, setSelection] = useState<{ identity: string; id: string } | null>(null)
+  const selectedId = selection?.identity === identity ? selection.id : null
+  const list = useResidentBills(page)
+  const detail = useResidentBill(selectedId)
+  const money = (amount: number, currency = 'RON') => new Intl.NumberFormat(i18n.language, { style: 'currency', currency }).format(amount)
+  const select = (bill: ResidentBillSummary) => setSelection({ identity, id: bill.id })
+  const columns: DataColumn<ResidentBillSummary>[] = [
+    { key: 'reference', label: t('finance.columns.invoice'), cardRole: 'primary', render: bill => <Button sx={{ p: 0, minWidth: 0, textAlign: 'left', overflowWrap: 'anywhere' }} onClick={() => select(bill)}>{bill.reference}</Button> },
+    { key: 'apartment', label: t('finance.columns.apartment'), cardRole: 'secondary', render: bill => [bill.blockName, bill.staircaseName, t('finance.billing.apartmentNumber', { number: bill.apartmentNumber })].filter(Boolean).join(' / ') },
+    { key: 'month', label: t('finance.columns.month'), render: bill => new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' }).format(new Date(bill.year, bill.month - 1, 1)) },
+    { key: 'dueDate', label: t('financePublication.dueDate'), render: bill => new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' }).format(new Date(`${bill.dueDate}T12:00:00`)) },
+    { key: 'amount', label: t('residentFinance.thisBill'), render: bill => money(bill.originalAmount, bill.currency) },
+    { key: 'remaining', label: t('resident.bills.summary.balance'), render: bill => money(bill.remainingAmount, bill.currency) },
+    { key: 'status', label: t('finance.columns.status'), cardRole: 'status', render: bill => <Chip size="small" color={bill.status === 'overdue' ? 'warning' : bill.remainingAmount === 0 ? 'success' : 'default'} label={t(`residentFinance.status.${bill.status}`)} /> },
+    { key: 'actions', label: t('common.actions'), actions: bill => [{ id: 'details', label: t('resident.bills.viewDetails'), icon: <VisibilityIcon />, onClick: () => select(bill) }] },
   ]
-
-  if (!financeAvailable) {
-    return <EmptyState headline={t('financeAvailability.notPublished')} helperText={t('financeAvailability.residentHelp')} />
-  }
-
-  return (
-    <Box sx={{ display: 'grid', gap: 2 }}>
-      <ActionBar title={t('resident.bills.history')}>
-        <Button variant="contained" startIcon={<PaymentIcon />} onClick={() => setPaymentInvoiceId(null)}>
-          {t('resident.bills.payAll')}
-        </Button>
-      </ActionBar>
-
-      <ResponsiveDataView
-        paginationId="ResidentBills-1"
-        ariaLabel={t('sidebar.myBills')}
-        columns={columns}
-        emptyState={(
-          <EmptyState
-            actionLabel={t('consumption.actions.submitIndex')}
-            actionTo="/admin/consumption"
-            headline={t('emptyState.headline', { information: t('emptyState.information.invoices') })}
-            helperText={t('emptyState.helper.residentIndexOnly')}
-          />
-        )}
-        getRowId={(invoice) => invoice.id}
-        rows={residentInvoices}
-      />
-      <InvoiceBreakdownDrawer
-        invoice={selectedInvoice ?? null}
-        onClose={() => setInvoiceId(null)}
-        formatCurrency={formatCurrency}
-        onPay={openInvoicePayment}
-      />
-      <ConfirmationDialog
-        cancelLabel={t('common.cancel')}
-        confirmLabel={t('resident.bills.payment.confirm')}
-        onCancel={closePaymentDialog}
-        onConfirm={closePaymentDialog}
-        open={paymentDialogOpen}
-        title={t('resident.bills.payment.title')}
-      >
-        <Box sx={{ display: 'grid', gap: 1 }}>
-          <Typography>{t(paymentInvoice ? 'resident.bills.payment.singleBody' : 'resident.bills.payment.allBody')}</Typography>
-          {paymentInvoice ? (
-            <Box sx={{ display: 'grid', gap: 0.5 }}>
-              <Typography sx={{ fontWeight: 700 }}>
-                {t('resident.bills.payment.invoiceContext', {
-                  invoice: paymentInvoice.id,
-                  month: formatMonth(paymentInvoice.month),
-                })}
-              </Typography>
-              <Typography variant="body1" color="primary.main" sx={{ fontWeight: 700 }}>
-                {t('resident.bills.payment.amount')}: {formatCurrency(paymentInvoiceBalance)}
-              </Typography>
-            </Box>
-          ) : (
-            <Typography sx={{ fontWeight: 700 }}>
-              {t('resident.bills.payment.totalAmount')}: {formatCurrency(totalOutstandingBalance)}
-            </Typography>
-          )}
-        </Box>
-      </ConfirmationDialog>
-    </Box>
-  )
+  return <Box sx={{ display: 'grid', gap: 2 }}>
+    {list.loading ? <CircularProgress aria-label={t('finance.billing.loading')} />
+      : list.error ? <LoadErrorState helperText={t('residentFinance.billsError')} onRetry={list.refresh} />
+        : list.data && <ResponsiveDataView paginationId="resident-published-bills" paginationResetKey={identity}
+          ariaLabel={t('sidebar.myBills')} rows={list.data.items} columns={columns} getRowId={bill => bill.id} onRowClick={select}
+          serverPagination={{ page, totalCount: list.data.totalCount, onPageChange: setPage }}
+          emptyState={<EmptyState headline={t('residentFinance.noPublishedBills')} helperText={t('residentFinance.noPublishedHelp')} />} />}
+    <InvoiceBreakdownDrawer key={identity} invoice={null} bill={detail.data ?? null} open={!!selectedId} loading={detail.loading}
+      error={detail.error ? t('residentFinance.billError') : undefined} onRetry={detail.refresh}
+      onClose={() => setSelection(null)} formatCurrency={money} />
+  </Box>
 }
 
+const ResidentBills = () => {
+  const { account } = useContext(RoleContext)
+  const demo = account.dataMode === 'mock-populated' || account.dataMode === 'mock-configured-block'
+  return demo ? <ResidentBillsDemo /> : <PublishedResidentBills />
+}
 export default ResidentBills

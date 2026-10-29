@@ -1,12 +1,89 @@
 {
+  "financePublication": {
+    "publish": "Publish",
+    "published": "Published",
+    "publishing": "Publishing…",
+    "retry": "Retry publication",
+    "title": "Publish resident bills",
+    "reportActions": "Report actions",
+    "dueDate": "Billing due date",
+    "summary": "This report includes {{count}} apartments. Saved report total: {{amount}}.",
+    "visibility": "Each apartment bill will be available to every resident linked to that apartment. Published amounts are retained and cannot be replaced by another draft.",
+    "draftHelp": "Draft — not published. Review this saved revision, then publish it to make apartment bills available to residents.",
+    "publishedHelp": "Published on {{date}}. Apartment bills are available to their linked residents. Amounts belong to this saved revision.",
+    "periodPublished": "This month already has published bills. A new draft cannot replace them.",
+    "supersededHelp": "A newer revision exists. Open the latest saved report before publishing.",
+    "arrearsHelp": "Identify previous debt for each apartment. Opening debt is issued once before its first bill. Carried-forward debt must match existing unpaid bills and will not be billed twice.",
+    "arrearsLabel": "Apartment {{apartment}} — previous debt {{amount}}",
+    "opening": "Opening balance from before the first bill",
+    "carried": "Already included in previous unpaid bills",
+    "retryHelp": "The previous outcome is uncertain. Retry the same saved request to avoid duplicate bills. Its due date and debt choices remain locked.",
+    "uncertain": "Publication could not be confirmed. Check your connection and retry the same request.",
+    "errors": {
+      "VALIDATION_ERROR": "Check the due date and previous-debt choices. Opening debt is only allowed before the first bill; carried-forward debt must match existing unpaid bills. Negative bills requiring credit allocation cannot be published yet.",
+      "REPORT_OUTDATED": "The report inputs changed. Generate and review a current revision before publishing.",
+      "REPORT_SUPERSEDED": "Open the latest report revision before publishing.",
+      "PERIOD_PUBLISHED": "This month has already been published. Existing bills cannot be replaced.",
+      "PUBLICATION_ORDER": "Publish billing months in chronological order.",
+      "REQUEST_ID_REUSED": "This request was already used with different inputs. Refresh the report before continuing.",
+      "FORBIDDEN": "Your current account cannot publish this report.",
+      "CONCURRENT_CHANGE": "Another request changed this data. Refresh the report or retry publication.",
+      "FINANCE_BUSY": "Another finance request is in progress. Retry publication shortly.",
+      "unknown": "Publication failed. Refresh the report and check its status before trying again."
+    }
+  },
+  "residentFinance": {
+    "inputsTitle": "Saved billing quantities",
+    "summaryError": "Your amount due could not be loaded. Please retry.",
+    "billsError": "Your bills could not be loaded. Please retry.",
+    "billError": "This bill could not be loaded. Please retry.",
+    "noPublishedBills": "No published bills yet",
+    "noPublishedHelp": "Your bills will appear here after your administrator publishes a report for your apartment.",
+    "unpaidCount_one": "{{count}} unpaid bill across your linked apartments",
+    "unpaidCount_other": "{{count}} unpaid bills across your linked apartments",
+    "thisBill": "Amount issued on this bill",
+    "reportTotal": "Saved report total",
+    "paidAmount": "Amount paid",
+    "status": {
+      "unpaid": "Unpaid",
+      "overdue": "Overdue",
+      "paid": "Paid",
+      "noAmountDue": "No amount due"
+    },
+    "units": {
+      "people": "people",
+      "apartments": "apartments"
+    },
+    "scope": {
+      "Block": "Your apartment's share of a charge for the building.",
+      "Staircase": "Your apartment's share of a charge for its staircase.",
+      "Apartments": "This charge applies to the selected apartment group that includes your apartment."
+    },
+    "manualPurpose": "An amount assigned directly to your apartment, with the recorded reason below.",
+    "manualCalculation": "A direct amount of {{amount}} was entered for your apartment rather than distributed using a shared formula.",
+    "rateCalculation": "Calculated by {{method}}: your quantity is {{quantity}} {{unit}}. {{rate}} per unit × {{quantity}} = {{amount}}.",
+    "poolCalculation": "Calculated by {{method}}: your share is {{quantity}} of {{denominator}} {{unit}} in the group. Shared amount {{pool}} × {{quantity}} ÷ {{denominator}} = {{amount}}.",
+    "rounding": "The saved calculation retains its original precision. Displayed values are rounded; the final amount includes allocation of residual cents.",
+    "waterCalculation": "Your measured usage is {{actual}} m³, plus an allocated difference of {{difference}} m³. The quantity used for this charge is {{billed}} m³. The difference is included once in that quantity.",
+    "heatingPercentage": "Your heating basis is {{area}} m² of usable area × {{percentage}}%, rounded to {{mp}} m² before allocating the heating charge.",
+    "heatingManual": "Your saved heating allocation basis is {{mp}} m², entered directly for this billing period.",
+    "carryExplanation": "Previous debt of {{amount}} is shown in this report and remains on earlier unpaid bills. It is excluded from the amount issued on this bill so it is not charged twice.",
+    "adjustment": {
+      "Arrears": "Previous debt included in the report. The recorded reason explains its origin.",
+      "Penalty": "A penalty recorded for your apartment. Its reason is shown below.",
+      "Credit": "A credit that reduces this bill. Its reason is shown below.",
+      "Other": "A correction or other adjustment to your apartment's bill. Its reason is shown below."
+    },
+    "savedReport": "These components and amounts come from published report revision {{revision}}. Later changes to building settings do not recalculate this bill."
+  },
   "financeAvailability": {
-    "accountingPending": "Payment accounting and published balances are not available yet.",
+    "accountingPending": "Payment accounting is not available yet.",
     "activityPending": "Activity history is not available yet. Saved maintenance drafts are listed in Reports.",
     "validationPending": "Financial validation will be available in Phase 2. Administrators can generate and review saved maintenance drafts now.",
     "configureHeating": "Configure apartment heating MP",
     "heatingHelp": "Set manual heating MP or a percentage of this usable area in the block's Finance configuration. The billing month determines which settings apply.",
     "notPublished": "Bills have not been published",
-    "residentHelp": "Administrators can generate saved maintenance drafts. Resident access will become available after validation and publication are implemented.",
+    "residentHelp": "Bills become available after your administrator publishes a report for your apartment.",
     "historyProtected": "This block has saved finance configuration, period inputs or reports. Housing deletion and transfers require a future finance archive workflow.",
     "financeRecords": "Finance records"
   },
@@ -884,7 +961,7 @@
         "Area": "Usable area", "HeatingMp": "Heating allocation MP", "ColdConsumption": "Cold-water consumption", "HotConsumption": "Hot-water consumption",
         "Pool": "Total bill / pool", "Rate": "Rate per unit", "Percentage": "Percentage of usable area",
         "Arrears": "Opening arrears", "Penalty": "Manual penalty", "Credit": "Credit (negative amount)", "Other": "Other adjustment",
-        "Draft": "Draft", "Outdated": "Outdated draft"
+        "Draft": "Draft", "Outdated": "Outdated draft", "Published": "Published", "Superseded": "Superseded draft"
       }
     },
     "tabs": {
@@ -1137,7 +1214,7 @@
         "methodTooltip": "Calculated using {{method}}",
         "title": "Cost breakdown"
       },
-      "description": "View invoices, payment status, and downloadable bill details.",
+      "description": "View your published bills, outstanding balances, and explained cost breakdowns.",
       "history": "Invoice history",
       "payAll": "Pay All",
       "payBill": "Pay bill",

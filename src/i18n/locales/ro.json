@@ -1,12 +1,90 @@
 ﻿{
+  "financePublication": {
+    "publish": "Publică",
+    "published": "Publicat",
+    "publishing": "Se publică…",
+    "retry": "Reîncearcă publicarea",
+    "title": "Publică facturile locatarilor",
+    "reportActions": "Acțiuni raport",
+    "dueDate": "Data scadentă a facturilor",
+    "summary": "Raportul include {{count}} apartamente. Totalul raportului salvat: {{amount}}.",
+    "visibility": "Factura fiecărui apartament va fi disponibilă tuturor locatarilor asociați acelui apartament. Sumele publicate se păstrează și nu pot fi înlocuite cu o altă ciornă.",
+    "draftHelp": "Ciornă — nepublicată. Verifică această revizie salvată, apoi public-o pentru ca facturile apartamentelor să fie disponibile locatarilor.",
+    "publishedHelp": "Publicat la {{date}}. Facturile apartamentelor sunt disponibile locatarilor asociați. Sumele aparțin acestei revizii salvate.",
+    "periodPublished": "Pentru această lună există deja facturi publicate. O ciornă nouă nu le poate înlocui.",
+    "supersededHelp": "Există o revizie mai nouă. Deschide cel mai recent raport salvat înainte de publicare.",
+    "arrearsHelp": "Identifică datoria anterioară a fiecărui apartament. Soldul inițial se facturează o singură dată, înaintea primei facturi. Datoria reportată trebuie să corespundă facturilor neachitate existente și nu se facturează de două ori.",
+    "arrearsLabel": "Apartamentul {{apartment}} — datorie anterioară {{amount}}",
+    "opening": "Sold inițial anterior primei facturi",
+    "carried": "Inclusă deja în facturile anterioare neachitate",
+    "retryHelp": "Rezultatul încercării anterioare este incert. Reîncearcă aceeași cerere salvată pentru a evita dublarea facturilor. Scadența și opțiunile pentru datorii rămân blocate.",
+    "uncertain": "Publicarea nu a putut fi confirmată. Verifică conexiunea și reîncearcă aceeași cerere.",
+    "errors": {
+      "VALIDATION_ERROR": "Verifică scadența și opțiunile pentru datoriile anterioare. Soldul inițial este permis numai înaintea primei facturi; datoria reportată trebuie să corespundă facturilor neachitate existente. Facturile negative care necesită alocarea unui credit nu pot fi încă publicate.",
+      "REPORT_OUTDATED": "Datele raportului s-au modificat. Generează și verifică o revizie actuală înainte de publicare.",
+      "REPORT_SUPERSEDED": "Deschide cea mai recentă revizie a raportului înainte de publicare.",
+      "PERIOD_PUBLISHED": "Această lună a fost deja publicată. Facturile existente nu pot fi înlocuite.",
+      "PUBLICATION_ORDER": "Publică lunile de facturare în ordine cronologică.",
+      "REQUEST_ID_REUSED": "Cererea a fost deja folosită cu alte date. Reîncarcă raportul înainte de a continua.",
+      "FORBIDDEN": "Contul curent nu poate publica acest raport.",
+      "CONCURRENT_CHANGE": "O altă cerere a modificat datele. Reîncarcă raportul sau reîncearcă publicarea.",
+      "FINANCE_BUSY": "O altă operațiune financiară este în desfășurare. Reîncearcă publicarea în scurt timp.",
+      "unknown": "Publicarea a eșuat. Reîncarcă raportul și verifică starea lui înainte de a reîncerca."
+    }
+  },
+  "residentFinance": {
+    "inputsTitle": "Cantități salvate pentru calcul",
+    "summaryError": "Suma de plată nu a putut fi încărcată. Reîncearcă.",
+    "billsError": "Facturile nu au putut fi încărcate. Reîncearcă.",
+    "billError": "Factura nu a putut fi încărcată. Reîncearcă.",
+    "noPublishedBills": "Nu există încă facturi publicate",
+    "noPublishedHelp": "Facturile vor apărea aici după ce administratorul publică un raport pentru apartamentul tău.",
+    "unpaidCount_one": "{{count}} factură neachitată pentru apartamentele tale",
+    "unpaidCount_few": "{{count}} facturi neachitate pentru apartamentele tale",
+    "unpaidCount_other": "{{count}} de facturi neachitate pentru apartamentele tale",
+    "thisBill": "Suma emisă pe această factură",
+    "reportTotal": "Totalul raportului salvat",
+    "paidAmount": "Suma achitată",
+    "status": {
+      "unpaid": "Neachitată",
+      "overdue": "Restantă",
+      "paid": "Achitată",
+      "noAmountDue": "Fără sumă de plată"
+    },
+    "units": {
+      "people": "persoane",
+      "apartments": "apartamente"
+    },
+    "scope": {
+      "Block": "Partea apartamentului tău dintr-o cheltuială a blocului.",
+      "Staircase": "Partea apartamentului tău dintr-o cheltuială a scării.",
+      "Apartments": "Cheltuiala se aplică grupului de apartamente selectate din care face parte și apartamentul tău."
+    },
+    "manualPurpose": "O sumă atribuită direct apartamentului tău, cu motivul înregistrat mai jos.",
+    "manualCalculation": "Suma de {{amount}} a fost introdusă direct pentru apartamentul tău, fără repartizare printr-o formulă comună.",
+    "rateCalculation": "Calcul după {{method}}: cantitatea ta este {{quantity}} {{unit}}. {{rate}} pe unitate × {{quantity}} = {{amount}}.",
+    "poolCalculation": "Calcul după {{method}}: partea ta este {{quantity}} din {{denominator}} {{unit}} ale grupului. Suma comună {{pool}} × {{quantity}} ÷ {{denominator}} = {{amount}}.",
+    "rounding": "Calculul salvat își păstrează precizia inițială. Valorile afișate sunt rotunjite; suma finală include repartizarea diferențelor de bani rezultate din rotunjire.",
+    "waterCalculation": "Consumul tău măsurat este {{actual}} m³, plus o diferență repartizată de {{difference}} m³. Cantitatea folosită pentru această cheltuială este {{billed}} m³. Diferența este inclusă o singură dată în această cantitate.",
+    "heatingPercentage": "Baza ta de încălzire este {{area}} m² suprafață utilă × {{percentage}}%, rotunjită la {{mp}} m² înaintea repartizării cheltuielii de încălzire.",
+    "heatingManual": "Baza ta salvată pentru repartizarea încălzirii este {{mp}} m², introdusă direct pentru această lună de calcul.",
+    "carryExplanation": "Datoria anterioară de {{amount}} apare în raport și rămâne pe facturile anterioare neachitate. Este exclusă din suma emisă pe această factură pentru a nu fi facturată de două ori.",
+    "adjustment": {
+      "Arrears": "Datorie anterioară inclusă în raport. Motivul înregistrat explică proveniența ei.",
+      "Penalty": "O penalizare înregistrată pentru apartamentul tău. Motivul apare mai jos.",
+      "Credit": "Un credit care reduce această factură. Motivul apare mai jos.",
+      "Other": "O corecție sau altă ajustare a facturii apartamentului tău. Motivul apare mai jos."
+    },
+    "savedReport": "Componentele și sumele provin din revizia {{revision}} a raportului publicat. Modificările ulterioare ale setărilor blocului nu recalculează această factură."
+  },
   "financeAvailability": {
-    "accountingPending": "Evidența plăților și soldurile publicate nu sunt încă disponibile.",
+    "accountingPending": "Evidența plăților nu este încă disponibilă.",
     "activityPending": "Istoricul activității nu este încă disponibil. Ciornele de întreținere salvate se găsesc în Rapoarte.",
     "validationPending": "Validarea financiară va fi disponibilă în etapa a doua. Administratorii pot genera și consulta acum ciorne de întreținere salvate.",
     "configureHeating": "Configurează MP de încălzire pe apartament",
     "heatingHelp": "Setează manual MP de încălzire sau un procent din această suprafață utilă în configurația financiară a blocului. Luna de calcul stabilește configurația aplicabilă.",
     "notPublished": "Listele de plată nu au fost publicate",
-    "residentHelp": "Administratorii pot genera ciorne de întreținere salvate. Accesul locatarilor va fi disponibil după implementarea validării și publicării.",
+    "residentHelp": "Facturile devin disponibile după ce administratorul publică un raport pentru apartamentul tău.",
     "historyProtected": "Blocul are configurații financiare, date lunare sau rapoarte salvate. Ștergerea și transferul locuințelor necesită un flux viitor de arhivare financiară.",
     "financeRecords": "Înregistrări financiare"
   },
@@ -975,7 +1053,7 @@
           "Area": "Suprafață utilă", "HeatingMp": "MP de repartizare a încălzirii", "ColdConsumption": "Consum apă rece", "HotConsumption": "Consum apă caldă",
           "Pool": "Total factură de repartizat", "Rate": "Tarif unitar", "Percentage": "Procent din suprafața utilă",
           "Arrears": "Restanțe inițiale", "Penalty": "Penalizare manuală", "Credit": "Credit (sumă negativă)", "Other": "Altă ajustare",
-          "Draft": "Ciornă", "Outdated": "Ciornă depășită"
+          "Draft": "Ciornă", "Outdated": "Ciornă depășită", "Published": "Publicat", "Superseded": "Ciornă înlocuită"
         }
       },
                     "tabs":  {
@@ -1127,7 +1205,7 @@
                                                      "methodTooltip":  "Calculat folosind {{method}}",
                                                      "title":  "Defalcare costuri"
                                                  },
-                                   "description":  "Vedeți facturile, statusul plăților și detalii descărcabile.",
+                                   "description":  "Vezi facturile publicate, soldurile neachitate și explicațiile cheltuielilor.",
                                    "history":  "Istoric facturi",
                                    "payAll":  "Plătește tot",
                                    "payBill":  "Plătește factura",

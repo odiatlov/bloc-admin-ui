@@ -1,7 +1,6 @@
 import React from 'react'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import CircularProgress from '@mui/material/CircularProgress'
 import List from '@mui/material/List'
@@ -9,9 +8,6 @@ import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import Divider from '@mui/material/Divider'
 import Paper from '@mui/material/Paper'
-import PaymentIcon from '@mui/icons-material/Payment'
-import OpacityIcon from '@mui/icons-material/Opacity'
-import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import EmptyState from '../../../../../components/shared/EmptyState'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
@@ -22,11 +18,12 @@ import { formatCurrency, formatNumber, useResidentPortal } from '../../../../../
 import { useResidentWaterIndex } from '../../../../../hooks/useResidentWaterIndex'
 import type { BlockOverview } from '../../../../../types/block'
 import type { ResidentApartmentSummary, ResidentResponse } from '../../../../../types/management'
-import { ActionBar, ContentCard, DashboardHeader, DashboardPage, StatCard, StatGrid } from './DashboardSystem'
+import { ContentCard, DashboardHeader, DashboardPage, StatCard, StatGrid } from './DashboardSystem'
+import ResidentCurrentDue from './ResidentCurrentDue'
+import ResidentQuickActions from './ResidentQuickActions'
 
 const ResidentDashboard: React.FC = () => {
   const { t } = useTranslation()
-  const navigate = useNavigate()
   const { account } = React.useContext(RoleContext)
   const { currentBalance, financeAvailable, resident, residentInvoices } = useResidentPortal()
   const { rows: waterIndexRows } = useResidentWaterIndex()
@@ -220,23 +217,14 @@ const ResidentDashboard: React.FC = () => {
     <DashboardPage>
       <DashboardHeader title={t('dashboard.resident.title')} context={databaseResident?.fullName ?? account.name ?? resident?.name ?? ''} />
 
-      <ActionBar title={t('dashboard.resident.quickActions')}>
-        {residentInvoices.length > 0 && (
-          <Button startIcon={<PaymentIcon />} variant="contained" onClick={() => navigate('/admin/finance')}>
-            {t('dashboard.resident.pay')}
-          </Button>
-        )}
-        <Button startIcon={<OpacityIcon />} variant="outlined" onClick={() => navigate('/admin/consumption')}>
-          {t('consumption.actions.submitIndex')}
-        </Button>
-      </ActionBar>
+      <ResidentQuickActions showPay={!financeAvailable || residentInvoices.length > 0} />
 
       <StatGrid columns={{ xs: 'repeat(2, minmax(0, 1fr))' }}>
-        <StatCard
+        {financeAvailable ? <StatCard
           label={t('dashboard.resident.currentDue')}
           value={financeAvailable ? formatCurrency(currentBalance) : t('common.notAvailable')}
           secondary={t(financeAvailable ? 'dashboard.resident.currentDueSubtitle' : 'financeAvailability.notPublished')}
-        />
+        /> : <ResidentCurrentDue />}
 
         <StatCard label={t('dashboard.resident.lastMonthWaterConsumption')}>
           {latestIndexRows.length > 0 ? (

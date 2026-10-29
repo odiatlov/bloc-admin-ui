@@ -3,6 +3,7 @@ import { usePageFilter } from '../../../../../hooks/usePageFilter'
 import { Alert, Box, Button, Checkbox, Chip, CircularProgress, FormControlLabel, MenuItem, TextField, Typography } from '@mui/material'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import PreviewIcon from '@mui/icons-material/Preview'
+import PublishIcon from '@mui/icons-material/Publish'
 import { useTranslation } from 'react-i18next'
 import EmptyState from '../../../../../components/shared/EmptyState'
 import AppDatePicker from '../../../../../components/shared/AppDatePicker'
@@ -43,10 +44,11 @@ const GeneratedReportsList: React.FC = () => {
     { key: 'block', label: t('finance.billing.block'), cardRole: 'primary', render: (row) => row.blockName },
     { key: 'period', label: t('finance.billing.billingMonth'), cardRole: 'secondary', render: (row) => new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' }).format(new Date(row.year, row.month - 1, 1)) },
     { key: 'revision', label: t('finance.billing.revisionLabel'), render: (row) => row.revision },
-    { key: 'status', label: t('finance.billing.status'), cardRole: 'status', render: (row) => <Chip size="small" color={row.status === 'Outdated' ? 'warning' : 'default'} label={t(`finance.billing.values.${row.status}`)} /> },
+    { key: 'status', label: t('finance.billing.status'), cardRole: 'status', render: (row) => <Chip size="small" color={row.status === 'Published' ? 'success' : row.status === 'Outdated' ? 'warning' : 'default'} label={t(row.status === 'Published' ? 'financePublication.published' : `finance.billing.values.${row.status}`)} /> },
     { key: 'generated', label: t('finance.billing.generatedAt'), render: (row) => new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(row.generatedAt)) },
     { key: 'total', label: t('finance.billing.totalDue'), render: (row) => new Intl.NumberFormat(i18n.language, { style: 'currency', currency: 'RON' }).format(row.totalDue) },
     { key: 'actions', label: t('common.actions'), cardRole: 'actions', actions: (row) => [
+      { id: 'publish', label: t('financePublication.publish'), icon: <PublishIcon />, to: `/admin/reports/maintenance/${row.id}`, visible: row.status === 'Draft' && !row.periodPublished, priority: 3 },
       { id: 'preview', label: t('finance.billing.preview'), icon: <PreviewIcon />, to: `/admin/reports/maintenance/${row.id}`, priority: 2 },
       { id: 'export', label: t('finance.billing.exportExcel'), icon: <FileDownloadIcon />, onClick: () => setExportId(row.id), priority: 1 },
     ] },
