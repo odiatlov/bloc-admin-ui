@@ -1,8 +1,9 @@
 import { ApiError, apiGet, apiPost, apiPut } from './apiClient'
-import type { FinanceBlock, FinanceConfiguration, FinanceExportFormat, FinancePeriodData, FinanceReportSummary, FinanceWorkspace, MaintenanceReport } from '../types/finance'
+import type { FinanceBlock, FinanceConfiguration, FinanceExportFormat, FinancePeriodData, FinancePublication, FinanceReportSummary, FinanceWorkspace, MaintenanceReport, PublishFinanceRequest } from '../types/finance'
 
 const blockPath = (blockId: string) => `/finance/blocks/${encodeURIComponent(blockId)}`
 export const financeApi = {
+  publish: (id: string, request: PublishFinanceRequest) => apiPost<PublishFinanceRequest, FinancePublication>(`/finance/reports/${encodeURIComponent(id)}/publish`, request),
   blocks: (signal?: AbortSignal) => apiGet<FinanceBlock[]>('/finance/blocks', signal),
   workspace: (blockId: string, year: number, month: number, signal?: AbortSignal) => apiGet<FinanceWorkspace>(`${blockPath(blockId)}/workspace?year=${year}&month=${month}`, signal),
   saveConfiguration: (blockId: string, expectedVersion: number, configuration: FinanceConfiguration) => apiPut<{ expectedVersion: number; configuration: FinanceConfiguration }, { version: number; configuration: FinanceConfiguration }>(`${blockPath(blockId)}/configuration`, { expectedVersion, configuration }),

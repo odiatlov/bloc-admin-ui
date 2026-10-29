@@ -45,6 +45,7 @@ export type ResponsiveDataViewProps<T> = {
   renderCardCornerActions?: (row: T) => React.ReactNode
   renderMobileRow?: (row: T) => React.ReactNode
   rows: T[]
+  onRowClick?: (row: T) => void
 }
 
 const inferCardRole = (column: Pick<DataColumn<unknown>, 'cardRole' | 'key'>, index: number): CardRole => {
@@ -55,7 +56,7 @@ const inferCardRole = (column: Pick<DataColumn<unknown>, 'cardRole' | 'key'>, in
   return 'metadata'
 }
 
-const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900, tableMinWidth, stickyColumnCount = 0, emptyState, getRowId, paginationId, paginationResetKey = '', serverPagination, renderCardCornerActions, renderMobileRow, rows }: ResponsiveDataViewProps<T>) => {
+const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900, tableMinWidth, stickyColumnCount = 0, emptyState, getRowId, paginationId, paginationResetKey = '', serverPagination, renderCardCornerActions, renderMobileRow, rows, onRowClick }: ResponsiveDataViewProps<T>) => {
   const { t } = useTranslation()
   const [localState, setLocalState] = usePageFilter<DataViewPageState>(`pagination.client.${paginationId}`, { page: 1, resetKey: '' })
   const savedState = localState
@@ -196,7 +197,9 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
             {pageRows.map((row) => {
               const actions = actionColumns.flatMap((column) => column.actions!(row))
               return (
-                <TableRow key={getRowId(row)} hover>
+                <TableRow key={getRowId(row)} hover onClick={onRowClick ? event => {
+                  if (!(event.target as Element).closest('button, a, input, [role="button"]')) onRowClick(row)
+                } : undefined} sx={onRowClick ? { cursor: 'pointer' } : undefined}>
                 {columns.map((column, index) => {
                   return (
                     <TableCell key={column.key} sx={stickyCellSx(index)}>
@@ -251,8 +254,10 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
           })
 
           return (
+            <Box key={getRowId(row)} onClick={onRowClick ? event => {
+              if (!(event.target as Element).closest('button, a, input, [role="button"]')) onRowClick(row)
+            } : undefined} sx={onRowClick ? { cursor: 'pointer' } : { display: 'contents' }}>
             <EntityListItem
-              key={getRowId(row)}
               actions={actions.some((action) => action.visible !== false) ? <ActionButtons actions={actions} variant="card" /> : undefined}
               cornerActions={renderCardCornerActions?.(row)}
               metadata={metadata}
@@ -261,6 +266,7 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
               status={status}
               title={primary}
             />
+            </Box>
           )
         })}
       </Box>

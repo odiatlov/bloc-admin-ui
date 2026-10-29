@@ -74,7 +74,7 @@ const MonthlyWorkspace: React.FC<{ workspace: FinanceWorkspace; refresh: () => v
         </Box>
       </Paper>
       {workspace.latestReport && <Paper sx={{ p: 2, display: 'grid', gap: 1.5 }}>
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}><Typography variant="h6">{t('finance.billing.savedReport')}</Typography><Chip size="small" color={workspace.latestReport.status === 'Outdated' ? 'warning' : 'default'} label={t(`finance.billing.values.${workspace.latestReport.status}`)} /></Box>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}><Typography variant="h6">{t('finance.billing.savedReport')}</Typography><Chip size="small" color={workspace.latestReport.status === 'Published' ? 'success' : workspace.latestReport.status === 'Outdated' ? 'warning' : 'default'} label={t(`finance.billing.values.${workspace.latestReport.status}`)} /></Box>
         <Typography>{t('finance.billing.revision', { revision: workspace.latestReport.revision })} · {new Intl.NumberFormat(i18n.language, { style: 'currency', currency: 'RON' }).format(workspace.latestReport.totalDue)}</Typography>
         <Button component={RouterLink} to={`/admin/reports/maintenance/${workspace.latestReport.id}`} variant="outlined">{t('finance.billing.openReport')}</Button>
       </Paper>}

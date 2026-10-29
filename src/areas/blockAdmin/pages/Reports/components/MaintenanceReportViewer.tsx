@@ -1,9 +1,7 @@
 import React from 'react'
-import { Alert, Box, Button, Chip, CircularProgress, Paper, Tab, Tabs, Typography } from '@mui/material'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import FileDownloadIcon from '@mui/icons-material/FileDownload'
+import { Alert, Box, Chip, CircularProgress, Paper, Tab, Tabs, Typography } from '@mui/material'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
-import { Link as RouterLink, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import AppDialog from '../../../../../components/shared/AppDialog'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
@@ -14,8 +12,9 @@ import { useFinanceIdentity } from '../../../../../hooks/useFinanceWorkspace'
 import { financeApi } from '../../../../../services/financeApi'
 import type { FinanceReportRow, MaintenanceReport } from '../../../../../types/finance'
 import FinanceExportDialog from './FinanceExportDialog'
+import MaintenanceReportActions from './MaintenanceReportActions'
 
-const ReportSheets: React.FC<{ report: MaintenanceReport }> = ({ report }) => {
+const ReportSheets: React.FC<{ report: MaintenanceReport; onPublished: () => void }> = ({ report, onPublished }) => {
   const { t, i18n } = useTranslation()
   const [sheetIndex, setSheetIndex] = React.useState(0)
   const [selected, setSelected] = React.useState<FinanceReportRow | null>(null)
@@ -42,8 +41,10 @@ const ReportSheets: React.FC<{ report: MaintenanceReport }> = ({ report }) => {
     { key: 'actions', label: t('common.actions'), cardRole: 'actions', actions: (row) => [{ id: 'details', label: t('finance.billing.calculationDetails'), icon: <InfoOutlinedIcon />, onClick: () => setSelected(row) }] },
   ]
   return <Box sx={{ display: 'grid', gap: 2 }}>
-    <PageHeader title={`${report.blockName} · ${new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' }).format(new Date(report.year, report.month - 1, 1))}`} description={t('finance.billing.reportDescription', { revision: report.revision })} actions={<><Button component={RouterLink} to="/admin/reports" startIcon={<ArrowBackIcon />} variant="outlined">{t('finance.billing.backReports')}</Button><Button startIcon={<FileDownloadIcon />} variant="contained" onClick={() => setExportOpen(true)}>{t('finance.billing.exportExcel')}</Button></>} />
-    <Alert severity={report.status === 'Outdated' ? 'warning' : 'info'}>{t(report.status === 'Outdated' ? 'finance.billing.outdatedHelp' : 'finance.billing.draftHelp')}</Alert>
+    <PageHeader title={`${report.blockName} · ${new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' }).format(new Date(report.year, report.month - 1, 1))}`} description={t('finance.billing.reportDescription', { revision: report.revision })} actions={<MaintenanceReportActions report={report} onExport={() => setExportOpen(true)} onPublished={onPublished} />} />
+    <Alert severity={report.publication ? 'success' : report.status === 'Outdated' || report.status === 'Superseded' ? 'warning' : 'info'}>
+      {t(report.publication ? 'financePublication.publishedHelp' : report.periodPublished ? 'financePublication.periodPublished' : report.status === 'Outdated' ? 'finance.billing.outdatedHelp' : report.status === 'Superseded' ? 'financePublication.supersededHelp' : 'financePublication.draftHelp', { date: report.publication ? new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(report.publication.publishedAt)) : '' })}
+    </Alert>
     {exportOpen && <FinanceExportDialog reportId={report.id} onClose={() => setExportOpen(false)} />}
     <Paper sx={{ overflow: 'hidden' }}><Tabs variant="scrollable" scrollButtons="auto" value={sheetIndex} onChange={(_, value: number) => setSheetIndex(value)}>{report.sheets.map((item, index) => <Tab key={item.staircaseId ?? index} label={item.name} />)}<Tab label={t('finance.billing.reconciliation')} /></Tabs></Paper>
     {sheet ? <>
@@ -94,6 +95,6 @@ const MaintenanceReportViewer: React.FC = () => {
   if (role !== 'Admin') return <Alert severity="info">{t('finance.billing.adminOnly')}</Alert>
   if (state?.key !== key) return <CircularProgress aria-label={t('finance.billing.loading')} />
   if (state.error) return <LoadErrorState helperText={state.error} onRetry={() => setRetry((value) => value + 1)} />
-  return state.report ? <ReportSheets key={key} report={state.report} /> : null
+  return state.report ? <ReportSheets key={key} report={state.report} onPublished={() => setRetry(value => value + 1)} /> : null
 }
 export default MaintenanceReportViewer
