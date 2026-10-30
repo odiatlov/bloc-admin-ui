@@ -14,7 +14,8 @@ import LoadErrorState from '../../../../../components/shared/LoadErrorState'
 import { RoleContext } from '../../../../../contexts/RoleContext'
 import { blocksApi } from '../../../../../services/blocksApi'
 import { residentsApi } from '../../../../../services/residentsApi'
-import { formatCurrency, formatNumber, useResidentPortal } from '../../../../../hooks/useApartmentData'
+import { formatCurrency, useResidentPortal } from '../../../../../hooks/useApartmentData'
+import { formatCubicMeters } from '../../../../../utils/formatters'
 import { useResidentWaterIndex } from '../../../../../hooks/useResidentWaterIndex'
 import type { BlockOverview } from '../../../../../types/block'
 import type { ResidentApartmentSummary, ResidentResponse } from '../../../../../types/management'
@@ -73,8 +74,8 @@ const ResidentDashboard: React.FC = () => {
   }
   const renderIndexMovement = (summary: ReturnType<typeof buildWaterSummary>) => {
     if (summary.currentTotal === null) return t('dashboard.resident.noRegisteredIndexYet')
-    if (summary.previousTotal === null) return formatNumber(summary.currentTotal)
-    return `${formatNumber(summary.previousTotal)} \u2192 ${formatNumber(summary.currentTotal)}`
+    if (summary.previousTotal === null) return formatCubicMeters(summary.currentTotal)
+    return `${formatCubicMeters(summary.previousTotal)} \u2192 ${formatCubicMeters(summary.currentTotal)}`
   }
   const announcements = [
     { id: 'A1', date: '2026-05-01', textKey: 'dashboard.resident.announcements.elevator' },
@@ -240,7 +241,7 @@ const ResidentDashboard: React.FC = () => {
                   { label: t('dashboard.resident.coldWaterIndex'), summary: buildWaterSummary('cold') },
                   { label: t('dashboard.resident.hotWaterIndex'), summary: buildWaterSummary('hot') },
                 ]).map((item) => (
-                  <Box>
+                  <Box key={item.label}>
                     <Typography variant="body2" color="text.secondary">{item.label}</Typography>
                     <Typography sx={{ fontWeight: 700 }}>{renderIndexMovement(item.summary)}</Typography>
                   </Box>
@@ -264,7 +265,7 @@ const ResidentDashboard: React.FC = () => {
                   <Box key={item.label}>
                     <Typography variant="body2" color="text.secondary">{item.label}</Typography>
                     <Typography sx={{ fontWeight: 700 }}>
-                      {item.summary.consumption === null ? t('dashboard.resident.noRegisteredIndexYet') : formatNumber(item.summary.consumption)}
+                      {item.summary.consumption === null ? t('dashboard.resident.noRegisteredIndexYet') : formatCubicMeters(item.summary.consumption)}
                     </Typography>
                   </Box>
                 ))}

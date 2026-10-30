@@ -27,13 +27,13 @@ describe('resident published bills', () => {
     expect(list).toHaveBeenCalledTimes(2)
   })
 
-  it('opens a clicked bill in the drawer with saved details and supports Back', async () => {
+  it.each(['light', 'dark'] as const)('opens a bill through its keyboard-accessible details action in %s mode and supports Back', async (mode) => {
     vi.spyOn(residentFinanceApi, 'bills').mockResolvedValue({ items: [billDetail.bill], totalCount: 1, pageNumber: 1, pageSize: 10 })
     const details = vi.spyOn(residentFinanceApi, 'bill').mockResolvedValue(billDetail)
     const user = userEvent.setup()
-    renderWithProviders(element())
-    const reference = await screen.findByRole('button', { name: billDetail.bill.reference })
-    reference.focus()
+    renderWithProviders(element(), { mode })
+    const action = await screen.findByRole('button', { name: 'View details' })
+    action.focus()
     await user.keyboard('{Enter}')
     expect(await screen.findByRole('dialog', { name: 'Invoice details' })).toBeVisible()
     expect(details).toHaveBeenCalledWith(billDetail.bill.id, expect.any(AbortSignal))
@@ -42,12 +42,22 @@ describe('resident published bills', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
   })
 
-  it('opens the same drawer by clicking bill card content', async () => {
+  it('keeps bill references and card content as plain text without opening details', async () => {
     vi.spyOn(residentFinanceApi, 'bills').mockResolvedValue({ items: [billDetail.bill], totalCount: 1, pageNumber: 1, pageSize: 10 })
-    vi.spyOn(residentFinanceApi, 'bill').mockResolvedValue(billDetail)
+    const details = vi.spyOn(residentFinanceApi, 'bill').mockResolvedValue(billDetail)
     renderWithProviders(element())
-    await screen.findByRole('button', { name: billDetail.bill.reference })
-    await userEvent.setup().click(screen.getAllByText('Fixture block / A / Apartment 12').at(-1)!)
+    const references = await screen.findAllByText(billDetail.bill.reference)
+    expect(screen.queryByRole('button', { name: billDetail.bill.reference })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: billDetail.bill.reference })).not.toBeInTheDocument()
+    const user = userEvent.setup()
+    for (const reference of references) {
+      expect(reference.closest('button,a')).toBeNull()
+      await user.click(reference)
+    }
+    await user.click(screen.getAllByText('Fixture block / A / Apartment 12').at(-1)!)
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(details).not.toHaveBeenCalled()
+    await user.click(screen.getByRole('button', { name: 'View details' }))
     expect(await screen.findByRole('dialog')).toBeVisible()
   })
 
@@ -56,11 +66,11 @@ describe('resident published bills', () => {
       .mockImplementation(() => new Promise(() => undefined))
     vi.spyOn(residentFinanceApi, 'bill').mockResolvedValue(billDetail)
     const view = renderWithProviders(element())
-    await userEvent.setup().click(await screen.findByRole('button', { name: billDetail.bill.reference }))
+    await userEvent.setup().click(await screen.findByRole('button', { name: 'View details' }))
     await screen.findByRole('dialog')
     view.rerender(element('different-account'))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: billDetail.bill.reference })).not.toBeInTheDocument()
+    expect(screen.queryByText(billDetail.bill.reference)).not.toBeInTheDocument()
     expect(screen.getByRole('progressbar')).toBeVisible()
   })
 })

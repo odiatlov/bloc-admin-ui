@@ -1,3 +1,13 @@
+export const getCurrentReadingPeriod = (now = new Date()) =>
+  `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+
+export const getReadingBaselinePeriod = (firstSubmissionPeriod: number | null): string | null => {
+  if (!firstSubmissionPeriod) return null
+  const baseline = new Date(Math.floor(firstSubmissionPeriod / 100), firstSubmissionPeriod % 100 - 2, 1)
+  const period = Math.max(200001, baseline.getFullYear() * 100 + baseline.getMonth() + 1)
+  return `${Math.floor(period / 100)}-${String(period % 100).padStart(2, '0')}`
+}
+
 export const getConsumptionStart = (blocks: ReadonlyArray<{
   id: string, firstReadingPeriod: number | null, firstSubmissionPeriod: number | null,
 }>, blockId: string): string | null => {

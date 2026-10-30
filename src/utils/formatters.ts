@@ -15,6 +15,8 @@ export const formatNumber = (value: number | null | undefined) => numberFormatte
 
 export const formatSquareMeters = (value: number | null | undefined) => `${formatNumber(value)} m²`
 
+export const formatCubicMeters = (value: number | null | undefined) => `${formatNumber(value)} m³`
+
 export const formatPercent = (value: number | null | undefined) => percentFormatter.format(normalizeNumber(value) / 100)
 
 export const formatMonth = (month: string) => {

@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react'
-import { Box, Button, Chip, CircularProgress } from '@mui/material'
+import { Box, Chip, CircularProgress } from '@mui/material'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import { useTranslation } from 'react-i18next'
 import { RoleContext } from '../../../../../contexts/RoleContext'
@@ -24,7 +24,7 @@ const PublishedResidentBills = () => {
   const money = (amount: number, currency = 'RON') => new Intl.NumberFormat(i18n.language, { style: 'currency', currency }).format(amount)
   const select = (bill: ResidentBillSummary) => setSelection({ identity, id: bill.id })
   const columns: DataColumn<ResidentBillSummary>[] = [
-    { key: 'reference', label: t('finance.columns.invoice'), cardRole: 'primary', render: bill => <Button sx={{ p: 0, minWidth: 0, textAlign: 'left', overflowWrap: 'anywhere' }} onClick={() => select(bill)}>{bill.reference}</Button> },
+    { key: 'reference', label: t('finance.columns.invoice'), cardRole: 'primary', render: bill => bill.reference },
     { key: 'apartment', label: t('finance.columns.apartment'), cardRole: 'secondary', render: bill => [bill.blockName, bill.staircaseName, t('finance.billing.apartmentNumber', { number: bill.apartmentNumber })].filter(Boolean).join(' / ') },
     { key: 'month', label: t('finance.columns.month'), render: bill => new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' }).format(new Date(bill.year, bill.month - 1, 1)) },
     { key: 'dueDate', label: t('financePublication.dueDate'), render: bill => new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' }).format(new Date(`${bill.dueDate}T12:00:00`)) },
@@ -37,7 +37,7 @@ const PublishedResidentBills = () => {
     {list.loading ? <CircularProgress aria-label={t('finance.billing.loading')} />
       : list.error ? <LoadErrorState helperText={t('residentFinance.billsError')} onRetry={list.refresh} />
         : list.data && <ResponsiveDataView paginationId="resident-published-bills" paginationResetKey={identity}
-          ariaLabel={t('sidebar.myBills')} rows={list.data.items} columns={columns} getRowId={bill => bill.id} onRowClick={select}
+          ariaLabel={t('sidebar.myBills')} rows={list.data.items} columns={columns} getRowId={bill => bill.id}
           serverPagination={{ page, totalCount: list.data.totalCount, onPageChange: setPage }}
           emptyState={<EmptyState headline={t('residentFinance.noPublishedBills')} helperText={t('residentFinance.noPublishedHelp')} />} />}
     <InvoiceBreakdownDrawer key={identity} invoice={null} bill={detail.data ?? null} open={!!selectedId} loading={detail.loading}

@@ -8,9 +8,9 @@ import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import Typography from '@mui/material/Typography'
-import TextField from '@mui/material/TextField'
 import { useTranslation } from 'react-i18next'
 import FilterBar from '../../../../../components/shared/FilterBar'
+import AppDatePicker from '../../../../../components/shared/AppDatePicker'
 import { formatNumber, formatSquareMeters } from '../../../../../utils/formatters'
 import { useWaterConsumptions } from '../../../../../hooks/useWaterConsumptions'
 import { apartmentsApi } from '../../../../../services/apartmentsApi'
@@ -21,18 +21,11 @@ import GeneratedReportsList from './GeneratedReportsList'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
 
 const ReportGenerator: React.FC = () => {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const { role } = React.useContext(RoleContext)
   const identity = useFinanceIdentity()
-  const water = useWaterConsumptions({ registeredPeriodsOnly: true })
+  const water = useWaterConsumptions({ submissionPeriodsOnly: true, includeBaselinePeriod: role === 'Admin' })
   const { period: month, setPeriod: setMonth, blockFilter: block, setBlockFilter: setBlock } = water
-  const monthOptions = water.availablePeriods.map((period) => {
-    const date = new Date(`${period}-01T12:00:00`)
-    return {
-      value: period,
-      label: new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' }).format(date),
-    }
-  })
   const [apartmentState, setApartmentState] = React.useState<{ identity: string; data: ApartmentResponse[]; error: string | null }>()
   const apartmentError = apartmentState?.identity === identity ? apartmentState.error : null
   const apartmentLoading = apartmentState?.identity !== identity
@@ -95,13 +88,10 @@ const ReportGenerator: React.FC = () => {
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
       <FilterBar>
-        <TextField select size="small" disabled={water.loading || !!water.error} label={t('reports.filters.month')}
-          value={monthOptions.some((option) => option.value === month) ? month : 'all'}
-          onChange={(event) => setMonth(event.target.value)}
-          slotProps={{ select: { MenuProps: { slotProps: { paper: { sx: { maxHeight: 320 } } } } } }}>
-          <MenuItem value="all">{t('common.all')}</MenuItem>
-          {monthOptions.map((option) => <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>)}
-        </TextField>
+        <AppDatePicker monthOnly confirmOnAccept allowAllMonths
+          disabled={water.loading || !!water.error || water.blocks.length === 0 || (!!water.minimumPeriod && water.minimumPeriod > water.maximumPeriod)}
+          label={t('reports.filters.month')} value={month === 'all' ? '' : month} onChange={(value) => setMonth(value || 'all')}
+          minDate={`${water.minimumPeriod ?? water.maximumPeriod}-01`} maxDate={`${water.maximumPeriod}-01`} />
         <FormControl size="small" sx={{ minWidth: { sm: 160 } }}>
           <InputLabel>{t('residents.filters.block')}</InputLabel>
           <Select disabled={water.loading || !!water.error} label={t('residents.filters.block')} value={block} onChange={(event: SelectChangeEvent) => setBlock(event.target.value)}>

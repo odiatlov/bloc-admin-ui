@@ -3,25 +3,22 @@ import { usePageFilter } from './usePageFilter'
 import { RoleContext } from '../contexts/RoleContext'
 import { waterReadingsApi } from '../services/waterReadingsApi'
 import type { WaterConsumptionReportResponse } from '../types/waterReadings'
-import { getConsumptionStart, getReadingPeriods } from '../utils/readingPeriods'
+import { getConsumptionStart, getCurrentReadingPeriod, getReadingBaselinePeriod, getReadingPeriods } from '../utils/readingPeriods'
 
 // The administrator can enter the initial baseline month accepted by the backend,
 // including when no reading has yet been recorded for that month.
 const withBaselinePeriods = (blocks: WaterConsumptionReportResponse['blocks']) => blocks.map(block => {
-  const submission = block.firstSubmissionPeriod
-  if (!submission) return block
-  const baseline = new Date(Math.floor(submission / 100), submission % 100 - 2, 1)
-  const baselinePeriod = Math.max(200001, baseline.getFullYear() * 100 + baseline.getMonth() + 1)
-  return { ...block, firstReadingPeriod: null, firstSubmissionPeriod: baselinePeriod }
+  const baseline = getReadingBaselinePeriod(block.firstSubmissionPeriod)
+  return baseline ? { ...block, firstReadingPeriod: null, firstSubmissionPeriod: Number(baseline.replace('-', '')) } : block
 })
 
 export const useWaterConsumptions = ({ registeredPeriodsOnly = false, submissionPeriodsOnly = false, includeBaselinePeriod = false } = {}) => {
   const { account, role, accountsLoading, accountsError, refreshAccounts } = React.useContext(RoleContext)
   const [selection, setSelection] = usePageFilter('water.block', { scope: `${account.id}:${role}`, blockId: 'all' })
-  const [period, setPeriod] = usePageFilter('water.period', () => {
-    const now = new Date()
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
-  })
+  const [selectedPeriod, setPeriod] = usePageFilter('water.period', getCurrentReadingPeriod)
+  const maximumPeriod = getCurrentReadingPeriod()
+  // Previously saved future filters must not request or display a future month.
+  const period = selectedPeriod !== 'all' && selectedPeriod > maximumPeriod ? maximumPeriod : selectedPeriod
   const [revision, setRevision] = React.useState(0)
   const [result, setResult] = React.useState<{ key: string, report: WaterConsumptionReportResponse, error: string | null }>({
     key: '', report: { blocks: [], rows: [] }, error: null,
@@ -35,7 +32,7 @@ export const useWaterConsumptions = ({ registeredPeriodsOnly = false, submission
   const availablePeriods = getReadingPeriods(blocks, blockFilter)
   const minimumPeriod = submissionPeriodsOnly ? getConsumptionStart(includeBaselinePeriod ? withBaselinePeriods(blocks) : blocks, blockFilter) : null
   const invalidPeriod = ready && !result.error && period !== 'all' && (
-    (registeredPeriodsOnly && !availablePeriods.includes(period)) || (minimumPeriod !== null && period < minimumPeriod))
+    (registeredPeriodsOnly && !availablePeriods.includes(period)) || (minimumPeriod !== null && minimumPeriod <= maximumPeriod && period < minimumPeriod))
 
   React.useEffect(() => {
     let cancelled = false
@@ -47,7 +44,7 @@ export const useWaterConsumptions = ({ registeredPeriodsOnly = false, submission
         if (!cancelled) {
           const selectedBlock = selection.scope === scope ? selection.blockId : 'all'
           const minimum = submissionPeriodsOnly ? getConsumptionStart(includeBaselinePeriod ? withBaselinePeriods(report.blocks) : report.blocks, selectedBlock) : null
-          if (minimum && period < minimum) setPeriod(minimum)
+          if (minimum && minimum <= maximumPeriod && period < minimum) setPeriod(minimum)
           if (registeredPeriodsOnly && period !== 'all'
             && !getReadingPeriods(report.blocks, selectedBlock).includes(period)) setPeriod('all')
           setResult({ key, report, error: null })
@@ -58,13 +55,13 @@ export const useWaterConsumptions = ({ registeredPeriodsOnly = false, submission
     }
     if (!accountsLoading && !accountsError) void load()
     return () => { cancelled = true }
-  }, [accountsError, accountsLoading, key, period, role, registeredPeriodsOnly, submissionPeriodsOnly, includeBaselinePeriod, scope, selection.scope, selection.blockId])
+  }, [accountsError, accountsLoading, key, period, maximumPeriod, role, registeredPeriodsOnly, submissionPeriodsOnly, includeBaselinePeriod, scope, selection.scope, selection.blockId])
 
   return {
-    blocks, availablePeriods, minimumPeriod, blockFilter, setBlockFilter: (blockId: string) => {
+    blocks, availablePeriods, minimumPeriod, maximumPeriod, blockFilter, setBlockFilter: (blockId: string) => {
       setSelection({ scope, blockId })
       const minimum = submissionPeriodsOnly ? getConsumptionStart(includeBaselinePeriod ? withBaselinePeriods(blocks) : blocks, blockId) : null
-      if (minimum && period < minimum) setPeriod(minimum)
+      if (minimum && minimum <= maximumPeriod && period < minimum) setPeriod(minimum)
       if (registeredPeriodsOnly && period !== 'all') {
         if (!getReadingPeriods(blocks, blockId).includes(period)) setPeriod('all')
       }
