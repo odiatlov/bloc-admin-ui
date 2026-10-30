@@ -40,8 +40,8 @@ const ConsumptionView = () => {
         <MenuItem value="all">{t('common.all')}</MenuItem>
         {water.blocks.map((block) => <MenuItem key={block.id} value={block.id}>{t('common.blockValue', { block: block.name })}</MenuItem>)}
       </TextField>
-      <AppDatePicker monthOnly confirmOnAccept label={t('finance.columns.month')} value={water.period} disabled={disabled || water.blocks.length === 0}
-        minDate={`${water.minimumPeriod ?? water.period}-01`} maxDate="2100-12-31" onChange={water.setPeriod} />
+      <AppDatePicker monthOnly confirmOnAccept label={t('finance.columns.month')} value={water.period} disabled={disabled || water.blocks.length === 0 || (!!water.minimumPeriod && water.minimumPeriod > water.maximumPeriod)}
+        minDate={`${water.minimumPeriod ?? water.maximumPeriod}-01`} maxDate={`${water.maximumPeriod}-01`} onChange={water.setPeriod} />
     </FilterBar>
     {water.loading ? <Box role="status" sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><CircularProgress size={24} />{t('consumption.loading')}</Box>
       : water.error ? <LoadErrorState helperText={t('consumption.errors.loadFailed')} onRetry={water.refresh} />

@@ -1,4 +1,5 @@
 import React from 'react'
+import dayjs from 'dayjs'
 import { usePageFilter } from '../../../../../hooks/usePageFilter'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -267,6 +268,7 @@ const ResidentWaterIndexSection: React.FC = () => {
         <Box sx={{ minWidth: { xs: '100%', sm: 260 } }}>
           <AppDatePicker
             label={t('consumption.dialog.readingDate')}
+            maxDate={dayjs().endOf('month').format('YYYY-MM-DD')}
             onChange={(value) => {
               setSelectedReadingDate(value)
               setPeriod(parsePeriodDate(value))

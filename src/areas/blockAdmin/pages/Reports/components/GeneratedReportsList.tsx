@@ -1,6 +1,6 @@
 import React from 'react'
 import { usePageFilter } from '../../../../../hooks/usePageFilter'
-import { Alert, Box, Button, Checkbox, Chip, CircularProgress, FormControlLabel, MenuItem, TextField, Typography } from '@mui/material'
+import { Alert, Box, Checkbox, Chip, CircularProgress, FormControlLabel, MenuItem, TextField, Typography } from '@mui/material'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import PreviewIcon from '@mui/icons-material/Preview'
 import PublishIcon from '@mui/icons-material/Publish'
@@ -13,6 +13,7 @@ import ResponsiveDataView, { type DataColumn } from '../../../../../components/s
 import { useFinanceBlocks, useFinanceIdentity } from '../../../../../hooks/useFinanceWorkspace'
 import { financeApi } from '../../../../../services/financeApi'
 import type { FinanceReportSummary } from '../../../../../types/finance'
+import { getCurrentReadingPeriod } from '../../../../../utils/readingPeriods'
 import FinanceExportDialog from './FinanceExportDialog'
 
 const GeneratedReportsList: React.FC = () => {
@@ -20,7 +21,9 @@ const GeneratedReportsList: React.FC = () => {
   const identity = useFinanceIdentity()
   const blocks = useFinanceBlocks()
   const [blockId, setBlockId] = usePageFilter('generatedReports.block', '')
-  const [period, setPeriod] = usePageFilter('generatedReports.period', '')
+  const [selectedPeriod, setPeriod] = usePageFilter('generatedReports.period', '')
+  const maximumPeriod = getCurrentReadingPeriod()
+  const period = selectedPeriod > maximumPeriod ? maximumPeriod : selectedPeriod
   const [history, setHistory] = usePageFilter('generatedReports.history', false)
   const [page, setPage] = usePageFilter('generatedReports.page', 1)
   const [retry, setRetry] = React.useState(0)
@@ -59,8 +62,7 @@ const GeneratedReportsList: React.FC = () => {
     <Typography color="text.secondary" variant="body2">{t('finance.billing.generatedReportsHelp')}</Typography>
     <FilterBar>
       <TextField select size="small" label={t('finance.billing.block')} slotProps={{ select: { displayEmpty: true }, inputLabel: { shrink: true } }} value={blockId} disabled={blocks.loading} onChange={(event) => { setBlockId(event.target.value); setPage(1) }}><MenuItem value="">{t('common.all')}</MenuItem>{blocks.blocks.map((block) => <MenuItem key={block.id} value={block.id}>{block.name}</MenuItem>)}</TextField>
-      <AppDatePicker monthOnly confirmOnAccept label={t('finance.billing.billingMonth')} value={period} onChange={(value) => { setPeriod(value); setPage(1) }} />
-      <Button disabled={!period} onClick={() => { setPeriod(''); setPage(1) }}>{t('finance.billing.allMonths')}</Button>
+      <AppDatePicker monthOnly confirmOnAccept allowAllMonths label={t('finance.billing.billingMonth')} value={period} maxDate={`${maximumPeriod}-01`} onChange={(value) => { setPeriod(value); setPage(1) }} />
       <FormControlLabel label={t('finance.billing.showHistory')} control={<Checkbox checked={history} onChange={(event) => { setHistory(event.target.checked); setPage(1) }} />} />
     </FilterBar>
     {blocks.error && <Alert severity="warning">{blocks.error}</Alert>}

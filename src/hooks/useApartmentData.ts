@@ -790,7 +790,7 @@ export const useResidentPortal = () => {
         block,
       }
     })
-  const apartment = residentApartmentsList.find((item) => item.residentApartment?.isPrimaryResidence) ?? residentApartmentsList[0]
+  const apartment = residentApartmentsList.find((item) => item.residentApartment?.isPrimaryResidence) ?? residentApartmentsList.at(0)
   const residentInvoices = invoices.filter((invoice) => residentApartmentIds.has(invoice.apartmentId)).map(enrichInvoice)
   const residentPayments = payments.filter((payment) => residentApartmentIds.has(payment.apartmentId))
   const residentReadings = getWaterReadingRows(waterReadings
@@ -809,7 +809,7 @@ export const useResidentPortal = () => {
     currentBalance,
     familyLabel: apartment ? formatApartment(apartment) : '',
     financeAvailable,
-    lastPayment: residentPayments[0],
+    lastPayment: residentPayments.at(0),
     resident,
     residentInvoices,
     residentPayments,

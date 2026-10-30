@@ -32,7 +32,7 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => mo
 
 const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
   const { t } = useTranslation()
-  const { blocks, blockFilter, setBlockFilter, period, setPeriod, minimumPeriod, rows, loading, error, refresh } = useWaterConsumptions({ submissionPeriodsOnly: true, includeBaselinePeriod: mode === 'admin' })
+  const { blocks, blockFilter, setBlockFilter, period, setPeriod, minimumPeriod, maximumPeriod, rows, loading, error, refresh } = useWaterConsumptions({ submissionPeriodsOnly: true, includeBaselinePeriod: mode === 'admin' })
   const [open, setOpen] = React.useState(false)
   const [showSetupIssues, setShowSetupIssues] = React.useState(false)
   const [readingApartmentId, setReadingApartmentId] = React.useState<string | undefined>()
@@ -49,7 +49,7 @@ const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) 
       if (requestedBlock && blocks.some(block => block.id === requestedBlock) && blockFilter !== requestedBlock) {
         setBlockFilter(requestedBlock)
       } else if (requestedPeriod && /^(20\d{2}|2100)-(0[1-9]|1[0-2])$/.test(requestedPeriod)
-        && (!minimumPeriod || requestedPeriod >= minimumPeriod) && period !== requestedPeriod) {
+        && (!minimumPeriod || requestedPeriod >= minimumPeriod) && requestedPeriod <= maximumPeriod && period !== requestedPeriod) {
         setPeriod(requestedPeriod)
       } else if (requestedApartment && (!requestedPeriod || requestedPeriod === period) && rows.some(row => row.id === requestedApartment)) {
         openedRequest.current = requestKey
@@ -58,7 +58,7 @@ const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) 
       }
     }, 0)
     return () => window.clearTimeout(timeout)
-  }, [mode, loading, error, requestKey, requestedBlock, requestedPeriod, requestedApartment, blocks, blockFilter, period, minimumPeriod, rows, setBlockFilter, setPeriod])
+  }, [mode, loading, error, requestKey, requestedBlock, requestedPeriod, requestedApartment, blocks, blockFilter, period, minimumPeriod, maximumPeriod, rows, setBlockFilter, setPeriod])
   const [reminderStates, setReminderStates] = React.useState<Record<string, 'sending' | 'sent' | 'error'>>({})
   const reminderRequests = React.useRef(new Set<string>())
   const sendReminder = async (row: WaterConsumptionRow) => {
@@ -123,8 +123,8 @@ const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) 
         <MenuItem value="all">{t('common.all')}</MenuItem>
         {blocks.map((block) => <MenuItem key={block.id} value={block.id}>{t('common.blockValue', { block: block.name })}</MenuItem>)}
       </TextField>
-      <AppDatePicker monthOnly confirmOnAccept disabled={loading || !!error} label={t('finance.columns.month')} value={period}
-        minDate={`${minimumPeriod ?? period}-01`} maxDate="2100-12-31" onChange={setPeriod} />
+      <AppDatePicker monthOnly confirmOnAccept disabled={loading || !!error || blocks.length === 0 || (!!minimumPeriod && minimumPeriod > maximumPeriod)} label={t('finance.columns.month')} value={period}
+        minDate={`${minimumPeriod ?? maximumPeriod}-01`} maxDate={`${maximumPeriod}-01`} onChange={setPeriod} />
     </FilterBar>
     {loading ? <Box role="status" sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><CircularProgress size={24} />{t('consumption.loading')}</Box>
       : error ? <LoadErrorState helperText={t('consumption.errors.loadFailed')} onRetry={refresh} />
