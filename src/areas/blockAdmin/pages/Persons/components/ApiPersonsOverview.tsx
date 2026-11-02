@@ -269,7 +269,21 @@ const ApiPersonsOverview: React.FC = () => {
     {
       key: 'censorAssignments',
       label: t('persons.censorAssignment.title'),
-      render: person => <Box sx={{ display: 'grid', gap: 0.5 }}>{(person.blockRoles ?? []).filter(item => item.role === 'Censor').map(item => <AssociationBadge key={item.blockId} label={item.blockName ?? databaseBlocks.blocks.find(block => block.id === item.blockId)?.displayName ?? '—'} />)}</Box>,
+      render: person => {
+        const assignments = (person.blockRoles ?? []).filter(item => item.role === 'Censor')
+        if (assignments.length === 0) return tableEmptyValue
+
+        return (
+          <Box sx={{ display: 'grid', gap: 0.5 }}>
+            {assignments.map(item => (
+              <AssociationBadge
+                key={item.blockId}
+                label={item.blockName ?? databaseBlocks.blocks.find(block => block.id === item.blockId)?.displayName ?? tableEmptyValue}
+              />
+            ))}
+          </Box>
+        )
+      },
     },
     {
       key: 'status',
