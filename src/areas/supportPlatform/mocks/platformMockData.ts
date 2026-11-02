@@ -1,6 +1,6 @@
 import { administrators, buildingAdminAssignments } from '../../blockAdmin/mocks/administration'
 import { apartments, blocks, staircases } from '../../blockAdmin/mocks/blocks'
-import { residentApartments, residents } from '../../blockAdmin/mocks/residents'
+import { residentApartments, persons } from '../../blockAdmin/mocks/persons'
 import type {
   PlatformActivity,
   PlatformAdminRow,
@@ -64,7 +64,7 @@ export const mockSuperAdminStats: SuperAdminStats = {
   totalBlocks: blocks.length,
   totalUsers: administrators.length + 1,
   totalAdmins: administrators.filter((administrator) => administrator.role === 'Admin').length,
-  totalResidents: residents.length,
+  totalResidents: persons.length,
   totalCensors: 1,
   pendingAdminInvites: mockAdminInvites.filter((administrator) => administrator.status === 'invited').length,
   suspendedAdminAccounts: 0,
@@ -95,10 +95,10 @@ export const mockPlatformActivity: PlatformActivity[] = [
 export const mockPlatformBlocks: PlatformBlockRow[] = blocks.map((block, index) => {
   const blockApartments = apartments.filter((apartment) => apartment.blockId === block.id)
   const blockApartmentIds = new Set(blockApartments.map((apartment) => apartment.id))
-  const residentIds = new Set(
+  const personIds = new Set(
     residentApartments
       .filter((residentApartment) => blockApartmentIds.has(residentApartment.apartmentId))
-      .map((residentApartment) => residentApartment.residentId),
+      .map((residentApartment) => residentApartment.personId),
   )
 
   return {
@@ -109,13 +109,13 @@ export const mockPlatformBlocks: PlatformBlockRow[] = blocks.map((block, index) 
     censor: index === 0 ? 'Popescu G' : '-',
     apartmentsCount: blockApartments.length,
     staircasesCount: staircases.filter((staircase) => staircase.blockId === block.id).length,
-    residentsCount: residentIds.size,
+    residentsCount: personIds.size,
     createdAt: ['2025-01-01', '2026-02-01', '2025-05-01', '2026-05-01'][index] ?? '2026-01-01',
   }
 })
 
-export const mockPlatformUsers: PlatformResidentRow[] = residents.map((resident) => {
-  const residentApartment = residentApartments.find((item) => item.residentId === resident.id)
+export const mockPlatformUsers: PlatformResidentRow[] = persons.map((resident) => {
+  const residentApartment = residentApartments.find((item) => item.personId === resident.id)
   const apartment = apartments.find((item) => item.id === residentApartment?.apartmentId)
   const block = blocks.find((item) => item.id === apartment?.blockId)
 
@@ -134,7 +134,7 @@ export const mockPlatformUsers: PlatformResidentRow[] = residents.map((resident)
 export const mockExportHistory: PlatformExportHistoryRow[] = [
   {
     id: '70000000-0000-0000-0000-000000000001',
-    exportType: 'residents',
+    exportType: 'persons',
     requestedBy: 'SuperAdmin',
     blockId: 'block-a',
     blockName: 'Block A',

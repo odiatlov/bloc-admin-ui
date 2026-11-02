@@ -9,16 +9,16 @@ import AppDialog from '../../../components/shared/AppDialog'
 import LoadErrorState from '../../../components/shared/LoadErrorState'
 import EmptyState from '../../../components/shared/EmptyState'
 import { superAdminApi, type SuperAdminAdminAccountResponse } from '../../../services/superAdminApi'
-import type { ResidentResponse } from '../../../types/management'
+import type { PersonResponse } from '../../../types/management'
 
-type Props = { kind: 'block' | 'resident'; initialAdminId?: string; onCreated: () => void | Promise<void> }
+type Props = { kind: 'block' | 'person'; initialAdminId?: string; onCreated: () => void | Promise<void> }
 
 export default function CreateForAdmin({ kind, initialAdminId, onCreated }: Props) {
   const { t } = useTranslation()
   const [open, setOpen] = React.useState(false)
   return <>
     <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpen(true)}>
-      {t(kind === 'block' ? 'settings.actions.addBlock' : 'residents.actions.addResident')}
+      {t(kind === 'block' ? 'settings.actions.addBlock' : 'persons.actions.addPerson')}
     </Button>
     {open && <CreationFlow kind={kind} initialAdminId={initialAdminId} onCreated={onCreated} onClose={() => setOpen(false)} />}
   </>
@@ -28,7 +28,7 @@ function CreationFlow({ kind, initialAdminId, onCreated, onClose }: Props & { on
   const { t } = useTranslation()
   const [phase, setPhase] = React.useState<'admin' | 'form'>('admin')
   const [admins, setAdmins] = React.useState<SuperAdminAdminAccountResponse[]>([])
-  const [residents, setResidents] = React.useState<ResidentResponse[]>([])
+  const [persons, setResidents] = React.useState<PersonResponse[]>([])
   const [adminId, setAdminId] = React.useState(initialAdminId ?? '')
   const [draft, setDraft] = React.useState<ResidentDraft>(() => newApartment().resident)
   const [loading, setLoading] = React.useState(true)
@@ -47,8 +47,8 @@ function CreationFlow({ kind, initialAdminId, onCreated, onClose }: Props & { on
         if (phase === 'admin') {
           const accounts = await superAdminApi.getAdminAccounts()
           if (active) setAdmins(accounts.filter(account => account.status === 'Active'))
-        } else if (kind === 'resident') {
-          const nextResidents = await superAdminApi.getAdminResidents(adminId)
+        } else if (kind === 'person') {
+          const nextResidents = await superAdminApi.getAdminPersons(adminId)
           if (active) setResidents(nextResidents.filter(resident => resident.status === 'active'))
         }
       } catch { if (active) setError(true) }
@@ -59,21 +59,21 @@ function CreationFlow({ kind, initialAdminId, onCreated, onClose }: Props & { on
 
   const selectedAdmin = admins.find(admin => admin.adminAccountId === adminId)
   const caption = t('superAdmin.creation.forAdmin', { admin: selectedAdmin?.ownerName ?? '' })
-  const loadResidents = React.useCallback(() => superAdminApi.getAdminResidents(adminId), [adminId])
+  const loadResidents = React.useCallback(() => superAdminApi.getAdminPersons(adminId), [adminId])
   const finish = () => { void Promise.resolve(onCreated()).catch(() => undefined); onClose() }
-  const hasValidEmail = !draft.inviteResident || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.email.trim())
-  const selectedResident = residents.find(resident => resident.id === draft.residentId)
-  const canSave = hasValidEmail && (draft.mode === 'existing' ? Boolean(selectedResident && !selectedResident.hasRegisteredAccount && draft.inviteResident)
+  const hasValidEmail = !draft.invitePerson || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.email.trim())
+  const selectedResident = persons.find(resident => resident.id === draft.personId)
+  const canSave = hasValidEmail && (draft.mode === 'existing' ? Boolean(selectedResident && !selectedResident.hasRegisteredAccount && draft.invitePerson)
     : Boolean(draft.firstName.trim() && draft.lastName.trim()))
 
   const save = async () => {
     if (submitting.current || !canSave) return
     submitting.current = true; setSaving(true); setSaveError('')
     try {
-      await superAdminApi.createResidentForAdmin(adminId, {
-        requestId, existingResidentId: draft.mode === 'existing' ? draft.residentId : undefined,
+      await superAdminApi.createPersonForAdmin(adminId, {
+        requestId, existingPersonId: draft.mode === 'existing' ? draft.personId : undefined,
         firstName: draft.firstName.trim(), lastName: draft.lastName.trim(), phone: draft.phone.trim() || undefined,
-        email: draft.email.trim() || undefined, inviteResident: draft.inviteResident,
+        email: draft.email.trim() || undefined, invitePerson: draft.invitePerson,
       })
       finish()
     } catch { setSaveError(t('superAdmin.creation.saveFailed')) }
@@ -90,7 +90,7 @@ function CreationFlow({ kind, initialAdminId, onCreated, onClose }: Props & { on
     }} />
 
   return <>
-    <AppDialog open title={t(phase === 'admin' ? 'superAdmin.creation.selectAdmin' : 'residents.actions.addResident')}
+    <AppDialog open title={t(phase === 'admin' ? 'superAdmin.creation.selectAdmin' : 'persons.actions.addPerson')}
       cancelLabel={t('common.cancel')} confirmLabel={t(phase === 'admin' ? 'superAdmin.creation.continue' : 'common.save')}
       pending={saving} confirmDisabled={loading || error || saving || (phase === 'admin' ? !selectedAdmin : !canSave)}
       onCancel={onClose} onConfirm={() => { if (phase === 'admin') { setLoading(true); setPhase('form') } else void save() }}>
@@ -102,10 +102,10 @@ function CreationFlow({ kind, initialAdminId, onCreated, onClose }: Props & { on
               {admins.map(admin => <MenuItem key={admin.adminAccountId} value={admin.adminAccountId}>{admin.ownerName} — {admin.ownerEmail}</MenuItem>)}
             </TextField>
             : <Box sx={{ display: 'grid', gap: 2 }}>
-              <Alert severity="info">{t('residents.assignments.createWithoutHousing')}</Alert>
+              <Alert severity="info">{t('persons.assignments.createWithoutHousing')}</Alert>
               <Typography color="text.secondary">{caption}</Typography>
               <ResidentSetupFields value={draft} onChange={patch => setDraft(value => ({ ...value, ...patch }))}
-                residents={residents.filter(resident => !resident.hasRegisteredAccount)} loading={loading} error={error} onRetry={() => setRevision(value => value + 1)} disabled={saving} />
+                persons={persons.filter(resident => !resident.hasRegisteredAccount)} loading={loading} error={error} onRetry={() => setRevision(value => value + 1)} disabled={saving} />
             </Box>}
       {saveError && <Alert severity="error" sx={{ mt: 2 }}>{saveError}</Alert>}
     </AppDialog>

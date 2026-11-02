@@ -7,7 +7,7 @@ import ActionButtons from '../shared/ActionButtons'
 import ApartmentSetupFields from '../apartments/ApartmentSetupFields'
 import ResidentSetupFields from './ResidentSetupFields'
 import SetupAccordionHeader from './SetupAccordionHeader'
-import type { ResidentResponse } from '../../types/management'
+import type { PersonResponse } from '../../types/management'
 import type { ApartmentDraft, ApartmentValidationErrors, FloorDraft } from './setupDraft'
 
 type Props = {
@@ -17,7 +17,7 @@ type Props = {
   compactLabels: boolean
   disabled: boolean
   errors: ApartmentValidationErrors
-  residents: ResidentResponse[]
+  persons: PersonResponse[]
   residentsLoading: boolean
   residentsError: boolean
   onRetryResidents: () => void
@@ -27,7 +27,7 @@ type Props = {
   onEntered: () => void
 }
 
-export default function SetupApartmentCard({ apartment: a, fallbackNumber, floors, compactLabels, disabled, errors, residents, residentsLoading, residentsError, onRetryResidents, onChange, onExpandedChange, onRemove, onEntered }: Props) {
+export default function SetupApartmentCard({ apartment: a, fallbackNumber, floors, compactLabels, disabled, errors, persons, residentsLoading, residentsError, onRetryResidents, onChange, onExpandedChange, onRemove, onEntered }: Props) {
   const { t } = useTranslation()
   const number = a.number.trim() || fallbackNumber
   const label = t(compactLabels ? 'blockSetup.mobile.apartmentTitle' : 'blockSetup.apartmentTitle', { number })
@@ -72,7 +72,7 @@ export default function SetupApartmentCard({ apartment: a, fallbackNumber, floor
           control={<Switch size="small" checked={a.addResident} disabled={disabled} onChange={event => onChange({ addResident: event.target.checked, ...(!event.target.checked ? { householdCount: '0' } : {}) })} />} />
       </Box>
       {a.addResident && <ResidentSetupFields value={a.resident} onChange={patch => onChange({ resident: { ...a.resident, ...patch } })}
-        errors={errors} residents={residents} loading={residentsLoading} error={residentsError} onRetry={onRetryResidents} disabled={disabled} />}
+        errors={errors} persons={persons} loading={residentsLoading} error={residentsError} onRetry={onRetryResidents} disabled={disabled} />}
     </AccordionDetails>
   </Accordion>
 }

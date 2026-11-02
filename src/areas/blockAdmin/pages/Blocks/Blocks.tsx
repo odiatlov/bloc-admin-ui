@@ -160,7 +160,7 @@ const Blocks: React.FC = () => {
       render: (block) => block.administratorName || tableEmptyValue,
     },
     { key: 'apartments', label: t('dashboard.admin.overview.apartments'), render: (block) => block.apartmentCount },
-    { key: 'residents', label: t('dashboard.admin.overview.residents'), render: (block) => block.residentCount },
+    { key: 'persons', label: t('dashboard.admin.overview.persons'), render: (block) => block.residentCount },
     { key: 'staircases', label: t('sidebar.staircases'), render: (block) => block.staircaseCount },
     {
       key: 'invoices',

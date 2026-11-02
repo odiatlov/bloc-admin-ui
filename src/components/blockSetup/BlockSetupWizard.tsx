@@ -17,8 +17,8 @@ import type { BlockSetupRequest, BlockSetupResponse, CreateBlockRequest, SetupAp
 import BlockFields from './BlockFields'
 import EmptyState from '../shared/EmptyState'
 import { ApiError } from '../../services/apiClient'
-import { residentsApi } from '../../services/residentsApi'
-import type { ResidentResponse } from '../../types/management'
+import { personsApi } from '../../services/personsApi'
+import type { PersonResponse } from '../../types/management'
 import SetupApartmentCard from './SetupApartmentCard'
 import SetupFloorSection from './SetupFloorSection'
 import SetupAccordionHeader from './SetupAccordionHeader'
@@ -31,15 +31,15 @@ type FocusTarget = { id: string; selector?: string }
 const toApartment = (a: ApartmentDraft): SetupApartment => ({ number: a.number.trim(), floor: a.floor.trim() ? Number(a.floor) : null,
   usableSqm: a.usableSqm.trim() ? Number(a.usableSqm) : null, hasBoiler: a.hasBoiler,
   householdCount: a.addResident ? Number(a.householdCount) : 0, resident: a.addResident ? {
-    residentId: a.resident.mode === 'existing' ? a.resident.residentId : null,
+    personId: a.resident.mode === 'existing' ? a.resident.personId : null,
     firstName: a.resident.mode === 'new' ? a.resident.firstName.trim() : '', lastName: a.resident.mode === 'new' ? a.resident.lastName.trim() : '',
     phone: a.resident.mode === 'new' ? a.resident.phone.trim() || null : null,
-    email: a.resident.inviteResident ? a.resident.email.trim() : null, inviteResident: a.resident.inviteResident,
+    email: a.resident.invitePerson ? a.resident.email.trim() : null, invitePerson: a.resident.invitePerson,
   } : null })
 
-export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResidentOptions = residentsApi.getAll, accountCaption }: {
+export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResidentOptions = personsApi.getAll, accountCaption }: {
   onClose: () => void; onSimple: (request: CreateBlockRequest) => Promise<void>; onSetup: (request: BlockSetupRequest) => Promise<BlockSetupResponse>
-  loadResidentOptions?: () => Promise<ResidentResponse[]>; accountCaption?: string
+  loadResidentOptions?: () => Promise<PersonResponse[]>; accountCaption?: string
 }) {
   const { t, i18n } = useTranslation()
   const theme = useTheme()
@@ -73,7 +73,7 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
   const [retryRequest, setRetryRequest] = React.useState<BlockSetupRequest | null>(null)
   const [setupSaved, setSetupSaved] = React.useState(false)
   const [failedInvitations, setFailedInvitations] = React.useState<string[]>([])
-  const [residents, setResidents] = React.useState<ResidentResponse[]>([])
+  const [persons, setResidents] = React.useState<PersonResponse[]>([])
   const [residentsLoading, setResidentsLoading] = React.useState(true)
   const [residentsError, setResidentsError] = React.useState(false)
   const locked = busy || Boolean(retryRequest) || setupSaved
@@ -151,17 +151,17 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
     const errors = apartmentValidationErrors(apartment)
     if (apartment.floor.trim() && !group.floors.some(floor => floor.level === floorLevel(apartment.floor))) errors.floor = 'floorUnavailable'
     if (apartment.number.trim() && group.apartments.some(other => other.id !== apartment.id && other.number.trim().toLowerCase() === apartment.number.trim().toLowerCase())) errors.number = 'duplicateNumber'
-    if (apartment.addResident && apartment.resident.mode === 'existing' && apartment.resident.residentId) {
-      if (residentsLoading) errors.residentId = 'residentsLoading'
-      else if (residentsError) errors.residentId = 'residentsLoadError'
-      else if (!residents.some(resident => resident.id === apartment.resident.residentId)) errors.residentId = 'residentUnavailable'
+    if (apartment.addResident && apartment.resident.mode === 'existing' && apartment.resident.personId) {
+      if (residentsLoading) errors.personId = 'residentsLoading'
+      else if (residentsError) errors.personId = 'residentsLoadError'
+      else if (!persons.some(resident => resident.id === apartment.resident.personId)) errors.personId = 'residentUnavailable'
     }
     return errors
   }
   const fieldLabels: Record<ApartmentValidationField, string> = {
     number: 'apartments.setup.number', floor: 'blocks.columns.floor', usableSqm: 'blocks.columns.usableSurface',
-    householdCount: 'apartments.setup.householdMembers', residentId: 'blockSetup.existingResident', firstName: 'residents.fields.firstName',
-    lastName: 'residents.fields.lastName', phone: 'residents.fields.phone', email: 'residents.fields.email',
+    householdCount: 'apartments.setup.householdMembers', personId: 'blockSetup.existingResident', firstName: 'persons.fields.firstName',
+    lastName: 'persons.fields.lastName', phone: 'persons.fields.phone', email: 'persons.fields.email',
   }
   const reportValidationError = (step: string) => {
     if (step !== 'apartments') { setError(w('validation')); return }
@@ -369,7 +369,7 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
                 {apartments.map(a => <SetupApartmentCard key={a.id} apartment={a} fallbackNumber={g.apartments.indexOf(a) + 1}
                   floors={orderedFloors(g)} compactLabels={isMobile} disabled={locked} onEntered={focusPending}
                   errors={error ? Object.fromEntries(Object.entries(errorsFor(g, a)).map(([field, reason]) => [field, w(`validationErrors.${reason}`)])) : {}}
-                  residents={residents} residentsLoading={residentsLoading} residentsError={residentsError} onRetryResidents={() => { void loadResidents() }}
+                  persons={persons} residentsLoading={residentsLoading} residentsError={residentsError} onRetryResidents={() => { void loadResidents() }}
                   onExpandedChange={expanded => updateGroup(g.id, value => ({ ...value, apartments: value.apartments.map(item => item.id === a.id ? { ...item, expanded } : item) }), false)}
                   onChange={patch => {
                     if (patch.floor !== undefined) {
@@ -394,7 +394,7 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
             {address && <Typography sx={{ overflowWrap: 'anywhere' }}>{address}</Typography>}
             <Typography>{w('totals', { staircases: hasStaircases ? staircases.length : 0, apartments: groups.reduce((sum, g) => sum + g.apartments.length, 0),
               occupants: groups.reduce((sum, g) => sum + g.apartments.reduce((total, a) => total + (a.addResident ? Number(a.householdCount) : 0), 0), 0),
-              residents: new Set(groups.flatMap(g => g.apartments.filter(a => a.addResident).map(a => a.resident.mode === 'existing' ? a.resident.residentId : a.resident.inviteResident ? a.resident.email.trim().toLowerCase() : a.id))).size,
+              persons: new Set(groups.flatMap(g => g.apartments.filter(a => a.addResident).map(a => a.resident.mode === 'existing' ? a.resident.personId : a.resident.invitePerson ? a.resident.email.trim().toLowerCase() : a.id))).size,
             })}</Typography>
             {groups.map(g => <Accordion key={g.id} disableGutters sx={groupSurfaceSx}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}><Typography sx={{ overflowWrap: 'anywhere' }}>{hasStaircases ? g.name : name} ({g.apartments.length})</Typography></AccordionSummary>
@@ -416,8 +416,8 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
                     <span>{translateApartmentSetupStatus(t, 'unconfigured')}</span>
                     <span>{w('mobile.boiler')}: {w(a.hasBoiler ? 'yes' : 'no')}</span>
                     <span>{t('apartments.setup.householdMembers')}: {a.addResident ? a.householdCount : '0'}</span>
-                    {a.addResident && <span>{w('owner')}: {a.resident.mode === 'existing' ? residents.find(resident => resident.id === a.resident.residentId)?.fullName : `${a.resident.firstName} ${a.resident.lastName}`}</span>}
-                    {a.addResident && a.resident.inviteResident && <span>{t('residents.fields.inviteResident')}: {a.resident.email}</span>}
+                    {a.addResident && <span>{w('owner')}: {a.resident.mode === 'existing' ? persons.find(resident => resident.id === a.resident.personId)?.fullName : `${a.resident.firstName} ${a.resident.lastName}`}</span>}
+                    {a.addResident && a.resident.invitePerson && <span>{t('persons.fields.invitePerson')}: {a.resident.email}</span>}
                   </Box>)}
                   </Box>
                 </Box>)}

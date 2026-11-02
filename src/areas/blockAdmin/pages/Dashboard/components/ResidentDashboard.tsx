@@ -13,12 +13,12 @@ import EmptyState from '../../../../../components/shared/EmptyState'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
 import { RoleContext } from '../../../../../contexts/RoleContext'
 import { blocksApi } from '../../../../../services/blocksApi'
-import { residentsApi } from '../../../../../services/residentsApi'
+import { personsApi } from '../../../../../services/personsApi'
 import { formatCurrency, useResidentPortal } from '../../../../../hooks/useApartmentData'
 import { formatCubicMeters } from '../../../../../utils/formatters'
 import { useResidentWaterIndex } from '../../../../../hooks/useResidentWaterIndex'
 import type { BlockOverview } from '../../../../../types/block'
-import type { ResidentApartmentSummary, ResidentResponse } from '../../../../../types/management'
+import type { PersonApartmentSummary, PersonResponse } from '../../../../../types/management'
 import { ContentCard, DashboardHeader, DashboardPage, StatCard, StatGrid } from './DashboardSystem'
 import ResidentCurrentDue from './ResidentCurrentDue'
 import ResidentQuickActions from './ResidentQuickActions'
@@ -28,9 +28,9 @@ const ResidentDashboard: React.FC = () => {
   const { account } = React.useContext(RoleContext)
   const { currentBalance, financeAvailable, resident, residentInvoices } = useResidentPortal()
   const { rows: waterIndexRows } = useResidentWaterIndex()
-  const [databaseResident, setDatabaseResident] = React.useState<ResidentResponse | null>(null)
+  const [databaseResident, setDatabaseResident] = React.useState<PersonResponse | null>(null)
   const [databaseBlocks, setDatabaseBlocks] = React.useState<BlockOverview[]>([])
-  const [isApartmentsLoading, setIsApartmentsLoading] = React.useState(Boolean(account.residentId))
+  const [isApartmentsLoading, setIsApartmentsLoading] = React.useState(Boolean(account.personId))
   const [apartmentsError, setApartmentsError] = React.useState<string | null>(null)
   const latestSubmittedPeriod = waterIndexRows
     .filter((row) => row.value !== null && row.submittedAt)
@@ -83,7 +83,7 @@ const ResidentDashboard: React.FC = () => {
   ]
 
   const loadResidentApartments = React.useCallback(async () => {
-    if (!account.residentId) {
+    if (!account.personId) {
       setDatabaseResident(null)
       setDatabaseBlocks([])
       setApartmentsError(null)
@@ -96,7 +96,7 @@ const ResidentDashboard: React.FC = () => {
 
     try {
       const [nextResident, nextBlocks] = await Promise.all([
-        residentsApi.getById(account.residentId),
+        personsApi.getById(account.personId),
         blocksApi.getOverview(),
       ])
       setDatabaseResident(nextResident)
@@ -106,7 +106,7 @@ const ResidentDashboard: React.FC = () => {
     } finally {
       setIsApartmentsLoading(false)
     }
-  }, [account.residentId])
+  }, [account.personId])
 
   React.useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -123,7 +123,7 @@ const ResidentDashboard: React.FC = () => {
 
   const apartmentsByBlock = React.useMemo(
     () =>
-      (databaseResident?.apartments ?? []).reduce<Record<string, ResidentApartmentSummary[]>>((acc, apartment) => {
+      (databaseResident?.apartments ?? []).reduce<Record<string, PersonApartmentSummary[]>>((acc, apartment) => {
         acc[apartment.blockId] = [...(acc[apartment.blockId] ?? []), apartment]
         return acc
       }, {}),
@@ -201,7 +201,7 @@ const ResidentDashboard: React.FC = () => {
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
                       {[
                         apartment.staircaseName ? t('dashboard.resident.staircaseValue', { staircase: apartment.staircaseName }) : null,
-                        t('residents.ownership.owner'),
+                        t('persons.ownership.owner'),
                       ].filter(Boolean).join(' | ')}
                     </Typography>
                   </Box>

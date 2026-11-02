@@ -82,7 +82,7 @@ const BlockContext: React.FC = () => {
 
   const apartmentColumns: DataColumn<(typeof blockApartments)[number]>[] = [
     { key: 'apartment', label: t('consumption.columns.apartment'), cardRole: 'primary', render: (apartment) => apartment.familyLabel },
-    { key: 'residents', label: t('residents.family.members'), render: (apartment) => apartment.residentCount },
+    { key: 'persons', label: t('persons.family.members'), render: (apartment) => apartment.residentCount },
     { key: 'floor', label: t('blocks.columns.floor'), render: (apartment) => apartment.floor },
     { key: 'staircase', label: t('blocks.columns.staircase'), render: (apartment) => staircaseTotals.find((item) => item.staircase.id === apartment.staircaseId)?.staircase.name ?? tableEmptyValue },
     { key: 'usableSurface', label: t('blocks.columns.usableSurface'), render: (apartment) => formatSquareMeters(apartment.usableSurface) },
@@ -120,7 +120,7 @@ const BlockContext: React.FC = () => {
   </Button>
   const overviewMetrics = <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, minmax(0, 1fr))' }, gap: 2 }}>
     <MetricCard label={t('dashboard.admin.overview.apartments')} value={apartmentCount} />
-    <MetricCard label={t('dashboard.admin.overview.residents')} value={residentCount} />
+    <MetricCard label={t('dashboard.admin.overview.persons')} value={residentCount} />
     <MetricCard label={t('blocks.metrics.totalInvoices')} value={formatCurrency(totalInvoices)} />
     <MetricCard label={t('blocks.metrics.totalPayments')} value={formatCurrency(totalPayments)} />
   </Box>

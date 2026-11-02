@@ -1,6 +1,6 @@
 export * from '../../../types/apartment'
 export * from './blocks'
-export * from './residents'
+export * from './persons'
 export * from './finance'
 export * from './utilities'
 export * from './reports'

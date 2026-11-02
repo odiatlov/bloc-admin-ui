@@ -48,9 +48,9 @@ export type UpdateApartmentRequest = CreateApartmentRequest & {
   zones?: import('./waterReadings').ApartmentWaterConfigurationZone[]
 }
 
-export type ResidentStatus = 'active' | 'inactive'
+export type PersonStatus = 'active' | 'inactive'
 
-export type ResidentApartmentSummary = {
+export type PersonApartmentSummary = {
   householdCount: number
   linkId: string
   apartmentId: string
@@ -62,7 +62,7 @@ export type ResidentApartmentSummary = {
   livesHere: boolean
 }
 
-export type ResidentResponse = {
+export type PersonResponse = {
   id: string
   firstName: string
   lastName: string
@@ -73,40 +73,42 @@ export type ResidentResponse = {
   hasRegisteredAccount: boolean
   canDeleteUnlinkedProfile: boolean
   roles: string[]
-  blockRoles?: { blockId: string; role: string }[]
-  status: ResidentStatus
+  blockRoles?: { blockId: string; blockName?: string; role: string }[]
+  status: PersonStatus
   apartmentCount: number
-  blocks: ResidentBlockSummary[]
+  blocks: PersonBlockSummary[]
   adminAccounts: { adminAccountId: string; displayName: string }[]
-  apartments: ResidentApartmentSummary[]
+  apartments: PersonApartmentSummary[]
   wasExistingIdentity: boolean
   createdAt: string
   updatedAt: string
 }
 
-export type ResidentBlockSummary = {
+export type PersonBlockSummary = {
   linkId: string
   blockId: string
   blockName: string
 }
 
-export type CreateResidentRequest = {
+export type CreatePersonRequest = {
   firstName: string
   lastName: string
-  inviteResident: boolean
+  invitePerson: boolean
   phone?: string | null
   email?: string | null
   userId?: string | null
-  status: ResidentStatus
+  status: PersonStatus
 }
 
-export type UpdateResidentRequest = CreateResidentRequest & {
+export type UpdatePersonRequest = CreatePersonRequest & {
   clearBlockAssignments?: boolean
   expectedApartmentIds?: string[]
   expectedBlockIds?: string[]
+  censorBlockIds?: string[]
+  expectedCensorBlockIds?: string[]
 }
 
-export type UpdateResidentProfileRequest = {
+export type UpdatePersonProfileRequest = {
   firstName: string
   lastName: string
   email: string
@@ -114,15 +116,15 @@ export type UpdateResidentProfileRequest = {
 
 export type ApartmentResidentResponse = {
   id: string
-  residentId: string
+  personId: string
   apartmentId: string
   livesHere: boolean
-  residentFirstName: string
-  residentLastName: string
-  residentFullName: string
-  residentEmail: string | null
-  residentPhone: string | null
-  residentStatus: ResidentStatus
+  personFirstName: string
+  personLastName: string
+  personFullName: string
+  personEmail: string | null
+  personPhone: string | null
+  personStatus: PersonStatus
   apartmentNumber: string
   blockId: string
   blockName: string
@@ -133,7 +135,7 @@ export type ApartmentResidentResponse = {
 }
 
 export type CreateApartmentResidentRequest = {
-  residentId: string
+  personId: string
   livesHere: boolean
   confirmAdditionalApartment?: boolean
   expectedApartmentIds?: string[]

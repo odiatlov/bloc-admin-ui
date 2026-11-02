@@ -3,7 +3,7 @@ import { RoleContext } from '../src/contexts/RoleContext'
 import type { MaintenanceReport, ResidentBillDetail } from '../src/types/finance'
 
 export const residentContext: ComponentProps<typeof RoleContext.Provider>['value'] = {
-  role: 'Resident', account: { id: '00000000-0000-0000-0000-000000000001', userId: '00000000-0000-0000-0000-000000000001', residentId: '00000000-0000-0000-0000-000000000002',
+  role: 'Resident', account: { id: '00000000-0000-0000-0000-000000000001', userId: '00000000-0000-0000-0000-000000000001', personId: '00000000-0000-0000-0000-000000000002',
     name: 'Resident fixture', email: 'resident@example.invalid', systemRole: 'None', roles: ['Resident'], blockRoles: ['Resident'], defaultRole: 'Resident', token: 'fixture-token', dataMode: 'backend-ready-empty' },
   accounts: [], accountsError: null, accountsLoading: false, token: 'fixture-token', isAuthenticated: true,
   refreshAccounts: async () => undefined, login: () => undefined, logout: () => undefined, setRole: () => undefined,

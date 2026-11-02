@@ -89,12 +89,12 @@
   },
   "adminUserDeletion": {
     "residentProfile": {
-      "action": "Delete resident profile",
-      "title": "Delete unlinked resident profile",
-      "confirm": "Permanently delete {{resident}}'s resident profile? Only profiles without admin links, block memberships, apartment assignments, a phone number or block roles are eligible. Any separate login account is kept.",
-      "blocked": "This resident now has an association or phone number and cannot be deleted here. Close the dialog and refresh the list.",
+      "action": "Delete person profile",
+      "title": "Delete unlinked person profile",
+      "confirm": "Permanently delete {{resident}}’s person profile? Only profiles without administrator links, block memberships, apartment assignments, a phone number or block roles are eligible. Any separate login account is kept.",
+      "blocked": "This person now has an association or phone number and cannot be deleted here. Close the dialog and refresh the list.",
       "failed": "The profile deletion could not be confirmed. Retry or refresh the list; the login account is not deleted by this action.",
-      "success": "The unlinked resident profile was deleted. Any separate login account was kept."
+      "success": "The unlinked person profile was deleted. Any separate login account was kept."
     },
     "statistics": "Deletion statistics",
     "statistic": "Record type",
@@ -108,21 +108,21 @@
     "userOnly": {
       "action": "Delete user",
       "title": "Permanently delete user",
-      "warning": "This permanently deletes this login account and its remaining roles. Buildings, resident profiles, and reading history are not deleted. References to this user in surviving records are cleared where needed.",
+      "warning": "This permanently deletes this login account and its remaining roles. Buildings, person profiles and reading history are preserved. References to this user in surviving records are cleared where needed.",
       "acknowledge": "I confirm permanent deletion of this user account and its remaining roles.",
       "success": "The user account was permanently deleted. Buildings and reading history were preserved.",
       "login": "Delete login account",
-      "hasResident": "This user now has a resident profile. No deletion was performed. Review the resident profile first.",
+      "hasResident": "This user now has a person profile. No deletion was performed. Review the person profile first.",
       "hasAdminAccounts": "This user now owns admin accounts. User-only deletion is blocked; review the managed-data deletion flow instead."
     },
     "action": "Delete user and managed data", "title": "Permanently delete admin user", "confirm": "Permanently delete",
     "loading": "Loading deletion preview…", "deleting": "Confirming deletion outcome…", "success": "The user and listed managed data were permanently deleted.",
-    "warning": "This permanently deletes the user's login, their admin accounts, and the listed buildings and their data, including water-reading history. Other residents' login accounts are preserved.",
-    "accounts": "Admin accounts to delete", "buildings": "Buildings to delete", "block": "Building", "residentOutcomes": "Resident profile outcomes",
-    "residentName": "Resident", "outcome": "Outcome", "reason": "Preservation reason", "preserve": "Preserve profile", "deleteProfile": "Delete profile",
+    "warning": "This permanently deletes the user’s login, their admin accounts, and the listed buildings and their data, including water-reading history. Other people’s login accounts are preserved.",
+    "accounts": "Admin accounts to delete", "buildings": "Buildings to delete", "block": "Building", "residentOutcomes": "Person profile outcomes",
+    "personName": "Person", "outcome": "Outcome", "reason": "Preservation reason", "preserve": "Preserve profile", "deleteProfile": "Delete profile",
     "association": "Surviving association", "exclusive": "No surviving associations", "removedRole": "Role to remove",
     "roleWarning": "This user also has roles in surviving buildings. Those roles will be removed; buildings and other people's roles remain. An Admin or Censor position may become vacant.",
-    "typeEmail": "Type the user's email to confirm", "acknowledge": "I confirm permanent deletion of the listed user, buildings, resident profiles and history.",
+    "typeEmail": "Type the user's email to confirm", "acknowledge": "I confirm permanent deletion of the listed user, buildings, person profiles and history.",
     "reloadPreview": "Refresh preview", "expired": "This preview has expired. Refresh it and confirm again.",
     "scopeChanged": "The affected records have changed. Load a fresh preview and confirm again.",
     "authRequired": "Select an active SuperAdmin account. Local development sessions are available only when the API runs in Development; production requires verified sign-in.",
@@ -139,12 +139,12 @@
     "unknown": "The outcome is not yet confirmed. Check the operation or retry the same request. Do not begin a new deletion.",
     "operation": "Operation", "checkOutcome": "Check outcome", "retrySame": "Retry same request",
     "noBuildings": "No managed buildings", "noBuildingsHelper": "The admin accounts and eligible managed profiles are still included.",
-    "noResidents": "No affected resident profiles", "noResidentsHelper": "No resident profiles are included in this deletion.",
+    "noResidents": "No affected person profiles", "noResidentsHelper": "No person profiles are included in this deletion.",
     "reasons": { "membership": "Membership in a surviving building", "assignment": "Assignment in a surviving building", "management": "Managed by another admin account", "role": "Role in a surviving building" },
     "counts": {
       "adminAccounts": "Delete admin accounts", "blocks": "Delete buildings", "staircases": "Delete staircases", "apartments": "Delete apartments",
       "meters": "Delete meters", "readings": "Delete readings", "settings": "Delete reading settings", "memberships": "Delete memberships", "assignments": "Delete apartment links",
-      "roles": "Delete roles", "managementLinks": "Delete admin links", "residentProfiles": "Delete resident profiles", "preservedResidentProfiles": "Keep resident profiles",
+      "roles": "Delete roles", "managementLinks": "Delete admin links", "residentProfiles": "Delete person profiles", "preservedResidentProfiles": "Keep person profiles",
       "preservedUserAccounts": "Keep other logins", "deletedInvitations": "Delete invitations", "detachedInvitations": "Keep invitations",
       "deletedNotifications": "Delete notifications", "detachedNotifications": "Keep notifications", "detachedReadings": "Clear reading attribution",
       "detachedCreatorReferences": "Clear creator references", "detachedResidentLogins": "Keep profiles without login"
@@ -249,7 +249,7 @@
     "floorAdded": "Floor added.",
     "floorRemoved": "Floor {{floor}} removed.",
     "addApartment": "Add apartment",
-    "addResident": "Add resident",
+    "addResident": "Add person",
     "residentMode": "Resident",
     "newResident": "Create a resident",
     "existingResident": "Select an existing resident",
@@ -321,7 +321,7 @@
     "information": {
       "blocks": "blocks",
       "apartments": "apartments",
-      "residents": "residents",
+      "persons": "persons",
       "invoices": "invoices",
       "consumption": "consumption",
       "waterIndex": "water index",
@@ -371,7 +371,7 @@
     "apartments": "Apartments",
     "blocks": "Blocks",
     "dashboard": "Dashboard",
-    "residents": "Residents",
+    "persons": "Persons",
     "finance": "Finance",
     "myBills": "My Bills",
     "waterIndex": "Water Index",
@@ -388,7 +388,7 @@
     "superDashboard": "Platform dashboard",
     "manageAdmins": "Manage admins",
     "superBlocks": "Platform blocks",
-    "superResidents": "Platform residents",
+    "superPersons": "Platform persons",
     "superUsers": "Platform users",
     "exportData": "Export data"
   },
@@ -474,7 +474,7 @@
         "open": "Open"
       },
       "overview": {
-        "residents": "Residents",
+        "persons": "Residents",
         "residentsShort": "Res.",
         "apartments": "Apartments",
         "apartmentsShort": "Apts.",
@@ -557,9 +557,9 @@
     }
   },
   "pages": {
-    "residents": {
-      "title": "Residents",
-      "description": "Manage residents and apartments in one place."
+    "persons": {
+      "title": "Persons",
+      "description": "Manage people, app access, apartment assignments and censor appointments."
     },
     "blocks": {
       "title": "Blocks",
@@ -594,12 +594,19 @@
       "description": "Configure block utilities, billing allocation, apartment heating MP, and the water submission calendar."
     }
   },
-  "residents": {
+  "persons": {
     "apartmentLabel": "Apartment {{apartment}}, floor {{floor}}",
-    "loading": "Loading residents...",
+    "loading": "Loading persons...",
     "errors": {
       "invalidEmail": "Enter a valid email address.",
-      "loadFailed": "Residents could not be loaded. Please try again."
+      "loadFailed": "Persons could not be loaded. Please try again.",
+      "reviewCensors": "Review the current censor appointments and select distinct blocks managed by you.",
+      "scope": "This person or one of the selected blocks is no longer available to your administrator account.",
+      "censorsChanged": "The censor appointments changed. Reopen the editor and review the current assignments.",
+      "activeCensorAccount": "Censor access requires an active person and an active linked application account.",
+      "selfCensor": "An administrator cannot also be the censor of the same block.",
+      "occupiedCensor": "A selected block already has a censor. Withdraw that appointment explicitly before assigning another person.",
+      "removeCensorsFirst": "Withdraw the censor appointments before removing this person from your records."
     },
     "apartment": {
       "empty": "Empty apartment",
@@ -613,7 +620,7 @@
       "email": "Email",
       "emailOptional": "Email (optional)",
       "firstName": "First name",
-      "inviteResident": "Invite resident to create an account",
+      "invitePerson": "Create or link an application account",
       "lastName": "Last name",
       "name": "Name",
       "phone": "Phone",
@@ -631,7 +638,8 @@
     "roles": {
       "Admin": "Admin",
       "Censor": "Censor",
-      "Resident": "Resident"
+      "Resident": "Resident",
+      "none": "No assigned roles"
     },
     "resident": {
       "noEmail": "No email"
@@ -653,18 +661,18 @@
     },
     "filters": {
       "block": "Block",
-      "emptyHeadline": "No residents match these filters",
+      "emptyHeadline": "No persons match these filters",
       "emptyHelper": "Adjust the name, block, or staircase filters to widen the results.",
       "searchName": "Search by name",
       "staircase": "Staircase",
       "financialStatus": "Financial status"
     },
     "actions": {
-      "addResident": "Add resident",
+      "addPerson": "Add person",
       "assign": "Assign",
       "assignResident": "Assign resident",
-      "deleteResident": "Remove resident",
-      "editResident": "Edit resident",
+      "removePerson": "Remove person",
+      "editPerson": "Edit person",
       "openDetails": "Open details",
       "backToList": "Back",
       "sendReminder": "Send reminder",
@@ -672,53 +680,59 @@
       "unassign": "Unassign"
     },
     "dialog": {
-      "addTitle": "Add resident",
-      "deleteConfirm": "Remove {{resident}} from your resident records and apartment assignments? Their user account and other administrators' records will remain.",
+      "addTitle": "Add person",
+      "deleteConfirm": "Remove {{resident}} from your person records and apartment assignments? Their account and other administrators’ records will remain. Remove censor assignments separately first.",
       "deleteConfirmYes": "Yes, remove",
-      "deleteTitle": "Remove resident",
+      "deleteTitle": "Remove person",
       "deleting": "Removing..."
     },
     "assignments": {
       "title": "Apartment assignments",
-      "createWithoutHousing": "Add the resident without a block or apartment. Assign their apartment later from Apartments.",
-      "registeredEmailLocked": "Registered residents change their email through their own profile.",
+      "createWithoutHousing": "Add a person without a block or apartment. You can later assign an apartment from Apartments or appoint them as an external censor from their editor.",
+      "registeredEmailLocked": "People with an account change their email through their own profile.",
       "censorAssigned": "This resident is already the censor for {{block}}.",
       "empty": "No apartment assignments",
       "blocks": "Assigned blocks",
-      "clear": "Unassign from all blocks",
-      "clearConfirm": "Unassign {{name}} from all your blocks and their apartments? Current occupant counts for those apartments will become zero. Monthly declarations, the login and other administrators' relationships will be preserved. Confirm, then Save to apply.",
-      "staged": "Assignments will be removed when you save. Cancel the editor to discard this change.",
+      "clear": "Remove all housing assignments",
+      "clearConfirm": "Remove all housing assignments for {{name}} in your blocks? Current occupant counts for those apartments will become zero. Censor appointments, monthly declarations, the account and other administrators’ relationships will be preserved. Confirm, then Save to apply.",
+      "staged": "Housing assignments will be removed when you save. Censor appointments remain unchanged. Cancel to discard this change.",
       "additionalTitle": "Add another apartment?",
       "additionalMessage": "{{name}} already has these apartment assignments in your blocks. Continue and add another apartment while keeping the existing assignments?",
       "additionalConfirm": "Yes, add apartment",
       "destination": "Apartment to add"
     },
     "retention": {
-      "noBlock": "No block",
-      "adminManagementOnly": "Resident changes require an administrator account. This global overview is read-only.",
-      "saveFailed": "Unable to save the resident. Please try again.",
-      "removeFailed": "Unable to remove the selected residents. Please try again.",
-      "deleteAll": "Delete all",
-      "deleteAllConfirm": "Remove all {{count}} residents with no block from your records, including those hidden by search filters or on other pages? Their user accounts and other administrators' records will remain.",
-      "bulkConfirm": "Remove {{count}} selected residents from your records and apartment assignments? Their user accounts and other administrators' records will remain.",
-      "noDestinations": "No blocks are available for assignment. These residents remain in your records."
+      "noBlock": "No assignments",
+      "adminManagementOnly": "Person changes require an administrator account. This global overview is read-only.",
+      "saveFailed": "Unable to save the person. Please try again.",
+      "removeFailed": "Unable to remove the selected persons. Please try again.",
+      "deleteAll": "Remove all unassigned persons",
+      "deleteAllConfirm": "Remove all {{count}} persons without housing or active block roles from your records, including those hidden by filters or on other pages? Their accounts and other administrators’ records will remain.",
+      "bulkConfirm": "Remove {{count}} selected persons from your records and housing assignments? Their accounts and other administrators’ records will remain.",
+      "noDestinations": "No blocks are available for assignment. These persons remain in your records."
     },
     "notifications": {
       "censorAssigned": "Censor role assigned successfully.",
-      "existingLinked": "This resident already existed, so they were linked to the selected block."
+      "existingLinked": "This identity already existed and was added to your person records without changing its existing assignments."
     },
     "censorAssignment": {
-      "assign": "Assign as censor",
-      "assigning": "Assigning...",
-      "helper": "This resident can be assigned as censor for {{block}}.",
-      "requiresAccount": "Only registered residents can be assigned as censor.",
-      "requiresApartment": "The resident must be assigned to an apartment in the selected block.",
-      "title": "Censor assignment"
+      "title": "Censor appointments",
+      "blocks": "Blocks managed by you",
+      "helper": "An external censor needs an application account. No apartment or housing assignment is required. Access is limited to the selected blocks.",
+      "requiresAccount": "Enable the account option below and enter a valid email. The account and the censor appointments will be saved together.",
+      "saveHint": "Select blocks to appoint this person. Deselect a block to withdraw its appointment. Changes apply only when you save."
     },
     "detail": {
       "invoices": "Invoice history",
       "payments": "Payment history",
       "consumption": "Consumption history"
+    },
+    "noAccess": "Your account has no assigned blocks or apartments. An administrator can grant access by appointing you as censor or assigning an apartment.",
+    "censorDashboard": {
+      "description": "View only the blocks where you are explicitly appointed as censor.",
+      "blocks": "Your assigned blocks",
+      "empty": "No blocks assigned",
+      "emptyHelp": "An administrator must appoint you as censor before you can access a block."
     }
   },
   "staircases": {
@@ -1075,7 +1089,7 @@
       "apartments": "Apartments",
       "waterMeters": "Water meters (active and inactive)",
       "waterReadings": "Water readings",
-      "residentsPreserved": "Residents and their user accounts will be preserved. Only their assignments to this block will be removed.",
+      "residentsPreserved": "Persons and their user accounts will be preserved. Only their housing assignments and roles for this block will be removed.",
       "irreversible": "Are you sure you want to delete this block and all the items listed above, including its water-reading and consumption history? This action is irreversible.",
       "loading": "Loading deletion summary...",
       "loadFailed": "The deletion summary could not be loaded. Please try again.",
@@ -1144,7 +1158,7 @@
     },
     "loading": "Loading apartments...",
     "sections": {
-      "residents": "Assigned resident"
+      "persons": "Assigned resident"
     },
     "summary": {
       "total": "{{count}} apartments"
@@ -1152,7 +1166,7 @@
     "tabs": {
       "details": "Apartment Details",
       "assignedResident": "Assigned resident ({{count}})",
-      "residents": "Residents ({{count}})"
+      "persons": "Residents ({{count}})"
     },
     "setup": {
       "addApartment": "Add apartment",
@@ -1455,7 +1469,7 @@
       "title": "Platform users",
       "columns": {
         "name": "Name", "email": "Email", "status": "Account status", "roles": "Block roles",
-        "resident": "Resident profile", "admins": "Admin accounts", "blocks": "Blocks",
+        "resident": "Person profile", "admins": "Admin accounts", "blocks": "Blocks",
         "apartments": "Apartments", "createdAt": "Created", "actions": "Actions"
       },
       "filters": { "search": "Search name or email", "linked": "Linked profile", "unlinked": "No profile" },
@@ -1469,8 +1483,8 @@
         "unassigned": "Unassigned", "blocked": "Blocked", "archived": "Archived"
       },
       "unknown": "Unknown", "none": "None", "noResident": "No linked profile", "noRoles": "No role assignments",
-      "viewReport": "View association report", "viewResident": "View resident", "reportTitle": "User association report",
-      "associations": "Roles and accounts", "memberships": "Resident memberships", "subscription": "Subscription",
+      "viewReport": "View association report", "viewResident": "View person", "reportTitle": "User association report",
+      "associations": "Roles and accounts", "memberships": "Residential block memberships", "subscription": "Subscription",
       "staircase": "Staircase", "livesHere": "Lives here", "yes": "Yes", "no": "No", "phone": "Phone",
       "suspendedAt": "Suspended", "endedAt": "Ended", "suspensionReason": "Suspension reason",
       "empty": "No users yet", "emptyHelper": "There are no user accounts to display.",
@@ -1519,7 +1533,7 @@
         "totalBlocks": "Total blocks registered",
         "totalUsers": "Total users",
         "totalAdmins": "Total admins",
-        "totalResidents": "Total residents",
+        "totalResidents": "Total persons",
         "totalCensors": "Total censors",
         "pendingAdminInvites": "Pending admin invites",
         "suspendedAdminAccounts": "Suspended admin accounts",
@@ -1604,14 +1618,14 @@
       "noAdmins": "No active admin accounts available",
       "noBlocks": "No blocks for this admin yet",
       "noApartments": "No unassigned apartments in this block",
-      "optionalHousing": "Block and apartment assignment are optional. The resident will belong to the selected admin account.",
+      "optionalHousing": "The person belongs to the selected administrator’s records and can remain without housing or an application account.",
       "unassigned": "Unassigned",
       "saveFailed": "The change could not be confirmed. Retry with the same details or check the list before starting again.",
       "notificationTitle": "SuperAdmin updated your account",
       "notifications": {
         "block": "SuperAdmin created the block {{name}} for your account.",
         "blockSetup": "SuperAdmin created the block {{name}}, including its configured apartments and resident assignments, for your account.",
-        "resident": "SuperAdmin added or assigned the resident {{name}} in your account."
+        "resident": "SuperAdmin added the person {{name}} to your records."
       }
     },
     "blocks": {
@@ -1651,19 +1665,19 @@
         "notFoundHelper": "This block is no longer available. Return to the blocks list."
       }
     },
-    "residents": {
-      "title": "Residents List",
-      "description": "All resident accounts and block roles visible at platform level.",
-      "loading": "Loading platform residents...",
+    "persons": {
+      "title": "Persons",
+      "description": "All person profiles, including external censors and people without housing or accounts.",
+      "loading": "Loading platform persons...",
       "errors": {
-        "loadFailed": "Platform residents could not be loaded. Please try again."
+        "loadFailed": "Platform persons could not be loaded. Please try again."
       },
       "empty": {
-        "headline": "No platform residents yet",
-        "helperText": "Users with block memberships will appear here."
+        "headline": "No platform persons yet",
+        "helperText": "People appear here when their profiles are created, including before any assignment."
       },
       "columns": {
-        "name": "Resident name",
+        "name": "Person name",
         "email": "Email",
         "admins": "Linked admins",
         "phone": "Phone",
@@ -1695,7 +1709,7 @@
       "type": {
         "all_data": "All data",
         "blocks": "Blocks",
-        "residents": "Residents",
+        "persons": "Residents",
         "apartments": "Apartments",
         "finance_summary": "Finance summary"
       },

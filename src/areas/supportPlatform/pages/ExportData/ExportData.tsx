@@ -17,7 +17,7 @@ import { blocks } from '../../../blockAdmin/mocks/blocks'
 import { mockExportHistory } from '../../mocks/platformMockData'
 import type { ExportFormat, ExportStatus, ExportType, PlatformExportHistoryRow } from '../../types'
 
-const exportTypes: ExportType[] = ['all_data', 'blocks', 'residents', 'apartments', 'finance_summary']
+const exportTypes: ExportType[] = ['all_data', 'blocks', 'persons', 'apartments', 'finance_summary']
 const exportFormats: ExportFormat[] = ['csv', 'json']
 
 const createExportPayload = (row: PlatformExportHistoryRow) => ({

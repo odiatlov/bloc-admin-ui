@@ -8,7 +8,7 @@ import Dashboard from '../../areas/blockAdmin/pages/Dashboard/Dashboard'
 import Finance from '../../areas/blockAdmin/pages/Finance/Finance'
 import Reports from '../../areas/blockAdmin/pages/Reports/Reports'
 import MaintenanceReportViewer from '../../areas/blockAdmin/pages/Reports/components/MaintenanceReportViewer'
-import Residents from '../../areas/blockAdmin/pages/Residents/Residents'
+import Persons from '../../areas/blockAdmin/pages/Persons/Persons'
 import Settings from '../../areas/blockAdmin/pages/Settings/Settings'
 import Staircases from '../../areas/blockAdmin/pages/Staircases/Staircases'
 import ExportData from '../../areas/supportPlatform/pages/ExportData/ExportData'
@@ -17,7 +17,7 @@ import SuperAdminBlocks from '../../areas/supportPlatform/pages/SuperAdminBlocks
 import SuperAdminBlockApartments from '../../areas/supportPlatform/pages/SuperAdminBlocks/SuperAdminBlockApartments'
 import SuperAdminDashboard from '../../areas/supportPlatform/pages/SuperAdminDashboard/SuperAdminDashboard'
 import SuperAdminUsers from '../../areas/supportPlatform/pages/SuperAdminUsers/SuperAdminUsers'
-import SuperAdminResidents from '../../areas/supportPlatform/pages/SuperAdminResidents/SuperAdminResidents'
+import SuperAdminPersons from '../../areas/supportPlatform/pages/SuperAdminPersons/SuperAdminPersons'
 import SuperAdminConsumption from '../../areas/supportPlatform/pages/SuperAdminConsumption/SuperAdminConsumption'
 import { RoleContext } from '../../contexts/RoleContext'
 import AppLayout from '../../layouts/AppLayout'
@@ -47,7 +47,11 @@ const AppRoutes: React.FC<AppRoutesProps> = ({ themeMode, toggleTheme }) => (
         <Route path="blocks" element={<ProtectedRoute permission="blocks"><Blocks /></ProtectedRoute>} />
         <Route path="staircases" element={<ProtectedRoute permission="blocks"><Staircases /></ProtectedRoute>} />
         <Route path="apartments" element={<ProtectedRoute permission="blocks"><Apartments /></ProtectedRoute>} />
-        <Route path="residents" element={<ProtectedRoute permission="residents"><Residents /></ProtectedRoute>} />
+        <Route
+          path="persons"
+          element={<ProtectedRoute permission="persons"><Persons /></ProtectedRoute>}
+        />
+        <Route path="residents" element={<Navigate to="/admin/persons" replace />} />
         <Route path="finance" element={<ProtectedRoute permission="finance"><Finance /></ProtectedRoute>} />
         <Route path="consumption" element={<ProtectedRoute permission="consumption"><Consumption /></ProtectedRoute>} />
         <Route path="reports" element={<ProtectedRoute permission="reports"><Reports /></ProtectedRoute>} />
@@ -64,7 +68,11 @@ const AppRoutes: React.FC<AppRoutesProps> = ({ themeMode, toggleTheme }) => (
       <Route path="users" element={<ProtectedRoute permission="superAdmin"><SuperAdminUsers /></ProtectedRoute>} />
       <Route path="blocks" element={<ProtectedRoute permission="superAdmin"><SuperAdminBlocks /></ProtectedRoute>} />
       <Route path="blocks/:blockId/apartments" element={<ProtectedRoute permission="superAdmin"><SuperAdminBlockApartments /></ProtectedRoute>} />
-      <Route path="residents" element={<ProtectedRoute permission="superAdmin"><SuperAdminResidents /></ProtectedRoute>} />
+      <Route
+        path="persons"
+        element={<ProtectedRoute permission="superAdmin"><SuperAdminPersons /></ProtectedRoute>}
+      />
+      <Route path="residents" element={<Navigate to="/superadmin/persons" replace />} />
       <Route path="consumption" element={<ProtectedRoute permission="superAdmin"><SuperAdminConsumption /></ProtectedRoute>} />
       <Route path="export" element={<ProtectedRoute permission="superAdmin"><ExportData /></ProtectedRoute>} />
     </Route>

@@ -49,16 +49,16 @@ export type SetupApartment = {
   setupStatus?: 'configured' | 'unconfigured'
   hasBoiler: boolean
   householdCount: number
-  resident: SetupResident | null
+  resident: SetupPerson | null
 }
 
-export type SetupResident = {
-  residentId: string | null
+export type SetupPerson = {
+  personId: string | null
   firstName: string
   lastName: string
   phone: string | null
   email: string | null
-  inviteResident: boolean
+  invitePerson: boolean
 }
 
 export type BlockSetupRequest = {
@@ -72,16 +72,16 @@ export type BlockSetupRequest = {
 
 export type BlockSetupResponse = {
   block: BlockOverviewDto
-  invitations: { residentId: string; email: string; succeeded: boolean }[]
+  invitations: { personId: string; email: string; succeeded: boolean }[]
 }
 
 export type AssignBlockCensorRequest = {
-  residentId: string
+  personId: string
 }
 
 export type BlockRoleAssignmentResponse = {
   blockId: string
-  residentId: string
+  personId: string
   userId: string
   role: 'Censor'
 }

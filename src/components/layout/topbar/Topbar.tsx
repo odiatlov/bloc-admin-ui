@@ -58,6 +58,7 @@ const Topbar: React.FC<Props> = ({
   }
 
   const roleLabel = (value: AuthRole) => {
+    if (value === 'None') return t('persons.roles.none')
     if (value === 'Admin') return t('layout.topbar.role.admin')
     if (value === 'Resident') return t('layout.topbar.role.resident')
     if (value === 'Censor') return t('layout.topbar.role.censor')
@@ -95,7 +96,7 @@ const Topbar: React.FC<Props> = ({
 
         <FormControl variant="standard" sx={{ minWidth: 0, width: { xs: 120, sm: 160 }, flexShrink: 1 }}>
           <Select value={role} onChange={handleRoleChange} inputProps={{ 'aria-label': 'role-select' }}>
-            {account.roles.map((item) => (
+            {(account.roles.length ? account.roles : ['None'] as AuthRole[]).map((item) => (
               <MenuItem key={item} value={item}>
                 {roleLabel(item)}
               </MenuItem>

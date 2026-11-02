@@ -16,7 +16,7 @@ function renderRoute(overrides: Partial<RoleState> = {}, permission: Permission 
     id: '1b507ebb-329f-434a-b77b-4bd1ee58d134',
     name: 'Test account', email: 'account@example.test',
     systemRole: role === 'SuperAdmin' ? 'SuperAdmin' : 'None',
-    blockRoles: role === 'SuperAdmin' ? [] : [role],
+    blockRoles: role === 'SuperAdmin' || role === 'None' ? [] : [role],
     roles: [role], defaultRole: role, token: 'test-token',
   }
   const value: RoleState = {
@@ -67,7 +67,7 @@ describe('ProtectedRoute', () => {
     expect(refreshAccounts).toHaveBeenCalledOnce()
   })
 
-  it.each(['Resident', 'Censor'] as const)('redirects %s away from block management', async (role) => {
+  it.each(['Resident', 'Censor', 'None'] as const)('redirects %s away from block management', async (role) => {
     renderRoute({ role })
     expect(await screen.findByRole('heading', { name: 'Admin dashboard' })).toBeInTheDocument()
     expect(screen.queryByText('Protected content')).not.toBeInTheDocument()

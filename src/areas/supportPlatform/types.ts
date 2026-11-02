@@ -56,7 +56,7 @@ export type PlatformResidentRow = {
   blockRole: 'Resident' | 'Admin' | 'Censor'
 }
 
-export type ExportType = 'all_data' | 'blocks' | 'residents' | 'apartments' | 'finance_summary'
+export type ExportType = 'all_data' | 'blocks' | 'persons' | 'apartments' | 'finance_summary'
 export type ExportFormat = 'csv' | 'json'
 export type ExportStatus = 'completed' | 'processing' | 'failed'
 

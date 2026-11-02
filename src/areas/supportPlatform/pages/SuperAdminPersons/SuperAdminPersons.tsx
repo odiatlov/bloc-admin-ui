@@ -26,50 +26,50 @@ import { type DataColumn } from '../../../../components/shared/ResponsiveDataVie
 import PagedResponsiveDataView from '../../../../components/shared/PagedResponsiveDataView'
 import StatusChip from '../../../../components/shared/StatusChip'
 import ResidentApartmentAssignments from '../../../../components/shared/ResidentApartmentAssignments'
-import { translateResidentStatus } from '../../../../domain/displayLabels'
+import { translatePersonStatus } from '../../../../domain/displayLabels'
 import { useBlocks } from '../../../../hooks/useBlocks'
-import { residentsApi } from '../../../../services/residentsApi'
+import { personsApi } from '../../../../services/personsApi'
 import { superAdminApi } from '../../../../services/superAdminApi'
 import { ApiError } from '../../../../services/apiClient'
-import type { ResidentResponse, ResidentStatus } from '../../../../types/management'
+import type { PersonResponse, PersonStatus } from '../../../../types/management'
 import CreateForAdmin from '../../components/CreateForAdmin'
 
 type FormState = {
   firstName: string
   lastName: string
   blockId: string
-  inviteResident: boolean
+  invitePerson: boolean
   email: string
   phone: string
-  status: ResidentStatus
+  status: PersonStatus
 }
 
 const emptyForm: FormState = {
   firstName: '',
   lastName: '',
   blockId: '',
-  inviteResident: false,
+  invitePerson: false,
   email: '',
   phone: '',
   status: 'active',
 }
 
-const residentStatuses: ResidentStatus[] = ['active', 'inactive']
+const personStatuses: PersonStatus[] = ['active', 'inactive']
 const tableEmptyValue = '-'
 const normalizeFilterValue = (value: string | null | undefined) => value?.trim().toLowerCase() ?? ''
 
-const SuperAdminResidents: React.FC = () => {
+const SuperAdminPersons: React.FC = () => {
   const { t } = useTranslation()
   const databaseBlocks = useBlocks()
-  const [residents, setResidents] = React.useState<ResidentResponse[]>([])
+  const [persons, setResidents] = React.useState<PersonResponse[]>([])
   const [nameFilter, setNameFilter] = usePageFilter('platformResidents.name', '')
   const [selectedBlockId, setSelectedBlockId] = usePageFilter('platformResidents.block', 'all')
-  const [statusFilter, setStatusFilter] = usePageFilter<'all' | ResidentStatus>('platformResidents.status', 'all')
+  const [statusFilter, setStatusFilter] = usePageFilter<'all' | PersonStatus>('platformResidents.status', 'all')
   const [error, setError] = React.useState<string | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
   const [dialogMode, setDialogMode] = React.useState<'create' | 'edit' | null>(null)
-  const [editingResident, setEditingResident] = React.useState<ResidentResponse | null>(null)
-  const [deletingResident, setDeletingResident] = React.useState<ResidentResponse | null>(null)
+  const [editingResident, setEditingResident] = React.useState<PersonResponse | null>(null)
+  const [deletingResident, setDeletingResident] = React.useState<PersonResponse | null>(null)
   const [isDeletingResident, setIsDeletingResident] = React.useState(false)
   const [deletionError, setDeletionError] = React.useState<string | null>(null)
   const [notification, setNotification] = React.useState('')
@@ -80,9 +80,9 @@ const SuperAdminResidents: React.FC = () => {
     setError(null)
 
     try {
-      setResidents(await residentsApi.getAll())
+      setResidents(await personsApi.getAll())
     } catch (nextError) {
-      setError(nextError instanceof Error ? nextError.message : 'Unable to load platform residents')
+      setError(nextError instanceof Error ? nextError.message : 'Unable to load platform persons')
     } finally {
       setIsLoading(false)
     }
@@ -100,7 +100,7 @@ const SuperAdminResidents: React.FC = () => {
   const filteredResidents = React.useMemo(() => {
     const normalizedNameFilter = normalizeFilterValue(nameFilter)
 
-    return residents.filter((resident) => {
+    return persons.filter((resident) => {
       const matchesName = !normalizedNameFilter || normalizeFilterValue(resident.fullName).includes(normalizedNameFilter)
       const matchesBlock = selectedBlockFilter === 'all'
         || resident.blocks.some((block) => block.blockId === selectedBlockFilter)
@@ -109,7 +109,7 @@ const SuperAdminResidents: React.FC = () => {
 
       return matchesName && matchesBlock && matchesStatus
     })
-  }, [nameFilter, residents, selectedBlockFilter, statusFilter])
+  }, [nameFilter, persons, selectedBlockFilter, statusFilter])
 
   const clearFilters = () => {
     setNameFilter('')
@@ -117,13 +117,13 @@ const SuperAdminResidents: React.FC = () => {
     setStatusFilter('all')
   }
 
-  const openEditDialog = (resident: ResidentResponse) => {
+  const openEditDialog = (resident: PersonResponse) => {
     setEditingResident(resident)
     setForm({
       firstName: resident.firstName,
       lastName: resident.lastName,
       blockId: resident.blocks[0]?.blockId ?? databaseBlocks.blocks[0]?.id ?? '',
-      inviteResident: resident.hasRegisteredAccount,
+      invitePerson: resident.hasRegisteredAccount,
       email: resident.email ?? '',
       phone: resident.phone ?? '',
       status: resident.status,
@@ -138,8 +138,8 @@ const SuperAdminResidents: React.FC = () => {
       firstName: form.firstName.trim(),
       lastName: form.lastName.trim(),
       blockId: form.blockId,
-      inviteResident: form.inviteResident,
-      email: form.inviteResident ? form.email.trim() || null : null,
+      invitePerson: form.invitePerson,
+      email: form.invitePerson ? form.email.trim() || null : null,
       phone: form.phone.trim() || null,
       userId: null,
       status: form.status,
@@ -149,11 +149,11 @@ const SuperAdminResidents: React.FC = () => {
 
     try {
       if (editingResident) {
-        await residentsApi.update(editingResident.id, request)
+        await personsApi.update(editingResident.id, request)
       } else {
-        const createdResident = await residentsApi.create(request)
+        const createdResident = await personsApi.create(request)
         if (createdResident.wasExistingIdentity) {
-          setNotification(t('residents.notifications.existingLinked'))
+          setNotification(t('persons.notifications.existingLinked'))
         }
       }
 
@@ -172,7 +172,7 @@ const SuperAdminResidents: React.FC = () => {
     setDeletionError(null)
 
     try {
-      await superAdminApi.deleteUnlinkedResident(deletingResident.id)
+      await superAdminApi.deleteUnlinkedPerson(deletingResident.id)
       setDeletingResident(null)
       setNotification(t('adminUserDeletion.residentProfile.success'))
       await loadResidents()
@@ -187,59 +187,59 @@ const SuperAdminResidents: React.FC = () => {
     }
   }
 
-  const columns: DataColumn<ResidentResponse>[] = [
-    { key: 'name', label: t('superAdmin.residents.columns.name'), cardRole: 'primary', render: (resident) => resident.fullName },
-    { key: 'email', label: t('superAdmin.residents.columns.email'), render: (resident) => resident.email || tableEmptyValue },
-    { key: 'admins', label: t('superAdmin.residents.columns.admins'), render: (resident) => resident.adminAccounts.map((account) => account.displayName).join(', ') || tableEmptyValue },
-    { key: 'phone', label: t('superAdmin.residents.columns.phone'), render: (resident) => resident.phone || tableEmptyValue },
+  const columns: DataColumn<PersonResponse>[] = [
+    { key: 'name', label: t('superAdmin.persons.columns.name'), cardRole: 'primary', render: (resident) => resident.fullName },
+    { key: 'email', label: t('superAdmin.persons.columns.email'), render: (resident) => resident.email || tableEmptyValue },
+    { key: 'admins', label: t('superAdmin.persons.columns.admins'), render: (resident) => resident.adminAccounts.map((account) => account.displayName).join(', ') || tableEmptyValue },
+    { key: 'phone', label: t('superAdmin.persons.columns.phone'), render: (resident) => resident.phone || tableEmptyValue },
     {
       key: 'assignments',
-      label: t('residents.assignments.title'),
+      label: t('persons.assignments.title'),
       render: resident => <ResidentApartmentAssignments apartments={resident.apartments} />,
     },
     {
       key: 'accountStatus',
-      label: t('superAdmin.residents.columns.accountStatus'),
+      label: t('superAdmin.persons.columns.accountStatus'),
       cardRole: 'status',
       render: (resident) => (
         <StatusChip
           status={resident.hasRegisteredAccount ? 'active' : 'no_account'}
-          label={resident.hasRegisteredAccount ? t('residents.account.registered') : t('residents.account.unregistered')}
+          label={resident.hasRegisteredAccount ? t('persons.account.registered') : t('persons.account.unregistered')}
         />
       ),
     },
     {
       key: 'membershipStatus',
-      label: t('superAdmin.residents.columns.membershipStatus'),
+      label: t('superAdmin.persons.columns.membershipStatus'),
       cardRole: 'status',
-      render: (resident) => <StatusChip status={resident.status} label={translateResidentStatus(t, resident.status)} />,
+      render: (resident) => <StatusChip status={resident.status} label={translatePersonStatus(t, resident.status)} />,
     },
     {
       key: 'actions',
-      label: t('superAdmin.residents.columns.quickAction'),
+      label: t('superAdmin.persons.columns.quickAction'),
       cardRole: 'actions',
       actions: (resident) => [
-        { id: 'edit', label: t('residents.actions.editResident'), icon: <EditIcon />, visible: false, onClick: () => openEditDialog(resident), priority: 2 },
+        { id: 'edit', label: t('persons.actions.editPerson'), icon: <EditIcon />, visible: false, onClick: () => openEditDialog(resident), priority: 2 },
         { id: 'delete', label: t('adminUserDeletion.residentProfile.action'), icon: <DeleteIcon />, visible: resident.canDeleteUnlinkedProfile === true,
           onClick: () => { setDeletionError(null); setDeletingResident(resident) }, disabled: isDeletingResident, color: 'error', priority: 1 },
       ],
     },
   ]
 
-  const hasValidInviteEmail = !form.inviteResident || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())
+  const hasValidInviteEmail = !form.invitePerson || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())
   const canSave = Boolean(form.firstName.trim() && form.lastName.trim() && form.blockId && hasValidInviteEmail)
   const loadError = error || databaseBlocks.error
   const loading = isLoading || databaseBlocks.isLoading
 
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
-      <PageHeader title={t('superAdmin.residents.title')} description={t('superAdmin.residents.description')} />
+      <PageHeader title={t('superAdmin.persons.title')} description={t('superAdmin.persons.description')} />
       <ActionBar
         title={(
           <>
             <SearchField
               disabled={Boolean(loadError)}
-              label={t('residents.filters.searchName')}
+              label={t('persons.filters.searchName')}
               size="small"
               value={nameFilter}
               onClear={() => setNameFilter('')}
@@ -260,48 +260,48 @@ const SuperAdminResidents: React.FC = () => {
               </Select>
             </FormControl>
             <FormControl size="small" sx={{ width: { xs: '100%', sm: 160 } }} disabled={Boolean(loadError) || loading}>
-              <InputLabel>{t('residents.fields.status')}</InputLabel>
+              <InputLabel>{t('persons.fields.status')}</InputLabel>
               <Select
-                label={t('residents.fields.status')}
+                label={t('persons.fields.status')}
                 value={statusFilter}
-                onChange={(event: SelectChangeEvent) => setStatusFilter(event.target.value as 'all' | ResidentStatus)}
+                onChange={(event: SelectChangeEvent) => setStatusFilter(event.target.value as 'all' | PersonStatus)}
               >
                 <MenuItem value="all">{t('common.all')}</MenuItem>
-                {residentStatuses.map((status) => (
-                  <MenuItem key={status} value={status}>{translateResidentStatus(t, status)}</MenuItem>
+                {personStatuses.map((status) => (
+                  <MenuItem key={status} value={status}>{translatePersonStatus(t, status)}</MenuItem>
                 ))}
               </Select>
             </FormControl>
           </>
         )}
       >
-        <CreateForAdmin kind="resident" onCreated={async () => { clearFilters(); await loadResidents() }} />
+        <CreateForAdmin kind="person" onCreated={async () => { clearFilters(); await loadResidents() }} />
       </ActionBar>
 
       {loading ? (
         <Paper sx={{ alignItems: 'center', display: 'grid', gap: 1.5, justifyItems: 'center', p: 4 }}>
           <CircularProgress size={32} />
-          <Typography color="text.secondary">{t('superAdmin.residents.loading')}</Typography>
+          <Typography color="text.secondary">{t('superAdmin.persons.loading')}</Typography>
         </Paper>
       ) : loadError ? (
-        <LoadErrorState helperText={t('superAdmin.residents.errors.loadFailed')} onRetry={() => { void loadResidents(); void databaseBlocks.refresh() }} />
-      ) : residents.length === 0 ? (
+        <LoadErrorState helperText={t('superAdmin.persons.errors.loadFailed')} onRetry={() => { void loadResidents(); void databaseBlocks.refresh() }} />
+      ) : persons.length === 0 ? (
         <EmptyState
-          headline={t('superAdmin.residents.empty.headline')}
-          helperText={t('superAdmin.residents.empty.helperText')}
+          headline={t('superAdmin.persons.empty.headline')}
+          helperText={t('superAdmin.persons.empty.helperText')}
         />
       ) : filteredResidents.length === 0 ? (
         <EmptyState
           actionLabel={t('common.clearFilters')}
-          headline={t('residents.filters.emptyHeadline')}
-          helperText={t('residents.filters.emptyHelper')}
+          headline={t('persons.filters.emptyHeadline')}
+          helperText={t('persons.filters.emptyHelper')}
           onAction={clearFilters}
         />
       ) : (
-        <PagedResponsiveDataView endpoint="/residents/page" query={{ search: nameFilter, blockId: selectedBlockFilter === 'all' ? undefined : selectedBlockFilter, status: statusFilter === 'all' ? undefined : statusFilter }}
-          paginationId="SuperAdminResidents-1"
+        <PagedResponsiveDataView endpoint="/persons/page" query={{ search: nameFilter, blockId: selectedBlockFilter === 'all' ? undefined : selectedBlockFilter, status: statusFilter === 'all' ? undefined : statusFilter }}
+          paginationId="SuperAdminPersons-1"
           paginationResetKey={JSON.stringify([nameFilter, selectedBlockFilter, statusFilter])}
-          ariaLabel={t('superAdmin.residents.title')}
+          ariaLabel={t('superAdmin.persons.title')}
           columns={columns}
           desktopTableMinWidth={1100}
           getRowId={(resident) => resident.id}
@@ -318,14 +318,14 @@ const SuperAdminResidents: React.FC = () => {
         onCancel={() => setDialogMode(null)}
         onConfirm={() => { void saveResident() }}
         open={Boolean(dialogMode)}
-        title={dialogMode === 'edit' ? t('residents.actions.editResident') : t('residents.actions.addResident')}
+        title={dialogMode === 'edit' ? t('persons.actions.editPerson') : t('persons.actions.addPerson')}
       >
         <TextField
           autoFocus
           fullWidth
           required
           size="small"
-          label={t('residents.fields.firstName')}
+          label={t('persons.fields.firstName')}
           value={form.firstName}
           onChange={(event) => setForm((value) => ({ ...value, firstName: event.target.value }))}
         />
@@ -333,7 +333,7 @@ const SuperAdminResidents: React.FC = () => {
           fullWidth
           required
           size="small"
-          label={t('residents.fields.lastName')}
+          label={t('persons.fields.lastName')}
           value={form.lastName}
           onChange={(event) => setForm((value) => ({ ...value, lastName: event.target.value }))}
         />
@@ -352,43 +352,43 @@ const SuperAdminResidents: React.FC = () => {
         <FormControlLabel
           control={(
             <Checkbox
-              checked={form.inviteResident}
+              checked={form.invitePerson}
               disabled={Boolean(editingResident?.hasRegisteredAccount)}
-              onChange={(event) => setForm((value) => ({ ...value, inviteResident: event.target.checked, email: event.target.checked ? value.email : '' }))}
+              onChange={(event) => setForm((value) => ({ ...value, invitePerson: event.target.checked, email: event.target.checked ? value.email : '' }))}
             />
           )}
-          label={t('residents.fields.inviteResident')}
+          label={t('persons.fields.invitePerson')}
         />
-        {form.inviteResident && (
+        {form.invitePerson && (
           <TextField
             fullWidth
             required
             size="small"
-            label={t('residents.fields.email')}
+            label={t('persons.fields.email')}
             type="email"
             value={form.email}
             error={Boolean(form.email.trim()) && !hasValidInviteEmail}
-            helperText={Boolean(form.email.trim()) && !hasValidInviteEmail ? t('residents.errors.invalidEmail') : undefined}
+            helperText={Boolean(form.email.trim()) && !hasValidInviteEmail ? t('persons.errors.invalidEmail') : undefined}
             onChange={(event) => setForm((value) => ({ ...value, email: event.target.value }))}
           />
         )}
         <TextField
           fullWidth
           size="small"
-          label={t('residents.fields.phoneOptional')}
+          label={t('persons.fields.phoneOptional')}
           value={form.phone}
           onChange={(event) => setForm((value) => ({ ...value, phone: event.target.value }))}
         />
         <FormControl fullWidth size="small">
-          <InputLabel>{t('residents.fields.status')}</InputLabel>
+          <InputLabel>{t('persons.fields.status')}</InputLabel>
           <Select
-            label={t('residents.fields.status')}
+            label={t('persons.fields.status')}
             value={form.status}
-            onChange={(event: SelectChangeEvent) => setForm((value) => ({ ...value, status: event.target.value as ResidentStatus }))}
+            onChange={(event: SelectChangeEvent) => setForm((value) => ({ ...value, status: event.target.value as PersonStatus }))}
           >
-            {residentStatuses.map((status) => (
+            {personStatuses.map((status) => (
               <MenuItem key={status} value={status}>
-                {translateResidentStatus(t, status)}
+                {translatePersonStatus(t, status)}
               </MenuItem>
             ))}
           </Select>
@@ -401,7 +401,7 @@ const SuperAdminResidents: React.FC = () => {
         maxWidth="xs"
         cancelLabel={t('common.cancel')}
         confirmDisabled={!deletingResident || isDeletingResident}
-        confirmLabel={isDeletingResident ? t('residents.dialog.deleting') : t('residents.dialog.deleteConfirmYes')}
+        confirmLabel={isDeletingResident ? t('persons.dialog.deleting') : t('persons.dialog.deleteConfirmYes')}
         onCancel={() => { if (!isDeletingResident) setDeletingResident(null) }}
         onConfirm={() => { void deleteResident() }}
         open={Boolean(deletingResident)}
@@ -428,4 +428,4 @@ const SuperAdminResidents: React.FC = () => {
   )
 }
 
-export default SuperAdminResidents
+export default SuperAdminPersons

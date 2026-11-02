@@ -29,7 +29,7 @@ import DeleteAdminUserDialog from '../../components/DeleteAdminUserDialog'
 import { RoleContext } from '../../../../contexts/RoleContext'
 
 const associatedBlocks = (user: SuperAdminUserResponse) => [...new Map([
-  ...user.roles, ...user.residentBlocks, ...user.apartments, ...user.adminAccounts.flatMap((account) => account.blocks),
+  ...user.roles, ...user.personBlocks, ...user.apartments, ...user.adminAccounts.flatMap((account) => account.blocks),
 ].map((block) => [block.blockId, block])).values()]
 
 const SuperAdminUsers = () => {
@@ -58,18 +58,18 @@ const SuperAdminUsers = () => {
     { key: 'email', label: label('columns.email'), render: (user) => user.email },
     { key: 'status', label: label('columns.status'), cardRole: 'status', render: (user) => statusBadge(user.status) },
     { key: 'roles', label: label('columns.roles'), render: (user) => badges(user.roles.map((role) => `${roleLabel(role.role)} / ${role.blockName} / ${statusLabel(role.status)}`)) },
-    { key: 'resident', label: label('columns.resident'), render: (user) => user.residentName ?? label('noResident') },
+    { key: 'resident', label: label('columns.resident'), render: (user) => user.personName ?? label('noResident') },
     { key: 'admins', label: label('columns.admins'), render: (user) => user.adminAccounts.map((account) => account.displayName).join(', ') || label('none') },
     { key: 'blocks', label: label('columns.blocks'), render: (user) => associatedBlocks(user).map((block) => block.blockName).join(', ') || label('none') },
     { key: 'apartments', label: label('columns.apartments'), render: (user) => user.apartments.map((apartment) => `${apartment.blockName} / ${apartment.staircaseName ? `${apartment.staircaseName} / ` : ''}${apartment.apartmentNumber}`).join(', ') || label('none') },
     { key: 'createdAt', label: label('columns.createdAt'), render: (user) => date(user.createdAt) },
     { key: 'actions', label: label('columns.actions'), actions: (user) => [
       { id: 'report', label: label('viewReport'), icon: <VisibilityIcon />, priority: 2, onClick: () => setReport({ user, tab: 0 }) },
-      { id: 'resident', label: label('viewResident'), icon: <PersonIcon />, visible: Boolean(user.residentId), onClick: () => setReport({ user, tab: 1 }) },
+      { id: 'resident', label: label('viewResident'), icon: <PersonIcon />, visible: Boolean(user.personId), onClick: () => setReport({ user, tab: 1 }) },
       { id: 'delete-managed-data', label: t('adminUserDeletion.action'), icon: <DeleteForeverIcon />, color: 'error',
         visible: role === 'SuperAdmin' && user.adminAccounts.length > 0, onClick: () => setDeletionTarget({ userId: user.userId, userOnly: false }) },
       { id: 'delete-user', label: t('adminUserDeletion.userOnly.action'), icon: <DeleteForeverIcon />, color: 'error',
-        visible: role === 'SuperAdmin' && user.adminAccounts.length === 0 && !user.residentId,
+        visible: role === 'SuperAdmin' && user.adminAccounts.length === 0 && !user.personId,
         onClick: () => setDeletionTarget({ userId: user.userId, userOnly: true }) },
     ] },
   ]
@@ -143,7 +143,7 @@ const SuperAdminUsers = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}><Typography>{user.email}</Typography>{statusBadge(user.status)}</Box>
         <Tabs value={report?.tab ?? 0} onChange={(_, tab: number) => setReport({ user, tab })} variant="fullWidth">
           <Tab id="user-associations-tab" aria-controls="user-associations-panel" label={label('associations')} />
-          <Tab id="user-resident-tab" aria-controls="user-resident-panel" label={label('columns.resident')} disabled={!user.residentId} />
+          <Tab id="user-resident-tab" aria-controls="user-resident-panel" label={label('columns.resident')} disabled={!user.personId} />
         </Tabs>
         {report?.tab === 0 ? <Box role="tabpanel" id="user-associations-panel" aria-labelledby="user-associations-tab" sx={{ display: 'grid', gap: 2 }}>
           <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>{label('columns.roles')}</Typography>
@@ -153,14 +153,14 @@ const SuperAdminUsers = () => {
           <ResponsiveDataView columns={adminColumns} rows={user.adminAccounts} getRowId={(row) => row.adminAccountId} ariaLabel={label('columns.admins')}
             paginationId={`user-admins-${user.userId}`} emptyState={reportEmpty} />
         </Box> : <Box role="tabpanel" id="user-resident-panel" aria-labelledby="user-resident-tab" sx={{ display: 'grid', gap: 2 }}>
-          <Typography variant="h6">{user.residentName}</Typography>
+          <Typography variant="h6">{user.personName}</Typography>
           <Box component="dl" sx={{ m: 0, display: 'grid', gap: 1, gridTemplateColumns: { xs: '1fr', sm: '180px minmax(0, 1fr)' }, '& dd': { m: 0 } }}>
-            <Typography component="dt" sx={{ fontWeight: 700 }}>{label('columns.status')}</Typography><Box component="dd">{user.residentStatus ? statusBadge(user.residentStatus) : '-'}</Box>
-            <Typography component="dt" sx={{ fontWeight: 700 }}>{label('columns.email')}</Typography><Typography component="dd">{user.residentEmail || '-'}</Typography>
+            <Typography component="dt" sx={{ fontWeight: 700 }}>{label('columns.status')}</Typography><Box component="dd">{user.personStatus ? statusBadge(user.personStatus) : '-'}</Box>
+            <Typography component="dt" sx={{ fontWeight: 700 }}>{label('columns.email')}</Typography><Typography component="dd">{user.personEmail || '-'}</Typography>
             <Typography component="dt" sx={{ fontWeight: 700 }}>{label('phone')}</Typography><Typography component="dd">{user.phone || '-'}</Typography>
           </Box>
           <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>{label('memberships')}</Typography>
-          <ResponsiveDataView columns={blockColumns} rows={user.residentBlocks} getRowId={(row) => row.blockId} ariaLabel={label('memberships')}
+          <ResponsiveDataView columns={blockColumns} rows={user.personBlocks} getRowId={(row) => row.blockId} ariaLabel={label('memberships')}
             paginationId={`user-memberships-${user.userId}`} emptyState={reportEmpty} />
           <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>{label('columns.apartments')}</Typography>
           <ResponsiveDataView columns={apartmentColumns} rows={user.apartments} getRowId={(row) => row.apartmentId} ariaLabel={label('columns.apartments')}

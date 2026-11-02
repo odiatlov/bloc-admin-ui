@@ -132,7 +132,7 @@ const Staircases: React.FC = () => {
     { key: 'name', label: t('staircases.columns.name'), cardRole: 'primary', render: (staircase) => staircase.name ? t('settings.fields.staircaseName', { staircase: staircase.name }) : tableEmptyValue },
     { key: 'block', label: t('settings.fields.block'), cardRole: 'secondary', render: (staircase) => staircase.blockName || tableEmptyValue },
     { key: 'apartments', label: t('dashboard.admin.overview.apartments'), render: (staircase) => staircase.apartmentCount },
-    { key: 'residents', label: t('dashboard.admin.overview.residents'), render: (staircase) => staircase.residentCount },
+    { key: 'persons', label: t('dashboard.admin.overview.persons'), render: (staircase) => staircase.residentCount },
     {
       key: 'actions',
       label: t('common.actions'),

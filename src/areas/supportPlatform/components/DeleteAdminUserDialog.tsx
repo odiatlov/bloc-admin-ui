@@ -48,8 +48,8 @@ const DeleteAdminUserDialog = ({ userId, actorKey, userOnly = false, onClose, on
     { key: 'caption', label: label('statistic'), cardRole: 'primary', render: (row) => row.caption },
     { key: 'count', label: label('count'), render: (row) => row.count },
   ]
-  const residents: DataColumn<AdminUserDeletionPreview['residents'][number]>[] = [
-    { key: 'name', label: label('residentName'), cardRole: 'primary', render: (row) => row.name },
+  const persons: DataColumn<AdminUserDeletionPreview['persons'][number]>[] = [
+    { key: 'name', label: label('personName'), cardRole: 'primary', render: (row) => row.name },
     { key: 'outcome', label: label('outcome'), render: (row) => label(row.preserved ? 'preserve' : 'deleteProfile') },
     { key: 'reasons', label: label('reason'), render: (row) => row.reasons.map((reason) =>
       ['membership', 'assignment', 'management', 'role'].includes(reason) ? label(`reasons.${reason}`) : label('association')).join(', ') || label('exclusive') },
@@ -102,8 +102,8 @@ const DeleteAdminUserDialog = ({ userId, actorKey, userOnly = false, onClose, on
         desktopTableMinWidth={560} ariaLabel={label('statistics')} />
       {!flow.userOnly && <>
         <Typography variant="subtitle1">{label('residentOutcomes')}</Typography>
-        <ResponsiveDataView columns={residents} rows={preview.residents} getRowId={(row) => row.id}
-          paginationId={`deletion-residents-${userId}`} desktopTableMinWidth={560} ariaLabel={label('residentOutcomes')}
+        <ResponsiveDataView columns={persons} rows={preview.persons} getRowId={(row) => row.id}
+          paginationId={`deletion-persons-${userId}`} desktopTableMinWidth={560} ariaLabel={label('residentOutcomes')}
           emptyState={<EmptyState headline={label('noResidents')} helperText={label('noResidentsHelper')} />} />
       </>}
       {preview.survivingBlockRoleEffects.length > 0 && <>

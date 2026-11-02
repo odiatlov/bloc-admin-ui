@@ -23,7 +23,7 @@ export const mockAccounts: MockAccount[] = [
     defaultRole: 'Admin',
     adminId: 'ADM-1',
     userId: '475d5075-11d6-4916-9ca6-f955ca5df1e1',
-    residentId: '3e9376b8-fad6-4ab0-a44d-0e0a9837a25e',
+    personId: '3e9376b8-fad6-4ab0-a44d-0e0a9837a25e',
     token: 'mock-jwt-popescu-nicolae',
   },
   {
@@ -35,7 +35,7 @@ export const mockAccounts: MockAccount[] = [
     roles: ['Resident', 'Censor'],
     defaultRole: 'Censor',
     userId: 'c7cd1e31-31a3-4621-8e49-ac2f54b604c1',
-    residentId: '58a75324-913d-4c09-bdfc-faf2bc0c5b16',
+    personId: '58a75324-913d-4c09-bdfc-faf2bc0c5b16',
     token: 'mock-jwt-popescu-g',
   },
   {
@@ -47,7 +47,7 @@ export const mockAccounts: MockAccount[] = [
     roles: ['Resident'],
     defaultRole: 'Resident',
     userId: '87b76bcb-90d6-41d4-bf48-4e8e2d8785fb',
-    residentId: '5a94bb03-e4cc-42bd-b1c0-f95dd65f3702',
+    personId: '5a94bb03-e4cc-42bd-b1c0-f95dd65f3702',
     token: 'mock-jwt-olteanu-ion',
   },
 ]

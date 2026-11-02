@@ -34,7 +34,7 @@ import {
   blocks,
   buildingAdminAssignments,
   residentApartments,
-  residents,
+  persons,
   staircases,
   type Apartment,
   type ApartmentSetupStatus,
@@ -65,7 +65,7 @@ const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ hideScopeFilt
   const [selectedApartmentId, setSelectedApartmentId] = React.useState('')
   const [apartmentRecords, setApartmentRecords] = React.useState<Apartment[]>(apartments)
   const [residentApartmentRecords, setResidentApartmentRecords] = React.useState<ResidentApartment[]>(residentApartments)
-  const [assignResidentId, setAssignResidentId] = React.useState('')
+  const [assignPersonId, setAssignPersonId] = React.useState('')
   const [editTab, setEditTab] = React.useState(0)
   const [isAddDialogOpen, setIsAddDialogOpen] = React.useState(false)
   const [apartmentForm, setApartmentForm] = React.useState({
@@ -100,10 +100,10 @@ const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ hideScopeFilt
   })
   const selectedApartment = apartmentRecords.find((apartment) => apartment.id === selectedApartmentId) ?? null
   const selectedApartmentResidents = selectedApartment
-    ? getApartmentResidents(selectedApartment.id, residents, residentApartmentRecords)
+    ? getApartmentResidents(selectedApartment.id, persons, residentApartmentRecords)
     : []
   const assignableResidents = selectedApartment
-    ? selectedApartmentResidents.length === 0 ? residents : []
+    ? selectedApartmentResidents.length === 0 ? persons : []
     : []
   const canAddApartment = apartmentForm.floor.trim() !== ''
     && Number.isFinite(Number(apartmentForm.floor))
@@ -176,19 +176,19 @@ const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ hideScopeFilt
   }
 
   const handleAssignResident = () => {
-    if (!selectedApartment || !assignResidentId) return
+    if (!selectedApartment || !assignPersonId) return
 
     const alreadyAssigned = residentApartmentRecords.some((link) => (
       link.apartmentId === selectedApartment.id
-      && link.residentId === assignResidentId
+      && link.personId === assignPersonId
       && !link.ownershipEndDate
     ))
     if (alreadyAssigned) return
     if (selectedApartmentResidents.length > 0) return
 
     setResidentApartmentRecords((links) => [{
-      id: `RA-${assignResidentId}-${selectedApartment.id}-${Date.now()}`,
-      residentId: assignResidentId,
+      id: `RA-${assignPersonId}-${selectedApartment.id}-${Date.now()}`,
+      personId: assignPersonId,
       apartmentId: selectedApartment.id,
       ownershipType: 'tenant',
       ownershipStartDate: '2026-05-10',
@@ -197,14 +197,14 @@ const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ hideScopeFilt
     updateApartment(selectedApartment.id, {
       residentCount: Math.max(selectedApartment.residentCount, 1),
     })
-    setAssignResidentId('')
+    setAssignPersonId('')
   }
 
-  const handleUnassignResident = (residentId: string) => {
+  const handleUnassignResident = (personId: string) => {
     if (!selectedApartment) return
 
     setResidentApartmentRecords((links) => links.map((link) => (
-      link.apartmentId === selectedApartment.id && link.residentId === residentId && !link.ownershipEndDate
+      link.apartmentId === selectedApartment.id && link.personId === personId && !link.ownershipEndDate
         ? { ...link, ownershipEndDate: '2026-05-10', isPrimaryResidence: false }
         : link
     )))
@@ -214,9 +214,9 @@ const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ hideScopeFilt
   }
 
   const apartmentColumns: DataColumn<Apartment>[] = [
-    { key: 'number', label: t('apartments.setup.number'), cardRole: 'primary', render: (apartment) => t('residents.apartment.number', { number: apartment.number }) },
-    { key: 'familyName', label: t('apartments.setup.assignedResident'), cardRole: 'secondary', render: (apartment) => getApartmentResidents(apartment.id, residents, residentApartmentRecords)[0]?.name || t('apartments.setup.noOwner') },
-    { key: 'residents', label: t('apartments.setup.householdMembers'), render: (apartment) => getApartmentResidents(apartment.id, residents, residentApartmentRecords).length > 0 ? apartment.residentCount : 0 },
+    { key: 'number', label: t('apartments.setup.number'), cardRole: 'primary', render: (apartment) => t('persons.apartment.number', { number: apartment.number }) },
+    { key: 'familyName', label: t('apartments.setup.assignedResident'), cardRole: 'secondary', render: (apartment) => getApartmentResidents(apartment.id, persons, residentApartmentRecords)[0]?.name || t('apartments.setup.noOwner') },
+    { key: 'persons', label: t('apartments.setup.householdMembers'), render: (apartment) => getApartmentResidents(apartment.id, persons, residentApartmentRecords).length > 0 ? apartment.residentCount : 0 },
     { key: 'floor', label: t('blocks.columns.floor'), render: (apartment) => apartment.floor },
     { key: 'staircase', label: t('blocks.columns.staircase'), render: (apartment) => selectedBlockStaircases.find((staircase) => staircase.id === apartment.staircaseId)?.name ?? tableEmptyValue },
     { key: 'usableSurface', label: t('blocks.columns.usableSurface'), render: (apartment) => formatSquareMeters(apartment.usableSurface) },
@@ -303,7 +303,7 @@ const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ hideScopeFilt
         open={Boolean(selectedApartment)}
         onClose={() => {
           setSelectedApartmentId('')
-          setAssignResidentId('')
+          setAssignPersonId('')
         }}
         slotProps={{ paper: { sx: { width: { xs: '100%', sm: 520 }, p: 2 } } }}
       >
@@ -314,15 +314,15 @@ const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ hideScopeFilt
                 startIcon={<ArrowBackIcon />}
                 onClick={() => {
                   setSelectedApartmentId('')
-                  setAssignResidentId('')
+                  setAssignPersonId('')
                 }}
               >
-                {t('residents.actions.backToList')}
+                {t('persons.actions.backToList')}
               </Button>
               <Box>
                 <Typography variant="h6">{t('apartments.setup.title')}</Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {t('residents.apartment.number', { number: selectedApartment.number })}
+                  {t('persons.apartment.number', { number: selectedApartment.number })}
                 </Typography>
               </Box>
             </Box>
@@ -454,11 +454,11 @@ const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ hideScopeFilt
                   <EntityListItem
                     key={resident.id}
                     title={resident.name}
-                    secondary={resident.email || t('residents.resident.noEmail')}
+                    secondary={resident.email || t('persons.resident.noEmail')}
                     status={<StatusChip status={resident.accountStatus} label={translateResidentAccountStatus(t, resident.accountStatus)} />}
                     actions={(
                       <ActionButtons variant="card" actions={[
-                        { id: 'unassign', label: t('residents.actions.unassign'), icon: <PersonRemoveIcon />, onClick: () => handleUnassignResident(resident.id) },
+                        { id: 'unassign', label: t('persons.actions.unassign'), icon: <PersonRemoveIcon />, onClick: () => handleUnassignResident(resident.id) },
                       ]} />
                     )}
                   />
@@ -467,7 +467,7 @@ const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ hideScopeFilt
                 <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
                   <FormControl size="small" sx={{ minWidth: 220, flex: '1 1 220px' }} disabled={selectedApartmentResidents.length > 0}>
                     <InputLabel>{t('apartments.actions.assignResident')}</InputLabel>
-                    <Select label={t('apartments.actions.assignResident')} value={assignResidentId} onChange={(event: SelectChangeEvent) => setAssignResidentId(event.target.value)}>
+                    <Select label={t('apartments.actions.assignResident')} value={assignPersonId} onChange={(event: SelectChangeEvent) => setAssignPersonId(event.target.value)}>
                       {assignableResidents.map((resident) => (
                         <MenuItem key={resident.id} value={resident.id}>
                           {resident.name} - {translateResidentAccountStatus(t, resident.accountStatus)}
@@ -475,8 +475,8 @@ const ApartmentManagement: React.FC<ApartmentManagementProps> = ({ hideScopeFilt
                       ))}
                     </Select>
                   </FormControl>
-                  <Button startIcon={<PersonAddIcon />} variant="outlined" onClick={handleAssignResident} disabled={!assignResidentId || selectedApartmentResidents.length > 0}>
-                    {t('residents.actions.assign')}
+                  <Button startIcon={<PersonAddIcon />} variant="outlined" onClick={handleAssignResident} disabled={!assignPersonId || selectedApartmentResidents.length > 0}>
+                    {t('persons.actions.assign')}
                   </Button>
                 </Box>
               </Box>

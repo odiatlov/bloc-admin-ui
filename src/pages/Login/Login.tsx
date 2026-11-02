@@ -72,7 +72,7 @@ const Login: React.FC = () => {
             ))}
           </TextField>
         )}
-        <TextField label={t('residents.fields.email')} value={selectedAccount?.email ?? ''} fullWidth disabled />
+        <TextField label={t('persons.fields.email')} value={selectedAccount?.email ?? ''} fullWidth disabled />
         <TextField label={t('auth.login.password')} type="password" value="demo-password" fullWidth disabled />
         <Button type="submit" variant="contained" size="large" disabled={accountsLoading || !selectedAccount}>
           {t('auth.login.submit')}

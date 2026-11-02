@@ -18,9 +18,9 @@ function setup(overrides: Partial<PageState> = {}) {
   }
   useList.mockReturnValue(state)
   renderWithProviders(<MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}><PagedResponsiveDataView<{ id: string; name: string }>
-    endpoint="/test-residents" paginationId="unit-test-residents" ariaLabel="Residents overview" rows={[]}
-    columns={[{ key: 'name', label: 'Resident name', render: (row) => row.name }]} getRowId={(row) => row.id}
-    emptyState={<p>No residents found</p>}
+    endpoint="/test-persons" paginationId="unit-test-persons" ariaLabel="Persons overview" rows={[]}
+    columns={[{ key: 'name', label: 'Person name', render: (row) => row.name }]} getRowId={(row) => row.id}
+    emptyState={<p>No persons found</p>}
   /></MemoryRouter>)
   return state
 }
@@ -39,7 +39,7 @@ describe('PagedResponsiveDataView', () => {
   it('shows initial loading independently from an empty response', () => {
     setup({ loading: true })
     expect(screen.getByRole('status')).toHaveTextContent(/loading/i)
-    expect(screen.queryByText('No residents found')).not.toBeInTheDocument()
+    expect(screen.queryByText('No persons found')).not.toBeInTheDocument()
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
     expect(screen.queryByRole('table', { hidden: true })).not.toBeInTheDocument()
   })
@@ -48,14 +48,14 @@ describe('PagedResponsiveDataView', () => {
     const user = userEvent.setup()
     const { refresh } = setup({ error: 'Request failed' })
     expect(screen.getByRole('alert')).toBeInTheDocument()
-    expect(screen.queryByText('No residents found')).not.toBeInTheDocument()
+    expect(screen.queryByText('No persons found')).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Retry' }))
     expect(refresh).toHaveBeenCalledOnce()
   })
 
   it('shows the provided empty state for a successful response with zero records', () => {
     setup({ data: { ...populatedPage, items: [], totalCount: 0 } })
-    expect(screen.getByText('No residents found')).toBeInTheDocument()
+    expect(screen.getByText('No persons found')).toBeInTheDocument()
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
     expect(screen.queryByRole('table', { hidden: true })).not.toBeInTheDocument()
   })
@@ -65,9 +65,9 @@ describe('PagedResponsiveDataView', () => {
     // jsdom does not evaluate container-query layouts. Check rendered table
     // content without claiming to verify which responsive branch is visible.
     const table = screen.getByRole('table', { hidden: true })
-    expect(within(table).getByRole('columnheader', { hidden: true })).toHaveTextContent('Resident name')
+    expect(within(table).getByRole('columnheader', { hidden: true })).toHaveTextContent('Person name')
     expect(within(table).getByRole('cell', { hidden: true })).toHaveTextContent('Ana Popescu')
-    expect(screen.queryByText('No residents found')).not.toBeInTheDocument()
+    expect(screen.queryByText('No persons found')).not.toBeInTheDocument()
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
@@ -76,6 +76,6 @@ describe('PagedResponsiveDataView', () => {
     const table = screen.getByRole('table', { hidden: true })
     expect(within(table).getByRole('cell', { hidden: true })).toHaveTextContent('Ana Popescu')
     expect(screen.getByRole('progressbar', { name: /loading/i })).toBeInTheDocument()
-    expect(screen.queryByText('No residents found')).not.toBeInTheDocument()
+    expect(screen.queryByText('No persons found')).not.toBeInTheDocument()
   })
 })
