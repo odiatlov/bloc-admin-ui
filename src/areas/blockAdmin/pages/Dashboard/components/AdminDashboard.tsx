@@ -109,7 +109,7 @@ const AdminDashboard: React.FC = () => {
           <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: { xs: 0.5, sm: 1 } }}>
             <PropertyStat label={t('dashboard.admin.overview.blocks')} shortLabel={t('dashboard.admin.overview.blocksShort')} value={blockCount} />
             <PropertyStat label={t('dashboard.admin.overview.apartments')} shortLabel={t('dashboard.admin.overview.apartmentsShort')} value={apartmentCount} />
-            <PropertyStat label={t('dashboard.admin.overview.residents')} shortLabel={t('dashboard.admin.overview.residentsShort')} value={residentCount} />
+            <PropertyStat label={t('dashboard.admin.overview.persons')} shortLabel={t('dashboard.admin.overview.residentsShort')} value={residentCount} />
           </Box>
         </StatCard>
       </StatGrid>

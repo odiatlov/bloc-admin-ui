@@ -16,7 +16,7 @@ import {
   payments,
   penalties,
   reportMonths,
-  residents,
+  persons,
   residentApartments,
   staircases,
   utilityMonthlyInputs,
@@ -29,7 +29,7 @@ import {
   type Invoice,
   type InvoiceStatus,
   type PaymentMethod,
-  type Resident,
+  type Person,
   type ResidentApartment,
   type ResidentAccountStatus,
   type ReviewState,
@@ -47,17 +47,17 @@ export { formatCurrency, formatFriendlyDateTime, formatMonth, formatNumber, form
 
 export const getBlockLabel = (blockId: string) => blocks.find((block) => block.id === blockId)?.name ?? blockId
 
-export const getApartmentResidents = (apartmentId: string, sourceResidents = residents, sourceLinks = residentApartments) =>
+export const getApartmentResidents = (apartmentId: string, sourceResidents = persons, sourceLinks = residentApartments) =>
   sourceLinks
     .filter((link) => link.apartmentId === apartmentId && !link.ownershipEndDate)
     .map((link) => {
-      const resident = sourceResidents.find((item) => item.id === link.residentId)
+      const resident = sourceResidents.find((item) => item.id === link.personId)
       return resident ? { ...resident, apartmentLink: link } : null
     })
     .filter((resident): resident is NonNullable<typeof resident> => Boolean(resident))
 
 export const getPrimaryOwner = (apartment: Apartment) =>
-  residents.find((resident) => resident.id === apartment.primaryOwnerId) ?? getApartmentResidents(apartment.id)[0]
+  persons.find((resident) => resident.id === apartment.primaryOwnerId) ?? getApartmentResidents(apartment.id)[0]
 
 export const getStaircaseLabel = (staircaseId?: string) =>
   staircaseId ? staircases.find((staircase) => staircase.id === staircaseId)?.name : undefined
@@ -101,7 +101,7 @@ const maintenanceEngineInput = {
   mainMeterReadings,
   penalties,
   residentApartments,
-  residents,
+  persons,
   rules: allocationRules,
   waterReadings,
 }
@@ -259,7 +259,7 @@ const enrichApartment = (apartment: Apartment) => {
     block: blocks.find((block) => block.id === apartment.blockId),
     staircase: apartment.staircaseId ? staircases.find((staircase) => staircase.id === apartment.staircaseId) : undefined,
     primaryOwner: getPrimaryOwner(apartment),
-    residents: apartmentResidents,
+    persons: apartmentResidents,
     residentCount: residentCountForApartment(apartment),
     setupStatus: apartment.setupStatus ?? 'configured',
     familyLabel: formatApartment(apartment),
@@ -270,7 +270,7 @@ const enrichApartment = (apartment: Apartment) => {
 
 const getApartmentSetupStatus = (apartment: Apartment): ApartmentSetupStatus => apartment.setupStatus ?? 'configured'
 
-const buildApartmentLabel = (apartment: Apartment, sourceResidents: Resident[]) => {
+const buildApartmentLabel = (apartment: Apartment, sourceResidents: Person[]) => {
   const primaryOwner = apartment.primaryOwnerId ? sourceResidents.find((resident) => resident.id === apartment.primaryOwnerId) : undefined
   return [
     primaryOwner?.name ?? (apartment.familyName || null),
@@ -280,14 +280,14 @@ const buildApartmentLabel = (apartment: Apartment, sourceResidents: Resident[]) 
   ].filter(Boolean).join(' - ')
 }
 
-const enrichApartmentWithResidents = (apartment: Apartment, sourceResidents: Resident[], sourceLinks: ResidentApartment[], countOverrides?: Record<string, number>) => {
+const enrichApartmentWithResidents = (apartment: Apartment, sourceResidents: Person[], sourceLinks: ResidentApartment[], countOverrides?: Record<string, number>) => {
   const apartmentResidents = getApartmentResidents(apartment.id, sourceResidents, sourceLinks)
   return {
     ...apartment,
     block: blocks.find((block) => block.id === apartment.blockId),
     staircase: apartment.staircaseId ? staircases.find((staircase) => staircase.id === apartment.staircaseId) : undefined,
     primaryOwner: (apartment.primaryOwnerId ? sourceResidents.find((resident) => resident.id === apartment.primaryOwnerId) : undefined) ?? apartmentResidents[0],
-    residents: apartmentResidents,
+    persons: apartmentResidents,
     residentCount: residentCountForApartment(apartment, sourceLinks, countOverrides),
     setupStatus: getApartmentSetupStatus(apartment),
     familyLabel: buildApartmentLabel(apartment, sourceResidents),
@@ -304,7 +304,7 @@ const enrichInvoice = (invoice: Invoice) => {
     apartment,
     familyLabel: apartment ? formatApartment(apartment) : '',
     maintenanceTotal,
-    residents: apartment ? getApartmentResidents(apartment.id) : [],
+    persons: apartment ? getApartmentResidents(apartment.id) : [],
     totalAmount: getInvoiceTotal(invoice),
     paidAmount: getInvoicePaidAmount(invoice.id),
     status: getInvoiceStatus(invoice),
@@ -359,10 +359,10 @@ export const useBlocksOverview = () => {
 
 export const useResidents = () => {
   const { account, role } = React.useContext(RoleContext)
-  const [blockFilter, setBlockFilter] = usePageFilter('residents.block', 'all')
-  const [financialStatusFilter, setFinancialStatusFilter] = usePageFilter<FinancialStatus | 'all'>('residents.financialStatus', 'all')
+  const [blockFilter, setBlockFilter] = usePageFilter('persons.block', 'all')
+  const [financialStatusFilter, setFinancialStatusFilter] = usePageFilter<FinancialStatus | 'all'>('persons.financialStatus', 'all')
   const [selectedApartmentId, setSelectedApartmentId] = React.useState<string | null>(null)
-  const [residentRecords, setResidentRecords] = React.useState<Resident[]>(residents)
+  const [residentRecords, setResidentRecords] = React.useState<Person[]>(persons)
   const [residentApartmentRecords, setResidentApartmentRecords] = React.useState<ResidentApartment[]>(residentApartments)
   const [apartmentResidentCounts, setApartmentResidentCounts] = React.useState<Record<string, number>>({})
 
@@ -398,7 +398,7 @@ export const useResidents = () => {
 
   const scopedApartmentIds = new Set(scopedApartments.map((apartment) => apartment.id))
   const residentSummaries = residentRecords.map((resident) => {
-    const activeLinks = residentApartmentRecords.filter((link) => link.residentId === resident.id && !link.ownershipEndDate && scopedApartmentIds.has(link.apartmentId))
+    const activeLinks = residentApartmentRecords.filter((link) => link.personId === resident.id && !link.ownershipEndDate && scopedApartmentIds.has(link.apartmentId))
     return {
       ...resident,
       apartments: activeLinks
@@ -409,7 +409,7 @@ export const useResidents = () => {
   }).filter((resident) => resident.apartments.length > 0 || role === 'Admin')
 
   const addResident = (input: { name: string; email?: string; phone?: string; apartmentId?: string; accountStatus: ResidentAccountStatus }) => {
-    const nextResident: Resident = {
+    const nextResident: Person = {
       id: `R-MANUAL-${Date.now()}`,
       name: input.name,
       status: 'active',
@@ -424,7 +424,7 @@ export const useResidents = () => {
       if (residentApartmentRecords.some((link) => link.apartmentId === apartmentId && !link.ownershipEndDate)) return
       setResidentApartmentRecords((links) => [{
         id: `RA-${nextResident.id}-${apartmentId}`,
-        residentId: nextResident.id,
+        personId: nextResident.id,
         apartmentId,
         ownershipType: 'tenant',
         ownershipStartDate: today.toISOString().slice(0, 10),
@@ -437,15 +437,15 @@ export const useResidents = () => {
     }
   }
 
-  const assignResidentToApartment = (residentId: string, apartmentId: string) => {
-    const alreadyAssigned = residentApartmentRecords.some((link) => link.residentId === residentId && link.apartmentId === apartmentId && !link.ownershipEndDate)
+  const assignResidentToApartment = (personId: string, apartmentId: string) => {
+    const alreadyAssigned = residentApartmentRecords.some((link) => link.personId === personId && link.apartmentId === apartmentId && !link.ownershipEndDate)
     if (alreadyAssigned) return
     const apartmentHasAssignedResident = residentApartmentRecords.some((link) => link.apartmentId === apartmentId && !link.ownershipEndDate)
     if (apartmentHasAssignedResident) return
 
     setResidentApartmentRecords((links) => [{
-      id: `RA-${residentId}-${apartmentId}-${Date.now()}`,
-      residentId,
+      id: `RA-${personId}-${apartmentId}-${Date.now()}`,
+      personId,
       apartmentId,
       ownershipType: 'tenant',
       ownershipStartDate: today.toISOString().slice(0, 10),
@@ -457,9 +457,9 @@ export const useResidents = () => {
     }))
   }
 
-  const unassignResidentFromApartment = (residentId: string, apartmentId: string) => {
+  const unassignResidentFromApartment = (personId: string, apartmentId: string) => {
     setResidentApartmentRecords((links) => links.map((link) => (
-      link.residentId === residentId && link.apartmentId === apartmentId && !link.ownershipEndDate
+      link.personId === personId && link.apartmentId === apartmentId && !link.ownershipEndDate
         ? { ...link, ownershipEndDate: today.toISOString().slice(0, 10), isPrimaryResidence: false }
         : link
     )))
@@ -476,7 +476,7 @@ export const useResidents = () => {
     blockFilter,
     financialStatusFilter,
     groupedApartments,
-    residents: residentSummaries,
+    persons: residentSummaries,
     selectedApartment,
     selectedInvoices,
     selectedPayments,
@@ -775,8 +775,8 @@ export const useBlockContext = (blockId?: string, month = reportMonths[0]) => {
 export const useResidentPortal = () => {
   const { account, role } = React.useContext(RoleContext)
   const financeAvailable = account.dataMode === 'mock-populated' || account.dataMode === 'mock-configured-block'
-  const resident = financeAvailable ? residents.find((item) => item.id === account.residentId) : undefined
-  const residentApartmentLinks = residentApartments.filter((link) => link.residentId === resident?.id && !link.ownershipEndDate)
+  const resident = financeAvailable ? persons.find((item) => item.id === account.personId) : undefined
+  const residentApartmentLinks = residentApartments.filter((link) => link.personId === resident?.id && !link.ownershipEndDate)
   const residentApartmentIds = new Set(residentApartmentLinks.map((link) => link.apartmentId))
   const residentApartmentsList = apartments
     .filter((item) => residentApartmentIds.has(item.id))

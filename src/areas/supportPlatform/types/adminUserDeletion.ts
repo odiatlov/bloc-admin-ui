@@ -9,7 +9,7 @@ export type DeletionCounts = {
 export type AdminUserDeletionPreview = {
   userId: string; email: string
   adminAccounts: { id: string; name: string }[]; blocks: { id: string; name: string }[]
-  residents: { id: string; name: string; preserved: boolean; reasons: string[] }[]
+  persons: { id: string; name: string; preserved: boolean; reasons: string[] }[]
   survivingBlockRoleEffects: { blockId: string; blockName: string; role: string }[]
   counts: DeletionCounts; expiresAt: string; confirmationToken: string; antiforgeryToken: string
   developmentSession: boolean

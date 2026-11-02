@@ -6,7 +6,7 @@ import PeopleIcon from '@mui/icons-material/People'
 import HomeIcon from '@mui/icons-material/Home'
 import ApartmentIcon from '@mui/icons-material/Apartment'
 import { useTranslation } from 'react-i18next'
-import { apartments, blocks, residents } from '../../../mocks/apartmentData'
+import { apartments, blocks, persons } from '../../../mocks/apartmentData'
 
 type CardProps = {
   icon: React.ReactNode
@@ -50,7 +50,7 @@ const AdminOverviewCards: React.FC = () => {
         gap: 2,
       }}
     >
-      <Card icon={<PeopleIcon />} title={t('dashboard.admin.overview.residents')} value={residents.length} />
+      <Card icon={<PeopleIcon />} title={t('dashboard.admin.overview.persons')} value={persons.length} />
       <Card icon={<HomeIcon />} title={t('dashboard.admin.overview.apartments')} value={apartments.length} />
       <Card icon={<ApartmentIcon />} title={t('dashboard.admin.overview.blocks')} value={blocks.length} />
     </Box>

@@ -28,8 +28,8 @@ describe('LoadErrorState', () => {
   })
 
   it('supports a custom inline error message', () => {
-    renderWithProviders(<LoadErrorState inline headline="Residents unavailable" helperText="Try again later." onRetry={vi.fn()} />)
-    expect(screen.getByRole('alert')).toHaveTextContent('Residents unavailable')
+    renderWithProviders(<LoadErrorState inline headline="Persons unavailable" helperText="Try again later." onRetry={vi.fn()} />)
+    expect(screen.getByRole('alert')).toHaveTextContent('Persons unavailable')
     expect(screen.getByRole('alert')).toHaveTextContent('Try again later.')
     expect(screen.queryByText('The information is unavailable')).not.toBeInTheDocument()
   })

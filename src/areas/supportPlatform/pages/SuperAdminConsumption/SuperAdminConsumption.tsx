@@ -36,7 +36,7 @@ const ConsumptionView = () => {
         <MenuItem value="unassigned">{t('superAdmin.water.unassigned')}</MenuItem>
         {water.administrators.map((admin) => <MenuItem key={admin.id} value={admin.id}>{admin.name}</MenuItem>)}
       </TextField>
-      <TextField select size="small" label={t('residents.filters.block')} value={water.block} disabled={disabled} onChange={(event) => water.setBlock(event.target.value)}>
+      <TextField select size="small" label={t('persons.filters.block')} value={water.block} disabled={disabled} onChange={(event) => water.setBlock(event.target.value)}>
         <MenuItem value="all">{t('common.all')}</MenuItem>
         {water.blocks.map((block) => <MenuItem key={block.id} value={block.id}>{t('common.blockValue', { block: block.name })}</MenuItem>)}
       </TextField>

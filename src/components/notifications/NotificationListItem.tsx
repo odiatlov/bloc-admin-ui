@@ -61,7 +61,7 @@ const getNotificationDisplay = (
   t: ReturnType<typeof useTranslation>['t'],
   language: string,
 ) => {
-  if (notification.type === 'SuperAdminBlockCreated' || notification.type === 'SuperAdminBlockSetup' || notification.type === 'SuperAdminResidentAdded') {
+  if (notification.type === 'SuperAdminBlockCreated' || notification.type === 'SuperAdminBlockSetup' || notification.type === 'SuperAdminPersonAdded') {
     const kind = notification.type === 'SuperAdminBlockSetup' ? 'blockSetup'
       : notification.type === 'SuperAdminBlockCreated' ? 'block' : 'resident'
     return {
@@ -86,12 +86,12 @@ const getNotificationDisplay = (
   }
 
   const period = formatNotificationPeriod(notification, language, notification.message)
-  const residentName = notification.message.match(/^(.*) has not submitted the water index for /)?.[1]
+  const personName = notification.message.match(/^(.*) has not submitted the water index for /)?.[1]
 
   return {
     context: formatNotificationContext(notification, t),
-    message: residentName
-      ? t('notifications.types.waterReadingDeadlinePassed.adminMessage', { period, resident: residentName })
+    message: personName
+      ? t('notifications.types.waterReadingDeadlinePassed.adminMessage', { period, resident: personName })
       : t('notifications.types.waterReadingDeadlinePassed.residentMessage', { period }),
     title: t('notifications.types.waterReadingDeadlinePassed.title'),
   }

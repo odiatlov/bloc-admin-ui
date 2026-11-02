@@ -6,10 +6,14 @@ import type { BlockOverview } from '../types/block'
 
 type UseBlocksOptions = {
   enabled?: boolean
+  filterSearch?: boolean
 }
 
-export const useBlocks = ({ enabled = true }: UseBlocksOptions = {}) => {
+export const useBlocks = ({ enabled = true, filterSearch = true }: UseBlocksOptions = {}) => {
   const { account, role } = React.useContext(RoleContext)
+  const scopeKey = `${account.id}:${role}`
+  const [loadedScope, setLoadedScope] = React.useState(scopeKey)
+  const requestSequence = React.useRef(0)
   const [blocks, setBlocks] = React.useState<BlockOverview[]>([])
   const [error, setError] = React.useState<string | null>(null)
   const [isLoading, setIsLoading] = React.useState(enabled)
@@ -22,27 +26,32 @@ export const useBlocks = ({ enabled = true }: UseBlocksOptions = {}) => {
       return true
     }
 
+    const sequence = ++requestSequence.current
+    setLoadedScope(scopeKey)
     setIsLoading(true)
     setError(null)
+    setBlocks([])
 
     try {
-      const nextBlocks = await fetchBlockOverview()
+      const nextBlocks = await fetchBlockOverview(role)
+      if (sequence !== requestSequence.current) return false
       setBlocks(nextBlocks)
       return true
     } catch (nextError) {
+      if (sequence !== requestSequence.current) return false
       setError(nextError instanceof Error ? nextError.message : 'Unable to load blocks')
       return false
     } finally {
-      setIsLoading(false)
+      if (sequence === requestSequence.current) setIsLoading(false)
     }
-  }, [enabled])
+  }, [enabled, scopeKey, role])
 
   React.useEffect(() => {
     const timer = window.setTimeout(() => {
       void loadBlocks()
     }, 0)
 
-    return () => window.clearTimeout(timer)
+    return () => { window.clearTimeout(timer); requestSequence.current += 1 }
   }, [loadBlocks])
 
   const scopedBlocks = React.useMemo(() => {
@@ -54,20 +63,20 @@ export const useBlocks = ({ enabled = true }: UseBlocksOptions = {}) => {
 
   const filteredBlocks = React.useMemo(() => {
     const query = search.trim().toLowerCase()
-    if (!query) return scopedBlocks
+    if (!filterSearch || !query) return scopedBlocks
 
     return scopedBlocks.filter((block) =>
       [block.name, block.displayName, block.administratorName]
         .filter(Boolean)
         .some((value) => value!.toLowerCase().includes(query)),
     )
-  }, [scopedBlocks, search])
+  }, [scopedBlocks, search, filterSearch])
 
   return {
-    blocks: filteredBlocks,
-    totalBlocks: scopedBlocks.length,
-    error,
-    isLoading,
+    blocks: loadedScope === scopeKey ? filteredBlocks : [],
+    totalBlocks: loadedScope === scopeKey ? scopedBlocks.length : 0,
+    error: loadedScope === scopeKey ? error : null,
+    isLoading: isLoading || (enabled && loadedScope !== scopeKey),
     refresh: loadBlocks,
     search,
     setSearch,

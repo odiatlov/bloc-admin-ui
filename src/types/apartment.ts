@@ -1,4 +1,4 @@
-export type ResidentStatus = 'active' | 'inactive'
+export type PersonStatus = 'active' | 'inactive'
 export type ResidentAccountStatus = 'no_account' | 'invited' | 'active'
 export type ResidentRole = 'owner' | 'tenant' | 'co_owner' | 'family_member'
 export type ApartmentSetupStatus = 'configured' | 'unconfigured'
@@ -28,7 +28,7 @@ export type CostScopeLevel = 'block' | 'staircase'
 export type HeatingType = 'central' | 'individual' | 'gas_boiler' | 'district'
 export type SystemRole = 'None' | 'SuperAdmin'
 export type BlockRole = 'Admin' | 'Resident' | 'Censor'
-export type AuthRole = Exclude<SystemRole, 'None'> | BlockRole
+export type AuthRole = SystemRole | BlockRole
 
 export type Block = {
   id: string
@@ -72,10 +72,10 @@ export type Family = {
   declaredPersons: number
 }
 
-export type Resident = {
+export type Person = {
   id: string
   name: string
-  status: ResidentStatus
+  status: PersonStatus
   accountStatus: ResidentAccountStatus
   email?: string
   phone?: string
@@ -83,7 +83,7 @@ export type Resident = {
 
 export type ResidentApartment = {
   id: string
-  residentId: string
+  personId: string
   apartmentId: string
   ownershipType: ResidentRole
   ownershipStartDate: string
@@ -96,7 +96,7 @@ export type Administrator = {
   name: string
   email: string
   phone: string
-  role: Exclude<AuthRole, 'Resident'>
+  role: Exclude<AuthRole, 'Resident' | 'None'>
 }
 
 export type BuildingAdminAssignment = {
@@ -116,11 +116,12 @@ export type MockAccount = {
   name: string
   email: string
   systemRole: SystemRole
+  blockAssignments?: { blockId: string; role: BlockRole }[]
   blockRoles: BlockRole[]
   roles: AuthRole[]
   defaultRole: AuthRole
   userId?: string
-  residentId?: string
+  personId?: string
   adminId?: string
   seededBlockIds?: string[]
   dataMode?: 'mock-populated' | 'mock-empty-ui' | 'backend-ready-empty' | 'mock-configured-block'
@@ -244,7 +245,7 @@ export type UtilityAllocationResult = {
 
 export type WaterReading = {
   id: string
-  residentId: string
+  personId: string
   apartmentId: string
   month: string
   waterType: WaterMeterType
@@ -254,7 +255,7 @@ export type WaterReading = {
 
 export type HeatingReading = {
   id: string
-  residentId: string
+  personId: string
   apartmentId: string
   month: string
   previousValue: number

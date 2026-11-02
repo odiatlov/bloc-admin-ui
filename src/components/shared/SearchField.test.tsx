@@ -7,33 +7,33 @@ import SearchField from './SearchField'
 
 function ControlledSearch() {
   const [value, setValue] = useState('')
-  return <SearchField label="Search residents" value={value} onChange={(event) => setValue(event.target.value)} onClear={() => setValue('')} />
+  return <SearchField label="Search persons" value={value} onChange={(event) => setValue(event.target.value)} onClear={() => setValue('')} />
 }
 
 describe('SearchField', () => {
   it('accepts text and clears it while returning focus to the input', async () => {
     const user = userEvent.setup()
     renderWithProviders(<ControlledSearch />)
-    const input = screen.getByRole('searchbox', { name: 'Search residents' })
+    const input = screen.getByRole('searchbox', { name: 'Search persons' })
 
-    expect(screen.queryByRole('button', { name: 'Clear filters: Search residents' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Clear filters: Search persons' })).not.toBeInTheDocument()
     await user.type(input, 'Popescu')
     expect(input).toHaveValue('Popescu')
 
-    await user.click(screen.getByRole('button', { name: 'Clear filters: Search residents' }))
+    await user.click(screen.getByRole('button', { name: 'Clear filters: Search persons' }))
     expect(input).toHaveValue('')
     expect(input).toHaveFocus()
-    expect(screen.queryByRole('button', { name: 'Clear filters: Search residents' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Clear filters: Search persons' })).not.toBeInTheDocument()
   })
 
   it('prevents editing and clearing when disabled', async () => {
     const user = userEvent.setup()
     const onChange = vi.fn()
     const onClear = vi.fn()
-    renderWithProviders(<SearchField label="Search residents" value="Popescu" disabled onChange={onChange} onClear={onClear} />)
+    renderWithProviders(<SearchField label="Search persons" value="Popescu" disabled onChange={onChange} onClear={onClear} />)
 
-    const input = screen.getByRole('searchbox', { name: 'Search residents' })
-    const clear = screen.getByRole('button', { name: 'Clear filters: Search residents' })
+    const input = screen.getByRole('searchbox', { name: 'Search persons' })
+    const clear = screen.getByRole('button', { name: 'Clear filters: Search persons' })
     expect(input).toBeDisabled()
     expect(clear).toBeDisabled()
     await user.type(input, 'Other')

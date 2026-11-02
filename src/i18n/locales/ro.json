@@ -90,12 +90,12 @@
   },
   "adminUserDeletion": {
     "residentProfile": {
-      "action": "Șterge profilul locatarului",
-      "title": "Șterge profilul de locatar neasociat",
-      "confirm": "Ștergeți definitiv profilul de locatar al persoanei {{resident}}? Sunt eligibile doar profilurile fără administratori asociați, apartenențe la blocuri, asocieri cu apartamente, număr de telefon sau roluri în blocuri. Contul de autentificare separat este păstrat.",
-      "blocked": "Acest locatar are acum o asociere sau un număr de telefon și nu poate fi șters de aici. Închideți dialogul și actualizați lista.",
+      "action": "Șterge profilul persoanei",
+      "title": "Șterge profilul de persoană neasociat",
+      "confirm": "Ștergi definitiv profilul persoanei {{resident}}? Sunt eligibile doar profilurile fără administratori asociați, apartenențe la blocuri, asocieri cu apartamente, număr de telefon sau roluri în blocuri. Contul de autentificare separat se păstrează.",
+      "blocked": "Această persoană are acum o asociere sau un număr de telefon și nu poate fi ștearsă de aici. Închide dialogul și actualizează lista.",
       "failed": "Ștergerea profilului nu a putut fi confirmată. Reîncercați sau actualizați lista; această acțiune nu șterge contul de autentificare.",
-      "success": "Profilul de locatar neasociat a fost șters. Contul de autentificare separat a fost păstrat."
+      "success": "Profilul de persoană neasociat a fost șters. Contul de autentificare separat a fost păstrat."
     },
     "statistics": "Statistici privind ștergerea",
     "statistic": "Tip de înregistrare",
@@ -109,21 +109,21 @@
     "userOnly": {
       "action": "Șterge utilizatorul",
       "title": "Ștergere definitivă utilizator",
-      "warning": "Această acțiune șterge definitiv contul de autentificare și rolurile sale rămase. Blocurile, profilurile locatarilor și istoricul citirilor nu sunt șterse. Referințele la acest utilizator din înregistrările păstrate sunt eliminate unde este necesar.",
+      "warning": "Această acțiune șterge definitiv contul de autentificare și rolurile sale rămase. Blocurile, profilurile persoanelor și istoricul citirilor se păstrează. Referințele la acest utilizator din înregistrările păstrate sunt eliminate unde este necesar.",
       "acknowledge": "Confirm ștergerea definitivă a acestui cont de utilizator și a rolurilor sale rămase.",
       "success": "Contul de utilizator a fost șters definitiv. Blocurile și istoricul citirilor au fost păstrate.",
       "login": "Șterge contul de autentificare",
-      "hasResident": "Acest utilizator are acum un profil de locatar. Nu s-a efectuat ștergerea. Verificați mai întâi profilul locatarului.",
+      "hasResident": "Acest utilizator are acum un profil de persoană. Nu s-a efectuat ștergerea. Verifică mai întâi profilul persoanei.",
       "hasAdminAccounts": "Acest utilizator deține acum conturi de administrator. Ștergerea doar a utilizatorului este blocată; verificați fluxul de ștergere a datelor administrate."
     },
     "action": "Șterge utilizatorul și datele administrate", "title": "Ștergere definitivă utilizator administrator", "confirm": "Șterge definitiv",
     "loading": "Se încarcă previzualizarea ștergerii…", "deleting": "Se confirmă rezultatul ștergerii…", "success": "Utilizatorul și datele administrate afișate au fost șterse definitiv.",
-    "warning": "Această acțiune șterge definitiv contul de autentificare, conturile de administrator și blocurile afișate cu datele lor, inclusiv istoricul citirilor de apă. Conturile de autentificare ale celorlalți locatari sunt păstrate.",
-    "accounts": "Conturi de administrator de șters", "buildings": "Blocuri de șters", "block": "Bloc", "residentOutcomes": "Rezultate pentru profilurile locatarilor",
-    "residentName": "Locatar", "outcome": "Rezultat", "reason": "Motivul păstrării", "preserve": "Păstrează profilul", "deleteProfile": "Șterge profilul",
+    "warning": "Această acțiune șterge definitiv contul de autentificare, conturile de administrator și blocurile afișate cu datele lor, inclusiv istoricul citirilor de apă. Conturile de autentificare ale celorlalte persoane se păstrează.",
+    "accounts": "Conturi de administrator de șters", "buildings": "Blocuri de șters", "block": "Bloc", "residentOutcomes": "Rezultate pentru profilurile persoanelor",
+    "personName": "Persoană", "outcome": "Rezultat", "reason": "Motivul păstrării", "preserve": "Păstrează profilul", "deleteProfile": "Șterge profilul",
     "association": "Asociere păstrată", "exclusive": "Fără asocieri rămase", "removedRole": "Rol de eliminat",
     "roleWarning": "Acest utilizator are roluri și în blocuri care vor fi păstrate. Rolurile sale vor fi eliminate; blocurile și rolurile celorlalte persoane rămân. Poziția de administrator sau cenzor poate rămâne vacantă.",
-    "typeEmail": "Introduceți adresa de e-mail a utilizatorului pentru confirmare", "acknowledge": "Confirm ștergerea definitivă a utilizatorului, blocurilor, profilurilor de locatari și istoricului afișate.",
+    "typeEmail": "Introduceți adresa de e-mail a utilizatorului pentru confirmare", "acknowledge": "Confirm ștergerea definitivă a utilizatorului, blocurilor, profilurilor persoanelor și istoricului afișate.",
     "reloadPreview": "Actualizează previzualizarea", "expired": "Previzualizarea a expirat. Actualizați-o și confirmați din nou.",
     "scopeChanged": "Înregistrările afectate s-au schimbat. Încărcați o previzualizare nouă și confirmați din nou.",
     "authRequired": "Selectați un cont SuperAdmin activ. Sesiunile locale sunt disponibile doar când API-ul rulează în Development; în producție este necesară autentificarea verificată.",
@@ -140,12 +140,12 @@
     "unknown": "Rezultatul nu este încă confirmat. Verificați operațiunea sau retrimiteți aceeași cerere. Nu începeți o ștergere nouă.",
     "operation": "Operațiune", "checkOutcome": "Verifică rezultatul", "retrySame": "Retrimite aceeași cerere",
     "noBuildings": "Niciun bloc administrat", "noBuildingsHelper": "Conturile de administrator și profilurile administrate eligibile sunt incluse în continuare.",
-    "noResidents": "Niciun profil de locatar afectat", "noResidentsHelper": "Ștergerea nu include profiluri de locatari.",
+    "noResidents": "Niciun profil de persoană afectat", "noResidentsHelper": "Ștergerea nu include profiluri de persoane.",
     "reasons": { "membership": "Apartenență la un bloc păstrat", "assignment": "Asociere cu un apartament păstrat", "management": "Administrat de alt cont de administrator", "role": "Rol într-un bloc păstrat" },
     "counts": {
       "adminAccounts": "Șterge conturi admin", "blocks": "Șterge blocuri", "staircases": "Șterge scări", "apartments": "Șterge apartamente",
       "meters": "Șterge contoare", "readings": "Șterge citiri", "settings": "Șterge setări de citire", "memberships": "Șterge apartenențe", "assignments": "Șterge asocieri cu apartamente",
-      "roles": "Șterge roluri", "managementLinks": "Șterge legături admin", "residentProfiles": "Șterge profiluri locatari", "preservedResidentProfiles": "Păstrează profiluri locatari",
+      "roles": "Șterge roluri", "managementLinks": "Șterge legături admin", "residentProfiles": "Șterge profiluri de persoane", "preservedResidentProfiles": "Păstrează profiluri de persoane",
       "preservedUserAccounts": "Păstrează alte conturi", "deletedInvitations": "Șterge invitații", "detachedInvitations": "Păstrează invitații",
       "deletedNotifications": "Șterge notificări", "detachedNotifications": "Păstrează notificări", "detachedReadings": "Elimină atribuirea citirilor",
       "detachedCreatorReferences": "Elimină referințe la creator", "detachedResidentLogins": "Păstrează profiluri fără cont"
@@ -324,7 +324,7 @@
                        "information":  {
                                            "blocks":  "blocuri",
                                            "apartments":  "apartamente",
-                                           "residents":  "locatari",
+                                           "persons":  "persoane",
                                            "invoices":  "facturi",
                                            "consumption":  "citiri de consum",
                                            "waterIndex":  "indexuri de apă",
@@ -406,7 +406,7 @@
                     "apartments":  "Apartamente",
                     "blocks":  "Blocuri",
                     "dashboard":  "Panou principal",
-                    "residents":  "Locatari",
+                    "persons":  "Persoane",
                     "finance":  "Finanțe",
                     "myBills":  "Facturile mele",
                     "waterIndex":  "Index apă",
@@ -423,7 +423,7 @@
                     "superDashboard":  "Panou platformă",
                     "manageAdmins":  "Administrare administratori",
                     "superBlocks":  "Blocuri platformă",
-                    "superResidents":  "Locatari platformă",
+                    "superPersons":  "Persoanele platformei",
                     "superUsers":  "Utilizatori platformă",
                     "exportData":  "Export date"
                 },
@@ -509,7 +509,7 @@
                                                     "open":  "Deschide"
                                                 },
                                     "overview":  {
-                                                     "residents":  "Locatari",
+                                                     "persons":  "Locatari",
                                                      "residentsShort":  "Loc.",
                                                      "apartments":  "Apartamente",
                                                      "apartmentsShort":  "Ap.",
@@ -592,9 +592,9 @@
                                  }
                   },
     "pages":  {
-                  "residents":  {
-                                    "title":  "Locatari",
-                                    "description":  "Gestionați locatarii și apartamentele într-un singur loc."
+                  "persons":  {
+                                    "title":  "Persoane",
+                                    "description":  "Gestionează persoanele, accesul în aplicație, locuirea și atribuirile de cenzor."
                                 },
                   "blocks":  {
                                  "title":  "Blocuri",
@@ -629,13 +629,20 @@
                                      "description":  "Gestionați structura scărilor și verificați acoperirea apartamentelor pe bloc."
                                  }
               },
-    "residents":  {
+    "persons":  {
                       "apartmentLabel":  "Apartament {{apartment}}, etaj {{floor}}",
-                      "loading":  "Se încarcă locatarii...",
+                      "loading":  "Se încarcă persoanele...",
                       "errors":  {
                                      "invalidEmail":  "Introduceți o adresă de email validă.",
-                                     "loadFailed":  "Locatarii nu au putut fi încărcați. Încercați din nou."
-                                 },
+                                     "loadFailed":  "Persoanele nu au putut fi încărcate. Încearcă din nou.",
+                        "reviewCensors": "Verifică atribuirile actuale de cenzor și selectează blocuri distincte gestionate de tine.",
+                        "scope": "Persoana sau unul dintre blocurile selectate nu mai este disponibil contului tău de administrare.",
+                        "censorsChanged": "Atribuirile de cenzor s-au schimbat. Redeschide editorul și verifică atribuirile actuale.",
+                        "activeCensorAccount": "Accesul de cenzor necesită o persoană activă și un cont de acces asociat activ.",
+                        "selfCensor": "Administratorul nu poate fi și cenzorul aceluiași bloc.",
+                        "occupiedCensor": "Un bloc selectat are deja un cenzor. Retrage explicit acea atribuire înainte să desemnezi altă persoană.",
+                        "removeCensorsFirst": "Retrage atribuirile de cenzor înainte să elimini persoana din evidența ta."
+                      },
                       "apartment":  {
                                         "empty":  "Apartament gol",
                                         "noResidentsAssigned":  "Nu sunt locatari alocați",
@@ -648,7 +655,7 @@
                                      "email":  "Email",
                                      "emailOptional":  "Email (opțional)",
                                      "firstName":  "Prenume",
-                                     "inviteResident":  "Invită locatarul să creeze un cont",
+                                     "invitePerson":  "Creează sau asociază un cont de acces în aplicație",
                                      "lastName":  "Nume",
                                      "name":  "Nume",
                                      "phone":  "Telefon",
@@ -666,8 +673,9 @@
                       "roles":  {
                                     "Admin":  "Administrator",
                                     "Censor":  "Cenzor",
-                                    "Resident":  "Locatar"
-                                },
+                                    "Resident":  "Locatar",
+                        "none": "Fără calități atribuite"
+                      },
                       "resident":  {
                                        "noEmail":  "Fără email"
                                    },
@@ -688,18 +696,18 @@
                                  },
                       "filters":  {
                                       "block":  "Bloc",
-                                      "emptyHeadline":  "Niciun locatar nu corespunde filtrelor",
+                                      "emptyHeadline":  "Nicio persoană nu corespunde filtrelor",
                                       "emptyHelper":  "Ajustați filtrele de nume, bloc sau scară pentru mai multe rezultate.",
                                       "searchName":  "Caută după nume",
                                       "staircase":  "Scară",
                                       "financialStatus":  "Status financiar"
                                   },
                       "actions":  {
-                                      "addResident":  "Adaugă locatar",
+                                      "addPerson":  "Adaugă persoană",
                                       "assign":  "Alocă",
                                       "assignResident":  "Alocă locatar",
-                                      "deleteResident":  "Elimină locatar",
-                                      "editResident":  "Editează locatar",
+                                      "removePerson":  "Elimină persoana",
+                                      "editPerson":  "Editează persoana",
                                       "openDetails":  "Deschide detalii",
                                       "backToList":  "Înapoi",
                                       "sendReminder":  "Trimite atenționare",
@@ -707,55 +715,56 @@
                                       "unassign":  "Dezalocă"
                                   },
                       "dialog":  {
-                                     "addTitle":  "Adaugă locatar",
-                                     "deleteConfirm":  "Eliminați locatarul {{resident}} din evidența dumneavoastră și din alocările la apartamente? Contul de utilizator și evidențele altor administratori se păstrează.",
+                                     "addTitle":  "Adaugă persoană",
+                                     "deleteConfirm":  "Elimini persoana {{resident}} din evidența ta și din apartamente? Contul și evidențele celorlalți administratori se păstrează. Retrage mai întâi separat eventualele atribuiri de cenzor.",
                                      "deleteConfirmYes":  "Da, elimină",
-                                     "deleteTitle":  "Elimină locatar",
+                                     "deleteTitle":  "Elimină persoana",
                                      "deleting":  "Se elimină..."
                                  },
                       "assignments": {
                         "title": "Repartizări la apartamente",
-                        "createWithoutHousing": "Adăugați locatarul fără bloc sau apartament. Repartizați-l ulterior din pagina Apartamente.",
-                        "registeredEmailLocked": "Locatarii înregistrați își schimbă adresa de e-mail din propriul profil.",
+                        "createWithoutHousing": "Adaugă o persoană fără bloc sau apartament. Ulterior îi poți atribui un apartament din Apartamente sau o poți desemna cenzor extern din editorul persoanei.",
+                        "registeredEmailLocked": "Persoanele cu cont își schimbă adresa de email din profilul propriu.",
                         "censorAssigned": "Acest locatar este deja cenzor pentru {{block}}.",
                         "empty": "Fără repartizări la apartamente",
                         "blocks": "Blocuri atribuite",
-                        "clear": "Dezasociază de la toate blocurile",
-                        "clearConfirm": "Dezasociați locatarul {{name}} de la toate blocurile dumneavoastră și de la apartamentele acestora? Numărul curent de ocupanți al apartamentelor afectate va deveni zero. Declarațiile lunare, contul de utilizator și relațiile cu alți administratori se păstrează. Confirmați, apoi salvați pentru aplicare.",
-                        "staged": "Repartizările vor fi eliminate la salvare. Anulați editarea pentru a renunța la această modificare.",
+                        "clear": "Elimină toate atribuirile de locuire",
+                        "clearConfirm": "Elimini toate atribuirile de locuire ale persoanei {{name}} din blocurile tale? Numărul curent de persoane din apartamentele respective va deveni zero. Atribuirile de cenzor, declarațiile lunare, contul și relațiile celorlalți administratori se păstrează. Confirmă, apoi Salvează pentru aplicare.",
+                        "staged": "Atribuirile de locuire vor fi eliminate la salvare. Atribuirile de cenzor se păstrează. Anulează pentru a renunța la modificare.",
                         "additionalTitle": "Adăugați încă un apartament?",
                         "additionalMessage": "Locatarul {{name}} are deja aceste repartizări la apartamente în blocurile dumneavoastră. Continuați și adăugați încă un apartament, păstrând repartizările existente?",
                         "additionalConfirm": "Da, adaugă apartamentul",
                         "destination": "Apartament de adăugat"
                       },
                       "retention": {
-                                      "noBlock": "Fără bloc",
-                                      "adminManagementOnly": "Modificarea locatarilor necesită un cont de administrator. Această listă globală permite doar consultarea.",
-                                      "saveFailed": "Locatarul nu a putut fi salvat. Încercați din nou.",
-                                      "removeFailed": "Locatarii selectați nu au putut fi eliminați. Încercați din nou.",
-                                      "deleteAll": "Șterge tot",
-                                      "deleteAllConfirm": "Eliminați din evidența dumneavoastră toți cei {{count}} locatari fără bloc, inclusiv cei ascunși de filtrele de căutare sau de pe alte pagini? Conturile de utilizator și evidențele altor administratori se păstrează.",
-                                      "bulkConfirm": "Eliminați cei {{count}} locatari selectați din evidența dumneavoastră și din alocările la apartamente? Conturile de utilizator și evidențele altor administratori se păstrează.",
-                                      "noDestinations": "Nu există blocuri disponibile pentru alocare. Acești locatari rămân în evidența dumneavoastră."
+                                      "noBlock": "Fără atribuiri",
+                                      "adminManagementOnly": "Modificarea persoanelor necesită un cont de administrator. Această evidență globală este doar pentru consultare.",
+                                      "saveFailed": "Persoana nu a putut fi salvată. Încearcă din nou.",
+                                      "removeFailed": "Persoanele selectate nu au putut fi eliminate. Încearcă din nou.",
+                                      "deleteAll": "Elimină toate persoanele fără atribuiri",
+                                      "deleteAllConfirm": "Elimini din evidența ta toate cele {{count}} persoane fără locuire sau roluri active pe bloc, inclusiv cele ascunse de filtre sau aflate pe alte pagini? Conturile și evidențele celorlalți administratori se păstrează.",
+                                      "bulkConfirm": "Elimini cele {{count}} persoane selectate din evidența ta și din locuire? Conturile și evidențele celorlalți administratori se păstrează.",
+                                      "noDestinations": "Nu există blocuri disponibile pentru atribuire. Persoanele rămân în evidența ta."
                                   },
                       "notifications":  {
                                             "censorAssigned":  "Rolul de cenzor a fost alocat cu succes.",
-                                            "existingLinked":  "Acest locatar exista deja, așa că a fost asociat cu blocul selectat."
+                                            "existingLinked":  "Identitatea exista deja și a fost adăugată în evidența ta fără modificarea atribuirilor existente."
                                         },
                       "censorAssignment":  {
-                                               "assign":  "Alocă drept cenzor",
-                                               "assigning":  "Se alocă...",
-                                               "helper":  "Acest locatar poate fi alocat drept cenzor pentru {{block}}.",
-                                               "requiresAccount":  "Doar locatarii înregistrați pot fi alocați drept cenzor.",
-                                               "requiresApartment":  "Locatarul trebuie să fie alocat unui apartament din blocul selectat.",
-                                               "title":  "Alocare cenzor"
-                                           },
+                        "title": "Atribuiri de cenzor",
+                        "blocks": "Blocurile gestionate de tine",
+                        "helper": "Cenzorul extern are nevoie de cont de acces. Nu este necesar un apartament sau o atribuire de locuire. Accesul este limitat la blocurile selectate.",
+                        "requiresAccount": "Bifează mai jos opțiunea pentru cont și introdu o adresă de email validă. Contul și atribuirile de cenzor se salvează împreună.",
+                        "saveHint": "Selectează blocuri pentru desemnarea persoanei. Deselectează un bloc pentru retragerea atribuirii. Modificările se aplică doar la salvare."
+                      },
                       "detail":  {
                                      "invoices":  "Istoric facturi",
                                      "payments":  "Istoric plăți",
                                      "consumption":  "Istoric consum"
-                                 }
-                  },
+                                 },
+      "noAccess": "Contul tău nu are blocuri sau apartamente atribuite. Un administrator îți poate acorda acces prin desemnarea ca cenzor sau atribuirea unui apartament.",
+      "censorDashboard": {"description":"Vezi doar blocurile la care ești desemnat explicit drept cenzor.","blocks":"Blocurile atribuite ție","empty":"Niciun bloc atribuit","emptyHelp":"Un administrator trebuie să te desemneze cenzor înainte să poți accesa un bloc."}
+    },
     "apartments":  {
                        "actions":  {
                                       "assignResident":  "Alocă locatar",
@@ -766,7 +775,7 @@
                                        "setupStatus":  "Status configurare"
                                    },
                        "sections":  {
-                                        "residents":  "Locatar alocat"
+                                        "persons":  "Locatar alocat"
                                     },
                        "summary":  {
                                        "total":  "{{count}} apartamente"
@@ -774,7 +783,7 @@
                        "tabs":  {
                                     "details":  "Detalii apartament",
                                     "assignedResident":  "Locatar alocat ({{count}})",
-                                    "residents":  "Locatari ({{count}})"
+                                    "persons":  "Locatari ({{count}})"
                                 },
                        "setup":  {
                                      "addApartment":  "Adaugă apartament",
@@ -1148,7 +1157,7 @@
                                     "apartments":  "Apartamente",
                                     "waterMeters":  "Contoare de apă (active și inactive)",
                                     "waterReadings":  "Citiri ale apei",
-                                    "residentsPreserved":  "Locatarii și conturile lor de utilizator se păstrează. Se elimină doar alocările lor la acest bloc.",
+                                    "residentsPreserved":  "Persoanele și conturile lor se păstrează. Vor fi eliminate doar atribuirile de locuire și rolurile pentru acest bloc.",
                                     "irreversible":  "Sigur doriți să ștergeți acest bloc și toate elementele enumerate mai sus, inclusiv istoricul citirilor și al consumului de apă? Această acțiune este ireversibilă.",
                                     "loading":  "Se încarcă rezumatul ștergerii...",
                                     "loadFailed":  "Rezumatul ștergerii nu a putut fi încărcat. Încercați din nou.",
@@ -1614,7 +1623,7 @@
                            "title": "Utilizatori platformă",
                            "columns": {
                                "name": "Nume", "email": "Email", "status": "Starea contului", "roles": "Roluri în blocuri",
-                               "resident": "Profil locatar", "admins": "Conturi de administrator", "blocks": "Blocuri",
+                               "resident": "Profil persoană", "admins": "Conturi de administrator", "blocks": "Blocuri",
                                "apartments": "Apartamente", "createdAt": "Creat", "actions": "Acțiuni"
                            },
                            "filters": { "search": "Caută după nume sau email", "linked": "Profil asociat", "unlinked": "Fără profil" },
@@ -1628,8 +1637,8 @@
                                "unassigned": "Neatribuit", "blocked": "Blocat", "archived": "Arhivat"
                            },
                            "unknown": "Necunoscut", "none": "Niciuna", "noResident": "Fără profil asociat", "noRoles": "Fără roluri atribuite",
-                           "viewReport": "Vezi raportul asocierilor", "viewResident": "Vezi locatarul", "reportTitle": "Raportul asocierilor utilizatorului",
-                           "associations": "Roluri și conturi", "memberships": "Apartenența locatarului la blocuri", "subscription": "Abonament",
+                           "viewReport": "Vezi raportul asocierilor", "viewResident": "Vezi persoana", "reportTitle": "Raportul asocierilor utilizatorului",
+                           "associations": "Roluri și conturi", "memberships": "Apartenențe de locuire la blocuri", "subscription": "Abonament",
                            "staircase": "Scară", "livesHere": "Locuiește aici", "yes": "Da", "no": "Nu", "phone": "Telefon",
                            "suspendedAt": "Suspendat", "endedAt": "Încheiat", "suspensionReason": "Motivul suspendării",
                            "empty": "Nu există utilizatori", "emptyHelper": "Nu există conturi de utilizator de afișat.",
@@ -1678,7 +1687,7 @@
                                                         "totalBlocks":  "Total blocuri înregistrate",
                                                         "totalUsers":  "Total utilizatori",
                                                         "totalAdmins":  "Total administratori",
-                                                        "totalResidents":  "Total locatari",
+                                                        "totalResidents":  "Total persoane",
                                                         "totalCensors":  "Total cenzori",
                                                         "pendingAdminInvites":  "Invitații de administratori în așteptare",
                                                         "suspendedAdminAccounts":  "Conturi de administratori suspendate",
@@ -1763,14 +1772,14 @@
                            "noAdmins": "Nu există conturi de administrator active disponibile",
                            "noBlocks": "Acest administrator nu are încă blocuri",
                            "noApartments": "Nu există apartamente nealocate în acest bloc",
-                           "optionalHousing": "Alocarea la bloc și apartament este opțională. Locatarul va fi asociat contului de administrator selectat.",
+                           "optionalHousing": "Persoana aparține evidenței administratorului selectat și poate rămâne fără locuire sau cont de acces.",
                            "unassigned": "Nealocat",
                            "saveFailed": "Modificarea nu a putut fi confirmată. Reîncearcă folosind aceleași date sau verifică lista înainte de a începe din nou.",
                            "notificationTitle": "SuperAdmin a actualizat contul tău",
                            "notifications": {
                                "block": "SuperAdmin a creat blocul {{name}} pentru contul tău.",
                                "blockSetup": "SuperAdmin a creat blocul {{name}}, inclusiv apartamentele configurate și alocările locatarilor, pentru contul tău.",
-                               "resident": "SuperAdmin a adăugat sau a alocat locatarul {{name}} în contul tău."
+                               "resident": "SuperAdmin a adăugat persoana {{name}} în evidența ta."
                            }
                        },
                        "blocks":  {
@@ -1810,19 +1819,19 @@
                                                         "notFoundHelper":  "Acest bloc nu mai este disponibil. Reveniți la lista blocurilor."
                                                 }
                                   },
-                       "residents":  {
-                                        "title":  "Lista locatarilor",
-                                         "description":  "Toate conturile de locatari și rolurile pe bloc vizibile la nivel de platformă.",
-                                         "loading":  "Se încarcă locatarii platformei...",
+                       "persons":  {
+                                        "title":  "Persoane",
+                                         "description":  "Toate profilurile persoanelor, inclusiv cenzori externi și persoane fără locuire sau cont.",
+                                         "loading":  "Se încarcă persoanele platformei...",
                                          "errors":  {
-                                                        "loadFailed":  "Locatarii platformei nu au putut fi încărcați. Încercați din nou."
+                                                        "loadFailed":  "Persoanele platformei nu au putut fi încărcate. Încearcă din nou."
                                                     },
                                          "empty":  {
-                                                       "headline":  "Nu există locatari în platformă",
-                                                       "helperText":  "Utilizatorii cu roluri pe bloc vor apărea aici."
+                                                       "headline":  "Nu există încă persoane în platformă",
+                                                       "helperText":  "Persoanele apar aici la crearea profilului, inclusiv înainte de orice atribuire."
                                                    },
                                          "columns":  {
-                                                       "name":  "Nume locatar",
+                                                       "name":  "Numele persoanei",
                                                        "email":  "Email",
                                                        "admins":  "Administratori asociați",
                                                        "phone":  "Telefon",
@@ -1854,7 +1863,7 @@
                                       "type":  {
                                                    "all_data":  "Toate datele",
                                                    "blocks":  "Blocuri",
-                                                   "residents":  "Locatari",
+                                                   "persons":  "Locatari",
                                                    "apartments":  "Apartamente",
                                                    "finance_summary":  "Sumar financiar"
                                                },

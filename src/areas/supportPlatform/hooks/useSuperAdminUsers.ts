@@ -31,7 +31,7 @@ export const useSuperAdminUsers = () => {
     }, 0)
     return () => window.clearTimeout(timer)
   }, [options, scope, blockId, status, setBlockId, setStatus])
-  const query = { search, blockId, associatedRole, status, hasResidentProfile: profile === '' ? undefined : profile === 'linked' }
+  const query = { search, blockId, associatedRole, status, hasPersonProfile: profile === '' ? undefined : profile === 'linked' }
   const page = usePagedList<SuperAdminUserResponse>('SuperAdminUsers', '/super-admin/users/page', query, '')
   const clearFilters = () => { setSearch(''); setBlockId(''); setAssociatedRole(''); setStatus(''); setProfile('') }
   return {

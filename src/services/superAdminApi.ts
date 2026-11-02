@@ -1,7 +1,7 @@
 import { apiGet, apiPost } from './apiClient'
 import { withPlatformDeletionSession } from './developmentPlatformSession'
 import type { BlockOverviewDto, BlockSetupRequest, BlockSetupResponse, CreateBlockRequest } from '../types/block'
-import type { ResidentResponse } from '../types/management'
+import type { PersonResponse } from '../types/management'
 import type { AdminUserDeletionPreview, AdminUserDeletionResult, DeleteAdminUserRequest, DeletionOperationStatus } from '../areas/supportPlatform/types/adminUserDeletion'
 
 export type SuperAdminDashboardResponse = {
@@ -57,9 +57,9 @@ export type CreateSuperAdminAdminAccountRequest = {
   blockId?: string | null
 }
 
-export type SuperAdminResidentResponse = {
+export type SuperAdminPersonResponse = {
   userId?: string
-  residentId?: string
+  personId?: string
   displayName: string
   email: string
   phone?: string
@@ -90,16 +90,16 @@ const postPlatformCommand = <TResponse, TRequest = DeleteAdminUserRequest>(path:
   })
 
 export const superAdminApi = {
-  getAdminResidents: (adminId: string) => withPlatformDeletionSession(options =>
-    apiGet<ResidentResponse[]>(`/super-admin/admin-accounts/${adminId}/residents`, undefined, options)),
+  getAdminPersons: (adminId: string) => withPlatformDeletionSession(options =>
+    apiGet<PersonResponse[]>(`/super-admin/admin-accounts/${adminId}/persons`, undefined, options)),
   createBlockForAdmin: (adminId: string, requestId: string, block: CreateBlockRequest) =>
     postPlatformCommand<BlockOverviewDto, { requestId: string; block: CreateBlockRequest }>(`/super-admin/admin-accounts/${adminId}/blocks`, { requestId, block }),
   createBlockSetupForAdmin: (adminId: string, request: BlockSetupRequest) =>
     postPlatformCommand<BlockSetupResponse, BlockSetupRequest>(`/super-admin/admin-accounts/${adminId}/blocks/setup`, request),
-  createResidentForAdmin: (adminId: string, request: SuperAdminResidentCreateRequest) =>
-    postPlatformCommand<ResidentResponse, SuperAdminResidentCreateRequest>(`/super-admin/admin-accounts/${adminId}/residents`, request),
-  deleteUnlinkedResident: (residentId: string) =>
-    postPlatformCommand<string, Record<string, never>>(`/super-admin/residents/${residentId}/delete-unlinked-profile`, {}),
+  createPersonForAdmin: (adminId: string, request: SuperAdminPersonCreateRequest) =>
+    postPlatformCommand<PersonResponse, SuperAdminPersonCreateRequest>(`/super-admin/admin-accounts/${adminId}/persons`, request),
+  deleteUnlinkedPerson: (personId: string) =>
+    postPlatformCommand<string, Record<string, never>>(`/super-admin/persons/${personId}/delete-unlinked-profile`, {}),
   getDeletionPreview: (userId: string, signal?: AbortSignal, userOnly = false) =>
     withPlatformDeletionSession((options) => apiGet<AdminUserDeletionPreview>(`/super-admin/users/${userId}/deletion-preview${userOnly ? '?userOnly=true' : ''}`, signal, options)),
   deleteUserAndManagedData: (userId: string, request: DeleteAdminUserRequest) =>
@@ -116,14 +116,14 @@ export const superAdminApi = {
   getBlocks: () => apiGet<SuperAdminBlockResponse[]>('/super-admin/blocks'),
   getBlockApartmentFilters: (blockId: string, signal?: AbortSignal) =>
     apiGet<SuperAdminBlockApartmentFiltersResponse>(`/super-admin/blocks/${blockId}/apartments/filters`, signal),
-  getResidents: () => apiGet<SuperAdminResidentResponse[]>('/super-admin/residents'),
+  getPersons: () => apiGet<SuperAdminPersonResponse[]>('/super-admin/persons'),
   getAdminInvitations: () => apiGet<SuperAdminInvitationResponse[]>('/super-admin/admin-invitations'),
 }
 
 export type UserBlockAssociation = { blockId: string; blockName: string }
-export type SuperAdminResidentCreateRequest = {
-  requestId: string; existingResidentId?: string
-  firstName: string; lastName: string; phone?: string; email?: string; inviteResident: boolean
+export type SuperAdminPersonCreateRequest = {
+  requestId: string; existingPersonId?: string
+  firstName: string; lastName: string; phone?: string; email?: string; invitePerson: boolean
 }
 export type UserRoleAssociation = UserBlockAssociation & {
   roleId: string; role: string; status: string; createdAt: string
@@ -138,9 +138,9 @@ export type UserApartmentAssociation = UserBlockAssociation & {
 }
 export type SuperAdminUserResponse = {
   userId: string; displayName: string; email: string; status: string; createdAt: string
-  residentId?: string | null; residentName?: string | null; residentStatus?: string | null
-  residentEmail?: string | null; phone?: string | null
+  personId?: string | null; personName?: string | null; personStatus?: string | null
+  personEmail?: string | null; phone?: string | null
   roles: UserRoleAssociation[]; adminAccounts: UserAdminAssociation[]
-  residentBlocks: UserBlockAssociation[]; apartments: UserApartmentAssociation[]
+  personBlocks: UserBlockAssociation[]; apartments: UserApartmentAssociation[]
 }
 export type SuperAdminUserFiltersResponse = { blocks: UserBlockAssociation[]; statuses: string[] }

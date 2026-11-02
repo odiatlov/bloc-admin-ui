@@ -9,14 +9,14 @@ import type {
   MonthlyExpense,
   MonthlyMaintenanceRun,
   Penalty,
-  Resident,
+  Person,
   ResidentApartment,
   WaterReading,
 } from '../types/apartment'
 
 type MaintenanceEngineInput = {
   apartments: Apartment[]
-  residents: Resident[]
+  persons: Person[]
   families: Family[]
   rules: AllocationRule[]
   expenses: MonthlyExpense[]
@@ -33,15 +33,15 @@ const sum = (values: number[]) => values.reduce((total, value) => total + value,
 
 const readingUsage = (reading: WaterReading | MainMeterReading) => Math.max(reading.currentValue - reading.previousValue, 0)
 
-const getDeclaredPersons = (apartment: Apartment, families: Family[], residents: Resident[], residentApartments: ResidentApartment[]) => {
+const getDeclaredPersons = (apartment: Apartment, families: Family[], persons: Person[], residentApartments: ResidentApartment[]) => {
   const hasAssignedResident = residentApartments.some((link) => link.apartmentId === apartment.id && !link.ownershipEndDate)
   if (!hasAssignedResident) return 0
   if (apartment.residentCount > 0) return apartment.residentCount
 
   const declaredPersons = families.find((family) => family.apartmentId === apartment.id)?.declaredPersons
   if (declaredPersons !== undefined) return declaredPersons
-  const activeResidentIds = new Set(residents.filter((resident) => resident.status === 'active').map((resident) => resident.id))
-  return residentApartments.filter((link) => link.apartmentId === apartment.id && activeResidentIds.has(link.residentId) && !link.ownershipEndDate).length
+  const activePersonIds = new Set(persons.filter((resident) => resident.status === 'active').map((resident) => resident.id))
+  return residentApartments.filter((link) => link.apartmentId === apartment.id && activePersonIds.has(link.personId) && !link.ownershipEndDate).length
 }
 
 const getScopedApartments = (rule: AllocationRule, apartments: Apartment[]) => {
@@ -79,11 +79,11 @@ const getBasis = (
   rule: AllocationRule,
   month: string,
   families: Family[],
-  residents: Resident[],
+  persons: Person[],
   residentApartments: ResidentApartment[],
   waterReadings: WaterReading[],
 ) => {
-  if (rule.allocationType === 'per_person') return getDeclaredPersons(apartment, families, residents, residentApartments)
+  if (rule.allocationType === 'per_person') return getDeclaredPersons(apartment, families, persons, residentApartments)
   if (rule.allocationType === 'per_apartment' || rule.allocationType === 'equal_split') return 1
   if (rule.allocationType === 'by_surface') return apartment.usableSurface
   if (rule.allocationType === 'by_heating_area') {
@@ -124,12 +124,12 @@ const buildExplanation = (
 export const allocateExpense = (
   expense: MonthlyExpense,
   rule: AllocationRule,
-  input: Pick<MaintenanceEngineInput, 'apartments' | 'families' | 'residentApartments' | 'residents' | 'waterReadings'>,
+  input: Pick<MaintenanceEngineInput, 'apartments' | 'families' | 'residentApartments' | 'persons' | 'waterReadings'>,
 ) => {
   const scopedApartments = getScopedApartments(rule, input.apartments)
   const weightedApartments = scopedApartments.map((apartment) => ({
     apartment,
-    basis: getBasis(apartment, rule, expense.month, input.families, input.residents, input.residentApartments, input.waterReadings),
+    basis: getBasis(apartment, rule, expense.month, input.families, input.persons, input.residentApartments, input.waterReadings),
   }))
   const totalBasis = sum(weightedApartments.map((entry) => entry.basis))
 

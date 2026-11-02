@@ -73,7 +73,7 @@ export type CreateWaterMeterReadingRequest = {
   month: number
   value: number
   readingDate?: string | null
-  residentId?: string | null
+  personId?: string | null
   note?: string | null
 }
 

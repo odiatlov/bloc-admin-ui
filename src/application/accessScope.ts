@@ -4,7 +4,8 @@ type AccountScope = {
   role: AuthRole
   adminId?: string
   dataMode?: 'mock-populated' | 'mock-empty-ui' | 'backend-ready-empty' | 'mock-configured-block'
-  residentId?: string
+  blockAssignments?: { blockId: string; role: string }[]
+  personId?: string
 }
 
 const fixtureBlockIds = new Set(['block-new-setup'])
@@ -12,16 +13,18 @@ const fixtureBlockIds = new Set(['block-new-setup'])
 export const getAssignedBlockIds = (account: AccountScope, assignments: BuildingAdminAssignment[], residentApartments: ResidentApartment[], apartments: Apartment[]) => {
   const isEmptyCensor = account.role === 'Censor' && (account.dataMode === 'mock-empty-ui' || account.dataMode === 'backend-ready-empty')
   if (isEmptyCensor) return new Set<string>()
-  if (account.role === 'SuperAdmin' || account.role === 'Censor') return null
+  if (account.role === 'None') return new Set<string>()
+  if (account.role === 'Censor') return new Set((account.blockAssignments ?? []).filter(item => item.role === 'Censor').map(item => item.blockId))
+  if (account.role === 'SuperAdmin') return null
   if (account.role === 'Admin') {
     return new Set(assignments.filter((assignment) => assignment.adminId === account.adminId && assignment.isActive).map((assignment) => assignment.blockId))
   }
-  const apartmentIds = new Set(residentApartments.filter((link) => link.residentId === account.residentId && !link.ownershipEndDate).map((link) => link.apartmentId))
+  const apartmentIds = new Set(residentApartments.filter((link) => link.personId === account.personId && !link.ownershipEndDate).map((link) => link.apartmentId))
   return new Set(apartments.filter((apartment) => apartmentIds.has(apartment.id)).map((apartment) => apartment.blockId))
 }
 
 export const filterBlocksForAccount = (blocks: Block[], account: AccountScope, assignments: BuildingAdminAssignment[], residentApartments: ResidentApartment[], apartments: Apartment[]) => {
-  if ((account.role === 'SuperAdmin' || account.role === 'Censor') && !account.dataMode) {
+  if (account.role === 'SuperAdmin' && !account.dataMode) {
     return blocks.filter((block) => !fixtureBlockIds.has(block.id))
   }
   const blockIds = getAssignedBlockIds(account, assignments, residentApartments, apartments)
@@ -34,11 +37,16 @@ export const filterApartmentsForAccount = (apartments: Apartment[], account: Acc
   if ((account.role === 'SuperAdmin' || account.role === 'Censor') && !account.dataMode) {
     return apartments.filter((apartment) => !fixtureBlockIds.has(apartment.blockId))
   }
-  if (account.role === 'SuperAdmin' || account.role === 'Censor') return apartments
+  if (account.role === 'None') return []
+  if (account.role === 'Censor') {
+    const ids = new Set((account.blockAssignments ?? []).filter(item => item.role === 'Censor').map(item => item.blockId))
+    return apartments.filter(apartment => ids.has(apartment.blockId))
+  }
+  if (account.role === 'SuperAdmin') return apartments
   if (account.role === 'Admin') {
     const blockIds = new Set(assignments.filter((assignment) => assignment.adminId === account.adminId && assignment.isActive).map((assignment) => assignment.blockId))
     return apartments.filter((apartment) => blockIds.has(apartment.blockId))
   }
-  const apartmentIds = new Set(residentApartments.filter((link) => link.residentId === account.residentId && !link.ownershipEndDate).map((link) => link.apartmentId))
+  const apartmentIds = new Set(residentApartments.filter((link) => link.personId === account.personId && !link.ownershipEndDate).map((link) => link.apartmentId))
   return apartments.filter((apartment) => apartmentIds.has(apartment.id))
 }

@@ -1,9 +1,9 @@
 import React from 'react'
 import { usePageFilter } from './usePageFilter'
 import { RoleContext } from '../contexts/RoleContext'
-import { residentsApi } from '../services/residentsApi'
+import { personsApi } from '../services/personsApi'
 import { waterReadingsApi } from '../services/waterReadingsApi'
-import type { ResidentApartmentSummary, ResidentResponse } from '../types/management'
+import type { PersonApartmentSummary, PersonResponse } from '../types/management'
 import type { ApartmentWaterMeterResponse, BlockWaterReadingSettingsResponse, ResidentWaterMeterRow, WaterReadingSetupIssue } from '../types/waterReadings'
 
 const getCurrentPeriod = () => {
@@ -37,7 +37,7 @@ const buildConfiguredPeriods = (settings: BlockWaterReadingSettingsResponse[]) =
   return periods
 }
 
-export const formatResidentApartmentLabel = (apartment: ResidentApartmentSummary) => [
+export const formatResidentApartmentLabel = (apartment: PersonApartmentSummary) => [
   apartment.blockName ? `Block ${apartment.blockName}` : null,
   apartment.staircaseName ? `Staircase ${apartment.staircaseName}` : null,
   `Apartment ${apartment.apartmentNumber}`,
@@ -46,7 +46,7 @@ export const formatResidentApartmentLabel = (apartment: ResidentApartmentSummary
 export const useResidentWaterIndex = () => {
   const { account } = React.useContext(RoleContext)
   const [{ year, month }, setPeriod] = usePageFilter('residentWater.period', getCurrentPeriod)
-  const [resident, setResident] = React.useState<ResidentResponse | null>(null)
+  const [resident, setResident] = React.useState<PersonResponse | null>(null)
   const [meters, setMeters] = React.useState<ApartmentWaterMeterResponse[]>([])
   const [rows, setRows] = React.useState<ResidentWaterMeterRow[]>([])
   const [hasConfiguredSubmissionDate, setHasConfiguredSubmissionDate] = React.useState(false)
@@ -55,7 +55,7 @@ export const useResidentWaterIndex = () => {
   const [error, setError] = React.useState<string | null>(null)
 
   const load = React.useCallback(async () => {
-    if (!account.residentId) {
+    if (!account.personId) {
       setResident(null)
       setMeters([])
       setRows([])
@@ -69,7 +69,7 @@ export const useResidentWaterIndex = () => {
     setError(null)
 
     try {
-      const nextResident = await residentsApi.getById(account.residentId)
+      const nextResident = await personsApi.getById(account.personId)
       const apartmentIds = new Set(nextResident.apartments.map((apartment) => apartment.apartmentId))
       const blockIds = Array.from(new Set(nextResident.apartments.map((apartment) => apartment.blockId)))
       const settings = await Promise.all(blockIds.map((blockId) => waterReadingsApi.getBlockSettings(blockId)))
@@ -138,7 +138,7 @@ export const useResidentWaterIndex = () => {
     } finally {
       setLoading(false)
     }
-  }, [account.residentId])
+  }, [account.personId])
 
   React.useEffect(() => {
     const timeoutId = window.setTimeout(() => {

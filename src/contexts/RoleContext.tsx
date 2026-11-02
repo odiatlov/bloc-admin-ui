@@ -80,6 +80,13 @@ export const RoleProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
       const nextRole = nextAccount.roles.includes(savedRole as Role) ? savedRole as Role : nextAccount.defaultRole
       setAccount(nextAccount)
       setActiveRole(nextRole)
+      try {
+        localStorage.setItem('mockAccountId', nextAccount.id)
+        localStorage.setItem('mockActiveRole', nextRole)
+        localStorage.setItem('mockJwt', nextAccount.token)
+      } catch {
+        // Keep the in-memory account usable when storage is unavailable.
+      }
     } catch (nextError) {
       setAccounts([])
       setAccountsError(nextError instanceof Error ? nextError.message : 'Unable to load database accounts.')

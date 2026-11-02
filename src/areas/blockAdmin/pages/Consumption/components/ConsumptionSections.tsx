@@ -119,7 +119,7 @@ const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) 
       setReadingApartmentId(incompleteApartments.find(row => row.canSubmitReadings)?.id)
       setOpen(true)
     }}>{t('consumption.actions.addReading')}</Button> : undefined}>
-      <TextField select size="small" disabled={loading || !!error} label={t('residents.filters.block')} value={blockFilter} onChange={(event) => setBlockFilter(event.target.value)} sx={{ minWidth: 180 }}>
+      <TextField select size="small" disabled={loading || !!error} label={t('persons.filters.block')} value={blockFilter} onChange={(event) => setBlockFilter(event.target.value)} sx={{ minWidth: 180 }}>
         <MenuItem value="all">{t('common.all')}</MenuItem>
         {blocks.map((block) => <MenuItem key={block.id} value={block.id}>{t('common.blockValue', { block: block.name })}</MenuItem>)}
       </TextField>

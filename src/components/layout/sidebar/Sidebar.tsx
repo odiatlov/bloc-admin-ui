@@ -52,7 +52,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ onNavigate, onClose, sh
         { label: t('sidebar.manageAdmins'), to: '/superadmin/manage-admins', icon: <AdminPanelSettingsIcon />, permission: 'superAdmin' as const },
         { label: t('sidebar.superUsers'), to: '/superadmin/users', icon: <PeopleIcon />, permission: 'superAdmin' as const },
         { label: t('sidebar.superBlocks'), to: '/superadmin/blocks', icon: <HomeWorkIcon />, permission: 'superAdmin' as const },
-        { label: t('sidebar.superResidents'), to: '/superadmin/residents', icon: <PeopleIcon />, permission: 'superAdmin' as const },
+        { label: t('sidebar.superPersons'), to: '/superadmin/persons', icon: <PeopleIcon />, permission: 'superAdmin' as const },
         { label: t('sidebar.consumption'), to: '/superadmin/consumption', icon: <OpacityIcon />, permission: 'superAdmin' as const },
         { label: t('sidebar.exportData'), to: '/superadmin/export', icon: <FileDownloadIcon />, permission: 'superAdmin' as const },
       ]
@@ -75,7 +75,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ onNavigate, onClose, sh
         { label: t('sidebar.blocks'), to: '/admin/blocks', icon: <HomeWorkIcon />, permission: 'blocks' as const },
         { label: t('sidebar.staircases'), to: '/admin/staircases', icon: <StairsIcon />, permission: 'blocks' as const },
         { label: t('sidebar.apartments'), to: '/admin/apartments', icon: <ApartmentIcon />, permission: 'blocks' as const },
-        { label: t('sidebar.residents'), to: '/admin/residents', icon: <PeopleIcon />, permission: 'residents' as const },
+        { label: t('sidebar.persons'), to: '/admin/persons', icon: <PeopleIcon />, permission: 'persons' as const },
         { label: t('sidebar.finance'), to: '/admin/finance', icon: <MonetizationOnIcon />, permission: 'finance' as const },
         { label: t('sidebar.consumption'), to: '/admin/consumption', icon: <OpacityIcon />, permission: 'consumption' as const },
         { label: t('sidebar.reports'), to: '/admin/reports', icon: <AssessmentIcon />, permission: 'reports' as const },

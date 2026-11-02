@@ -42,16 +42,16 @@ import StatusChip from '../../../../../components/shared/StatusChip'
 import ApartmentOverviewFilters from '../../../../../components/apartments/ApartmentOverviewFilters'
 import { useApartmentColumns } from '../../../../../components/apartments/useApartmentColumns'
 import { getApartmentFloorOptions } from '../../../../../domain/apartmentOverview'
-import { translateApartmentSetupStatus, translateResidentStatus } from '../../../../../domain/displayLabels'
+import { translateApartmentSetupStatus, translatePersonStatus } from '../../../../../domain/displayLabels'
 import { useBlocks } from '../../../../../hooks/useBlocks'
 import { apartmentResidentsApi } from '../../../../../services/apartmentResidentsApi'
 import { apartmentsApi } from '../../../../../services/apartmentsApi'
-import { residentsApi } from '../../../../../services/residentsApi'
+import { personsApi } from '../../../../../services/personsApi'
 import ResidentApartmentAssignments from '../../../../../components/shared/ResidentApartmentAssignments'
 import { staircasesApi } from '../../../../../services/staircasesApi'
 import { waterReadingsApi } from '../../../../../services/waterReadingsApi'
 import type { ApartmentSetupStatus } from '../../../../../types/apartment'
-import type { ApartmentResidentResponse, ApartmentResponse, ResidentResponse, StaircaseResponse } from '../../../../../types/management'
+import type { ApartmentResidentResponse, ApartmentResponse, PersonResponse, StaircaseResponse } from '../../../../../types/management'
 import type { ApartmentWaterConfigurationZone } from '../../../../../types/waterReadings'
 
 type ApiApartmentManagementProps = {
@@ -93,7 +93,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   const { t } = useTranslation()
   const databaseBlocks = useBlocks()
   const [apartments, setApartments] = React.useState<ApartmentResponse[]>([])
-  const [residentRecords, setResidentRecords] = React.useState<ResidentResponse[]>([])
+  const [residentRecords, setResidentRecords] = React.useState<PersonResponse[]>([])
   const [apartmentResidentLinks, setApartmentResidentLinks] = React.useState<ApartmentResidentResponse[]>([])
   const [staircases, setStaircases] = React.useState<StaircaseResponse[]>([])
   const [selectedBlockId, setSelectedBlockId] = usePageFilter('apartments.block', 'all', initialBlockId)
@@ -112,8 +112,8 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   const [removingResident, setRemovingResident] = React.useState<ApartmentResidentResponse | null>(null)
   const [isRemovingResident, setIsRemovingResident] = React.useState(false)
   const [removeResidentError, setRemoveResidentError] = React.useState<string | null>(null)
-  const [assignResidentId, setAssignResidentId] = React.useState('')
-  const [additionalResident, setAdditionalResident] = React.useState<ResidentResponse | null>(null)
+  const [assignPersonId, setAssignPersonId] = React.useState('')
+  const [additionalResident, setAdditionalResident] = React.useState<PersonResponse | null>(null)
   const [isAssigningResident, setIsAssigningResident] = React.useState(false)
   const [assignmentError, setAssignmentError] = React.useState<string | null>(null)
   const [form, setForm] = React.useState<FormState>(emptyForm)
@@ -153,7 +153,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
       const [nextApartments, nextStaircases, nextResidents] = await Promise.all([
         apartmentsApi.getAll(),
         staircasesApi.getAll(),
-        residentsApi.getAll(),
+        personsApi.getAll(),
       ])
       setApartments(nextApartments)
       setStaircases(nextStaircases)
@@ -181,7 +181,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
       const links = await apartmentResidentsApi.getByApartment(apartmentId)
       setApartmentResidentLinks(links)
     } catch (nextError) {
-      setError(nextError instanceof Error ? nextError.message : 'Unable to load apartment residents')
+      setError(nextError instanceof Error ? nextError.message : 'Unable to load apartment persons')
     } finally {
       setIsLoadingApartmentResidents(false)
     }
@@ -276,7 +276,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
     setSaveError(false)
     setEditingApartment(apartment)
     setApartmentResidentLinks([])
-    setAssignResidentId('')
+    setAssignPersonId('')
     setForm({
       blockId: apartment.blockId,
       staircaseId: apartment.staircaseId ?? '',
@@ -362,13 +362,13 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
     setAssignmentError(null)
     setEditingApartment(null)
     setApartmentResidentLinks([])
-    setAssignResidentId('')
+    setAssignPersonId('')
     setWaterZones([])
     setWaterConfigError(null)
   }
 
   const assignResident = async (confirmed = false) => {
-    if (!editingApartment || !assignResidentId || isAssigningResident) return
+    if (!editingApartment || !assignPersonId || isAssigningResident) return
 
     setError(null)
     setAssignmentError(null)
@@ -376,26 +376,26 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
 
     try {
       if (!confirmed) {
-        const resident = await residentsApi.getById(assignResidentId)
+        const resident = await personsApi.getById(assignPersonId)
         const existing = resident.apartments.filter(apartment => allowedBlockIds.has(apartment.blockId) && apartment.apartmentId !== editingApartment.id)
         if (existing.length > 0) {
           setAdditionalResident({ ...resident, apartments: existing })
           return
         }
-      } else if (additionalResident?.id !== assignResidentId) return
+      } else if (additionalResident?.id !== assignPersonId) return
       await apartmentResidentsApi.create(editingApartment.id, {
-        residentId: assignResidentId,
+        personId: assignPersonId,
         livesHere: true,
         confirmAdditionalApartment: confirmed,
         expectedApartmentIds: confirmed ? additionalResident?.apartments.map(apartment => apartment.apartmentId) : [],
       })
       setAdditionalResident(null)
-      setAssignResidentId('')
+      setAssignPersonId('')
       await loadApartmentResidents(editingApartment.id)
       await loadData()
       void databaseBlocks.refresh()
     } catch (nextError) {
-      setAssignmentError(nextError instanceof Error ? nextError.message : t('residents.retention.saveFailed'))
+      setAssignmentError(nextError instanceof Error ? nextError.message : t('persons.retention.saveFailed'))
     } finally {
       setIsAssigningResident(false)
     }
@@ -587,12 +587,12 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
             <Box sx={{ alignItems: 'flex-start', display: 'flex', gap: 1.5 }}>
               <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
                 <Button startIcon={<ArrowBackIcon />} disabled={isSaving} onClick={closeEditDrawer}>
-                  {t('residents.actions.backToList')}
+                  {t('persons.actions.backToList')}
                 </Button>
                 <Box>
                   <Typography variant="h6">{t('apartments.setup.title')}</Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {t('residents.apartment.number', { number: editingApartment.number })}
+                    {t('persons.apartment.number', { number: editingApartment.number })}
                   </Typography>
                 </Box>
               </Box>
@@ -742,7 +742,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                   {isLoadingApartmentResidents ? (
                     <Box sx={{ alignItems: 'center', display: 'flex', gap: 1 }}>
                       <CircularProgress size={20} />
-                      <Typography variant="body2" color="text.secondary">{t('residents.loading')}</Typography>
+                      <Typography variant="body2" color="text.secondary">{t('persons.loading')}</Typography>
                     </Box>
                   ) : apartmentResidentLinks.length === 0 ? (
                     <Typography variant="body2" color="text.secondary">
@@ -751,12 +751,12 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                   ) : apartmentResidentLinks.map((link) => (
                     <EntityListItem
                       key={link.id}
-                      title={link.residentFullName}
-                      secondary={link.residentEmail || link.residentPhone || t('residents.resident.noEmail')}
-                      status={<StatusChip status={link.residentStatus} label={translateResidentStatus(t, link.residentStatus)} />}
+                      title={link.personFullName}
+                      secondary={link.personEmail || link.personPhone || t('persons.resident.noEmail')}
+                      status={<StatusChip status={link.personStatus} label={translatePersonStatus(t, link.personStatus)} />}
                       actions={(
                         <ActionButtons variant="card" actions={[
-                          { id: 'unassign', label: t('residents.actions.unassign'), icon: <PersonRemoveIcon />, onClick: () => { setRemoveResidentError(null); setRemovingResident(link) } },
+                          { id: 'unassign', label: t('persons.actions.unassign'), icon: <PersonRemoveIcon />, onClick: () => { setRemoveResidentError(null); setRemovingResident(link) } },
                         ]} />
                       )}
                     />
@@ -767,12 +767,12 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                       <InputLabel>{t('apartments.actions.assignResident')}</InputLabel>
                       <Select
                         label={t('apartments.actions.assignResident')}
-                        value={assignResidentId}
-                        onChange={(event: SelectChangeEvent) => setAssignResidentId(event.target.value)}
+                        value={assignPersonId}
+                        onChange={(event: SelectChangeEvent) => setAssignPersonId(event.target.value)}
                       >
                         {assignableResidents.map((resident) => (
                           <MenuItem key={resident.id} value={resident.id}>
-                            {resident.fullName} - {translateResidentStatus(t, resident.status)}
+                            {resident.fullName} - {translatePersonStatus(t, resident.status)}
                           </MenuItem>
                         ))}
                       </Select>
@@ -781,9 +781,9 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                       startIcon={<PersonAddIcon />}
                       variant="outlined"
                       onClick={() => { void assignResident() }}
-                      disabled={!assignResidentId || hasAssignedResident || isAssigningResident || isLoadingApartmentResidents}
+                      disabled={!assignPersonId || hasAssignedResident || isAssigningResident || isLoadingApartmentResidents}
                     >
-                      {t('residents.actions.assign')}
+                      {t('persons.actions.assign')}
                     </Button>
                   </Box>
                   {assignmentError && <Alert severity="error">{assignmentError}</Alert>}
@@ -795,20 +795,20 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
         )}
       </Drawer>
 
-      <ConfirmationDialog open={Boolean(additionalResident)} title={t('residents.assignments.additionalTitle')}
-        cancelLabel={t('common.cancel')} confirmLabel={t('residents.assignments.additionalConfirm')}
+      <ConfirmationDialog open={Boolean(additionalResident)} title={t('persons.assignments.additionalTitle')}
+        cancelLabel={t('common.cancel')} confirmLabel={t('persons.assignments.additionalConfirm')}
         confirmDisabled={isAssigningResident}
         onCancel={() => { if (!isAssigningResident) { setAdditionalResident(null); setAssignmentError(null) } }}
         onConfirm={() => { void assignResident(true) }}>
         {assignmentError && <Alert severity="error">{assignmentError}</Alert>}
-        <Typography sx={{ mb: 2 }}>{t('residents.assignments.additionalMessage', { name: additionalResident?.fullName })}</Typography>
+        <Typography sx={{ mb: 2 }}>{t('persons.assignments.additionalMessage', { name: additionalResident?.fullName })}</Typography>
         <ResidentApartmentAssignments apartments={additionalResident?.apartments ?? []} />
-        <Typography sx={{ mt: 2 }}>{t('residents.assignments.destination')}: {editingApartment ? `${editingApartment.blockName}/${editingApartment.staircaseName || '—'}/${editingApartment.number}` : ''}</Typography>
+        <Typography sx={{ mt: 2 }}>{t('persons.assignments.destination')}: {editingApartment ? `${editingApartment.blockName}/${editingApartment.staircaseName || '—'}/${editingApartment.number}` : ''}</Typography>
       </ConfirmationDialog>
 
       <AppDialog
         cancelLabel={t('common.cancel')}
-        confirmLabel={t('residents.actions.unassign')}
+        confirmLabel={t('persons.actions.unassign')}
         confirmDisabled={!removingResident}
         pending={isRemovingResident}
         maxWidth="xs"
@@ -820,7 +820,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
         {removeResidentError && <Alert severity="error">{removeResidentError}</Alert>}
         <Typography color="text.secondary">
           {t('apartments.dialog.unassignConfirm', {
-            name: removingResident?.residentFullName ?? '',
+            name: removingResident?.personFullName ?? '',
             count: editingApartment?.residentCount ?? 0,
           })}
         </Typography>

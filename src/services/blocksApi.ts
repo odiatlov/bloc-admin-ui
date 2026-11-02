@@ -14,7 +14,7 @@ import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from './apiClient'
 export const blocksApi = {
   createSetup: (request: BlockSetupRequest) =>
     apiPost<BlockSetupRequest, BlockSetupResponse>('/blocks/setup', request),
-  getOverview: () => apiGet<BlockOverviewDto[]>('/blocks/overview'),
+  getOverview: (role?: string, signal?: AbortSignal) => apiGet<BlockOverviewDto[]>(role ? `/blocks/overview?role=${encodeURIComponent(role)}` : '/blocks/overview', signal),
   createBlock: (request: CreateBlockRequest) =>
     apiPost<CreateBlockRequest, BlockOverviewDto>('/blocks', request),
   updateBlock: (id: string, request: UpdateBlockRequest) =>

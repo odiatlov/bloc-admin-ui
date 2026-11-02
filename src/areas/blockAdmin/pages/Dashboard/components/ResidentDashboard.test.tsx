@@ -22,7 +22,7 @@ const renderDashboard = (rows: ResidentWaterMeterRow[], language: 'en' | 'ro', m
     apartments: [], error: null, hasConfiguredSubmissionDate: true, readingEligibility: {}, loading: false,
     meters: [], month: 10, refresh: vi.fn(), resident: null, rows, setPeriod: vi.fn(), year: 2026,
   })
-  return renderWithProviders(<MemoryRouter><RoleContext.Provider value={{ ...residentContext, account: { ...residentContext.account, residentId: undefined } }}>
+  return renderWithProviders(<MemoryRouter><RoleContext.Provider value={{ ...residentContext, account: { ...residentContext.account, personId: undefined } }}>
     <ResidentDashboard />
   </RoleContext.Provider></MemoryRouter>, { language, mode })
 }

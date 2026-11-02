@@ -93,8 +93,8 @@ const ReportGenerator: React.FC = () => {
           label={t('reports.filters.month')} value={month === 'all' ? '' : month} onChange={(value) => setMonth(value || 'all')}
           minDate={`${water.minimumPeriod ?? water.maximumPeriod}-01`} maxDate={`${water.maximumPeriod}-01`} />
         <FormControl size="small" sx={{ minWidth: { sm: 160 } }}>
-          <InputLabel>{t('residents.filters.block')}</InputLabel>
-          <Select disabled={water.loading || !!water.error} label={t('residents.filters.block')} value={block} onChange={(event: SelectChangeEvent) => setBlock(event.target.value)}>
+          <InputLabel>{t('persons.filters.block')}</InputLabel>
+          <Select disabled={water.loading || !!water.error} label={t('persons.filters.block')} value={block} onChange={(event: SelectChangeEvent) => setBlock(event.target.value)}>
             <MenuItem value="all">{t('common.all')}</MenuItem>
             {water.blocks.map((item) => (
               <MenuItem key={item.id} value={item.id}>
