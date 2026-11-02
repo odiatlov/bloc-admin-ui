@@ -1,4 +1,5 @@
 import { createTheme } from '@mui/material/styles'
+import { nativeControlStyles } from './nativeControlStyles'
 
 export const primaryContainedButtonColors = {
   dark: { background: '#6366F1', hover: '#4F46E5' },
@@ -38,7 +39,11 @@ const createThemeConfig = (mode: 'light' | 'dark' = 'dark') =>
         },
       },
       MuiCssBaseline: {
+        defaultProps: {
+          enableColorScheme: true,
+        },
         styleOverrides: (theme) => ({
+          ...nativeControlStyles(theme),
           a: { color: 'inherit', textDecoration: 'none' },
           body: { backgroundColor: theme.palette.background.default },
           '#root': { minHeight: '100vh', backgroundColor: theme.palette.background.default },
