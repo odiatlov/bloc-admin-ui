@@ -788,8 +788,8 @@
       "percentageOverride": "Apartment percentage override (%)",
       "defaultPercentageHint": "Leave blank to use the block default: {{value}}%.",
       "heatingMp": "Heating MP",
-      "configurationTitle": "Utilities and allocation — {{block}}",
-      "configurationHelp": "Settings apply only to this block and the effective billing period. Existing saved reports retain their original inputs.",
+      "configurationTitle": "Block configuration — {{block}}",
+      "configurationHelp": "Financial rules apply to this block and their configured validity period. Saved reports retain their original inputs. The censor assignment is independent of the billing month.",
       "effectiveFrom": "Effective from",
       "effectiveTo": "Effective until (optional)",
       "clearEnd": "Remove end period",
@@ -1151,7 +1151,8 @@
       "unassignConfirm_other": "You are about to unassign resident {{name}} and remove {{count}} occupants from this apartment. The occupant count will be reset to 0."
     },
     "errors": {
-      "loadFailed": "Apartments could not be loaded. Please try again."
+      "loadFailed": "Apartments could not be loaded. Please try again.",
+      "residentsLoadFailed": "Assigned residents could not be loaded. Retry before changing this apartment or its assignments."
     },
     "filters": {
       "setupStatus": "Setup status"
@@ -1873,6 +1874,98 @@
         "gardening": "Seasonal landscaping for shared green areas.",
         "intercom": "Optional intercom maintenance contract.",
         "manual": "Manual custom cost added by the administrator."
+      }
+    }
+  },
+  "financeReview": {
+    "publishedHelp": "This report has already been published. Its saved amounts and historical review outcome are retained; no retroactive review is required.",
+    "accessHelp": "This block or review is no longer available to your account.",
+    "reportHelp": "This is a private saved report. Its review status determines whether it can be submitted, resubmitted or published. Only publication releases apartment bills.",
+    "publicationPaths": {
+      "BeforeCensorWorkflow": "Published before the censor review workflow was introduced.",
+      "DirectWithoutCensor": "Published directly without an active censor assignment.",
+      "Reviewed": "Published after verification by the censor."
+    },
+    "description": "Review saved financial reports for your assigned blocks. Decisions apply to the exact revision and review cycle.",
+    "cycle": "Review cycle",
+    "history": "Review history",
+    "reviewStatus": "Review status",
+    "submittedAt": "Submitted at",
+    "decidedAt": "Decided at",
+    "reason": "Rejection reason",
+    "linkedCycle": "This notification refers to cycle {{cycle}}, revision {{revision}}.",
+    "requiredHelp": "This block has an assigned censor. The current report must be verified before the administrator can publish it.",
+    "directHelp": "No active censor is assigned to this block. An eligible current report can be published directly.",
+    "decisionUnavailable": "This cycle cannot receive a decision. It may be completed, historical, outdated or assigned to a previous censor. Refresh to check the current state.",
+    "censorOnly": "Active censor access is required to view these reviews.",
+    "empty": "No reviews match this selection",
+    "emptyHelp": "New submissions for your assigned blocks appear here. Enable history to consult completed cycles.",
+    "actions": "Review actions",
+    "back": "Back to Reviews",
+    "approve": "Verify report",
+    "reject": "Reject",
+    "submit": "Submit for review",
+    "resubmit": "Resubmit",
+    "pending": "Pending reviews",
+    "submitHelp": "Send {{block}}, {{period}}, revision {{revision}} to the assigned censor. This does not publish the report or issue apartment bills.",
+    "decisionHelp": "Record your decision for {{block}}, revision {{revision}}, cycle {{cycle}}. The decision will remain in history.",
+    "reasonLength": "Characters: {{count}} / 2000",
+    "dashboardHelp": "Open Reviews to inspect submitted reports and record decisions for your assigned blocks.",
+    "status": {
+      "Draft": "Not submitted",
+      "Submitted": "Submitted",
+      "Resubmitted": "Resubmitted",
+      "Approved": "Verified by censor",
+      "Rejected": "Rejected",
+      "Unsupported": "Review rule unavailable"
+    },
+    "errors": {
+      "changed": "The report, review cycle or censor assignment changed. Refresh and review the current details before trying again.",
+      "required": "This report must be verified by the assigned censor before publication.",
+      "busy": "Another operation is in progress for this block. Retry the same request.",
+      "outdated": "Open a current report revision before continuing.",
+      "failed": "The request could not be completed. Check the selection and account details, then retry."
+    },
+    "settings": {
+      "field": "Censor",
+      "none": "No censor selected",
+      "change": "Add or change censor",
+      "title": "Choose a censor",
+      "assign": "Assign censor",
+      "replace": "Replace censor",
+      "external": "External censor",
+      "resident": "From this block’s residents",
+      "externalHelp": "The new person will be added to Persons without an apartment assignment. An existing identity will be reused when applicable.",
+      "residentHelp": "Only residents of this block are offered. You and the current censor are excluded. The selected person keeps their apartment assignment.",
+      "accountHelp": "An active application account is required. This flow creates or links the account.",
+      "blockScope": "Assigned to this block independently of the billing month and financial validity dates.",
+      "search": "Search residents by name or apartment",
+      "candidate": "{{name}} · Apartment {{apartments}}",
+      "noResidents": "No eligible residents found",
+      "more": "Load more residents",
+      "loadFailed": "The censor assignment or resident choices could not be loaded.",
+      "replacing": "Replace {{current}} with {{next}} for this block. Other block assignments and housing will be retained.",
+      "confirmReplace": "I confirm withdrawal of the current censor assignment for this block.",
+      "remove": "Remove censor assignment",
+      "removeHelp": "Remove {{name}} as censor for this block? The person, account, housing and other block assignments will be retained."
+    },
+    "notifications": {
+      "failed": "Notifications could not be updated. Please retry.",
+      "FinanceReviewSubmitted": {
+        "title": "Financial report submitted",
+        "message": "{{block}} · {{period}} · revision {{revision}}, cycle {{cycle}} is ready for your review."
+      },
+      "FinanceReviewResubmitted": {
+        "title": "Financial report resubmitted",
+        "message": "{{block}} · {{period}} · revision {{revision}}, cycle {{cycle}} has been resubmitted for your review."
+      },
+      "FinanceReviewApproved": {
+        "title": "Financial report verified",
+        "message": "{{block}} · {{period}} · revision {{revision}}, cycle {{cycle}} was verified by the censor. Open the report to publish it when eligible."
+      },
+      "FinanceReviewRejected": {
+        "title": "Financial report rejected",
+        "message": "{{block}} · {{period}} · revision {{revision}}, cycle {{cycle}} was rejected. Open the report for the full reason and resubmission."
       }
     }
   }

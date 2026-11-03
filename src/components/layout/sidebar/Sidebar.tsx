@@ -66,7 +66,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ onNavigate, onClose, sh
     : role === 'Censor'
       ? [
           { label: t('sidebar.dashboard'), to: '/admin/dashboard', icon: <DashboardIcon />, permission: 'dashboard' as const },
-          { label: t('sidebar.reviews'), to: '/admin/finance', icon: <FactCheckIcon />, permission: 'finance' as const },
+          { label: t('sidebar.reviews'), to: '/admin/reviews', icon: <FactCheckIcon />, permission: 'finance' as const },
           { label: t('sidebar.consumption'), to: '/admin/consumption', icon: <OpacityIcon />, permission: 'consumption' as const },
           { label: t('sidebar.reports'), to: '/admin/reports', icon: <AssessmentIcon />, permission: 'reports' as const },
         ]

@@ -61,6 +61,16 @@ const getNotificationDisplay = (
   t: ReturnType<typeof useTranslation>['t'],
   language: string,
 ) => {
+  if (['FinanceReviewSubmitted', 'FinanceReviewResubmitted', 'FinanceReviewApproved', 'FinanceReviewRejected'].includes(notification.type)) {
+    return {
+      context: notification.type === 'FinanceReviewRejected' ? notification.message : null,
+      title: t(`financeReview.notifications.${notification.type}.title`),
+      message: t(`financeReview.notifications.${notification.type}.message`, {
+        block: notification.context ?? '', period: formatNotificationPeriod(notification, language, notification.message),
+        revision: notification.relatedRevision, cycle: notification.relatedCycle,
+      }),
+    }
+  }
   if (notification.type === 'SuperAdminBlockCreated' || notification.type === 'SuperAdminBlockSetup' || notification.type === 'SuperAdminPersonAdded') {
     const kind = notification.type === 'SuperAdminBlockSetup' ? 'blockSetup'
       : notification.type === 'SuperAdminBlockCreated' ? 'block' : 'resident'

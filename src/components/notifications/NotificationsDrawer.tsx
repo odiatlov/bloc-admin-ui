@@ -18,6 +18,8 @@ import EmptyState from '../shared/EmptyState'
 import LoadErrorState from '../shared/LoadErrorState'
 import type { NotificationResponse } from '../../types/notifications'
 import NotificationListItem from './NotificationListItem'
+import { RoleContext } from '../../contexts/RoleContext'
+import { useFinanceActionScope } from '../../hooks/useFinanceWorkspace'
 
 type Props = {
   error: string | null
@@ -42,11 +44,18 @@ const NotificationsDrawer: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const active = useFinanceActionScope()
+  const { account, setRole } = React.useContext(RoleContext)
   const unreadCount = notifications.filter((notification) => !notification.isRead).length
 
   const handleClick = async (notification: NotificationResponse) => {
-    await onNotificationClick(notification)
+    try { await onNotificationClick(notification) } catch { return }
+    if (!active.current) return
     if (notification.actionUrl) {
+      if (notification.type.startsWith('FinanceReview')) {
+        const targetRole = notification.type === 'FinanceReviewSubmitted' || notification.type === 'FinanceReviewResubmitted' ? 'Censor' : 'Admin'
+        if (account.roles.includes(targetRole)) setRole(targetRole)
+      }
       navigate(notification.actionUrl)
       onClose()
     }

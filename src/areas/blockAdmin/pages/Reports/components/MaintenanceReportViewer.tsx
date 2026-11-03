@@ -1,7 +1,7 @@
 import React from 'react'
 import { Alert, Box, Chip, CircularProgress, Paper, Tab, Tabs, Typography } from '@mui/material'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
-import { useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import AppDialog from '../../../../../components/shared/AppDialog'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
@@ -13,8 +13,9 @@ import { financeApi } from '../../../../../services/financeApi'
 import type { FinanceReportRow, MaintenanceReport } from '../../../../../types/finance'
 import FinanceExportDialog from './FinanceExportDialog'
 import MaintenanceReportActions from './MaintenanceReportActions'
+import FinanceReviewHistory from '../../Finance/components/FinanceReviewHistory'
 
-const ReportSheets: React.FC<{ report: MaintenanceReport; onPublished: () => void }> = ({ report, onPublished }) => {
+export const ReportSheets: React.FC<{ report: MaintenanceReport; onPublished: () => void; reviewSubmissionId?: string; renderActions?: (onExport: () => void) => React.ReactNode }> = ({ report, onPublished, reviewSubmissionId, renderActions }) => {
   const { t, i18n } = useTranslation()
   const [sheetIndex, setSheetIndex] = React.useState(0)
   const [selected, setSelected] = React.useState<FinanceReportRow | null>(null)
@@ -41,11 +42,12 @@ const ReportSheets: React.FC<{ report: MaintenanceReport; onPublished: () => voi
     { key: 'actions', label: t('common.actions'), cardRole: 'actions', actions: (row) => [{ id: 'details', label: t('finance.billing.calculationDetails'), icon: <InfoOutlinedIcon />, onClick: () => setSelected(row) }] },
   ]
   return <Box sx={{ display: 'grid', gap: 2 }}>
-    <PageHeader title={`${report.blockName} · ${new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' }).format(new Date(report.year, report.month - 1, 1))}`} description={t('finance.billing.reportDescription', { revision: report.revision })} actions={<MaintenanceReportActions report={report} onExport={() => setExportOpen(true)} onPublished={onPublished} />} />
+    <PageHeader title={`${report.blockName} · ${new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' }).format(new Date(report.year, report.month - 1, 1))}`} description={t('finance.billing.reportDescription', { revision: report.revision })} actions={renderActions ? renderActions(() => setExportOpen(true)) : <MaintenanceReportActions report={report} onExport={() => setExportOpen(true)} onPublished={onPublished} />} />
     <Alert severity={report.publication ? 'success' : report.status === 'Outdated' || report.status === 'Superseded' ? 'warning' : 'info'}>
-      {t(report.publication ? 'financePublication.publishedHelp' : report.periodPublished ? 'financePublication.periodPublished' : report.status === 'Outdated' ? 'finance.billing.outdatedHelp' : report.status === 'Superseded' ? 'financePublication.supersededHelp' : 'financePublication.draftHelp', { date: report.publication ? new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(report.publication.publishedAt)) : '' })}
+      {t(report.publication ? 'financePublication.publishedHelp' : report.periodPublished ? 'financePublication.periodPublished' : report.status === 'Outdated' ? 'finance.billing.outdatedHelp' : report.status === 'Superseded' ? 'financePublication.supersededHelp' : report.review?.censorRequired ? 'financeReview.reportHelp' : 'financePublication.draftHelp', { date: report.publication ? new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(report.publication.publishedAt)) : '' })}
     </Alert>
-    {exportOpen && <FinanceExportDialog reportId={report.id} onClose={() => setExportOpen(false)} />}
+    <FinanceReviewHistory review={report.review} published={!!report.publication} submissionId={reviewSubmissionId} publicationPath={report.publication?.publicationPath} />
+    {exportOpen && <FinanceExportDialog reportId={report.id} reviewSubmissionId={reviewSubmissionId} onClose={() => setExportOpen(false)} />}
     <Paper sx={{ overflow: 'hidden' }}><Tabs variant="scrollable" scrollButtons="auto" value={sheetIndex} onChange={(_, value: number) => setSheetIndex(value)}>{report.sheets.map((item, index) => <Tab key={item.staircaseId ?? index} label={item.name} />)}<Tab label={t('finance.billing.reconciliation')} /></Tabs></Paper>
     {sheet ? <>
       <Paper sx={{ p: 2, display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'space-between' }}><Typography variant="h6">{sheet.name}</Typography><Chip label={t('finance.billing.sheetTotal', { amount: money(sheet.totalDue) })} /></Paper>
@@ -81,11 +83,12 @@ const ReportSheets: React.FC<{ report: MaintenanceReport; onPublished: () => voi
 const MaintenanceReportViewer: React.FC = () => {
   const { t } = useTranslation()
   const { runId = '' } = useParams()
+  const location = useLocation()
   const identity = useFinanceIdentity()
   const { role } = React.useContext(RoleContext)
   const [retry, setRetry] = React.useState(0)
   const [state, setState] = React.useState<{ key: string; report?: MaintenanceReport; error?: string }>()
-  const key = `${identity}:${runId}:${retry}`
+  const key = `${identity}:${runId}:${retry}:${location.key}`
   React.useEffect(() => {
     if (role !== 'Admin') return
     const abort = new AbortController()

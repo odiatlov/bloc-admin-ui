@@ -14,6 +14,7 @@ import { useFinanceActionScope } from '../../../../../hooks/useFinanceWorkspace'
 import { FinanceNumber, FinanceScopeFields, FinanceSelect } from './FinanceFields'
 import { financeGrid } from './financePresentation'
 import FinanceSection from './FinanceSection'
+import BlockCensorField from '../../Settings/components/BlockCensorField'
 
 const bases: FinanceBasis[] = ['People', 'Equal', 'Area', 'HeatingMp', 'ColdConsumption', 'HotConsumption', 'Manual']
 type Props = { workspace: FinanceWorkspace; block: FinanceBlock; refresh: () => void; onDirty: (dirty: boolean) => void; children?: React.ReactNode }
@@ -67,12 +68,15 @@ const FinanceConfigurationEditor: React.FC<Props> = ({ workspace, block, refresh
   return <Box component="fieldset" disabled={saving} sx={{ border: 0, p: 0, m: 0, minWidth: 0, display: 'grid', gap: 2 }}>
     <FinanceSection title={t('finance.billing.configurationTitle', { block: block.name })}>
       <Typography color="text.secondary" variant="body2">{t('finance.billing.configurationHelp')}</Typography>
-      <Box sx={financeGrid}>
+      <Box sx={{ ...financeGrid, gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' }, alignItems: 'start' }}>
         <AppDatePicker monthOnly confirmOnAccept label={t('finance.billing.effectiveFrom')} value={`${config.effectiveFromYear}-${String(config.effectiveFromMonth).padStart(2, '0')}`} onChange={(value) => { const [effectiveFromYear, effectiveFromMonth] = value.split('-').map(Number); update({ ...config, effectiveFromYear, effectiveFromMonth }) }} />
-        <AppDatePicker monthOnly confirmOnAccept label={t('finance.billing.effectiveTo')} value={config.effectiveToYear && config.effectiveToMonth ? `${config.effectiveToYear}-${String(config.effectiveToMonth).padStart(2, '0')}` : ''} onChange={(value) => { const [effectiveToYear, effectiveToMonth] = value.split('-').map(Number); update({ ...config, effectiveToYear, effectiveToMonth }) }} />
+        <Box sx={{ display: 'grid', gap: 1, minWidth: 0 }}>
+          <AppDatePicker monthOnly confirmOnAccept label={t('finance.billing.effectiveTo')} value={config.effectiveToYear && config.effectiveToMonth ? `${config.effectiveToYear}-${String(config.effectiveToMonth).padStart(2, '0')}` : ''} onChange={(value) => { const [effectiveToYear, effectiveToMonth] = value.split('-').map(Number); update({ ...config, effectiveToYear, effectiveToMonth }) }} />
+          {config.effectiveToYear && <Button sx={{ justifySelf: 'start' }} onClick={() => update({ ...config, effectiveToYear: null, effectiveToMonth: null })}>{t('finance.billing.clearEnd')}</Button>}
+        </Box>
         <FinanceNumber decimal={1} label={t('finance.billing.defaultPercentage')} value={config.defaultHeatingPercentage} helperText={t('finance.billing.defaultPercentageHelp')} onChange={(defaultHeatingPercentage) => update({ ...config, defaultHeatingPercentage })} />
+        <BlockCensorField blockId={block.id} />
       </Box>
-      {config.effectiveToYear && <Button onClick={() => update({ ...config, effectiveToYear: null, effectiveToMonth: null })}>{t('finance.billing.clearEnd')}</Button>}
     </FinanceSection>
     <FinanceSection title={t('finance.billing.supplyGroups')}>
       <Typography color="text.secondary" variant="body2">{t('finance.billing.supplyGroupsHelp')}</Typography>

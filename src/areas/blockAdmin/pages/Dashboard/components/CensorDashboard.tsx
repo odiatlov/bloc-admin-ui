@@ -3,6 +3,7 @@ import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import OpacityIcon from '@mui/icons-material/Opacity'
+import FactCheckIcon from '@mui/icons-material/FactCheck'
 import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import EmptyState from '../../../../../components/shared/EmptyState'
@@ -22,10 +23,11 @@ const CensorDashboard: React.FC = () => {
   return <DashboardPage>
     <DashboardHeader title={t('dashboard.censor.title')} description={t('persons.censorDashboard.description')} />
     <ActionBar title={t('persons.censorAssignment.title')}>
+      <Button component={RouterLink} to="/admin/reviews" variant="contained" startIcon={<FactCheckIcon />}>{t('sidebar.reviews')}</Button>
       <Button component={RouterLink} to="/admin/consumption" variant="outlined" startIcon={<OpacityIcon />}
         disabled={isLoading || Boolean(error) || blocks.length === 0}>{t('sidebar.consumption')}</Button>
     </ActionBar>
-    <Alert severity="info">{t('financeAvailability.validationPending')}</Alert>
+    <Alert severity="info">{t('financeReview.dashboardHelp')}</Alert>
     <ContentCard title={t('persons.censorDashboard.blocks')}>
       {isLoading ? <CircularProgress aria-label={t('persons.loading')} /> : error
         ? <LoadErrorState onRetry={() => { void refresh() }} />

@@ -394,7 +394,7 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
             {address && <Typography sx={{ overflowWrap: 'anywhere' }}>{address}</Typography>}
             <Typography>{w('totals', { staircases: hasStaircases ? staircases.length : 0, apartments: groups.reduce((sum, g) => sum + g.apartments.length, 0),
               occupants: groups.reduce((sum, g) => sum + g.apartments.reduce((total, a) => total + (a.addResident ? Number(a.householdCount) : 0), 0), 0),
-              persons: new Set(groups.flatMap(g => g.apartments.filter(a => a.addResident).map(a => a.resident.mode === 'existing' ? a.resident.personId : a.resident.invitePerson ? a.resident.email.trim().toLowerCase() : a.id))).size,
+              residents: new Set(groups.flatMap(g => g.apartments.filter(a => a.addResident).map(a => a.resident.mode === 'existing' ? a.resident.personId : a.resident.invitePerson ? a.resident.email.trim().toLowerCase() : a.id))).size,
             })}</Typography>
             {groups.map(g => <Accordion key={g.id} disableGutters sx={groupSurfaceSx}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}><Typography sx={{ overflowWrap: 'anywhere' }}>{hasStaircases ? g.name : name} ({g.apartments.length})</Typography></AccordionSummary>

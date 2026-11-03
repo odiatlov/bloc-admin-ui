@@ -109,6 +109,8 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   const [deletingApartment, setDeletingApartment] = React.useState<ApartmentResponse | null>(null)
   const [isDeletingApartment, setIsDeletingApartment] = React.useState(false)
   const [isLoadingApartmentResidents, setIsLoadingApartmentResidents] = React.useState(false)
+  const [apartmentResidentsError, setApartmentResidentsError] = React.useState(false)
+  const apartmentResidentsRequest = React.useRef(0)
   const [removingResident, setRemovingResident] = React.useState<ApartmentResidentResponse | null>(null)
   const [isRemovingResident, setIsRemovingResident] = React.useState(false)
   const [removeResidentError, setRemoveResidentError] = React.useState<string | null>(null)
@@ -174,18 +176,21 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   }, [loadData])
 
   const loadApartmentResidents = React.useCallback(async (apartmentId: string) => {
+    const request = ++apartmentResidentsRequest.current
     setIsLoadingApartmentResidents(true)
-    setError(null)
+    setApartmentResidentsError(false)
 
     try {
       const links = await apartmentResidentsApi.getByApartment(apartmentId)
-      setApartmentResidentLinks(links)
-    } catch (nextError) {
-      setError(nextError instanceof Error ? nextError.message : 'Unable to load apartment persons')
+      if (request === apartmentResidentsRequest.current) setApartmentResidentLinks(links)
+    } catch {
+      if (request === apartmentResidentsRequest.current) setApartmentResidentsError(true)
     } finally {
-      setIsLoadingApartmentResidents(false)
+      if (request === apartmentResidentsRequest.current) setIsLoadingApartmentResidents(false)
     }
   }, [])
+
+  React.useEffect(() => () => { apartmentResidentsRequest.current += 1 }, [])
 
   const loadWaterConfiguration = React.useCallback(async (apartmentId: string) => {
     setIsLoadingWaterConfig(true)
@@ -298,7 +303,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
     const block = blocks.find((item) => item.id === form.blockId)
     if (!block || !form.number.trim()) return
     if (formBlockHasStaircases && !form.staircaseId) return
-    if (editingApartment && (isLoadingApartmentResidents || error || isLoadingWaterConfig || waterConfigError)) return
+    if (editingApartment && (isLoadingApartmentResidents || apartmentResidentsError || error || isLoadingWaterConfig || waterConfigError)) return
 
     const request = {
       blockId: form.blockId,
@@ -361,6 +366,9 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
     setAdditionalResident(null)
     setAssignmentError(null)
     setEditingApartment(null)
+    apartmentResidentsRequest.current += 1
+    setIsLoadingApartmentResidents(false)
+    setApartmentResidentsError(false)
     setApartmentResidentLinks([])
     setAssignPersonId('')
     setWaterZones([])
@@ -368,7 +376,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   }
 
   const assignResident = async (confirmed = false) => {
-    if (!editingApartment || !assignPersonId || isAssigningResident) return
+    if (!editingApartment || !assignPersonId || isAssigningResident || isLoadingApartmentResidents || apartmentResidentsError) return
 
     setError(null)
     setAssignmentError(null)
@@ -442,7 +450,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
     && form.number.trim()
     && (!formBlockHasStaircases || form.staircaseId)
     && hasValidResidentCount
-    && (!editingApartment || (!isLoadingWaterConfig && !waterConfigError && !isLoadingApartmentResidents && !error))
+    && (!editingApartment || (!isLoadingWaterConfig && !waterConfigError && !isLoadingApartmentResidents && !apartmentResidentsError && !error))
   )
   const updateWaterZone = (id: string, patch: Partial<WaterZoneForm>) => {
     setWaterZones((zones) => zones.map((zone) => zone.id === id ? { ...zone, ...patch } : zone))
@@ -601,8 +609,11 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
             <Box sx={{ display: 'grid', alignContent: 'start', gap: 2 }}>
               <Tabs value={editTab} onChange={(_, value: number) => setEditTab(value)} variant="fullWidth">
                 <Tab label={t('apartments.tabs.details')} />
-                <Tab label={t('apartments.tabs.assignedResident', { count: apartmentResidentLinks.length })} />
+                <Tab label={isLoadingApartmentResidents || apartmentResidentsError ? t('apartments.setup.assignedResident') : t('apartments.tabs.assignedResident', { count: apartmentResidentLinks.length })} />
               </Tabs>
+
+              {apartmentResidentsError && <LoadErrorState inline helperText={t('apartments.errors.residentsLoadFailed')}
+                onRetry={() => { void loadApartmentResidents(editingApartment.id) }} />}
 
               {editTab === 0 && (
                 <Box component="fieldset" disabled={isSaving} sx={{ border: 0, p: 0, m: 0, minWidth: 0, display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' }, gap: 1.5 }}>
@@ -624,7 +635,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                   <TextField
                     fullWidth
                     helperText={t(hasAssignedResident ? 'apartments.setup.householdMembersHelp' : 'apartments.setup.assignOwnerBeforeCount')}
-                    disabled={isLoadingApartmentResidents || !hasAssignedResident}
+                    disabled={isLoadingApartmentResidents || apartmentResidentsError || !hasAssignedResident}
                     slotProps={{ htmlInput: { min: 0, max: 2147483647, step: 1 } }}
                     size="small"
                     type="number"
@@ -744,7 +755,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                       <CircularProgress size={20} />
                       <Typography variant="body2" color="text.secondary">{t('persons.loading')}</Typography>
                     </Box>
-                  ) : apartmentResidentLinks.length === 0 ? (
+                  ) : apartmentResidentsError ? null : apartmentResidentLinks.length === 0 ? (
                     <Typography variant="body2" color="text.secondary">
                       {t('apartments.setup.noAssignedResident')}
                     </Typography>
@@ -763,7 +774,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                   ))}
                   <Divider />
                   <Box sx={{ alignItems: 'center', display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                    <FormControl size="small" sx={{ flex: '1 1 220px', minWidth: 220 }} disabled={hasAssignedResident || isAssigningResident}>
+                    <FormControl size="small" sx={{ flex: '1 1 220px', minWidth: 220 }} disabled={hasAssignedResident || isAssigningResident || isLoadingApartmentResidents || apartmentResidentsError}>
                       <InputLabel>{t('apartments.actions.assignResident')}</InputLabel>
                       <Select
                         label={t('apartments.actions.assignResident')}
@@ -781,7 +792,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                       startIcon={<PersonAddIcon />}
                       variant="outlined"
                       onClick={() => { void assignResident() }}
-                      disabled={!assignPersonId || hasAssignedResident || isAssigningResident || isLoadingApartmentResidents}
+                      disabled={!assignPersonId || hasAssignedResident || isAssigningResident || isLoadingApartmentResidents || apartmentResidentsError}
                     >
                       {t('persons.actions.assign')}
                     </Button>

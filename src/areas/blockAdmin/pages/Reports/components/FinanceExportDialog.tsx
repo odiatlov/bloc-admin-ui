@@ -5,7 +5,7 @@ import AppDialog from '../../../../../components/shared/AppDialog'
 import { financeApi } from '../../../../../services/financeApi'
 import type { FinanceExportFormat } from '../../../../../types/finance'
 
-const FinanceExportDialog: React.FC<{ reportId: string; onClose: () => void }> = ({ reportId, onClose }) => {
+const FinanceExportDialog: React.FC<{ reportId: string; reviewSubmissionId?: string; onClose: () => void }> = ({ reportId, reviewSubmissionId, onClose }) => {
   const { t, i18n } = useTranslation()
   const [format, setFormat] = React.useState<FinanceExportFormat>('maintenance-list')
   const [pending, setPending] = React.useState(false)
@@ -14,7 +14,11 @@ const FinanceExportDialog: React.FC<{ reportId: string; onClose: () => void }> =
   const download = async () => {
     if (busy.current) return
     busy.current = true; setPending(true); setError(null)
-    try { await financeApi.export(reportId, i18n.language, format); onClose() }
+    try {
+      if (reviewSubmissionId) await financeApi.export(reportId, i18n.language, format, reviewSubmissionId)
+      else await financeApi.export(reportId, i18n.language, format)
+      onClose()
+    }
     catch (nextError) { setError(nextError instanceof Error ? nextError.message : t('finance.billing.exportFailed')) }
     finally { busy.current = false; setPending(false) }
   }
