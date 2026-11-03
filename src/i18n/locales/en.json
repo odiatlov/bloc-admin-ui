@@ -1913,6 +1913,7 @@
     "dashboardHelp": "Open Reviews to inspect submitted reports and record decisions for your assigned blocks.",
     "status": {
       "Draft": "Not submitted",
+      "Ready": "Ready",
       "Submitted": "Submitted",
       "Resubmitted": "Resubmitted",
       "Approved": "Verified by censor",

@@ -38,7 +38,7 @@ export const billDetail: ResidentBillDetail = {
 }
 
 export const maintenanceReport: MaintenanceReport = {
-  review: { version: 'none', status: 'Draft', isCurrent: true, isLatestRevision: true, censorRequired: false,
+  review: { version: 'none', status: 'Ready', isCurrent: true, isLatestRevision: true, censorRequired: false,
     canSubmit: false, canResubmit: false, canPublish: true, canDecide: false, history: [] },
   id: '00000000-0000-0000-0000-000000000050', blockId: '00000000-0000-0000-0000-000000000051', blockName: 'Fixture block', year: 2026, month: 10, revision: 2,
   status: 'Draft', generatedAt: '2026-10-29T10:00:00Z', totalDue: 212, inputVersion: 'saved-input', configurationVersion: 1, currency: 'RON',

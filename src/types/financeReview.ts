@@ -1,7 +1,7 @@
 import type { MaintenanceReport } from './finance'
 
 export type ReviewOutcome = 'Approved' | 'Rejected'
-export type ReviewStatus = 'Draft' | 'Submitted' | 'Resubmitted' | ReviewOutcome | 'Unsupported'
+export type ReviewStatus = 'Draft' | 'Ready' | 'Submitted' | 'Resubmitted' | ReviewOutcome | 'Unsupported'
 export type FinanceReviewCycle = {
   id: string; runId: string; revision: number; cycle: number; submittedAt: string; status: ReviewStatus
   rule: string; ruleVersion: number; reviewers: { userId: string; assignmentId: string }[]

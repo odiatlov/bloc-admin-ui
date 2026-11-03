@@ -1924,6 +1924,7 @@
     "dashboardHelp": "Deschide Verificări pentru a consulta rapoartele trimise și a înregistra decizii pentru blocurile atribuite.",
     "status": {
       "Draft": "Netrimis",
+      "Ready": "Gata",
       "Submitted": "Trimis",
       "Resubmitted": "Retrimis",
       "Approved": "Verificat de cenzor",
