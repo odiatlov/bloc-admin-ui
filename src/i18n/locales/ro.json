@@ -227,6 +227,9 @@
     "expandSection": "Extinde {{section}}",
     "collapseSection": "Restrânge {{section}}",
     "unassignedFloor": "Fără etaj alocat",
+    "assignedOwnersCount_few": "{{count}} proprietari asignați",
+    "assignedOwnersCount_one": "{{count}} proprietar asignat",
+    "assignedOwnersCount_other": "{{count}} proprietari asignați",
     "apartmentsCount_one": "{{count}} apartament",
     "apartmentsCount_few": "{{count}} apartamente",
     "apartmentsCount_other": "{{count}} de apartamente",
@@ -844,7 +847,8 @@
                                       "unassignConfirm_other":  "Urmează să dezalocați locatarul {{name}} și să eliminați {{count}} de persoane din acest apartament. Numărul de persoane va fi resetat la 0."
                                   },
                        "errors":  {
-                                      "loadFailed":  "Apartamentele nu au putut fi încărcate. Încercați din nou."
+                                      "loadFailed":  "Apartamentele nu au putut fi încărcate. Încercați din nou.",
+                                      "residentsLoadFailed":  "Locatarii alocați nu au putut fi încărcați. Reîncercați înainte de a modifica apartamentul sau repartizările."
                                   },
                        "loading":  "Se încarcă apartamentele..."
                    },
@@ -864,6 +868,7 @@
         "notApplicable": "Nu se aplică în această lună",
         "scope": "Beneficiari",
         "staircase": "Scară",
+        "staircaseName": "Scara {{staircase}}",
         "apartments": "Apartamente selectate",
         "apartment": "Apartament",
         "apartmentNumber": "Apartamentul {{number}}",
@@ -875,8 +880,8 @@
         "percentageOverride": "Procent individual pentru apartament (%)",
         "defaultPercentageHint": "Lăsați gol pentru procentul blocului: {{value}}%.",
         "heatingMp": "MP încălzire",
-        "configurationTitle": "Utilități și repartizare — {{block}}",
-        "configurationHelp": "Setările se aplică doar acestui bloc și perioadei de calcul configurate. Rapoartele salvate își păstrează datele originale.",
+        "configurationTitle": "Configurarea blocului — {{block}}",
+        "configurationHelp": "Regulile financiare se aplică acestui bloc și intervalului lor de valabilitate. Rapoartele salvate își păstrează datele originale. Atribuirea cenzorului este independentă de luna de calcul.",
         "effectiveFrom": "Valabil din",
         "effectiveTo": "Valabil până în (opțional)",
         "clearEnd": "Elimină perioada de sfârșit",
@@ -896,6 +901,14 @@
         "chargeDefinitions": "Cheltuieli configurabile",
         "chargesHelp": "Adăugați cheltuieli precum gunoi sau curățenie. Alegeți un total de repartizat, un tarif unitar sau sume pe apartament. Repartizarea facturii și diferențele de apă au reguli separate.",
         "newCharge": "Cheltuială nouă",
+        "removeItem": "Elimină {{name}}",
+        "miscellaneousColumn": "Cheltuieli diverse",
+        "entryKind": "Tipul înregistrării",
+        "chargeCategory": "Categoria cheltuielii",
+        "legacyCategory": "Clasificare existentă",
+        "includeInMiscellaneous": "Include în Cheltuieli diverse",
+        "balanceEntryHelp": "Introduceți valori pozitive pe apartament. Tipul ales stabilește încadrarea și semnul în total; un credit scade suma de plată.",
+        "chargeCategories": {"Heating":"Încălzire","HotWater":"Apă caldă","ColdWater":"Apă rece","HotWaterSupply":"Apă rece pentru apă caldă","Gas":"Gaz","Waste":"Gunoi","Electricity":"Curent","Administration":"Administrare","Other":"Altă cheltuială"},
         "amountMode": "Tipul valorii",
         "basis": "Metoda de repartizare a facturii",
         "rate": "Tarif unitar (RON)",
@@ -912,6 +925,9 @@
         "scopeFromSupply": "Beneficiarii urmează grupul de alimentare: {{name}}.",
         "saving": "Se salvează…",
         "saveConfiguration": "Salvează configurația blocului",
+        "confirmRemovalTitle": "Confirmă eliminarea secțiunilor",
+        "confirmRemovalBody": "La salvare, următoarele secțiuni vor fi eliminate din configurația blocului:",
+        "confirmRemovalSave": "Confirmă eliminarea și salvează",
         "expensesHelp": "Introduceți cheltuielile furnizorilor pentru această lună. Zero explicit și neaplicabil diferă de o valoare lipsă. Salvați luna pentru a actualiza verificările.",
         "configuredRate": "Tarif unitar configurat: {{value}}",
         "billTotal": "Total factură de repartizat (RON)",
@@ -1055,6 +1071,8 @@
           "NEGATIVE_BILLED_CONSUMPTION": "Diferența configurată ar produce un consum facturat negativ."
         },
         "values": {
+          "Expense": "Cheltuială curentă",
+          "Adjustment": "Altă ajustare",
           "Block": "Întregul bloc", "Staircase": "O scară", "Apartments": "Apartamente selectate",
           "ColdWater": "Apă rece", "HotWater": "Apă caldă", "None": "Fără repartizarea diferenței",
           "Manual": "Introducere manuală", "IncomingIndexes": "Indexuri contor general", "SupplierQuantity": "Cantitate furnizor",
@@ -1886,5 +1904,98 @@
                                                        "generated":  "Export generat"
                                                    }
                                   }
-                   }
+                   },
+  "financeReview": {
+    "publishedHelp": "Acest raport a fost deja publicat. Sumele salvate și rezultatul istoric al verificării se păstrează; nu este necesară verificarea retroactivă.",
+    "accessHelp": "Blocul sau verificarea nu mai este disponibilă contului tău.",
+    "reportHelp": "Acesta este un raport privat salvat. Starea verificării stabilește dacă poate fi trimis, retrimis sau publicat. Numai publicarea emite obligațiile pentru apartamente.",
+    "publicationPaths": {
+      "BeforeCensorWorkflow": "Publicat înainte de introducerea circuitului de verificare al cenzorului.",
+      "DirectWithoutCensor": "Publicat direct, fără un cenzor activ atribuit.",
+      "Reviewed": "Publicat după verificarea de către cenzor."
+    },
+    "description": "Verifică rapoartele financiare salvate pentru blocurile atribuite. Deciziile se referă la revizia și ciclul exact de verificare.",
+    "cycle": "Ciclu de verificare",
+    "history": "Istoricul verificărilor",
+    "reviewStatus": "Starea verificării",
+    "submittedAt": "Trimis la",
+    "decidedAt": "Decizie la",
+    "reason": "Motivul respingerii",
+    "linkedCycle": "Această notificare se referă la ciclul {{cycle}}, revizia {{revision}}.",
+    "requiredHelp": "Blocul are un cenzor atribuit. Raportul curent trebuie verificat înainte ca administratorul să îl poată publica.",
+    "directHelp": "Blocul nu are un cenzor activ atribuit. Un raport curent eligibil poate fi publicat direct.",
+    "decisionUnavailable": "Nu se poate înregistra o decizie pentru acest ciclu. Poate fi încheiat, istoric, neactualizat sau atribuit unui cenzor anterior. Reîncarcă pentru starea curentă.",
+    "censorOnly": "Pentru aceste verificări este necesar acces activ de cenzor.",
+    "empty": "Nu există verificări pentru selecția curentă",
+    "emptyHelp": "Trimiterile noi pentru blocurile atribuite apar aici. Activează istoricul pentru ciclurile încheiate.",
+    "actions": "Acțiuni de verificare",
+    "back": "Înapoi la verificări",
+    "approve": "Verifică raportul",
+    "reject": "Respinge",
+    "submit": "Trimite la verificare",
+    "resubmit": "Retrimite",
+    "pending": "Verificări în așteptare",
+    "submitHelp": "Trimite {{block}}, {{period}}, revizia {{revision}} cenzorului atribuit. Această acțiune nu publică raportul și nu emite obligații pentru apartamente.",
+    "decisionHelp": "Înregistrează decizia pentru {{block}}, revizia {{revision}}, ciclul {{cycle}}. Decizia se păstrează în istoric.",
+    "reasonLength": "Caractere: {{count}} / 2000",
+    "dashboardHelp": "Deschide Verificări pentru a consulta rapoartele trimise și a înregistra decizii pentru blocurile atribuite.",
+    "status": {
+      "Draft": "Netrimis",
+      "Ready": "Gata",
+      "Submitted": "Trimis",
+      "Resubmitted": "Retrimis",
+      "Approved": "Verificat de cenzor",
+      "Rejected": "Respins",
+      "Unsupported": "Regulă de verificare indisponibilă"
+    },
+    "errors": {
+      "changed": "Raportul, ciclul de verificare sau atribuirea cenzorului s-a schimbat. Reîncarcă și verifică detaliile curente înainte de a reîncerca.",
+      "required": "Raportul trebuie verificat de cenzorul atribuit înainte de publicare.",
+      "busy": "O altă operație este în desfășurare pentru acest bloc. Reîncearcă aceeași cerere.",
+      "outdated": "Deschide o revizie actualizată a raportului înainte de a continua.",
+      "failed": "Cererea nu a putut fi finalizată. Verifică selecția și datele contului, apoi reîncearcă."
+    },
+    "settings": {
+      "field": "Cenzor",
+      "none": "Niciun cenzor selectat",
+      "change": "Adaugă sau schimbă cenzorul",
+      "title": "Alege un cenzor",
+      "assign": "Atribuie cenzorul",
+      "replace": "Înlocuiește cenzorul",
+      "external": "Cenzor extern",
+      "resident": "Din locatarii acestui bloc",
+      "externalHelp": "Persoana nouă va fi adăugată în Persoane fără atribuirea unui apartament. O identitate existentă va fi reutilizată când este cazul.",
+      "residentHelp": "Sunt disponibili numai locatarii acestui bloc. Tu și cenzorul curent sunteți excluși. Persoana aleasă își păstrează repartizarea la apartament.",
+      "accountHelp": "Este necesar un cont activ pentru acces în aplicație. Acest flux creează sau asociază contul.",
+      "blockScope": "Atribuit acestui bloc, independent de luna de calcul și de intervalul de valabilitate financiară.",
+      "search": "Caută locatari după nume sau apartament",
+      "candidate": "{{name}} · Apartament {{apartments}}",
+      "noResidents": "Nu s-au găsit locatari eligibili",
+      "more": "Încarcă mai mulți locatari",
+      "loadFailed": "Atribuirea cenzorului sau locatarii disponibili nu au putut fi încărcați.",
+      "replacing": "Înlocuiește {{current}} cu {{next}} pentru acest bloc. Atribuirile la alte blocuri și locuirea se păstrează.",
+      "confirmReplace": "Confirm retragerea atribuirii cenzorului curent pentru acest bloc.",
+      "remove": "Retrage atribuirea de cenzor",
+      "removeHelp": "Retragi atribuirea lui {{name}} ca cenzor pentru acest bloc? Persoana, contul, locuirea și atribuirile la alte blocuri se păstrează."
+    },
+    "notifications": {
+      "failed": "Notificările nu au putut fi actualizate. Reîncearcă.",
+      "FinanceReviewSubmitted": {
+        "title": "Raport financiar trimis",
+        "message": "{{block}} · {{period}} · revizia {{revision}}, ciclul {{cycle}} este gata de verificare."
+      },
+      "FinanceReviewResubmitted": {
+        "title": "Raport financiar retrimis",
+        "message": "{{block}} · {{period}} · revizia {{revision}}, ciclul {{cycle}} a fost retrimis pentru verificare."
+      },
+      "FinanceReviewApproved": {
+        "title": "Raport financiar verificat",
+        "message": "{{block}} · {{period}} · revizia {{revision}}, ciclul {{cycle}} a fost verificat de cenzor. Deschide raportul pentru publicare când este eligibil."
+      },
+      "FinanceReviewRejected": {
+        "title": "Raport financiar respins",
+        "message": "{{block}} · {{period}} · revizia {{revision}}, ciclul {{cycle}} a fost respins. Deschide raportul pentru motivul complet și retrimitere."
+      }
+    }
+  }
 }

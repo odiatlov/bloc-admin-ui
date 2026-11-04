@@ -6,6 +6,7 @@ import BlockContext from '../../areas/blockAdmin/pages/Blocks/BlockContext'
 import Consumption from '../../areas/blockAdmin/pages/Consumption/Consumption'
 import Dashboard from '../../areas/blockAdmin/pages/Dashboard/Dashboard'
 import Finance from '../../areas/blockAdmin/pages/Finance/Finance'
+import ApiCensorReviews from '../../areas/blockAdmin/pages/Finance/components/ApiCensorReviews'
 import Reports from '../../areas/blockAdmin/pages/Reports/Reports'
 import MaintenanceReportViewer from '../../areas/blockAdmin/pages/Reports/components/MaintenanceReportViewer'
 import Persons from '../../areas/blockAdmin/pages/Persons/Persons'
@@ -53,6 +54,8 @@ const AppRoutes: React.FC<AppRoutesProps> = ({ themeMode, toggleTheme }) => (
         />
         <Route path="residents" element={<Navigate to="/admin/persons" replace />} />
         <Route path="finance" element={<ProtectedRoute permission="finance"><Finance /></ProtectedRoute>} />
+        <Route path="reviews" element={<ProtectedRoute permission="finance"><ApiCensorReviews /></ProtectedRoute>} />
+        <Route path="reviews/:submissionId" element={<ProtectedRoute permission="finance"><ApiCensorReviews /></ProtectedRoute>} />
         <Route path="consumption" element={<ProtectedRoute permission="consumption"><Consumption /></ProtectedRoute>} />
         <Route path="reports" element={<ProtectedRoute permission="reports"><Reports /></ProtectedRoute>} />
         <Route path="reports/maintenance/:runId" element={<ProtectedRoute permission="reports"><MaintenanceReportViewer /></ProtectedRoute>} />

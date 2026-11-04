@@ -1,5 +1,5 @@
 import React from 'react'
-import { Alert, Box, Button, Checkbox, FormControlLabel, MenuItem, Paper, TextField, Typography } from '@mui/material'
+import { Alert, Box, Button, Checkbox, FormControlLabel, MenuItem, TextField, Typography } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SaveIcon from '@mui/icons-material/Save'
@@ -61,15 +61,16 @@ const FinancePeriodEditor: React.FC<Props> = ({ workspace, refresh, onDirty }) =
       const apartmentAmounts = <>
         {value.manualAmounts.map((entry, index) => {
           const change = (changes: Partial<typeof entry>) => setExpense(charge.id, { manualAmounts: value.manualAmounts.map((item, position) => position === index ? { ...item, ...changes } : item) })
-          return <Box key={index} sx={{ ...financeGrid, alignItems: 'start' }}>
-            <TextField select size="small" label={t('finance.billing.apartment')} value={entry.apartmentId} onChange={(event) => change({ apartmentId: event.target.value })}>
-              <MenuItem value="">{t('finance.billing.notSet')}</MenuItem>
-              {eligible.filter((item) => item.id === entry.apartmentId || !value.manualAmounts.some((row) => row.apartmentId === item.id)).map((row) => <MenuItem key={row.id} value={row.id}>{apartmentLabel(row.id)}</MenuItem>)}
-            </TextField>
-            <FinanceNumber label={t('finance.billing.amount')} value={entry.amount} onChange={(amount) => change({ amount: amount ?? 0 })} />
-            <TextField size="small" required label={t('finance.billing.reason')} value={entry.reason} onChange={(event) => change({ reason: event.target.value })} />
-            <ActionButtons variant="row" actions={[{ id: 'remove', label: t('finance.billing.remove'), icon: <DeleteIcon />, color: 'error', onClick: () => setExpense(charge.id, { manualAmounts: value.manualAmounts.filter((_, position) => position !== index) }) }]} />
-          </Box>
+          return <FinanceSection key={index} compact defaultExpanded title={apartmentLabel(entry.apartmentId) || t('finance.billing.apartment')} actions={<ActionButtons variant="row" actions={[{ id: 'remove', label: t('finance.billing.removeItem', { name: apartmentLabel(entry.apartmentId) || t('finance.billing.apartment') }), icon: <DeleteIcon />, color: 'error', onClick: () => setExpense(charge.id, { manualAmounts: value.manualAmounts.filter((_, position) => position !== index) }) }]} />}>
+            <Box sx={{ ...financeGrid, alignItems: 'start' }}>
+              <TextField select size="small" label={t('finance.billing.apartment')} value={entry.apartmentId} onChange={(event) => change({ apartmentId: event.target.value })}>
+                <MenuItem value="">{t('finance.billing.notSet')}</MenuItem>
+                {eligible.filter((item) => item.id === entry.apartmentId || !value.manualAmounts.some((row) => row.apartmentId === item.id)).map((row) => <MenuItem key={row.id} value={row.id}>{apartmentLabel(row.id)}</MenuItem>)}
+              </TextField>
+              <FinanceNumber label={t('finance.billing.amount')} value={entry.amount} onChange={(amount) => change({ amount: amount ?? 0 })} />
+              <TextField size="small" required label={t('finance.billing.reason')} value={entry.reason} onChange={(event) => change({ reason: event.target.value })} />
+            </Box>
+          </FinanceSection>
         })}
         <Button startIcon={<AddIcon />} variant="outlined" disabled={value.manualAmounts.length >= eligible.length} onClick={() => setExpense(charge.id, { manualAmounts: [...value.manualAmounts, { apartmentId: eligible.find((row) => !value.manualAmounts.some((entry) => entry.apartmentId === row.id))?.id ?? '', amount: 0, reason: '' }] })}>{t('finance.billing.addManualAmount')}</Button>
         {charge.amountMode === 'Pool' && value.manualAmounts.length > 0 && <Alert severity={value.amount != null && manualTotal > value.amount ? 'warning' : 'info'}>{t('finance.billing.poolReconciliation', { allocated: money(manualTotal), remaining: value.amount == null ? '—' : money(value.amount - manualTotal), method: charge.remainderBasis ? t(`finance.billing.values.${charge.remainderBasis}`) : t('finance.billing.fullManualRequired') })}</Alert>}
@@ -82,7 +83,7 @@ const FinancePeriodEditor: React.FC<Props> = ({ workspace, refresh, onDirty }) =
           {charge.amountMode === 'Pool' && <Box sx={financeGrid}>
             <FinanceNumber label={t('finance.billing.billTotal')} value={value.amount} onChange={(amount) => setExpense(charge.id, { amount })} />
           </Box>}
-          <FinanceSection compact title={t('finance.billing.optionalDetails')}>
+          {(!charge.kind || charge.kind === 'Expense') && <FinanceSection compact title={t('finance.billing.optionalDetails')}>
             <Typography color="text.secondary" variant="body2">{t('finance.billing.optionalDetailsHelp')}</Typography>
             <Box sx={financeGrid}>
               {charge.amountMode !== 'Pool' && <FinanceNumber label={t('finance.billing.controlTotal')} value={value.amount} onChange={(amount) => setExpense(charge.id, { amount })} />}
@@ -92,7 +93,8 @@ const FinancePeriodEditor: React.FC<Props> = ({ workspace, refresh, onDirty }) =
               <FinanceNumber label={t('finance.billing.sourceTotal')} value={value.sourceTotal} onChange={(sourceTotal) => setExpense(charge.id, { sourceTotal })} />
               <TextField size="small" label={t('finance.billing.description')} value={value.description ?? ''} onChange={(event) => setExpense(charge.id, { description: event.target.value })} />
             </Box>
-          </FinanceSection>
+          </FinanceSection>}
+          {charge.kind && charge.kind !== 'Expense' && <Typography variant="body2" color="text.secondary">{t('finance.billing.balanceEntryHelp')}</Typography>}
           {charge.amountMode === 'Manual' ? <>
               <Typography variant="subtitle2">{t('finance.billing.manualAmounts')}</Typography>
               {apartmentAmounts}
@@ -134,7 +136,7 @@ const FinancePeriodEditor: React.FC<Props> = ({ workspace, refresh, onDirty }) =
     <FinanceSection title={t('finance.billing.adjustments')}>
       {data.adjustments.map((entry, index) => {
         const change = (changes: Partial<typeof entry>) => update({ ...data, adjustments: data.adjustments.map((item, position) => position === index ? { ...item, ...changes } : item) })
-        return <Paper key={entry.id} variant="outlined" sx={{ p: 2, display: 'grid', gap: 1.5 }}>
+        return <FinanceSection key={entry.id} compact defaultExpanded title={entry.name || t('finance.billing.adjustments')} actions={<ActionButtons variant="row" actions={[{ id: 'remove', label: t('finance.billing.removeItem', { name: entry.name || apartmentLabel(entry.apartmentId) }), icon: <DeleteIcon />, color: 'error', onClick: () => update({ ...data, adjustments: data.adjustments.filter((_, position) => position !== index) }) }]} />}>
           <Box sx={financeGrid}>
             <TextField select size="small" label={t('finance.billing.apartment')} value={entry.apartmentId} onChange={(event) => change({ apartmentId: event.target.value })}><MenuItem value="">{t('finance.billing.notSet')}</MenuItem>{workspace.apartments.map((row) => <MenuItem key={row.id} value={row.id}>{apartmentLabel(row.id)}</MenuItem>)}</TextField>
             <FinanceSelect label={t('finance.billing.adjustmentKind')} value={entry.kind} options={['Arrears', 'Penalty', 'Credit', 'Other']} onChange={(kind) => { if (kind) change({ kind, amount: kind === 'Credit' ? -Math.abs(entry.amount) : Math.abs(entry.amount) }) }} />
@@ -142,8 +144,7 @@ const FinancePeriodEditor: React.FC<Props> = ({ workspace, refresh, onDirty }) =
             <TextField size="small" label={t('finance.billing.name')} value={entry.name} onChange={(event) => change({ name: event.target.value })} />
             <TextField size="small" required label={t('finance.billing.reason')} value={entry.reason} onChange={(event) => change({ reason: event.target.value })} />
           </Box>
-          <ActionButtons variant="row" actions={[{ id: 'remove', label: t('finance.billing.remove'), icon: <DeleteIcon />, color: 'error', onClick: () => update({ ...data, adjustments: data.adjustments.filter((_, position) => position !== index) }) }]} />
-        </Paper>
+        </FinanceSection>
       })}
       <Button variant="outlined" startIcon={<AddIcon />} onClick={() => update({ ...data, adjustments: [...data.adjustments, { id: crypto.randomUUID(), apartmentId: '', kind: 'Arrears', name: '', amount: 0, reason: '' }] })}>{t('finance.billing.addAdjustment')}</Button>
     </FinanceSection>

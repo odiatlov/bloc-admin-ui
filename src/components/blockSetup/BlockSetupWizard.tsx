@@ -24,7 +24,7 @@ import SetupFloorSection from './SetupFloorSection'
 import SetupAccordionHeader from './SetupAccordionHeader'
 import { translateApartmentSetupStatus } from '../../domain/displayLabels'
 import { primaryContainedButtonColors } from '../../theme/themeConfig'
-import { apartmentValidationErrors, generateStaircases, newGroup, unique, type ApartmentDraft, type ApartmentValidationErrors, type ApartmentValidationField, type GenerationSettings, type Group } from './setupDraft'
+import { assignedOwnerCount, apartmentValidationErrors, generateStaircases, newGroup, unique, type ApartmentDraft, type ApartmentValidationErrors, type ApartmentValidationField, type GenerationSettings, type Group } from './setupDraft'
 import { addApartmentToFloor, addFloor, appendApartmentBatch, deleteApartment, deleteEmptyFloor, expandApartment, floorLevel, floorSections, moveApartment, orderedApartments, orderedFloors, type LayoutResult } from './setupFloorLayout'
 type DraftNotice = { id: string; key: string; values?: Record<string, unknown>; groupId?: string }
 type FocusTarget = { id: string; selector?: string }
@@ -351,7 +351,7 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
               {batchControls(g)}
               {g.floors.length === 0 && g.apartments.length === 0 && <EmptyState inline headline={w('noFloors')} helperText={w('addFloorHint')} />}
               {floorSections(g).map(({ floor, apartments }) => <SetupFloorSection key={floor?.id ?? `${g.id}-unassigned`}
-                id={floor ? `setup-floor-${floor.id}` : `setup-unassigned-${g.id}`} floor={floor} apartmentCount={apartments.length}
+                id={floor ? `setup-floor-${floor.id}` : `setup-unassigned-${g.id}`} floor={floor} apartmentCount={apartments.length} ownerCount={assignedOwnerCount(apartments)}
                 expanded={floor ? floor.expanded : g.unassignedExpanded !== false} disabled={locked} onEntered={focusPending}
                 onExpandedChange={expanded => updateGroup(g.id, value => floor
                   ? { ...value, floors: value.floors.map(item => item.id === floor.id ? { ...item, expanded } : item) }
@@ -394,13 +394,13 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
             {address && <Typography sx={{ overflowWrap: 'anywhere' }}>{address}</Typography>}
             <Typography>{w('totals', { staircases: hasStaircases ? staircases.length : 0, apartments: groups.reduce((sum, g) => sum + g.apartments.length, 0),
               occupants: groups.reduce((sum, g) => sum + g.apartments.reduce((total, a) => total + (a.addResident ? Number(a.householdCount) : 0), 0), 0),
-              persons: new Set(groups.flatMap(g => g.apartments.filter(a => a.addResident).map(a => a.resident.mode === 'existing' ? a.resident.personId : a.resident.invitePerson ? a.resident.email.trim().toLowerCase() : a.id))).size,
+              residents: assignedOwnerCount(groups.flatMap(g => g.apartments)),
             })}</Typography>
             {groups.map(g => <Accordion key={g.id} disableGutters sx={groupSurfaceSx}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}><Typography sx={{ overflowWrap: 'anywhere' }}>{hasStaircases ? g.name : name} ({g.apartments.length})</Typography></AccordionSummary>
               <AccordionDetails sx={{ pt: 0 }}>
                 {floorSections(g).map(({ floor, apartments }) => <Box key={floor?.id ?? `${g.id}-unassigned`} sx={{ minWidth: 0, pt: 1.5 }}>
-                  <Typography variant="subtitle2">{floor ? w('floorLabel', { floor: floor.level }) : w('unassignedFloor')} · {w('apartmentsCount', { count: apartments.length })}</Typography>
+                  <Typography variant="subtitle2">{floor ? w('floorLabel', { floor: floor.level }) : w('unassignedFloor')} · {w('apartmentsCount', { count: apartments.length })} · {w('assignedOwnersCount', { count: assignedOwnerCount(apartments) })}</Typography>
                   {apartments.length === 0 && <Typography variant="body2" color="text.secondary">{w('emptyFloor')}</Typography>}
                   <Box component="ul" sx={{ listStyle: 'none', m: 0, p: 0, minWidth: 0 }}>
                   {apartments.map(a => <Box component="li" key={a.id} sx={{

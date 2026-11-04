@@ -15,10 +15,11 @@ export const financeApi = {
     return apiGet<{ items: FinanceReportSummary[]; totalCount: number; pageNumber: number; pageSize: number }>(`/finance/reports?${query}`, signal)
   },
   report: (id: string, signal?: AbortSignal) => apiGet<MaintenanceReport>(`/finance/reports/${encodeURIComponent(id)}`, signal),
-  export: async (id: string, language: string, format: FinanceExportFormat = 'detailed') => {
+  export: async (id: string, language: string, format: FinanceExportFormat = 'detailed', reviewSubmissionId?: string) => {
     const token = localStorage.getItem('mockJwt')
     const query = new URLSearchParams({ language, format })
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL ?? '/api'}/finance/reports/${encodeURIComponent(id)}/export?${query}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+    const endpoint = reviewSubmissionId ? `reviews/${encodeURIComponent(reviewSubmissionId)}` : `reports/${encodeURIComponent(id)}`
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL ?? '/api'}/finance/${endpoint}/export?${query}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
     if (!response.ok || !response.headers.get('Content-Type')?.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
       const payload = await response.json().catch(() => null)
       throw new ApiError(payload?.message ?? 'Excel export failed', response.status)

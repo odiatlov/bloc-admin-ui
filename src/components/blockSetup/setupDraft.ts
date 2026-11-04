@@ -34,6 +34,14 @@ export function apartmentValidationErrors(a: ApartmentDraft): ApartmentValidatio
   return errors
 }
 
+export const assignedOwnerCount = (apartments: ApartmentDraft[]) => new Set(apartments.flatMap(apartment => {
+  if (!apartment.addResident) return []
+  const resident = apartment.resident
+  if (resident.mode === 'existing') return resident.personId.trim() ? ['existing:' + resident.personId] : []
+  if (!resident.firstName.trim() || !resident.lastName.trim()) return []
+  return [resident.invitePerson && resident.email.trim() ? 'email:' + resident.email.trim().toLowerCase() : 'draft:' + apartment.id]
+})).size
+
 export const validApartment = (a: ApartmentDraft) => Object.keys(apartmentValidationErrors(a)).length === 0
 
 export function generateBatch(start: number, quantity: number, prefix: string, existing: string[], maxLength: number) {

@@ -89,7 +89,7 @@ describe('administrator report publication', () => {
 
   it.each(['Outdated', 'Superseded', 'Published'] as const)('prevents publication of a %s report', status => {
     renderActions({ ...plainReport, status })
-    expect(screen.getByRole('button', { name: 'Publish' })).toBeDisabled()
+    expect(screen.queryByRole('button', { name: 'Publish' })).not.toBeInTheDocument()
   })
 
   it('displays the header actions in Romanian', () => {

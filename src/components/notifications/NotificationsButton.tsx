@@ -6,8 +6,9 @@ import { useTranslation } from 'react-i18next'
 import type { NotificationResponse } from '../../types/notifications'
 import NotificationsDrawer from './NotificationsDrawer'
 import { useNotifications } from './useNotifications'
+import { useFinanceIdentity } from '../../hooks/useFinanceWorkspace'
 
-const NotificationsButton: React.FC = () => {
+const ScopedNotificationsButton: React.FC = () => {
   const { t } = useTranslation()
   const [open, setOpen] = React.useState(false)
   const {
@@ -58,4 +59,7 @@ const NotificationsButton: React.FC = () => {
   )
 }
 
-export default NotificationsButton
+export default function NotificationsButton() {
+  const identity = useFinanceIdentity()
+  return <ScopedNotificationsButton key={identity} />
+}
