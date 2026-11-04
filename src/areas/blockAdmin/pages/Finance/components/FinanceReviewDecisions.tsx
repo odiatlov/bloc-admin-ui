@@ -36,17 +36,17 @@ export default function FinanceReviewDecisions({ detail, refresh, onExport }: { 
     } catch (nextError) { if (active.current) setError(financeReviewError(nextError, t)) }
     finally { busy.current = false; if (active.current) setPending(false) }
   }
-  return <Box sx={{ display: 'grid', gap: 1 }}>
-    {!detail.report.review?.canDecide && <Alert severity="info">{t('financeReview.decisionUnavailable')}</Alert>}
-    <Box role="group" aria-label={t('financeReview.actions')} sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+  return <Box sx={{ display: 'grid', justifyItems: 'end', gap: 1 }}>
+    <Box role="group" aria-label={t('financeReview.actions')} sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-end', gap: 1 }}>
       {detail.report.review?.canDecide && <>
         <Button variant="contained" startIcon={<CheckIcon />} onClick={() => { setOutcome('Approved'); setError('') }}>{t('financeReview.approve')}</Button>
         <Button variant="outlined" color="error" startIcon={<CloseIcon />} onClick={() => { setOutcome('Rejected'); setError('') }}>{t('financeReview.reject')}</Button>
       </>}
-      <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={onExport}>{t('finance.billing.exportExcel')}</Button>
+      <Button variant={detail.report.review?.canDecide ? 'outlined' : 'contained'} startIcon={<FileDownloadIcon />} onClick={onExport}>{t('finance.billing.exportExcel')}</Button>
       <Button variant="outlined" startIcon={<RefreshIcon />} onClick={refresh}>{t('common.refresh')}</Button>
       <Button component={RouterLink} to="/admin/reviews" startIcon={<ArrowBackIcon />}>{t('financeReview.back')}</Button>
     </Box>
+    {!detail.report.review?.canDecide && <Alert severity="info">{t('financeReview.decisionUnavailable')}</Alert>}
     <AppDialog open={!!outcome} title={t(outcome === 'Rejected' ? 'financeReview.reject' : 'financeReview.approve')}
       pending={pending} confirmDisabled={!valid || !detail.report.review?.canDecide} cancelLabel={t('common.cancel')}
       confirmLabel={t(outcome === 'Rejected' ? 'financeReview.reject' : 'financeReview.approve')}

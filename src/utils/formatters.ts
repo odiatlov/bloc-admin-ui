@@ -2,8 +2,6 @@ const currencyFormatter = new Intl.NumberFormat(undefined, { style: 'currency', 
 const numberFormatter = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 })
 const percentFormatter = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2, style: 'percent' })
 const monthFormatter = new Intl.DateTimeFormat(undefined, { month: 'long', year: 'numeric' })
-const shortDateFormatter = new Intl.DateTimeFormat(undefined, { month: 'long', day: 'numeric' })
-const timeFormatter = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' })
 
 const normalizeNumber = (value: number | null | undefined) => (
   typeof value === 'number' && Number.isFinite(value) ? value : 0
@@ -29,12 +27,15 @@ export const formatMonth = (month: string) => {
 
 export const formatFriendlyDateTime = (
   value: string | Date,
-  options: { atLabel?: string; now?: Date; todayLabel?: string } = {},
+  options: { atLabel?: string; now?: Date; todayLabel?: string; locale?: string } = {},
 ) => {
   const date = value instanceof Date ? value : new Date(value)
   if (Number.isNaN(date.getTime())) return String(value)
 
-  const now = options.now ?? new Date('2026-05-10T12:00:00')
+  const now = options.now ?? new Date()
+  const locale = options.locale?.startsWith('ro') ? 'ro-RO' : options.locale ?? 'en-GB'
+  const shortDateFormatter = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'long', ...(date.getFullYear() !== now.getFullYear() ? { year: 'numeric' as const } : {}) })
+  const timeFormatter = new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit', hour12: false })
   const isToday =
     date.getFullYear() === now.getFullYear() &&
     date.getMonth() === now.getMonth() &&

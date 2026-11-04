@@ -1,16 +1,23 @@
-import type { ReactNode } from 'react'
-import { Accordion, AccordionDetails, AccordionSummary, Typography } from '@mui/material'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import { useId, useState, type ReactNode } from 'react'
+import { Accordion, AccordionDetails, Typography } from '@mui/material'
+import AccordionSectionHeader from '../../../../../components/shared/AccordionSectionHeader'
 
-const FinanceSection = ({ title, children, compact = false }: { title: string; children: ReactNode; compact?: boolean }) => (
-  <Accordion disableGutters variant={compact ? 'outlined' : 'elevation'} elevation={compact ? 0 : 1} sx={{ minWidth: 0, borderRadius: 1, ...(compact && { backgroundImage: 'none', borderColor: 'divider' }), '&:before': { display: 'none' } }}>
-    <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ px: compact ? 1.5 : 2, minHeight: compact ? 40 : 56, '& .MuiAccordionSummary-content': { minWidth: 0 } }}>
+type Props = { title: string; children: ReactNode; compact?: boolean; variant?: 'outlined' | 'elevation'; actions?: ReactNode; defaultExpanded?: boolean }
+
+const FinanceSection = ({ title, children, compact = false, variant = compact ? 'outlined' : 'elevation', actions, defaultExpanded = false }: Props) => {
+  const id = useId()
+  const [expanded, setExpanded] = useState(defaultExpanded)
+  return <Accordion disableGutters expanded={expanded} onChange={(_, next) => setExpanded(next)}
+    variant={variant} elevation={variant === 'outlined' ? 0 : 1}
+    sx={{ minWidth: 0, borderRadius: 1, ...(variant === 'outlined' && { backgroundImage: 'none', borderColor: 'divider' }), '&:before': { display: 'none' } }}>
+    <AccordionSectionHeader id={id + '-header'} aria-controls={id + '-content'} toggleId={id + '-toggle'}
+      sectionLabel={title} expanded={expanded} onExpandedChange={setExpanded} actions={actions}>
       <Typography component="span" variant={compact ? 'subtitle2' : 'h6'} sx={{ overflowWrap: 'anywhere', fontWeight: 700 }}>{title}</Typography>
-    </AccordionSummary>
-    <AccordionDetails sx={{ p: compact ? 1.5 : 2, pt: 0, display: 'grid', gap: 2, minWidth: 0 }}>
+    </AccordionSectionHeader>
+    <AccordionDetails id={id + '-content'} sx={{ p: compact ? 1.5 : 2, pt: 2, display: 'grid', gap: 2, minWidth: 0 }}>
       {children}
     </AccordionDetails>
   </Accordion>
-)
+}
 
 export default FinanceSection

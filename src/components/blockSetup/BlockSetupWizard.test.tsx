@@ -29,6 +29,7 @@ describe('block setup review totals', () => {
     await user.click(screen.getByRole('button', { name: labels.next }))
     expect(await screen.findByText(labels.totals)).toBeVisible()
     expect(screen.queryByText(/\{\{residents\}\}/)).not.toBeInTheDocument()
+    expect(screen.getByText(labels.language === 'ro' ? /0 proprietari asignați/ : /0 assigned owners/)).toBeInTheDocument()
     expect(onSetup).not.toHaveBeenCalled()
   })
 })

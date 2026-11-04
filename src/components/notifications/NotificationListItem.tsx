@@ -139,6 +139,7 @@ const NotificationListItem: React.FC<Props> = ({ notification, onClick }) => {
         )}
         <Typography color="text.secondary" sx={{ display: 'block', mt: 0.75 }} variant="caption">
           {formatFriendlyDateTime(notification.createdAt, {
+            locale: i18n.language,
             atLabel: t('common.at'),
             todayLabel: t('common.today'),
           }) || t('notifications.unknownDate')}

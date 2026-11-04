@@ -11,7 +11,7 @@ export const FinanceReviewStatus = ({ review }: { review?: Pick<FinanceReviewSta
     label={t(`financeReview.status.${review.status}`)} />
 }
 
-export default function FinanceReviewHistory({ review, published = false, submissionId, publicationPath }: { review?: FinanceReviewState; published?: boolean; submissionId?: string; publicationPath?: string }) {
+export default function FinanceReviewHistory({ review, published = false, submissionId, publicationPath, compact = false }: { review?: FinanceReviewState; published?: boolean; submissionId?: string; publicationPath?: string; compact?: boolean }) {
   const { t, i18n } = useTranslation()
   const [search] = useSearchParams()
   if (!review) return null
@@ -26,10 +26,10 @@ export default function FinanceReviewHistory({ review, published = false, submis
   ]
   return <Box sx={{ display: 'grid', gap: 1.5 }}>
     <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}><Typography variant="h6">{t('financeReview.history')}</Typography><FinanceReviewStatus review={review} /></Box>
-    <Alert severity="info">{t(published ? 'financeReview.publishedHelp' : review.censorRequired ? 'financeReview.requiredHelp' : 'financeReview.directHelp')}</Alert>
+    {!compact && <Alert severity="info">{t(published ? 'financeReview.publishedHelp' : review.censorRequired ? 'financeReview.requiredHelp' : 'financeReview.directHelp')}</Alert>}
     {published && publicationPath && ['BeforeCensorWorkflow', 'DirectWithoutCensor', 'Reviewed'].includes(publicationPath)
       && <Typography variant="body2" color="text.secondary">{t(`financeReview.publicationPaths.${publicationPath}`)}</Typography>}
-    {selected && <Alert severity={selected.status === 'Rejected' ? 'warning' : 'info'}>
+    {!compact && selected && <Alert severity={selected.status === 'Rejected' ? 'warning' : 'info'}>
       {t('financeReview.linkedCycle', { cycle: selected.cycle, revision: selected.revision })}
       <Typography>{t(`financeReview.status.${selected.status}`)}</Typography>
       {selected.reason && <Typography sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{selected.reason}</Typography>}

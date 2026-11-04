@@ -48,5 +48,8 @@ describe('censor review decisions', () => {
     expect(screen.queryByRole('button', { name: 'Verify report' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Reject' })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Export Excel' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Export Excel' })).toHaveClass('MuiButton-contained')
+    const actions = screen.getByRole('group')
+    expect(actions.compareDocumentPosition(screen.getByRole('alert')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 })

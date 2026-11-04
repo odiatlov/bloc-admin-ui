@@ -20,6 +20,8 @@ describe('financial review notifications', () => {
     expect(screen.getByText(/Block A.*3.*2/)).toBeVisible()
     expect(screen.getByText(notification.message)).toBeVisible()
     expect(screen.queryByText('FinanceReviewRejected')).not.toBeInTheDocument()
+    expect(screen.getByText(language === 'ro' ? /noiembrie.*\d{2}:\d{2}/ : /November.*\d{2}:\d{2}/)).toBeVisible()
+    expect(screen.queryByText(/\d{1,2}:\d{2} [AP]M/)).not.toBeInTheDocument()
   })
   it('does not navigate or switch roles after the notification scope is closed during a request', async () => {
     const user = userEvent.setup()

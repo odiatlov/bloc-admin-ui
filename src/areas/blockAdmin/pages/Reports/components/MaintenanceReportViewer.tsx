@@ -34,7 +34,8 @@ export const ReportSheets: React.FC<{ report: MaintenanceReport; onPublished: ()
     { key: 'hot', label: t('finance.billing.hotConsumption'), render: (row) => `${number(row.hotConsumption)} m³` },
     { key: 'hotDifference', label: t('finance.billing.hotDifference'), render: (row) => `${number(row.hotDifference)} m³` },
     { key: 'billedHot', label: t('finance.billing.billedHot'), render: (row) => `${number(row.billedHotConsumption)} m³` },
-    ...[...report.columns].sort((a, b) => a.order - b.order).map((column): DataColumn<FinanceReportRow> => ({ key: column.id, label: column.name, render: (row) => money(row.charges.find((line) => line.chargeId === column.id)?.amount ?? 0) })),
+    ...[...report.columns].filter(column => column.includeInMiscellaneous !== true).sort((a, b) => a.order - b.order).map((column): DataColumn<FinanceReportRow> => ({ key: column.id, label: column.name, render: (row) => money(row.charges.find((line) => line.chargeId === column.id)?.amount ?? 0) })),
+    ...(report.columns.some(column => column.includeInMiscellaneous === true) ? [{ key: 'miscellaneous', label: t('finance.billing.miscellaneousColumn'), render: (row: FinanceReportRow) => money(row.charges.filter(line => report.columns.some(column => column.id === line.chargeId && column.includeInMiscellaneous === true)).reduce((sum, line) => sum + line.amount, 0)) }] : []),
     { key: 'charges', label: t('finance.billing.currentCharges'), render: (row) => money(row.currentCharges) },
     { key: 'arrears', label: t('finance.billing.arrears'), render: (row) => money(row.arrears) },
     { key: 'adjustments', label: t('finance.billing.adjustments'), render: (row) => money(row.adjustments) },
@@ -43,10 +44,10 @@ export const ReportSheets: React.FC<{ report: MaintenanceReport; onPublished: ()
   ]
   return <Box sx={{ display: 'grid', gap: 2 }}>
     <PageHeader title={`${report.blockName} · ${new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' }).format(new Date(report.year, report.month - 1, 1))}`} description={t('finance.billing.reportDescription', { revision: report.revision })} actions={renderActions ? renderActions(() => setExportOpen(true)) : <MaintenanceReportActions report={report} onExport={() => setExportOpen(true)} onPublished={onPublished} />} />
-    <Alert severity={report.publication ? 'success' : report.status === 'Outdated' || report.status === 'Superseded' ? 'warning' : 'info'}>
+    {(!reviewSubmissionId || report.publication || report.periodPublished || report.status === 'Outdated' || report.status === 'Superseded') && <Alert severity={report.publication ? 'success' : report.status === 'Outdated' || report.status === 'Superseded' ? 'warning' : 'info'}>
       {t(report.publication ? 'financePublication.publishedHelp' : report.periodPublished ? 'financePublication.periodPublished' : report.status === 'Outdated' ? 'finance.billing.outdatedHelp' : report.status === 'Superseded' ? 'financePublication.supersededHelp' : report.review?.censorRequired ? 'financeReview.reportHelp' : 'financePublication.draftHelp', { date: report.publication ? new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(report.publication.publishedAt)) : '' })}
-    </Alert>
-    <FinanceReviewHistory review={report.review} published={!!report.publication} submissionId={reviewSubmissionId} publicationPath={report.publication?.publicationPath} />
+    </Alert>}
+    <FinanceReviewHistory compact={!!reviewSubmissionId} review={report.review} published={!!report.publication} submissionId={reviewSubmissionId} publicationPath={report.publication?.publicationPath} />
     {exportOpen && <FinanceExportDialog reportId={report.id} reviewSubmissionId={reviewSubmissionId} onClose={() => setExportOpen(false)} />}
     <Paper sx={{ overflow: 'hidden' }}><Tabs variant="scrollable" scrollButtons="auto" value={sheetIndex} onChange={(_, value: number) => setSheetIndex(value)}>{report.sheets.map((item, index) => <Tab key={item.staircaseId ?? index} label={item.name} />)}<Tab label={t('finance.billing.reconciliation')} /></Tabs></Paper>
     {sheet ? <>
