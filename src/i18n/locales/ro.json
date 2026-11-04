@@ -868,6 +868,7 @@
         "notApplicable": "Nu se aplică în această lună",
         "scope": "Beneficiari",
         "staircase": "Scară",
+        "staircaseName": "Scara {{staircase}}",
         "apartments": "Apartamente selectate",
         "apartment": "Apartament",
         "apartmentNumber": "Apartamentul {{number}}",

@@ -20,9 +20,19 @@ export const ReportSheets: React.FC<{ report: MaintenanceReport; onPublished: ()
   const [sheetIndex, setSheetIndex] = React.useState(0)
   const [selected, setSelected] = React.useState<FinanceReportRow | null>(null)
   const [exportOpen, setExportOpen] = React.useState(false)
+  const totalsHeadingId = React.useId()
   const sheet = report.sheets[sheetIndex]
   const money = (value: number) => new Intl.NumberFormat(i18n.language, { style: 'currency', currency: report.currency }).format(value)
   const number = (value: number, digits = 2) => new Intl.NumberFormat(i18n.language, { maximumFractionDigits: digits }).format(value)
+  const sheetLabel = (item: MaintenanceReport['sheets'][number]) => item.staircaseId
+    ? t('finance.billing.staircaseName', { staircase: item.name }) : item.name
+  const totalRows = sheet ? [
+    ...report.columns.map(column => ({ id: `charge-${column.id}`, label: column.name, amount: sheet.chargeTotals[column.id] ?? 0, emphasized: false })),
+    { id: 'currentCharges', label: t('finance.billing.currentCharges'), amount: sheet.currentCharges, emphasized: true },
+    { id: 'arrears', label: t('finance.billing.arrears'), amount: sheet.totalArrears, emphasized: true },
+    { id: 'adjustments', label: t('finance.billing.adjustments'), amount: sheet.totalAdjustments, emphasized: true },
+    { id: 'totalDue', label: t('finance.billing.totalDue'), amount: sheet.totalDue, emphasized: true },
+  ] : []
   const columns: DataColumn<FinanceReportRow>[] = [
     { key: 'number', label: t('finance.billing.apartment'), cardRole: 'primary', render: (row) => row.number },
     { key: 'contact', label: t('finance.billing.contact'), cardRole: 'secondary', render: (row) => row.contactName || '—' },
@@ -47,13 +57,20 @@ export const ReportSheets: React.FC<{ report: MaintenanceReport; onPublished: ()
     {(!reviewSubmissionId || report.publication || report.periodPublished || report.status === 'Outdated' || report.status === 'Superseded') && <Alert severity={report.publication ? 'success' : report.status === 'Outdated' || report.status === 'Superseded' ? 'warning' : 'info'}>
       {t(report.publication ? 'financePublication.publishedHelp' : report.periodPublished ? 'financePublication.periodPublished' : report.status === 'Outdated' ? 'finance.billing.outdatedHelp' : report.status === 'Superseded' ? 'financePublication.supersededHelp' : report.review?.censorRequired ? 'financeReview.reportHelp' : 'financePublication.draftHelp', { date: report.publication ? new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(report.publication.publishedAt)) : '' })}
     </Alert>}
-    <FinanceReviewHistory compact={!!reviewSubmissionId} review={report.review} published={!!report.publication} submissionId={reviewSubmissionId} publicationPath={report.publication?.publicationPath} />
     {exportOpen && <FinanceExportDialog reportId={report.id} reviewSubmissionId={reviewSubmissionId} onClose={() => setExportOpen(false)} />}
-    <Paper sx={{ overflow: 'hidden' }}><Tabs variant="scrollable" scrollButtons="auto" value={sheetIndex} onChange={(_, value: number) => setSheetIndex(value)}>{report.sheets.map((item, index) => <Tab key={item.staircaseId ?? index} label={item.name} />)}<Tab label={t('finance.billing.reconciliation')} /></Tabs></Paper>
+    <Paper sx={{ overflow: 'hidden' }}><Tabs variant="scrollable" scrollButtons="auto" value={sheetIndex} onChange={(_, value: number) => setSheetIndex(value)}>{report.sheets.map((item, index) => <Tab key={item.staircaseId ?? index} label={sheetLabel(item)} />)}<Tab label={t('finance.billing.reconciliation')} /></Tabs></Paper>
     {sheet ? <>
-      <Paper sx={{ p: 2, display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'space-between' }}><Typography variant="h6">{sheet.name}</Typography><Chip label={t('finance.billing.sheetTotal', { amount: money(sheet.totalDue) })} /></Paper>
-      <ResponsiveDataView stickyColumnCount={2} tableMinWidth={Math.max(1500, columns.length * 120)} paginationId={`report-sheet-${report.id}-${sheetIndex}`} ariaLabel={sheet.name} rows={sheet.rows} columns={columns} getRowId={(row) => row.apartmentId} />
-      <Paper sx={{ p: 2, display: 'grid', gap: 1 }}><Typography variant="h6">{t('finance.billing.sheetTotals')}</Typography>{report.columns.map((column) => <Box key={column.id} sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}><Typography>{column.name}</Typography><Typography>{money(sheet.chargeTotals[column.id] ?? 0)}</Typography></Box>)}{[[t('finance.billing.currentCharges'), sheet.currentCharges], [t('finance.billing.arrears'), sheet.totalArrears], [t('finance.billing.adjustments'), sheet.totalAdjustments], [t('finance.billing.totalDue'), sheet.totalDue]].map(([label, value]) => <Box key={String(label)} sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}><Typography sx={{ fontWeight: 700 }}>{label}</Typography><Typography sx={{ fontWeight: 700 }}>{money(Number(value))}</Typography></Box>)}</Paper>
+      <Paper sx={{ p: 2, display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'space-between' }}><Typography variant="h6">{sheetLabel(sheet)}</Typography><Chip label={t('finance.billing.sheetTotal', { amount: money(sheet.totalDue) })} /></Paper>
+      <ResponsiveDataView stickyColumnCount={2} tableMinWidth={Math.max(1500, columns.length * 120)} paginationId={`report-sheet-${report.id}-${sheetIndex}`} ariaLabel={sheetLabel(sheet)} rows={sheet.rows} columns={columns} getRowId={(row) => row.apartmentId} />
+      <Paper component="section" aria-labelledby={totalsHeadingId} sx={{ p: 2, display: 'grid', gap: 1.5 }}>
+        <Typography id={totalsHeadingId} variant="h6">{t('finance.billing.sheetTotals')}</Typography>
+        <Box component="dl" sx={{ m: 0, display: 'grid', gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'repeat(2, minmax(0, 1fr))' }, columnGap: 4, rowGap: 1.5 }}>
+          {totalRows.map(row => <Box key={row.id} component="div" sx={{ minWidth: 0, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: { xs: 'flex-start', md: 'baseline' }, gap: { xs: 0.25, md: 2 } }}>
+            <Typography component="dt" sx={{ minWidth: 0, overflowWrap: 'anywhere', fontWeight: row.emphasized ? 700 : undefined }}>{row.label}</Typography>
+            <Typography component="dd" sx={{ m: 0, flexShrink: 0, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums', fontWeight: row.emphasized ? 700 : undefined }}>{money(row.amount)}</Typography>
+          </Box>)}
+        </Box>
+      </Paper>
     </> : <>
       <Paper sx={{ p: 2 }}><Typography variant="h6">{t('finance.billing.blockTotal')}: {money(report.totalDue)}</Typography></Paper>
       <ResponsiveDataView paginationId={`report-reconciliation-${report.id}`} ariaLabel={t('finance.billing.reconciliation')} rows={report.reconciliation} getRowId={(row) => row.chargeId} columns={[
@@ -70,6 +87,7 @@ export const ReportSheets: React.FC<{ report: MaintenanceReport; onPublished: ()
         { key: 'billed', label: t('finance.billing.billedConsumption'), render: (row) => `${number(row.billedConsumption)} m³` },
       ]} />
     </>}
+    <FinanceReviewHistory compact={!!reviewSubmissionId} review={report.review} published={!!report.publication} submissionId={reviewSubmissionId} publicationPath={report.publication?.publicationPath} />
     <AppDialog open={!!selected} title={t('finance.billing.apartmentNumber', { number: selected?.number })} hideCancelButton cancelLabel={t('common.close')} confirmLabel={t('common.close')} onConfirm={() => setSelected(null)} onCancel={() => setSelected(null)}>
       <Box sx={{ display: 'grid', gap: 2 }}>
         <Typography>{selected?.contactName}</Typography>

@@ -779,6 +779,7 @@
       "notApplicable": "Not applicable this month",
       "scope": "Beneficiaries",
       "staircase": "Staircase",
+      "staircaseName": "Stair {{staircase}}",
       "apartments": "Selected apartments",
       "apartment": "Apartment",
       "apartmentNumber": "Apartment {{number}}",

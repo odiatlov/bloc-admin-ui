@@ -1,4 +1,5 @@
 import { screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { renderWithProviders } from '../../../../../../tests/render'
@@ -20,14 +21,19 @@ const review: FinanceReviewState = { ...maintenanceReport.review!, status: 'Read
 
 describe('ready revision with prior rejection history', () => {
   it.each([
-    { language: 'en' as const, ready: 'Ready', rejected: 'Rejected', resubmit: 'Resubmit', publish: 'Publish' },
-    { language: 'ro' as const, ready: 'Gata', rejected: 'Respins', resubmit: 'Retrimite', publish: 'Publică' },
-  ])('shows a neutral current status and preserves the old rejection in $language', labels => {
+    { language: 'en' as const, ready: 'Ready', rejected: 'Rejected', resubmit: 'Resubmit', publish: 'Publish', history: 'Review history' },
+    { language: 'ro' as const, ready: 'Gata', rejected: 'Respins', resubmit: 'Retrimite', publish: 'Publică', history: 'Istoricul verificărilor' },
+  ])('shows a neutral current status and preserves the old rejection in $language', async labels => {
+    const user = userEvent.setup()
     renderWithProviders(<MemoryRouter><RoleContext.Provider value={{ ...residentContext, role: 'Admin' }}>
       <FinanceReviewHistory review={review} />
       <MaintenanceReportActions report={{ ...maintenanceReport, review }} onExport={vi.fn()} onPublished={vi.fn()} />
     </RoleContext.Provider></MemoryRouter>, { language: labels.language })
     expect(screen.getByText(labels.ready).closest('.MuiChip-root')).toHaveClass('MuiChip-colorDefault')
+    const toggle = screen.getByRole('button', { name: labels.history })
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    await user.click(toggle)
+    expect(toggle).toHaveAttribute('aria-expanded', 'true')
     const history = within(screen.getByRole('table', { hidden: true }))
     expect(history.getByText(labels.rejected)).toBeInTheDocument()
     expect(history.getByText('Check the heating allocation')).toBeInTheDocument()
