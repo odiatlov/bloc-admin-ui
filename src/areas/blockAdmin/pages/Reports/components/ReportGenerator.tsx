@@ -1,7 +1,6 @@
 import React from 'react'
 import Box from '@mui/material/Box'
 import Alert from '@mui/material/Alert'
-import CircularProgress from '@mui/material/CircularProgress'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
@@ -19,6 +18,7 @@ import { RoleContext } from '../../../../../contexts/RoleContext'
 import { useFinanceIdentity } from '../../../../../hooks/useFinanceWorkspace'
 import GeneratedReportsList from './GeneratedReportsList'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
+import LoadingState from '../../../../../components/shared/LoadingState'
 
 const ReportGenerator: React.FC = () => {
   const { t } = useTranslation()
@@ -74,7 +74,7 @@ const ReportGenerator: React.FC = () => {
   const waterLabel = !water.loading && !water.error && water.rows.length > 0
     ? `${t('reports.preview.waterUsage')} (${t(`consumption.report.${readingStatus}`)})`
     : t('reports.preview.waterUsage')
-  const waterValue = water.loading ? <CircularProgress size={24} aria-label={t('consumption.loading')} />
+  const waterValue = water.loading ? <LoadingState variant="compact" label={t('consumption.loading')} />
     : knownMeters.length === 0 || water.error ? '—'
       : `${formatNumber(waterTotal)} ${t('reports.preview.units.water')}`
 

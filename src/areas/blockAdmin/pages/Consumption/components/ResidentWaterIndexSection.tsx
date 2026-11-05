@@ -66,7 +66,7 @@ type ApartmentWaterSummaryRow = {
 }
 
 const ResidentWaterIndexSection: React.FC = () => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const {
     apartments,
     error,
@@ -114,7 +114,7 @@ const ResidentWaterIndexSection: React.FC = () => {
     return key === 'custom' ? locationType : t(`consumption.waterLocation.${key}`)
   }
 
-  const formatPeriod = (periodYear: number, periodMonth: number) => new Intl.DateTimeFormat(undefined, {
+  const formatPeriod = (periodYear: number, periodMonth: number) => new Intl.DateTimeFormat(i18n.resolvedLanguage ?? i18n.language, {
     month: 'long',
     year: 'numeric',
   }).format(new Date(periodYear, periodMonth - 1, 1))

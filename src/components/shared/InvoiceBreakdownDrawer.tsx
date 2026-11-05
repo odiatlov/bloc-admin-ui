@@ -9,7 +9,6 @@ import Drawer from '@mui/material/Drawer'
 import Paper from '@mui/material/Paper'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
-import CircularProgress from '@mui/material/CircularProgress'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
@@ -20,6 +19,7 @@ import { formatMonth, formatNumber } from '../../utils/formatters'
 import type { ResidentBillDetail } from '../../types/finance'
 import ResidentBillBreakdown from './ResidentBillBreakdown'
 import LoadErrorState from './LoadErrorState'
+import LoadingState from './LoadingState'
 
 type InvoiceWithBreakdown = {
   id: string
@@ -52,7 +52,7 @@ const InvoiceBreakdownDrawer: React.FC<InvoiceBreakdownDrawerProps> = ({ formatC
 
   return (
     <Drawer anchor="right" open={open ?? Boolean(invoice || bill)} onClose={onClose} slotProps={{ paper: { role: 'dialog', 'aria-label': t('resident.bills.detailsTitle'), sx: { boxSizing: 'border-box', width: { xs: '100%', sm: 560 }, p: 2 } } }}>
-      {loading ? <CircularProgress aria-label={t('finance.billing.loading')} /> : error ? <Box sx={{ display: 'grid', gap: 2 }}>
+      {loading ? <LoadingState variant="page" label={t('finance.billing.loading')} /> : error ? <Box sx={{ display: 'grid', gap: 2 }}>
         <Button onClick={onClose} startIcon={<ArrowBackIcon />}>{t('resident.bills.backToBills')}</Button>
         <LoadErrorState helperText={error} onRetry={onRetry ?? onClose} />
       </Box> : bill ? <ResidentBillBreakdown detail={bill} onClose={onClose} /> : null}

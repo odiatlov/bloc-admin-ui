@@ -1,4 +1,4 @@
-import type { IndexReading } from '../services/superAdminWaterApi'
+import type { IndexReading } from '../types/waterReadings'
 
 export const readingPeriod = (reading: Pick<IndexReading, 'year' | 'month'>) =>
   `${reading.year}-${String(reading.month).padStart(2, '0')}`
@@ -7,12 +7,7 @@ export const recordedMonths = (readings: IndexReading[]) => [...new Set(readings
 
 export const indexAxisBounds = (values: number[]) => {
   if (!values.length) return { min: 0, max: 1 }
-  const low = Math.min(...values)
-  const high = Math.max(...values)
-  const padding = Math.max((high - low) * 0.2, 0.05)
-  const min = Math.max(0, Math.floor((low - padding) * 100) / 100)
-  const max = Math.ceil((high + padding) * 100) / 100
-  return { min, max }
+  return { min: Math.min(...values) - 1, max: Math.max(...values) + 1 }
 }
 
 export const fitHistoryRange = (months: string[], range?: { from: string, to: string }) => {

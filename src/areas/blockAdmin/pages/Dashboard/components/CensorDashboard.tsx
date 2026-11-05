@@ -1,13 +1,13 @@
 import React from 'react'
 import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
-import CircularProgress from '@mui/material/CircularProgress'
 import OpacityIcon from '@mui/icons-material/Opacity'
 import FactCheckIcon from '@mui/icons-material/FactCheck'
 import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import EmptyState from '../../../../../components/shared/EmptyState'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
+import LoadingState from '../../../../../components/shared/LoadingState'
 import ResponsiveDataView, { type DataColumn } from '../../../../../components/shared/ResponsiveDataView'
 import { useBlocks } from '../../../../../hooks/useBlocks'
 import type { BlockOverview } from '../../../../../types/block'
@@ -29,7 +29,7 @@ const CensorDashboard: React.FC = () => {
     </ActionBar>
     <Alert severity="info">{t('financeReview.dashboardHelp')}</Alert>
     <ContentCard title={t('persons.censorDashboard.blocks')}>
-      {isLoading ? <CircularProgress aria-label={t('persons.loading')} /> : error
+      {isLoading ? <LoadingState label={t('persons.loading')} /> : error
         ? <LoadErrorState onRetry={() => { void refresh() }} />
         : <ResponsiveDataView columns={columns} rows={blocks} getRowId={block => block.id}
           ariaLabel={t('persons.censorDashboard.blocks')} paginationId="CensorAssignedBlocks"

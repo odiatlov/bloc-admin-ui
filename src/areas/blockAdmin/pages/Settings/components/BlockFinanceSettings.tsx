@@ -1,9 +1,10 @@
 import React from 'react'
-import { Alert, Box, Button, CircularProgress } from '@mui/material'
+import { Alert, Box, Button } from '@mui/material'
 import SaveIcon from '@mui/icons-material/Save'
 import { useTranslation } from 'react-i18next'
 import AppDatePicker from '../../../../../components/shared/AppDatePicker'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
+import LoadingState from '../../../../../components/shared/LoadingState'
 import { waterReadingsApi } from '../../../../../services/waterReadingsApi'
 import FinanceWorkspacePanel from '../../Finance/components/FinanceWorkspacePanel'
 import FinanceConfigurationEditor from '../../Finance/components/FinanceConfigurationEditor'
@@ -30,7 +31,7 @@ const WaterSubmissionSettings: React.FC<{ blockId: string }> = ({ blockId }) => 
     finally { setSaving(false) }
   }
   return <FinanceSection title={t('finance.billing.submissionCalendar')}>
-    {!state.loaded ? <CircularProgress size={24} /> : state.error ? <LoadErrorState helperText={state.error} onRetry={() => setRetry((value) => value + 1)} /> : <>
+    {!state.loaded ? <LoadingState variant="compact" label={t('finance.billing.loading')} /> : state.error ? <LoadErrorState helperText={state.error} onRetry={() => setRetry((value) => value + 1)} /> : <>
       <AppDatePicker label={t('settings.fields.waterIndexFirstSubmissionDate')} value={state.date} onChange={(date) => setState({ ...state, date })} disabled={saving} />
       {message && <Alert severity="info">{message}</Alert>}
       <Button variant="outlined" startIcon={<SaveIcon />} disabled={saving} onClick={() => void save()}>{t('common.save')}</Button>

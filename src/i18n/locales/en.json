@@ -226,8 +226,10 @@
     "expandSection": "Expand {{section}}",
     "collapseSection": "Collapse {{section}}",
     "unassignedFloor": "Unassigned floor",
-    "assignedOwnersCount_one": "{{count}} assigned owner",
-    "assignedOwnersCount_other": "{{count}} assigned owners",
+    "declaredOccupantsCount_one": "{{count}} person",
+    "declaredOccupantsCount_other": "{{count}} people",
+    "assignedOwnersCount_one": "{{count}} owner",
+    "assignedOwnersCount_other": "{{count}} owners",
     "apartmentsCount_one": "{{count}} apartment",
     "apartmentsCount_other": "{{count}} apartments",
     "floorsCount_one": "{{count}} floor",
@@ -369,6 +371,28 @@
       "toggleTheme": "Toggle theme"
     }
   },
+  "residentMeters": {
+    "description": "View water meters and readings for your apartments.",
+    "zone": "Zone",
+    "details": "Meter details",
+    "viewDetails": "View details",
+    "emptyHelper": "There are no water meters associated with your apartments."
+  },
+  "meterHistory": {
+    "back": "Back",
+    "inactive": "Inactive",
+    "from": "From month",
+    "to": "To month",
+    "index": "Meter index (m³)",
+    "registeredAt": "Registration date and time",
+    "submittedBy": "Submitted by",
+    "history": "Reading history",
+    "noMeters": "No associated meters",
+    "noMetersHelper": "This apartment has no associated water meters.",
+    "noReadings": "No recorded readings",
+    "noReadingsHelper": "There are no readings for this meter in the selected period.",
+    "loadHistoryFailed": "Meter history could not be loaded. Please try again."
+  },
   "sidebar": {
     "apartments": "Apartments",
     "blocks": "Blocks",
@@ -377,6 +401,7 @@
     "finance": "Finance",
     "myBills": "My Bills",
     "waterIndex": "Water Index",
+    "meters": "Meters",
     "consumption": "Consumption",
     "reviews": "Reviews",
     "reports": "Reports",
@@ -1512,20 +1537,7 @@
       "description": "Water consumption across all blocks.",
       "admin": "Administrator",
       "unassigned": "Unassigned",
-      "viewMeters": "View meters",
-      "meter": "Meter",
-      "inactive": "Inactive",
-      "from": "From month",
-      "to": "To month",
-      "index": "Meter index (m³)",
-      "registeredAt": "Registration date and time",
-      "submittedBy": "Submitted by",
-      "history": "Reading history",
-      "noMeters": "No associated meters",
-      "noMetersHelper": "This apartment has no associated water meters.",
-      "noReadings": "No recorded readings",
-      "noReadingsHelper": "There are no readings for this meter in the selected period.",
-      "loadHistoryFailed": "Meter history could not be loaded. Please try again."
+      "viewMeters": "View meters"
     },
     "common": {
       "createdAt": "Created at",

@@ -16,6 +16,7 @@ import PeopleIcon from '@mui/icons-material/People'
 import SettingsIcon from '@mui/icons-material/Settings'
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn'
 import OpacityIcon from '@mui/icons-material/Opacity'
+import PinIcon from '@mui/icons-material/Pin'
 import AssessmentIcon from '@mui/icons-material/Assessment'
 import HomeWorkIcon from '@mui/icons-material/HomeWork'
 import ApartmentIcon from '@mui/icons-material/Apartment'
@@ -61,6 +62,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ onNavigate, onClose, sh
         { label: t('sidebar.dashboard'), to: '/admin/dashboard', icon: <DashboardIcon />, permission: 'dashboard' as const },
         { label: t('sidebar.myBills'), to: '/admin/finance', icon: <MonetizationOnIcon />, permission: 'finance' as const },
         { label: t('sidebar.waterIndex'), to: '/admin/consumption', icon: <OpacityIcon />, permission: 'consumption' as const },
+        { label: t('sidebar.meters'), to: '/admin/meters', icon: <PinIcon />, permission: 'residentMeters' as const },
         { label: t('sidebar.settings'), to: '/admin/settings', icon: <SettingsIcon />, permission: 'settings' as const },
       ]
     : role === 'Censor'

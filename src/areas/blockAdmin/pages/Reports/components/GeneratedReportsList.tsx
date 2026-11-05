@@ -1,6 +1,6 @@
 import React from 'react'
 import { usePageFilter } from '../../../../../hooks/usePageFilter'
-import { Alert, Box, Checkbox, Chip, CircularProgress, FormControlLabel, MenuItem, TextField, Typography } from '@mui/material'
+import { Alert, Box, Checkbox, Chip, FormControlLabel, MenuItem, TextField, Typography } from '@mui/material'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import PreviewIcon from '@mui/icons-material/Preview'
 import PublishIcon from '@mui/icons-material/Publish'
@@ -12,6 +12,7 @@ import EmptyState from '../../../../../components/shared/EmptyState'
 import AppDatePicker from '../../../../../components/shared/AppDatePicker'
 import FilterBar from '../../../../../components/shared/FilterBar'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
+import LoadingState from '../../../../../components/shared/LoadingState'
 import ResponsiveDataView, { type DataColumn } from '../../../../../components/shared/ResponsiveDataView'
 import { useFinanceBlocks, useFinanceIdentity } from '../../../../../hooks/useFinanceWorkspace'
 import { financeApi } from '../../../../../services/financeApi'
@@ -72,7 +73,9 @@ const GeneratedReportsList: React.FC = () => {
     </FilterBar>
     {blocks.error && <Alert severity="warning">{blocks.error}</Alert>}
     {exportId && <FinanceExportDialog key={`${identity}:${exportId}`} reportId={exportId} onClose={() => setExportId(null)} />}
-    {!current ? <CircularProgress aria-label={t('finance.billing.loading')} /> : current.error ? <LoadErrorState helperText={current.error} onRetry={() => setRetry((value) => value + 1)} /> : <ResponsiveDataView paginationId="generated-maintenance-reports" paginationResetKey={`${identity}:${blockId}:${period}:${history}`} rows={current.rows} columns={columns} getRowId={(row) => row.id} ariaLabel={t('finance.billing.generatedReports')} serverPagination={{ page, totalCount: current.count, onPageChange: setPage }} emptyState={<EmptyState headline={t('finance.billing.noReports')} helperText={t('finance.billing.noReportsHelp')} actionLabel={t('finance.billing.prepareMonth')} actionTo="/admin/finance" />} />}
+    {!current ? <LoadingState label={t('finance.billing.loading')} />
+      : current.error ? <LoadErrorState helperText={current.error} onRetry={() => setRetry((value) => value + 1)} />
+        : <ResponsiveDataView paginationId="generated-maintenance-reports" paginationResetKey={`${identity}:${blockId}:${period}:${history}`} rows={current.rows} columns={columns} getRowId={(row) => row.id} ariaLabel={t('finance.billing.generatedReports')} serverPagination={{ page, totalCount: current.count, onPageChange: setPage }} emptyState={<EmptyState headline={t('finance.billing.noReports')} helperText={t('finance.billing.noReportsHelp')} actionLabel={t('finance.billing.prepareMonth')} actionTo="/admin/finance" />} />}
   </Box>
 }
 export default GeneratedReportsList

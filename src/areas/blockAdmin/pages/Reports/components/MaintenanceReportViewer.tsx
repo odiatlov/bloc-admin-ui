@@ -1,10 +1,11 @@
 import React from 'react'
-import { Alert, Box, Chip, CircularProgress, Paper, Tab, Tabs, Typography } from '@mui/material'
+import { Alert, Box, Chip, Paper, Tab, Tabs, Typography } from '@mui/material'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import { useLocation, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import AppDialog from '../../../../../components/shared/AppDialog'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
+import LoadingState from '../../../../../components/shared/LoadingState'
 import PageHeader from '../../../../../components/shared/PageHeader'
 import ResponsiveDataView, { type DataColumn } from '../../../../../components/shared/ResponsiveDataView'
 import { RoleContext } from '../../../../../contexts/RoleContext'
@@ -115,7 +116,7 @@ const MaintenanceReportViewer: React.FC = () => {
     return () => abort.abort()
   }, [key, role, runId])
   if (role !== 'Admin') return <Alert severity="info">{t('finance.billing.adminOnly')}</Alert>
-  if (state?.key !== key) return <CircularProgress aria-label={t('finance.billing.loading')} />
+  if (state?.key !== key) return <LoadingState variant="page" label={t('finance.billing.loading')} />
   if (state.error) return <LoadErrorState helperText={state.error} onRetry={() => setRetry((value) => value + 1)} />
   return state.report ? <ReportSheets key={key} report={state.report} onPublished={() => setRetry(value => value + 1)} /> : null
 }

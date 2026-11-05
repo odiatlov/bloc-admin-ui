@@ -1,6 +1,5 @@
 import { useContext, useState } from 'react'
 import Box from '@mui/material/Box'
-import CircularProgress from '@mui/material/CircularProgress'
 import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 import VisibilityIcon from '@mui/icons-material/Visibility'
@@ -11,10 +10,12 @@ import FilterBar from '../../../../components/shared/FilterBar'
 import AppDatePicker from '../../../../components/shared/AppDatePicker'
 import EmptyState from '../../../../components/shared/EmptyState'
 import LoadErrorState from '../../../../components/shared/LoadErrorState'
+import LoadingState from '../../../../components/shared/LoadingState'
 import PagedResponsiveDataView from '../../../../components/shared/PagedResponsiveDataView'
 import { useConsumptionColumns } from '../../../../components/water/useConsumptionColumns'
 import { useSuperAdminConsumption } from '../../hooks/useSuperAdminConsumption'
-import MeterHistoryDrawer from './components/MeterHistoryDrawer'
+import MeterHistoryDrawer from '../../../../components/water/MeterHistoryDrawer'
+import { superAdminWaterApi } from '../../services/superAdminWaterApi'
 
 const ConsumptionView = () => {
   const { t } = useTranslation()
@@ -43,18 +44,19 @@ const ConsumptionView = () => {
       <AppDatePicker monthOnly confirmOnAccept label={t('finance.columns.month')} value={water.period} disabled={disabled || water.blocks.length === 0 || (!!water.minimumPeriod && water.minimumPeriod > water.maximumPeriod)}
         minDate={`${water.minimumPeriod ?? water.maximumPeriod}-01`} maxDate={`${water.maximumPeriod}-01`} onChange={water.setPeriod} />
     </FilterBar>
-    {water.loading ? <Box role="status" sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><CircularProgress size={24} />{t('consumption.loading')}</Box>
+    {water.loading ? <LoadingState label={t('consumption.loading')} showLabel />
       : water.error ? <LoadErrorState helperText={t('consumption.errors.loadFailed')} onRetry={water.refresh} />
         : water.rows.length === 0 ? <EmptyState headline={t('consumption.report.empty')} helperText={t('consumption.report.emptyHelper')} actionLabel={t('common.retry')} onAction={water.refresh} />
           : <PagedResponsiveDataView endpoint="/water-consumptions/page" query={{ adminAccountId: water.admin === 'all' || water.admin === 'unassigned' ? undefined : water.admin, unassigned: water.admin === 'unassigned', blockId: water.block === 'all' ? undefined : water.block, year: Number(water.period.slice(0, 4)), month: Number(water.period.slice(5)) }} paginationId="SuperAdminConsumption-1" paginationResetKey={JSON.stringify([water.admin, water.block, water.period])} rows={water.rows} columns={columns} getRowId={(row) => row.id} ariaLabel={t('consumption.sections.readings')} />}
-    {apartmentId && <MeterHistoryDrawer key={apartmentId} apartmentId={apartmentId} onClose={() => setApartmentId(null)} />}
+    <MeterHistoryDrawer apartmentId={apartmentId} title={t('superAdmin.water.viewMeters')}
+      loadHistory={superAdminWaterApi.history} adminReadingsEndpoint="/super-admin/water/readings/page" onClose={() => setApartmentId(null)} />
   </Box>
 }
 
 const SuperAdminConsumption = () => {
   const { account, token, accountsLoading, accountsError, refreshAccounts } = useContext(RoleContext)
   const { t } = useTranslation()
-  if (accountsLoading) return <CircularProgress aria-label={t('consumption.loading')} />
+  if (accountsLoading) return <LoadingState variant="page" label={t('common.pagination.loading')} />
   if (accountsError) return <LoadErrorState onRetry={refreshAccounts} />
   return <ConsumptionView key={`${account.id}:${token}`} />
 }

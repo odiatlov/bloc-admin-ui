@@ -52,8 +52,9 @@ describe('ProtectedRoute', () => {
     expect(screen.queryByText('Protected content')).not.toBeInTheDocument()
   })
 
-  it('shows loading without exposing the protected children', () => {
+  it('centers the page loader without exposing the protected children', () => {
     renderRoute({ accountsLoading: true })
+    expect(screen.getByRole('status')).toHaveStyle({ alignItems: 'center', justifyContent: 'center', flexGrow: '1' })
     expect(screen.getByRole('progressbar')).toHaveAccessibleName()
     expect(screen.queryByText('Protected content')).not.toBeInTheDocument()
   })
