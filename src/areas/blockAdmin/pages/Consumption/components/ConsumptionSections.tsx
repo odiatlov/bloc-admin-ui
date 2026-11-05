@@ -3,7 +3,6 @@ import Box from '@mui/material/Box'
 import Alert from '@mui/material/Alert'
 import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined'
 import Button from '@mui/material/Button'
-import CircularProgress from '@mui/material/CircularProgress'
 import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 import AddIcon from '@mui/icons-material/Add'
@@ -18,6 +17,7 @@ import { useConsumptionColumns } from '../../../../../components/water/useConsum
 import EmptyState from '../../../../../components/shared/EmptyState'
 import FilterBar from '../../../../../components/shared/FilterBar'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
+import LoadingState from '../../../../../components/shared/LoadingState'
 import PagedResponsiveDataView from '../../../../../components/shared/PagedResponsiveDataView'
 import { useWaterConsumptions } from '../../../../../hooks/useWaterConsumptions'
 import type { WaterConsumptionRow } from '../../../../../types/waterReadings'
@@ -126,7 +126,7 @@ const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) 
       <AppDatePicker monthOnly confirmOnAccept disabled={loading || !!error || blocks.length === 0 || (!!minimumPeriod && minimumPeriod > maximumPeriod)} label={t('finance.columns.month')} value={period}
         minDate={`${minimumPeriod ?? maximumPeriod}-01`} maxDate={`${maximumPeriod}-01`} onChange={setPeriod} />
     </FilterBar>
-    {loading ? <Box role="status" sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><CircularProgress size={24} />{t('consumption.loading')}</Box>
+      {loading ? <LoadingState label={t('consumption.loading')} showLabel />
       : error ? <LoadErrorState helperText={t('consumption.errors.loadFailed')} onRetry={refresh} />
         : rows.length === 0 ? <EmptyState headline={t('consumption.report.empty')} helperText={t('consumption.report.emptyHelper')}
           actionLabel={t('common.retry')} onAction={refresh} />

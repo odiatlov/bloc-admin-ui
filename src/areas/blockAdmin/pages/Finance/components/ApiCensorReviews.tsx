@@ -1,5 +1,5 @@
 import React from 'react'
-import { Alert, Box, Checkbox, CircularProgress, FormControlLabel, MenuItem, TextField } from '@mui/material'
+import { Alert, Box, Checkbox, FormControlLabel, MenuItem, TextField } from '@mui/material'
 import PreviewIcon from '@mui/icons-material/Preview'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useParams } from 'react-router-dom'
@@ -8,6 +8,7 @@ import AppDatePicker from '../../../../../components/shared/AppDatePicker'
 import EmptyState from '../../../../../components/shared/EmptyState'
 import FilterBar from '../../../../../components/shared/FilterBar'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
+import LoadingState from '../../../../../components/shared/LoadingState'
 import PageHeader from '../../../../../components/shared/PageHeader'
 import ResponsiveDataView, { type DataColumn } from '../../../../../components/shared/ResponsiveDataView'
 import { useFinanceIdentity } from '../../../../../hooks/useFinanceWorkspace'
@@ -29,7 +30,7 @@ const ReviewDetail = ({ id }: { id: string }) => {
       .catch(error => { if (!abort.signal.aborted) setState({ retry, error: financeReviewError(error, t) }) })
     return () => abort.abort()
   }, [id, retry, t])
-  if (state?.retry !== retry) return <CircularProgress aria-label={t('finance.billing.loading')} />
+  if (state?.retry !== retry) return <LoadingState variant="page" label={t('finance.billing.loading')} />
   if (state.error) return <LoadErrorState helperText={state.error} onRetry={() => setRetry(x => x + 1)} />
   return state.detail ? <ReportSheets key={retry} report={state.detail.report} reviewSubmissionId={id}
     onPublished={() => setRetry(x => x + 1)} renderActions={onExport => <FinanceReviewDecisions detail={state.detail!} refresh={() => setRetry(x => x + 1)} onExport={onExport} />} /> : null
@@ -104,7 +105,7 @@ const ReviewList = () => {
     </FilterBar>
     {periodState?.error && <LoadErrorState helperText={periodState.error} onRetry={() => setRetry(x => x + 1)} />}
     {blockState?.error ? <LoadErrorState helperText={blockState.error} onRetry={() => setRetry(x => x + 1)} />
-      : !blockState || state?.key !== key ? <CircularProgress aria-label={t('finance.billing.loading')} />
+      : !blockState || state?.key !== key ? <LoadingState label={t('finance.billing.loading')} />
         : state.error ? <LoadErrorState helperText={state.error} onRetry={() => setRetry(x => x + 1)} />
           : state.data && <ResponsiveDataView rows={state.data.items} columns={columns} getRowId={x => x.id} ariaLabel={t('sidebar.reviews')}
             paginationId="censor-financial-reviews" paginationResetKey={`${blockId}:${period}:${status}:${history}`}

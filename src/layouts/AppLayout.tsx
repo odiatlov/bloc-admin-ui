@@ -55,6 +55,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ toggleTheme, themeMode }) => {
         ref={mainRef}
         sx={{
           flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '100dvh',
           minWidth: 0,
           maxWidth: '100%',
           overflowX: 'hidden',
@@ -63,7 +66,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ toggleTheme, themeMode }) => {
           transition: (theme) => theme.transitions.create(['width', 'margin'], { easing: theme.transitions.easing.sharp, duration: theme.transitions.duration.leavingScreen }),
         }}
       >
-        <Toolbar />
+        <Toolbar sx={{ flexShrink: 0 }} />
         <React.Fragment key={`${location.pathname}:${account.id}:${role}`}>
           <Outlet />
         </React.Fragment>

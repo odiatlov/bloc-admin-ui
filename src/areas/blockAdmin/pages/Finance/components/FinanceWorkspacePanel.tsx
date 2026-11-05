@@ -1,6 +1,6 @@
 import React from 'react'
 import { usePageFilter } from '../../../../../hooks/usePageFilter'
-import { Alert, Box, CircularProgress, MenuItem, TextField } from '@mui/material'
+import { Alert, Box, MenuItem, TextField } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import AppDatePicker from '../../../../../components/shared/AppDatePicker'
@@ -8,6 +8,7 @@ import AppDialog from '../../../../../components/shared/AppDialog'
 import EmptyState from '../../../../../components/shared/EmptyState'
 import FilterBar from '../../../../../components/shared/FilterBar'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
+import LoadingState from '../../../../../components/shared/LoadingState'
 import { useFinanceBlocks, useFinancePeriodBounds, useFinanceWorkspace } from '../../../../../hooks/useFinanceWorkspace'
 import type { FinanceBlock, FinanceWorkspace } from '../../../../../types/finance'
 
@@ -43,7 +44,7 @@ const FinanceWorkspacePanel: React.FC<Props> = ({ children }) => {
     else setSelection(next)
   }
   if (blocks.error) return <LoadErrorState helperText={blocks.error} onRetry={blocks.refresh} />
-  if (blocks.loading) return <CircularProgress aria-label={t('finance.billing.loading')} />
+  if (blocks.loading) return <LoadingState label={t('finance.billing.loading')} />
   if (!block) return <EmptyState headline={t('finance.billing.noBlocks')} helperText={t('finance.billing.noBlocksHelp')} actionLabel={t('finance.billing.manageBlocks')} actionTo="/admin/blocks" />
   return <Box sx={{ display: 'grid', gap: 2 }}>
     <FilterBar>
@@ -55,7 +56,7 @@ const FinanceWorkspacePanel: React.FC<Props> = ({ children }) => {
         disabled={bounds.loading || !!bounds.error || bounds.minimumPeriod > bounds.maximumPeriod}
         onChange={(period) => changeSelection({ blockId: block.id, period })} />
     </FilterBar>
-    {(bounds.loading || workspace.loading) && <CircularProgress aria-label={t('finance.billing.loading')} />}
+    {(bounds.loading || workspace.loading) && <LoadingState label={t('finance.billing.loading')} />}
     {bounds.error ? <LoadErrorState helperText={bounds.error} onRetry={bounds.refresh} />
       : workspace.error && <LoadErrorState helperText={workspace.error} onRetry={workspace.refresh} />}
     {!bounds.loading && !bounds.error && workspace.data && children(workspace.data, block, refresh, setDirty)}

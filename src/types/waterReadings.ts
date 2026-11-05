@@ -133,3 +133,11 @@ export type WaterConsumptionReportResponse = {
   blocks: Array<{ id: string, name: string, firstReadingPeriod: number | null, firstSubmissionPeriod: number | null }>
   rows: WaterConsumptionRow[]
 }
+
+export type IndexReading = { id: string; year: number; month: number; value: number; submittedAt: string; submittedBy: string | null }
+export type MeterHistory = { id: string; name: string; utilityType: string; isActive: boolean; readings: IndexReading[] }
+export type ApartmentMeterHistory = { apartment: WaterConsumptionData['apartment']; meters: MeterHistory[] }
+export type ResidentWaterMeter = {
+  id: string; name: string; utilityType: string; isActive: boolean
+  apartmentId: string; apartmentNumber: string; blockName: string; staircaseName: string | null
+}

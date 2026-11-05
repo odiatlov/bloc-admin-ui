@@ -1,11 +1,12 @@
 import { useContext, useState } from 'react'
-import { Box, Chip, CircularProgress } from '@mui/material'
+import { Box, Chip } from '@mui/material'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import { useTranslation } from 'react-i18next'
 import { RoleContext } from '../../../../../contexts/RoleContext'
 import EmptyState from '../../../../../components/shared/EmptyState'
 import InvoiceBreakdownDrawer from '../../../../../components/shared/InvoiceBreakdownDrawer'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
+import LoadingState from '../../../../../components/shared/LoadingState'
 import ResponsiveDataView, { type DataColumn } from '../../../../../components/shared/ResponsiveDataView'
 import { usePageFilter } from '../../../../../hooks/usePageFilter'
 import { useResidentBill, useResidentBills } from '../../../../../hooks/useResidentFinance'
@@ -34,7 +35,7 @@ const PublishedResidentBills = () => {
     { key: 'actions', label: t('common.actions'), actions: bill => [{ id: 'details', label: t('resident.bills.viewDetails'), icon: <VisibilityIcon />, onClick: () => select(bill) }] },
   ]
   return <Box sx={{ display: 'grid', gap: 2 }}>
-    {list.loading ? <CircularProgress aria-label={t('finance.billing.loading')} />
+    {list.loading ? <LoadingState label={t('finance.billing.loading')} />
       : list.error ? <LoadErrorState helperText={t('residentFinance.billsError')} onRetry={list.refresh} />
         : list.data && <ResponsiveDataView paginationId="resident-published-bills" paginationResetKey={identity}
           ariaLabel={t('sidebar.myBills')} rows={list.data.items} columns={columns} getRowId={bill => bill.id}

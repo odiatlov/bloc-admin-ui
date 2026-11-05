@@ -12,6 +12,7 @@ type Props = {
   floor: FloorDraft | null
   apartmentCount: number
   ownerCount: number
+  occupantCount: number
   expanded: boolean
   disabled: boolean
   onExpandedChange: (expanded: boolean) => void
@@ -21,7 +22,7 @@ type Props = {
   children: ReactNode
 }
 
-export default function SetupFloorSection({ id, floor, apartmentCount, ownerCount, expanded, disabled, onExpandedChange, onAdd, onRemove, onEntered, children }: Props) {
+export default function SetupFloorSection({ id, floor, apartmentCount, ownerCount, occupantCount, expanded, disabled, onExpandedChange, onAdd, onRemove, onEntered, children }: Props) {
   const { t } = useTranslation()
   const floorLabel = floor ? t('blockSetup.floorLabel', { floor: floor.level }) : t('blockSetup.unassignedFloor')
   const label = floor?.level === 0 ? `${floorLabel} (${t('blockSetup.groundFloor')})` : floorLabel
@@ -35,7 +36,7 @@ export default function SetupFloorSection({ id, floor, apartmentCount, ownerCoun
       ]} />}>
       <Box sx={{ minWidth: 0 }}>
         <Typography variant="subtitle2" sx={{ overflowWrap: 'anywhere' }}>{label}</Typography>
-        <Typography variant="caption" color="text.secondary">{t('blockSetup.apartmentsCount', { count: apartmentCount })} · {t('blockSetup.assignedOwnersCount', { count: ownerCount })}</Typography>
+        <Typography variant="caption" color="text.secondary">{t('blockSetup.apartmentsCount', { count: apartmentCount })} · {t('blockSetup.declaredOccupantsCount', { count: occupantCount })} · {t('blockSetup.assignedOwnersCount', { count: ownerCount })}</Typography>
       </Box>
     </SetupAccordionHeader>
     <AccordionDetails id={`${id}-content`} sx={{ display: 'grid', gap: 1.5, p: { xs: 1, sm: 1.5 }, borderTop: '1px solid', borderColor: 'divider', minWidth: 0 }}>

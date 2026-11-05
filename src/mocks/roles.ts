@@ -1,10 +1,10 @@
-export type Permission = 'dashboard' | 'blocks' | 'persons' | 'finance' | 'consumption' | 'reports' | 'settings' | 'superAdmin'
+export type Permission = 'dashboard' | 'blocks' | 'persons' | 'finance' | 'consumption' | 'residentMeters' | 'reports' | 'settings' | 'superAdmin'
 
 export const rolePermissions: RolePermissions = {
   None: ['dashboard'],
   SuperAdmin: ['dashboard', 'superAdmin'],
   Admin: ['dashboard', 'blocks', 'persons', 'finance', 'consumption', 'reports', 'settings'],
-  Resident: ['dashboard', 'finance', 'consumption', 'settings'],
+  Resident: ['dashboard', 'finance', 'consumption', 'residentMeters', 'settings'],
   Censor: ['dashboard', 'finance', 'consumption', 'reports'],
 }
 

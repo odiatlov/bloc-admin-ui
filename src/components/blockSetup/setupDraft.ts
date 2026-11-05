@@ -12,6 +12,11 @@ export const unique = (values: string[]) => new Set(values.map(v => v.trim().toL
 export type ApartmentValidationField = 'number' | 'floor' | 'usableSqm' | 'householdCount' | 'personId' | 'firstName' | 'lastName' | 'phone' | 'email'
 export type ApartmentValidationErrors = Partial<Record<ApartmentValidationField, string>>
 
+export const isValidResidentEmail = (value: string) => {
+  const email = value.trim()
+  return email.length <= 200 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+
 export function apartmentValidationErrors(a: ApartmentDraft): ApartmentValidationErrors {
   const errors: ApartmentValidationErrors = {}
   if (!a.number.trim()) errors.number = 'required'
@@ -30,9 +35,14 @@ export function apartmentValidationErrors(a: ApartmentDraft): ApartmentValidatio
     else if (a.resident.lastName.trim().length > 100) errors.lastName = 'nameLength'
     if (a.resident.phone.trim().length > 50) errors.phone = 'phoneLength'
   }
-  if (a.resident.invitePerson && (a.resident.email.trim().length > 200 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a.resident.email.trim()))) errors.email = 'email'
+  if (a.resident.invitePerson && !isValidResidentEmail(a.resident.email)) errors.email = 'email'
   return errors
 }
+
+export const declaredOccupantCount = (apartments: ApartmentDraft[]) => apartments.reduce((sum, apartment) => {
+  const count = Number(apartment.householdCount)
+  return apartment.addResident && Number.isInteger(count) && count >= 0 && count <= 2147483647 ? sum + count : sum
+}, 0)
 
 export const assignedOwnerCount = (apartments: ApartmentDraft[]) => new Set(apartments.flatMap(apartment => {
   if (!apartment.addResident) return []
