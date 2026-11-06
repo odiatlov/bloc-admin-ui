@@ -82,6 +82,7 @@
     "inputsTitle": "Cantități salvate pentru calcul",
     "summaryError": "Suma de plată nu a putut fi încărcată. Reîncearcă.",
     "billsError": "Facturile nu au putut fi încărcate. Reîncearcă.",
+    "periodsError": "Lunile de facturare nu au putut fi încărcate. Reîncearcă.",
     "billError": "Factura nu a putut fi încărcată. Reîncearcă.",
     "noPublishedBills": "Nu există încă facturi publicate",
     "noPublishedHelp": "Facturile vor apărea aici după ce administratorul publică un raport pentru apartamentul tău.",

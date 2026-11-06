@@ -10,10 +10,11 @@ import LoadErrorState from '../../../../../components/shared/LoadErrorState'
 import LoadingState from '../../../../../components/shared/LoadingState'
 import ResponsiveDataView, { type DataColumn } from '../../../../../components/shared/ResponsiveDataView'
 import { usePageFilter } from '../../../../../hooks/usePageFilter'
-import { useResidentBill, useResidentBills } from '../../../../../hooks/useResidentFinance'
+import { useResidentBill, useResidentBillPeriods, useResidentBills } from '../../../../../hooks/useResidentFinance'
 import { useFinanceIdentity } from '../../../../../hooks/useFinanceWorkspace'
 import type { ResidentBillSummary } from '../../../../../types/finance'
 import ResidentBillsDemo from './ResidentBillsDemo'
+import ResidentBillMonthFilter from './ResidentBillMonthFilter'
 import BillPaymentStatus from './BillPaymentStatus'
 import { BillCostDialog, BillPaymentMethodDialog } from './ResidentPaymentDialogs'
 import { residentFinanceApi } from '../../../../../services/residentFinanceApi'
@@ -23,11 +24,16 @@ type BillSelection = { id: string; origin: 'view' | 'cost'; choosingMethod: bool
 const PublishedResidentBills = () => {
   const { t, i18n } = useTranslation()
   const identity = useFinanceIdentity()
-  const [page, setPage] = usePageFilter('residentBills.page', 1)
+  const [filters, setFilters] = usePageFilter('residentBills.filters', { period: '', page: 1 })
   const [selection, setSelection] = useState<BillSelection | null>(null)
   const selectedId = selection?.id ?? null
-  const list = useResidentBills(page)
+  const periods = useResidentBillPeriods()
+  const period = periods.data?.includes(filters.period) ? filters.period : ''
+  const page = period === filters.period ? filters.page : 1
+  const waitingForPeriod = Boolean(filters.period) && periods.loading
+  const list = useResidentBills(page, period, !waitingForPeriod)
   const detail = useResidentBill(selectedId)
+  const changePeriod = (value: string) => { setFilters({ period: value, page: 1 }); setSelection(null) }
   const money = (amount: number, currency = 'RON') => new Intl.NumberFormat(i18n.language, { style: 'currency', currency }).format(amount)
   const select = (bill: ResidentBillSummary, origin: BillSelection['origin']) =>
     setSelection({ id: bill.id, origin, choosingMethod: false })
@@ -57,12 +63,16 @@ const PublishedResidentBills = () => {
     ] },
   ]
   return <Box sx={{ display: 'grid', gap: 2 }}>
-    {list.loading ? <LoadingState label={t('finance.billing.loading')} />
+    <ResidentBillMonthFilter periods={periods.data ?? []} value={period} onChange={changePeriod} />
+    {periods.error && <LoadErrorState inline helperText={t('residentFinance.periodsError')} onRetry={periods.refresh} />}
+    {waitingForPeriod || list.loading ? <LoadingState label={t('finance.billing.loading')} />
       : list.error ? <LoadErrorState helperText={t('residentFinance.billsError')} onRetry={list.refresh} />
-        : list.data && <ResponsiveDataView paginationId="resident-published-bills" paginationResetKey={identity}
+        : list.data && <ResponsiveDataView paginationId="resident-published-bills" paginationResetKey={`${identity}:${period}`}
           ariaLabel={t('sidebar.myBills')} rows={list.data.items} columns={columns} getRowId={bill => bill.id}
-          serverPagination={{ page, totalCount: list.data.totalCount, onPageChange: setPage }}
-          emptyState={<EmptyState headline={t('residentFinance.noPublishedBills')} helperText={t('residentFinance.noPublishedHelp')} />} />}
+          serverPagination={{ page, totalCount: list.data.totalCount, onPageChange: page => setFilters({ period, page }) }}
+          emptyState={period
+            ? <EmptyState headline={t('billPayments.noBills')} helperText="" actionLabel={t('finance.billing.allMonths')} onAction={() => changePeriod('')} />
+            : <EmptyState headline={t('residentFinance.noPublishedBills')} helperText={t('residentFinance.noPublishedHelp')} />} />}
     <InvoiceBreakdownDrawer invoice={null} bill={drawerBill ?? null} open={selection?.origin === 'view'} loading={detail.loading}
       error={detail.error ? t('residentFinance.billError') : undefined} onRetry={detail.refresh}
       onClose={() => setSelection(null)} formatCurrency={money}

@@ -19,7 +19,7 @@ import { formatCubicMeters } from '../../../../../utils/formatters'
 import { useResidentWaterIndex } from '../../../../../hooks/useResidentWaterIndex'
 import type { BlockOverview } from '../../../../../types/block'
 import type { PersonApartmentSummary, PersonResponse } from '../../../../../types/management'
-import { ContentCard, DashboardHeader, DashboardPage, StatCard, StatGrid } from './DashboardSystem'
+import { ContentCard, DashboardHeader, DashboardPage, StatGrid } from './DashboardSystem'
 import ResidentCurrentDue from './ResidentCurrentDue'
 import ResidentQuickActions from './ResidentQuickActions'
 
@@ -221,13 +221,12 @@ const ResidentDashboard: React.FC = () => {
       <ResidentQuickActions showPay={!financeAvailable || residentInvoices.length > 0} />
 
       <StatGrid columns={{ xs: 'repeat(2, minmax(0, 1fr))' }}>
-        {financeAvailable ? <StatCard
-          label={t('dashboard.resident.currentDue')}
-          value={financeAvailable ? formatCurrency(currentBalance) : t('common.notAvailable')}
-          secondary={t(financeAvailable ? 'dashboard.resident.currentDueSubtitle' : 'financeAvailability.notPublished')}
-        /> : <ResidentCurrentDue />}
+        {financeAvailable ? <ContentCard title={t('dashboard.resident.currentDue')}>
+          <Typography variant="h5">{formatCurrency(currentBalance)}</Typography>
+          <Typography variant="body2" color="text.secondary">{t('dashboard.resident.currentDueSubtitle')}</Typography>
+        </ContentCard> : <ResidentCurrentDue />}
 
-        <StatCard label={t('dashboard.resident.lastMonthWaterConsumption')}>
+        <ContentCard title={t('dashboard.resident.lastMonthWaterConsumption')}>
           {latestIndexRows.length > 0 ? (
             <Box
               sx={{
@@ -274,7 +273,7 @@ const ResidentDashboard: React.FC = () => {
           ) : (
             <Typography color="text.secondary">{t('dashboard.resident.noIndex')}</Typography>
           )}
-        </StatCard>
+        </ContentCard>
       </StatGrid>
 
       <Box

@@ -13,9 +13,32 @@ const openBillDetails = async (user: ReturnType<typeof userEvent.setup>) => {
   await user.click(await screen.findByRole('button', { name: 'More actions' }))
   await user.click(await screen.findByRole('menuitem', { name: 'View bill' }))
 }
-beforeEach(() => { vi.restoreAllMocks(); sessionStorage.clear() })
+beforeEach(() => {
+  vi.restoreAllMocks()
+  sessionStorage.clear()
+  vi.spyOn(residentFinanceApi, 'periods').mockResolvedValue(['2026-11', '2026-10'])
+})
 
 describe('resident published bills', () => {
+  it('filters published bills by month after OK and can return to all months', async () => {
+    const list = vi.spyOn(residentFinanceApi, 'bills')
+      .mockResolvedValue({ items: [billDetail.bill], totalCount: 1, pageNumber: 1, pageSize: 10 })
+    const user = userEvent.setup()
+    renderWithProviders(element())
+    await waitFor(() => expect(screen.getByRole('button', { name: /choose date/i })).toBeEnabled())
+    await user.click(screen.getByRole('button', { name: /choose date/i }))
+    const picker = within(screen.getByRole('dialog'))
+    expect(picker.getByRole('radio', { name: 'September' })).toBeDisabled()
+    await user.click(picker.getByRole('radio', { name: 'October' }))
+    expect(list).toHaveBeenCalledTimes(1)
+    await user.click(picker.getByRole('button', { name: 'OK' }))
+    await waitFor(() => expect(list).toHaveBeenLastCalledWith(1, '2026-10', expect.any(AbortSignal)))
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    await user.click(screen.getByRole('button', { name: /choose date/i }))
+    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'All months' }))
+    await waitFor(() => expect(list).toHaveBeenLastCalledWith(1, '', expect.any(AbortSignal)))
+  })
+
   it('distinguishes loading, failure with retry, and successful empty history', async () => {
     let reject!: (error: Error) => void
     const list = vi.spyOn(residentFinanceApi, 'bills').mockReturnValueOnce(new Promise((_, no) => { reject = no }))

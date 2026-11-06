@@ -19,6 +19,7 @@ import FilterBar from '../../../../../components/shared/FilterBar'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
 import LoadingState from '../../../../../components/shared/LoadingState'
 import PagedResponsiveDataView from '../../../../../components/shared/PagedResponsiveDataView'
+import { usePageFilter } from '../../../../../hooks/usePageFilter'
 import { useWaterConsumptions } from '../../../../../hooks/useWaterConsumptions'
 import type { WaterConsumptionRow } from '../../../../../types/waterReadings'
 import ResidentWaterIndexSection from './ResidentWaterIndexSection'
@@ -33,6 +34,17 @@ const ConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => mo
 const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) => {
   const { t } = useTranslation()
   const { blocks, blockFilter, setBlockFilter, period, setPeriod, minimumPeriod, maximumPeriod, rows, loading, error, refresh } = useWaterConsumptions({ submissionPeriodsOnly: true, includeBaselinePeriod: mode === 'admin' })
+  const [selectedStaircase, setSelectedStaircase] = usePageFilter('water.staircase', { blockId: 'all', staircaseId: 'all' })
+  const staircaseOptions = new Map<string, string>()
+  for (const { apartment } of rows) {
+    if (!apartment.staircaseId || !apartment.staircaseName || staircaseOptions.has(apartment.staircaseId)) continue
+    const staircase = t('consumption.location.staircaseValue', { staircase: apartment.staircaseName })
+    staircaseOptions.set(apartment.staircaseId, blockFilter === 'all' ? `${apartment.blockName} / ${staircase}` : staircase)
+  }
+  const staircaseFilter = selectedStaircase.blockId === blockFilter && staircaseOptions.has(selectedStaircase.staircaseId)
+    ? selectedStaircase.staircaseId : 'all'
+  const visibleRows = staircaseFilter === 'all' ? rows : rows.filter(row => row.apartment.staircaseId === staircaseFilter)
+  const paginationScope = JSON.stringify([blockFilter, staircaseFilter, period])
   const [open, setOpen] = React.useState(false)
   const [showSetupIssues, setShowSetupIssues] = React.useState(false)
   const [readingApartmentId, setReadingApartmentId] = React.useState<string | undefined>()
@@ -106,11 +118,11 @@ const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) 
       }]
     },
   })
-  const incompleteApartments = rows.filter((row) => row.meters.some((meter) => meter.isActive && meter.current === null))
-  const blockedApartments = rows.filter(row => !row.canSubmitReadings)
+  const incompleteApartments = visibleRows.filter((row) => row.meters.some((meter) => meter.isActive && meter.current === null))
+  const blockedApartments = visibleRows.filter(row => !row.canSubmitReadings)
 
   return <Box sx={{ display: 'grid', gap: 2 }}>
-    {rows.some((row) => reminderStates[`${period}:${row.id}`] === 'error') && <Alert severity="error">{t('consumption.reminder.failed')}</Alert>}
+    {visibleRows.some((row) => reminderStates[`${period}:${row.id}`] === 'error') && <Alert severity="error">{t('consumption.reminder.failed')}</Alert>}
     {mode === 'admin' && !loading && !error && blockedApartments.length > 0 && <Alert severity="warning" sx={{ '& .MuiAlert-message': { width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 } }}>
       {t('consumption.readingEligibility.adminSummary', { count: blockedApartments.length })}
       <Button size="small" color="inherit" onClick={() => setShowSetupIssues(true)}>{t('consumption.readingEligibility.viewAffected')}</Button>
@@ -119,21 +131,32 @@ const AdminConsumptionSections: React.FC<ConsumptionSectionsProps> = ({ mode }) 
       setReadingApartmentId(incompleteApartments.find(row => row.canSubmitReadings)?.id)
       setOpen(true)
     }}>{t('consumption.actions.addReading')}</Button> : undefined}>
-      <TextField select size="small" disabled={loading || !!error} label={t('persons.filters.block')} value={blockFilter} onChange={(event) => setBlockFilter(event.target.value)} sx={{ minWidth: 180 }}>
+      <TextField select size="small" disabled={loading || !!error} label={t('persons.filters.block')} value={blockFilter}
+        onChange={(event) => { setBlockFilter(event.target.value); setSelectedStaircase({ blockId: event.target.value, staircaseId: 'all' }) }} sx={{ minWidth: 180 }}>
         <MenuItem value="all">{t('common.all')}</MenuItem>
         {blocks.map((block) => <MenuItem key={block.id} value={block.id}>{t('common.blockValue', { block: block.name })}</MenuItem>)}
+      </TextField>
+      <TextField select size="small" disabled={loading || !!error || !staircaseOptions.size} label={t('blocks.columns.staircase')} value={staircaseFilter}
+        onChange={event => setSelectedStaircase({ blockId: blockFilter, staircaseId: event.target.value })}>
+        <MenuItem value="all">{t('common.all')}</MenuItem>
+        {[...staircaseOptions].map(([id, label]) => <MenuItem key={id} value={id}>{label}</MenuItem>)}
       </TextField>
       <AppDatePicker monthOnly confirmOnAccept disabled={loading || !!error || blocks.length === 0 || (!!minimumPeriod && minimumPeriod > maximumPeriod)} label={t('finance.columns.month')} value={period}
         minDate={`${minimumPeriod ?? maximumPeriod}-01`} maxDate={`${maximumPeriod}-01`} onChange={setPeriod} />
     </FilterBar>
       {loading ? <LoadingState label={t('consumption.loading')} showLabel />
       : error ? <LoadErrorState helperText={t('consumption.errors.loadFailed')} onRetry={refresh} />
-        : rows.length === 0 ? <EmptyState headline={t('consumption.report.empty')} helperText={t('consumption.report.emptyHelper')}
+        : visibleRows.length === 0 ? <EmptyState headline={t('consumption.report.empty')} helperText={t('consumption.report.emptyHelper')}
           actionLabel={t('common.retry')} onAction={refresh} />
-          : <PagedResponsiveDataView endpoint="/water-consumptions/page" query={{ blockId: blockFilter === 'all' ? undefined : blockFilter, year: period === 'all' ? undefined : Number(period.slice(0, 4)), month: period === 'all' ? undefined : Number(period.slice(5)) }} paginationId="ConsumptionSections-1" paginationResetKey={JSON.stringify([blockFilter, period])} ariaLabel={t('consumption.sections.readings')} columns={columns} getRowId={(row) => row.id} rows={rows} />}
+          : <PagedResponsiveDataView endpoint="/water-consumptions/page" query={{
+            blockId: blockFilter === 'all' ? undefined : blockFilter,
+            staircaseId: staircaseFilter === 'all' ? undefined : staircaseFilter,
+            year: period === 'all' ? undefined : Number(period.slice(0, 4)),
+            month: period === 'all' ? undefined : Number(period.slice(5)),
+          }} paginationId="ConsumptionSections-1" paginationResetKey={paginationScope} ariaLabel={t('consumption.sections.readings')} columns={columns} getRowId={(row) => row.id} rows={visibleRows} />}
     {mode === 'admin' && <AppDialog open={showSetupIssues} maxWidth="md" title={t('consumption.readingEligibility.affectedApartments')}
       hideCancelButton cancelLabel={t('common.close')} confirmLabel={t('common.close')} onCancel={() => setShowSetupIssues(false)} onConfirm={() => setShowSetupIssues(false)}>
-      <ResponsiveDataView desktopTableMinWidth={700} paginationId="consumption-setup-issues" paginationResetKey={JSON.stringify([blockFilter, period])}
+      <ResponsiveDataView desktopTableMinWidth={700} paginationId="consumption-setup-issues" paginationResetKey={paginationScope}
         ariaLabel={t('consumption.readingEligibility.affectedApartments')} rows={blockedApartments} getRowId={(row) => row.id} columns={[
           { key: 'apartment', label: t('finance.columns.apartment'), cardRole: 'primary', render: label },
           { key: 'issue', label: t('finance.billing.issue'), render: (row) => t(`consumption.readingEligibility.adminReasons.${row.readingSetupIssue ?? 'apartmentNotConfigured'}`) },

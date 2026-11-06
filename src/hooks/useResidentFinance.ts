@@ -28,9 +28,10 @@ function useResidentFinanceRequest<T>(scope: string, load: (signal: AbortSignal)
 }
 
 export const useResidentFinanceSummary = () => useResidentFinanceRequest('summary', residentFinanceApi.summary)
-export const useResidentBills = (page: number) => {
-  const load = useCallback((signal: AbortSignal) => residentFinanceApi.bills(page, signal), [page])
-  return useResidentFinanceRequest(`bills:${page}`, load)
+export const useResidentBillPeriods = () => useResidentFinanceRequest('bill-periods', residentFinanceApi.periods)
+export const useResidentBills = (page: number, period: string, enabled = true) => {
+  const load = useCallback((signal: AbortSignal) => residentFinanceApi.bills(page, period, signal), [page, period])
+  return useResidentFinanceRequest(`bills:${period}:${page}`, load, enabled)
 }
 export const useResidentBill = (id: string | null) => {
   const load = useCallback((signal: AbortSignal) => residentFinanceApi.bill(id!, signal), [id])

@@ -82,6 +82,7 @@
     "inputsTitle": "Saved billing quantities",
     "summaryError": "Your amount due could not be loaded. Please retry.",
     "billsError": "Your bills could not be loaded. Please retry.",
+    "periodsError": "Billing months could not be loaded. Please retry.",
     "billError": "This bill could not be loaded. Please retry.",
     "noPublishedBills": "No published bills yet",
     "noPublishedHelp": "Your bills will appear here after your administrator publishes a report for your apartment.",
