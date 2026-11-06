@@ -103,7 +103,8 @@ const ReviewList = () => {
       </TextField>
       <FormControlLabel control={<Checkbox checked={history} onChange={e => { setHistory(e.target.checked); setPage(1) }} />} label={t('finance.billing.showHistory')} />
     </FilterBar>
-    {periodState?.error && <LoadErrorState helperText={periodState.error} onRetry={() => setRetry(x => x + 1)} />}
+    {periodState?.error && !blockState?.error && state?.key === key && state.data &&
+      <LoadErrorState inline helperText={periodState.error} onRetry={() => setRetry(x => x + 1)} />}
     {blockState?.error ? <LoadErrorState helperText={blockState.error} onRetry={() => setRetry(x => x + 1)} />
       : !blockState || state?.key !== key ? <LoadingState label={t('finance.billing.loading')} />
         : state.error ? <LoadErrorState helperText={state.error} onRetry={() => setRetry(x => x + 1)} />

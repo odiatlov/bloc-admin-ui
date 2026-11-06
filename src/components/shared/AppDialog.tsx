@@ -17,6 +17,7 @@ type AppDialogProps = {
   confirmDisabled?: boolean
   confirmColor?: 'primary' | 'error'
   confirmLabel: string
+  confirmStartIcon?: React.ReactNode
   confirmButtonSx?: SxProps<Theme>
   contentSx?: SxProps<Theme>
   dialogContentSx?: SxProps<Theme>
@@ -41,6 +42,7 @@ const AppDialog: React.FC<AppDialogProps> = ({
   confirmDisabled = false,
   confirmColor = 'primary',
   confirmLabel,
+  confirmStartIcon,
   confirmButtonSx,
   contentSx,
   dialogContentSx,
@@ -73,7 +75,8 @@ const AppDialog: React.FC<AppDialogProps> = ({
     <DialogActions>
       {onBack && <Button startIcon={<ArrowBackIcon />} disabled={backDisabled || pending} onClick={onBack} sx={{ mr: 'auto' }}>{backLabel}</Button>}
       {!hideCancelButton && <Button disabled={pending} onClick={onCancel}>{cancelLabel}</Button>}
-      <Button variant="contained" color={confirmColor} onClick={onConfirm} disabled={confirmDisabled || pending} sx={confirmButtonSx}>
+      <Button variant="contained" color={confirmColor} startIcon={confirmStartIcon}
+        onClick={onConfirm} disabled={confirmDisabled || pending} sx={confirmButtonSx}>
         {confirmLabel}
       </Button>
     </DialogActions>

@@ -8,6 +8,7 @@ type ConfirmationDialogProps = {
   confirmColor?: 'primary' | 'error'
   confirmLabel: string
   open: boolean
+  pending?: boolean
   title: string
   onCancel: () => void
   onConfirm: () => void
@@ -22,6 +23,7 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   onCancel,
   onConfirm,
   open,
+  pending,
   title,
 }) => (
   <AppDialog
@@ -33,6 +35,7 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
     onCancel={onCancel}
     onConfirm={onConfirm}
     open={open}
+    pending={pending}
     title={title}
   >
     {children}

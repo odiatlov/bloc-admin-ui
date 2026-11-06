@@ -12,8 +12,12 @@ import TaskAltIcon from '@mui/icons-material/TaskAlt'
 import { useNavigate } from 'react-router-dom'
 import ActivityFeed from './AdminActivityFeed'
 import AlertsPanel from './AdminAlertsPanel'
+import LoadingState from '../../../../../components/shared/LoadingState'
+import { RoleContext } from '../../../../../contexts/RoleContext'
 import { useBlocks } from '../../../../../hooks/useBlocks'
+import { useFinanceRequest } from '../../../../../hooks/useFinanceWorkspace'
 import { formatCurrency, useFinance } from '../../../../../hooks/useApartmentData'
+import { financeApi } from '../../../../../services/financeApi'
 import { ActionBar, DashboardHeader, DashboardPage, StatCard, StatGrid } from './DashboardSystem'
 
 type PropertyStatProps = {
@@ -52,9 +56,18 @@ const PropertyStat: React.FC<PropertyStatProps> = ({ label, shortLabel, value })
 )
 
 const AdminDashboard: React.FC = () => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const navigate = useNavigate()
+  const { role } = React.useContext(RoleContext)
   const { cashAwaitingVerification, financeAvailable, monthlyRevenue, unpaidInvoices } = useFinance()
+  const finance = useFinanceRequest('admin-dashboard', financeApi.dashboard, role === 'Admin' && !financeAvailable)
+  const summary = finance.data
+  const money = summary && new Intl.NumberFormat(i18n.language, { style: 'currency', currency: summary.currency })
+  const counts = new Intl.NumberFormat(i18n.language)
+  const month = summary && new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' })
+    .format(new Date(summary.year, summary.month - 1, 1))
+  const unavailable = finance.error ? t('common.notAvailable') : undefined
+  const metricLoading = finance.loading ? <LoadingState variant="compact" label={t('finance.billing.loading')} /> : undefined
   const { blocks: blockOverviews } = useBlocks()
   const blockCount = blockOverviews.length
   const apartmentCount = blockOverviews.reduce((sum, overview) => sum + overview.apartmentCount, 0)
@@ -78,33 +91,35 @@ const AdminDashboard: React.FC = () => {
 
       <StatGrid>
         <StatCard
-          label={t('dashboard.admin.keyMetrics.monthlyRevenue')}
-          value={financeAvailable ? formatCurrency(monthlyRevenue) : t('common.notAvailable')}
-          secondary={!financeAvailable ? t('financeAvailability.accountingPending') : undefined}
+          label={t(financeAvailable ? 'dashboard.admin.keyMetrics.monthlyRevenue' : 'dashboard.admin.keyMetrics.administrationReceipts')}
+          value={financeAvailable ? formatCurrency(monthlyRevenue) : summary && money ? money.format(summary.administrationReceipts) : unavailable}
+          secondary={month ? t('dashboard.admin.keyMetrics.billedForMonth', { month }) : undefined}
           badge={financeAvailable && (
             <>
               <Chip size="small" color="success" icon={<TrendingUpIcon />} label={t('dashboard.admin.keyMetrics.monthlyRevenueTrendShort')} sx={{ display: { xs: 'inline-flex', sm: 'none' }, justifySelf: 'start' }} />
               <Chip size="small" color="success" icon={<TrendingUpIcon />} label={t('dashboard.admin.keyMetrics.monthlyRevenueTrend')} sx={{ display: { xs: 'none', sm: 'inline-flex' }, justifySelf: 'start' }} />
             </>
           )}
-        />
+        >{metricLoading}</StatCard>
         <StatCard
           label={t('dashboard.admin.keyMetrics.outstanding')}
-          value={financeAvailable ? t('dashboard.admin.keyMetrics.outstandingValue', { count: unpaidInvoices }) : t('common.notAvailable')}
-          secondary={!financeAvailable ? t('financeAvailability.accountingPending') : undefined}
+          value={financeAvailable ? t('dashboard.admin.keyMetrics.outstandingValue', { count: unpaidInvoices })
+            : summary ? counts.format(summary.overdueBillCount) : unavailable}
+          secondary={summary ? t('dashboard.admin.keyMetrics.overdueHelp') : undefined}
           badge={financeAvailable && (
             <>
               <Chip size="small" color="warning" icon={<WarningAmberIcon />} label={t('dashboard.admin.keyMetrics.outstandingTrendShort')} sx={{ display: { xs: 'inline-flex', sm: 'none' }, justifySelf: 'start' }} />
               <Chip size="small" color="warning" icon={<WarningAmberIcon />} label={t('dashboard.admin.keyMetrics.outstandingTrend')} sx={{ display: { xs: 'none', sm: 'inline-flex' }, justifySelf: 'start' }} />
             </>
           )}
-        />
+        >{metricLoading}</StatCard>
         <StatCard
           label={t('dashboard.admin.keyMetrics.cashVerification')}
-          value={financeAvailable ? t('dashboard.admin.keyMetrics.cashVerificationValue', { count: cashAwaitingVerification }) : t('common.notAvailable')}
-          secondary={!financeAvailable ? t('financeAvailability.accountingPending') : undefined}
+          value={financeAvailable ? t('dashboard.admin.keyMetrics.cashVerificationValue', { count: cashAwaitingVerification })
+            : summary ? counts.format(summary.pendingCashRequestCount) : unavailable}
+          secondary={summary ? t('dashboard.admin.keyMetrics.pendingCashRequests') : undefined}
           badge={financeAvailable && <Chip size="small" color="info" icon={<TaskAltIcon />} label={t('dashboard.admin.keyMetrics.pendingReview')} sx={{ justifySelf: 'start' }} />}
-        />
+        >{metricLoading}</StatCard>
         <StatCard label={t('dashboard.admin.overview.propertyStats')}>
           <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: { xs: 0.5, sm: 1 } }}>
             <PropertyStat label={t('dashboard.admin.overview.blocks')} shortLabel={t('dashboard.admin.overview.blocksShort')} value={blockCount} />
@@ -123,7 +138,8 @@ const AdminDashboard: React.FC = () => {
           alignItems: 'stretch',
         }}
       >
-        <ActivityFeed />
+        <ActivityFeed activity={summary?.activity ?? []} loading={finance.loading} error={!!finance.error}
+          onRetry={finance.refresh} isDemo={financeAvailable} />
         <AlertsPanel />
       </Box>
     </DashboardPage>

@@ -13,10 +13,15 @@ import InvoiceBreakdownDrawer from '../../../../../components/shared/InvoiceBrea
 import ResponsiveDataView, { type DataColumn } from '../../../../../components/shared/ResponsiveDataView'
 import StatusChip from '../../../../../components/shared/StatusChip'
 import { formatCurrency, formatMonth, useResidentPortal } from '../../../../../hooks/useApartmentData'
+import { usePageFilter } from '../../../../../hooks/usePageFilter'
+import ResidentBillMonthFilter from './ResidentBillMonthFilter'
 
 const ResidentBillsDemo: React.FC = () => {
   const { t } = useTranslation()
   const { financeAvailable, residentInvoices } = useResidentPortal()
+  const [selectedPeriod, setPeriod] = usePageFilter('residentBills.demoPeriod', '')
+  const periods = residentInvoices.map(invoice => invoice.month)
+  const period = periods.includes(selectedPeriod) ? selectedPeriod : ''
   const [invoiceId, setInvoiceId] = React.useState<string | null>(null)
   const [paymentInvoiceId, setPaymentInvoiceId] = React.useState<string | null | undefined>(undefined)
   const selectedInvoice = residentInvoices.find((invoice) => invoice.id === invoiceId)
@@ -64,8 +69,10 @@ const ResidentBillsDemo: React.FC = () => {
         </Button>
       </ActionBar>
 
+      <ResidentBillMonthFilter periods={periods} value={period} onChange={setPeriod} />
       <ResponsiveDataView
         paginationId="ResidentBills-1"
+        paginationResetKey={period}
         ariaLabel={t('sidebar.myBills')}
         columns={columns}
         emptyState={(
@@ -77,7 +84,7 @@ const ResidentBillsDemo: React.FC = () => {
           />
         )}
         getRowId={(invoice) => invoice.id}
-        rows={residentInvoices}
+        rows={period ? residentInvoices.filter(invoice => invoice.month === period) : residentInvoices}
       />
       <InvoiceBreakdownDrawer
         invoice={selectedInvoice ?? null}

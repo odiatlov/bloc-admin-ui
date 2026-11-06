@@ -116,7 +116,7 @@ export type WaterConsumptionData = {
   householdCount: number | null
   hasMeters: boolean
   id: string
-  apartment: { id: string, blockId: string, blockName: string, staircaseName: string | null, number: string, householdCount: number }
+  apartment: { id: string, blockId: string, blockName: string, staircaseId?: string | null, staircaseName: string | null, number: string, householdCount: number }
   meters: Array<{
     id: string, name: string, utilityType: string, isActive: boolean,
     previous: number | null, current: number | null, usage: number | null,

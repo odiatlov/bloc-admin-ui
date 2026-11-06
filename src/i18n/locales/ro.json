@@ -1,5 +1,6 @@
 ﻿{
   "financePublication": {
+    "dashboardEvent": "Raport de cheltuieli publicat pentru {{period}} · {{block}}",
     "publish": "Publică",
     "published": "Publicat",
     "publishing": "Se publică…",
@@ -32,10 +33,57 @@
       "unknown": "Publicarea a eșuat. Reîncarcă raportul și verifică starea lui înainte de a reîncerca."
     }
   },
+  "billPayments": {
+    "bills": "Facturi",
+    "adminDescription": "Gestionează facturile publicate și înregistrează plățile în numerar pentru blocurile tale.",
+    "allBills": "Toate facturile",
+    "requests": "Solicitări de plată",
+    "cashRequested": "Plată în numerar solicitată",
+    "awaitingConfirmation": "În așteptarea confirmării",
+    "pay": "Plătește",
+    "viewBill": "Vezi factura",
+    "costBreakdown": "Defalcarea costurilor",
+    "chooseMethod": "Alege metoda de plată",
+    "payInCash": "Voi plăti în numerar",
+    "payByCard": "Plătește cu cardul",
+    "comingSoon": "În curând",
+    "sendCashRequest": "Trimite solicitarea de plată",
+    "previouslyBilled": "Restanțe facturate anterior",
+    "adminUnavailable": "Acest bloc nu are un administrator activ care să primească solicitarea.",
+    "requestError": "Solicitarea de plată nu a putut fi trimisă. Încearcă din nou.",
+    "resident": "Locatar",
+    "staircase": "Scară",
+    "search": "Numele locatarului sau numărul apartamentului",
+    "requestedAt": "Data solicitării",
+    "markPaid": "Marchează ca achitată",
+    "confirmCash": "Confirmă încasarea",
+    "cashReceivedOn": "Data încasării",
+    "alreadyPaid": "Această factură a fost deja marcată ca achitată.",
+    "recordError": "Plata în numerar nu a putut fi înregistrată. Încearcă din nou.",
+    "sendReminder": "Trimite atenționare",
+    "reminderSent": "Atenționarea de plată a fost trimisă.",
+    "reminderError": "Atenționarea nu a putut fi trimisă. Încearcă din nou.",
+    "residentUnavailable": "Apartamentul nu are un cont de locatar asociat pentru a primi atenționarea.",
+    "filtersError": "Filtrele pentru facturi nu au putut fi încărcate.",
+    "listError": "Facturile nu au putut fi încărcate.",
+    "noBills": "Nicio factură publicată nu corespunde filtrelor.",
+    "noRequests": "Nicio solicitare de plată deschisă nu corespunde filtrelor.",
+    "notifications": {
+      "BillCashRequested": {
+        "title": "Solicitare de plată în numerar",
+        "message": "Un locatar a solicitat plata în numerar a facturii pentru {{period}}."
+      },
+      "BillPaymentReminder": {
+        "title": "Atenționare de plată",
+        "message": "Factura ta pentru {{period}} este de achitat."
+      }
+    }
+  },
   "residentFinance": {
     "inputsTitle": "Cantități salvate pentru calcul",
     "summaryError": "Suma de plată nu a putut fi încărcată. Reîncearcă.",
     "billsError": "Facturile nu au putut fi încărcate. Reîncearcă.",
+    "periodsError": "Lunile de facturare nu au putut fi încărcate. Reîncearcă.",
     "billError": "Factura nu a putut fi încărcată. Reîncearcă.",
     "noPublishedBills": "Nu există încă facturi publicate",
     "noPublishedHelp": "Facturile vor apărea aici după ce administratorul publică un raport pentru apartamentul tău.",
@@ -68,7 +116,7 @@
     "waterCalculation": "Consumul tău măsurat este {{actual}} m³, plus o diferență repartizată de {{difference}} m³. Cantitatea folosită pentru această cheltuială este {{billed}} m³. Diferența este inclusă o singură dată în această cantitate.",
     "heatingPercentage": "Baza ta de încălzire este {{area}} m² suprafață utilă × {{percentage}}%, rotunjită la {{mp}} m² înaintea repartizării cheltuielii de încălzire.",
     "heatingManual": "Baza ta salvată pentru repartizarea încălzirii este {{mp}} m², introdusă direct pentru această lună de calcul.",
-    "carryExplanation": "Datoria anterioară de {{amount}} apare în raport și rămâne pe facturile anterioare neachitate. Este exclusă din suma emisă pe această factură pentru a nu fi facturată de două ori.",
+    "carryExplanation": "Restanța de {{amount}} a fost inclusă în facturile anterioare. Raportul o afișează ca referință și o exclude din suma acestei facturi.",
     "adjustment": {
       "Arrears": "Datorie anterioară inclusă în raport. Motivul înregistrat explică proveniența ei.",
       "Penalty": "O penalizare înregistrată pentru apartamentul tău. Motivul apare mai jos.",
@@ -551,6 +599,8 @@
                                     "activity":  {
                                                      "title":  "Activitate recentă",
                                                      "invoiceGenerated":  "Factură generată - Bloc A",
+                                                     "cashRecorded":  "Plată în numerar înregistrată · {{block}}, ap. {{apartment}} · {{period}}",
+                                                     "empty":  "Nu există activitate recentă.",
                                                      "paymentReceived":  "Plată primită - Ap. 12",
                                                      "waterReadingSubmitted":  "Index apă trimis - Ap. 7",
                                                      "twoHoursAgo":  "acum 2h",
@@ -563,9 +613,14 @@
                                                    "unusualConsumption":  "{{count}} apartamente au consum neobișnuit",
                                                    "cashWorkflow":  "Registrul de numerar are intrări de reconciliat"
                                                },
+                                    "financeLoadError":  "Datele financiare nu au putut fi încărcate. Reîncearcă.",
                                     "keyMetrics":  {
                                                        "title":  "Indicatori cheie",
                                                        "monthlyRevenue":  "Venit lunar",
+                                                       "administrationReceipts":  "Încasări administrare",
+                                                       "billedForMonth":  "Facturi pentru {{month}}",
+                                                       "overdueHelp":  "Neachitate după scadență",
+                                                       "pendingCashRequests":  "Solicitări de plată în așteptare",
                                                        "outstanding":  "Facturi restante",
                                                        "outstandingValue":  "{{count}} facturi",
                                                        "collectionRate":  "Rata colectare",
@@ -608,6 +663,7 @@
                                        "noRegisteredIndexYet":  "Nu există index înregistrat încă",
                                        "recentAnnouncements":  "Anunțuri recente",
                                        "noAnnouncements":  "Nu există anunțuri",
+                                       "announcementsLoadError":  "Anunțurile nu au putut fi încărcate.",
                                        "lastPayment":  "Ultima plată: {{amount}}",
                                        "announcements":  {
                                                              "elevator":  "Revizia liftului este programată pentru 12 mai.",

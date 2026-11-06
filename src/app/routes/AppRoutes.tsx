@@ -1,5 +1,5 @@
 import React from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import Apartments from '../../areas/blockAdmin/pages/Apartments/Apartments'
 import Blocks from '../../areas/blockAdmin/pages/Blocks/Blocks'
 import BlockContext from '../../areas/blockAdmin/pages/Blocks/BlockContext'
@@ -7,6 +7,7 @@ import Consumption from '../../areas/blockAdmin/pages/Consumption/Consumption'
 import ResidentMeters from '../../areas/blockAdmin/pages/Consumption/ResidentMeters'
 import Dashboard from '../../areas/blockAdmin/pages/Dashboard/Dashboard'
 import Finance from '../../areas/blockAdmin/pages/Finance/Finance'
+import AdminBills from '../../areas/blockAdmin/pages/Finance/components/AdminBills'
 import ApiCensorReviews from '../../areas/blockAdmin/pages/Finance/components/ApiCensorReviews'
 import Reports from '../../areas/blockAdmin/pages/Reports/Reports'
 import MaintenanceReportViewer from '../../areas/blockAdmin/pages/Reports/components/MaintenanceReportViewer'
@@ -39,6 +40,11 @@ const DashboardRoute: React.FC = () => {
   return <Dashboard />
 }
 
+const LegacyBillsRoute = () => {
+  const { search } = useLocation()
+  return <Navigate to={{ pathname: '/admin/bills', search }} replace />
+}
+
 const AppRoutes: React.FC<AppRoutesProps> = ({ themeMode, toggleTheme }) => (
   <Routes>
     <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
@@ -55,6 +61,8 @@ const AppRoutes: React.FC<AppRoutesProps> = ({ themeMode, toggleTheme }) => (
         />
         <Route path="residents" element={<Navigate to="/admin/persons" replace />} />
         <Route path="finance" element={<ProtectedRoute permission="finance"><Finance /></ProtectedRoute>} />
+        <Route path="bills" element={<ProtectedRoute permission="finance"><AdminBills /></ProtectedRoute>} />
+        <Route path="finance/bills" element={<LegacyBillsRoute />} />
         <Route path="reviews" element={<ProtectedRoute permission="finance"><ApiCensorReviews /></ProtectedRoute>} />
         <Route path="reviews/:submissionId" element={<ProtectedRoute permission="finance"><ApiCensorReviews /></ProtectedRoute>} />
         <Route path="consumption" element={<ProtectedRoute permission="consumption"><Consumption /></ProtectedRoute>} />

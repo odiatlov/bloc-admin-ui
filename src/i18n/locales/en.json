@@ -1,5 +1,6 @@
 {
   "financePublication": {
+    "dashboardEvent": "Expense report published for {{period}} · {{block}}",
     "publish": "Publish",
     "published": "Published",
     "publishing": "Publishing…",
@@ -32,10 +33,57 @@
       "unknown": "Publication failed. Refresh the report and check its status before trying again."
     }
   },
+  "billPayments": {
+    "bills": "Bills",
+    "adminDescription": "Manage published bills and record cash payments for your blocks.",
+    "allBills": "All bills",
+    "requests": "Payment requests",
+    "cashRequested": "Cash requested",
+    "awaitingConfirmation": "Awaiting confirmation",
+    "pay": "Pay",
+    "viewBill": "View bill",
+    "costBreakdown": "Cost breakdown",
+    "chooseMethod": "Choose payment method",
+    "payInCash": "I’ll pay in cash",
+    "payByCard": "Pay by card",
+    "comingSoon": "Coming soon",
+    "sendCashRequest": "Send cash request",
+    "previouslyBilled": "Previously billed arrears",
+    "adminUnavailable": "This block has no active administrator to receive your request.",
+    "requestError": "Could not send the cash request. Try again.",
+    "resident": "Resident",
+    "staircase": "Staircase",
+    "search": "Resident name or apartment number",
+    "requestedAt": "Requested on",
+    "markPaid": "Mark paid",
+    "confirmCash": "Confirm cash received",
+    "cashReceivedOn": "Date cash was received",
+    "alreadyPaid": "This bill has already been marked paid.",
+    "recordError": "Could not record the cash payment. Try again.",
+    "sendReminder": "Send reminder",
+    "reminderSent": "Payment reminder sent.",
+    "reminderError": "Could not send the reminder. Try again.",
+    "residentUnavailable": "This apartment has no linked resident account to remind.",
+    "filtersError": "Could not load the bill filters.",
+    "listError": "Could not load the bills.",
+    "noBills": "No published bills match these filters.",
+    "noRequests": "No open payment requests match these filters.",
+    "notifications": {
+      "BillCashRequested": {
+        "title": "Cash payment requested",
+        "message": "A resident requested to pay the {{period}} bill in cash."
+      },
+      "BillPaymentReminder": {
+        "title": "Bill payment reminder",
+        "message": "Your {{period}} bill is due for payment."
+      }
+    }
+  },
   "residentFinance": {
     "inputsTitle": "Saved billing quantities",
     "summaryError": "Your amount due could not be loaded. Please retry.",
     "billsError": "Your bills could not be loaded. Please retry.",
+    "periodsError": "Billing months could not be loaded. Please retry.",
     "billError": "This bill could not be loaded. Please retry.",
     "noPublishedBills": "No published bills yet",
     "noPublishedHelp": "Your bills will appear here after your administrator publishes a report for your apartment.",
@@ -67,7 +115,7 @@
     "waterCalculation": "Your measured usage is {{actual}} m³, plus an allocated difference of {{difference}} m³. The quantity used for this charge is {{billed}} m³. The difference is included once in that quantity.",
     "heatingPercentage": "Your heating basis is {{area}} m² of usable area × {{percentage}}%, rounded to {{mp}} m² before allocating the heating charge.",
     "heatingManual": "Your saved heating allocation basis is {{mp}} m², entered directly for this billing period.",
-    "carryExplanation": "Previous debt of {{amount}} is shown in this report and remains on earlier unpaid bills. It is excluded from the amount issued on this bill so it is not charged twice.",
+    "carryExplanation": "Previous debt of {{amount}} was included in earlier bills. This report shows it for reference and excludes it from this bill’s amount.",
     "adjustment": {
       "Arrears": "Previous debt included in the report. The recorded reason explains its origin.",
       "Penalty": "A penalty recorded for your apartment. Its reason is shown below.",
@@ -514,6 +562,8 @@
       "activity": {
         "title": "Recent Activity",
         "invoiceGenerated": "Invoice generated - Block A",
+        "cashRecorded": "Cash payment recorded · {{block}}, apt. {{apartment}} · {{period}}",
+        "empty": "No recent activity.",
         "paymentReceived": "Payment received - Apt 12",
         "waterReadingSubmitted": "Water reading submitted - Apt 7",
         "twoHoursAgo": "2h ago",
@@ -526,9 +576,14 @@
         "unusualConsumption": "{{count}} apartments show unusual consumption",
         "cashWorkflow": "Cash register has entries pending reconciliation"
       },
+      "financeLoadError": "Financial dashboard data could not be loaded. Please retry.",
       "keyMetrics": {
         "title": "Key Insights",
         "monthlyRevenue": "Monthly Revenue",
+        "administrationReceipts": "Administration receipts",
+        "billedForMonth": "Bills for {{month}}",
+        "overdueHelp": "Unpaid past the due date",
+        "pendingCashRequests": "Cash requests awaiting confirmation",
         "outstanding": "Outstanding",
         "outstandingValue": "{{count}} invoices",
         "collectionRate": "Collection Rate",
@@ -571,6 +626,7 @@
       "noRegisteredIndexYet": "No registered index yet",
       "recentAnnouncements": "Recent announcements",
       "noAnnouncements": "No announcements",
+      "announcementsLoadError": "Announcements could not be loaded.",
       "lastPayment": "Last payment: {{amount}}",
       "announcements": {
         "elevator": "Elevator maintenance is scheduled for May 12.",
