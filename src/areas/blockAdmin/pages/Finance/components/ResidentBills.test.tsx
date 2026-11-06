@@ -54,6 +54,19 @@ describe('resident published bills', () => {
     expect(list).toHaveBeenCalledTimes(2)
   })
 
+  it('shows one error and retries both requests when bills and months fail together', async () => {
+    const months = vi.mocked(residentFinanceApi.periods).mockRejectedValueOnce(new Error('offline'))
+    const list = vi.spyOn(residentFinanceApi, 'bills').mockRejectedValueOnce(new Error('offline'))
+      .mockResolvedValue({ items: [], totalCount: 0, pageNumber: 1, pageSize: 10 })
+    renderWithProviders(element())
+    expect(await screen.findByText('Your bills could not be loaded. Please retry.')).toBeVisible()
+    expect(screen.queryByText('Billing months could not be loaded. Please retry.')).not.toBeInTheDocument()
+    await userEvent.setup().click(screen.getByRole('button', { name: /retry/i }))
+    expect(await screen.findByText('No published bills yet')).toBeVisible()
+    expect(months).toHaveBeenCalledTimes(2)
+    expect(list).toHaveBeenCalledTimes(2)
+  })
+
   it.each(['light', 'dark'] as const)('opens a bill through its keyboard-accessible details action in %s mode and supports Back', async (mode) => {
     vi.spyOn(residentFinanceApi, 'bills').mockResolvedValue({ items: [billDetail.bill], totalCount: 1, pageNumber: 1, pageSize: 10 })
     const details = vi.spyOn(residentFinanceApi, 'bill').mockResolvedValue(billDetail)
@@ -125,7 +138,7 @@ describe('resident published bills', () => {
     await user.click(within(methods).getByRole('button', { name: 'Send cash request' }))
     expect(request).toHaveBeenCalledExactlyOnceWith(billDetail.bill.id)
     expect(await screen.findAllByText('Awaiting confirmation')).not.toHaveLength(0)
-    expect(screen.getAllByText('Unpaid')).not.toHaveLength(0)
+    expect(screen.queryByText('Unpaid')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Pay' })).not.toBeInTheDocument()
   })
 

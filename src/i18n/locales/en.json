@@ -1,5 +1,6 @@
 {
   "financePublication": {
+    "dashboardEvent": "Expense report published for {{period}} · {{block}}",
     "publish": "Publish",
     "published": "Published",
     "publishing": "Publishing…",
@@ -561,6 +562,8 @@
       "activity": {
         "title": "Recent Activity",
         "invoiceGenerated": "Invoice generated - Block A",
+        "cashRecorded": "Cash payment recorded · {{block}}, apt. {{apartment}} · {{period}}",
+        "empty": "No recent activity.",
         "paymentReceived": "Payment received - Apt 12",
         "waterReadingSubmitted": "Water reading submitted - Apt 7",
         "twoHoursAgo": "2h ago",
@@ -573,9 +576,14 @@
         "unusualConsumption": "{{count}} apartments show unusual consumption",
         "cashWorkflow": "Cash register has entries pending reconciliation"
       },
+      "financeLoadError": "Financial dashboard data could not be loaded. Please retry.",
       "keyMetrics": {
         "title": "Key Insights",
         "monthlyRevenue": "Monthly Revenue",
+        "administrationReceipts": "Administration receipts",
+        "billedForMonth": "Bills for {{month}}",
+        "overdueHelp": "Unpaid past the due date",
+        "pendingCashRequests": "Cash requests awaiting confirmation",
         "outstanding": "Outstanding",
         "outstandingValue": "{{count}} invoices",
         "collectionRate": "Collection Rate",
@@ -618,6 +626,7 @@
       "noRegisteredIndexYet": "No registered index yet",
       "recentAnnouncements": "Recent announcements",
       "noAnnouncements": "No announcements",
+      "announcementsLoadError": "Announcements could not be loaded.",
       "lastPayment": "Last payment: {{amount}}",
       "announcements": {
         "elevator": "Elevator maintenance is scheduled for May 12.",

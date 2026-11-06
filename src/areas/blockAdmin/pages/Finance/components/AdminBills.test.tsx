@@ -1,6 +1,6 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
+import { Link, MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { billDetail, residentContext } from '../../../../../../tests/financeFixtures'
 import { renderWithProviders } from '../../../../../../tests/render'
@@ -23,11 +23,51 @@ const page = (...bills: (typeof first | typeof second | typeof paid)[]) => ({
 
 beforeEach(() => {
   vi.restoreAllMocks()
+  sessionStorage.clear()
   vi.spyOn(financeApi, 'blocks').mockResolvedValue([])
   vi.spyOn(financeBillsApi, 'periods').mockResolvedValue(['2026-11', '2026-10'])
 })
 
 describe('admin bills', () => {
+  it('restores the block, staircase, billing month and search after leaving Bills', async () => {
+    const blockId = '00000000-0000-0000-0000-000000000051'
+    const staircaseId = '00000000-0000-0000-0000-000000000052'
+    vi.mocked(financeApi.blocks).mockResolvedValue([{ id: blockId, name: 'Fixture block', hasStaircases: true,
+      staircases: [{ id: staircaseId, name: 'Stair A' }] }])
+    const list = vi.spyOn(financeBillsApi, 'list').mockResolvedValue(page(first))
+    const user = userEvent.setup()
+    renderWithProviders(<MemoryRouter initialEntries={['/admin/bills']}>
+      <RoleContext.Provider value={adminContext}>
+        <Routes>
+          <Route path="/admin/bills" element={<><Link to="/admin/dashboard">Other page</Link><AdminBills /></>} />
+          <Route path="/admin/dashboard" element={<Link to="/admin/bills">Return to bills</Link>} />
+        </Routes>
+      </RoleContext.Provider>
+    </MemoryRouter>)
+
+    await waitFor(() => expect(screen.getByRole('combobox', { name: /^Block/ })).not.toHaveAttribute('aria-disabled', 'true'))
+    await user.click(screen.getByRole('combobox', { name: /^Block/ }))
+    await user.click(await screen.findByRole('option', { name: 'Fixture block' }))
+    await user.click(screen.getByRole('combobox', { name: /^Staircase/ }))
+    await user.click(await screen.findByRole('option', { name: 'Stair A' }))
+    await user.type(screen.getByRole('searchbox', { name: 'Resident name or apartment number' }), 'Ion')
+    await waitFor(() => expect(screen.getByRole('button', { name: /choose date/i })).toBeEnabled())
+    await user.click(screen.getByRole('button', { name: /choose date/i }))
+    const picker = within(screen.getByRole('dialog'))
+    await user.click(picker.getByRole('radio', { name: 'October' }))
+    await user.click(picker.getByRole('button', { name: 'OK' }))
+
+    const filters = { blockId, staircaseId, year: 2026, month: 10, search: 'Ion', requestsOnly: false, pageNumber: 1 }
+    await waitFor(() => expect(list).toHaveBeenLastCalledWith(filters, expect.any(AbortSignal)))
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    await user.click(screen.getByRole('link', { name: 'Other page' }))
+    list.mockClear()
+    await user.click(screen.getByRole('link', { name: 'Return to bills' }))
+
+    await waitFor(() => expect(list).toHaveBeenCalledExactlyOnceWith(filters, expect.any(AbortSignal)))
+    expect(screen.getByRole('searchbox', { name: 'Resident name or apartment number' })).toHaveValue('Ion')
+  })
+
   it('confirms one bill from the request tab and leaves another month unpaid', async () => {
     const list = vi.spyOn(financeBillsApi, 'list').mockResolvedValueOnce(page(first))
       .mockResolvedValueOnce(page()).mockResolvedValue(page(paid, second))
@@ -36,6 +76,8 @@ describe('admin bills', () => {
     renderWithProviders(<MemoryRouter initialEntries={['/admin/finance/bills?tab=requests']}>
       <RoleContext.Provider value={adminContext}><AdminBills /></RoleContext.Provider>
     </MemoryRouter>)
+    expect(await screen.findAllByText('Cash requested')).not.toHaveLength(0)
+    expect(screen.queryByText('Unpaid')).not.toBeInTheDocument()
     await user.click(await screen.findByRole('button', { name: 'Mark paid' }))
     const dialog = await screen.findByRole('dialog', { name: 'Mark paid' })
     expect(within(dialog).getByText(/October 2026/)).toBeVisible()

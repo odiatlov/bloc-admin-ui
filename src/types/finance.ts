@@ -21,7 +21,15 @@ export type FinanceWorkspace = { blockId: string; blockName: string; year: numbe
 export type FinanceReportRow = { apartmentId: string; number: string; contactName: string; declaredOccupants: number; usableSqm?: number | null; heatingMode?: string | null; heatingPercentage?: number | null; heatingMp: number; coldConsumption: number; hotConsumption: number; coldDifference: number; hotDifference: number; billedColdConsumption: number; billedHotConsumption: number; charges: { chargeId: string; name: string; amount: number; basis: FinanceBasis; quantity: number; denominator: number; rate: number; sourceAmount: number; explanation: string }[]; adjustmentDetails?: FinanceAdjustment[]; currentCharges: number; arrears: number; adjustments: number; totalDue: number }
 export type MaintenanceReport = FinanceReportSummary & { configurationVersion: number; inputVersion: string; currency: string; columns: { id: string; name: string; category?: string | null; includeInMiscellaneous?: boolean | null; order: number }[]; sheets: { staircaseId?: string | null; name: string; rows: FinanceReportRow[]; chargeTotals: Record<string, number>; currentCharges: number; totalArrears: number; totalAdjustments: number; totalDue: number }[]; reconciliation: { chargeId: string; name: string; sourceAmount: number; allocatedAmount: number; difference: number }[]; supplyGroups: { supplyGroupId: string; name: string; utilityType: string; actualConsumption: number; difference: number; billedConsumption: number }[]; totalCurrentCharges: number; totalArrears: number; totalAdjustments: number }
 
-export type ResidentFinanceSummary = { currency: string; currentAmountDue: number; unpaidBillCount: number; totalBillCount: number }
+export type ResidentFinanceSummary = { currency: string; currentAmountDue: number; unpaidBillCount: number; totalBillCount: number;
+  recentPublications: FinanceDashboardActivity[] }
 export type ResidentBillSummary = { id: string; apartmentId: string; reference: string; blockName: string; staircaseName?: string | null; apartmentNumber: string; year: number; month: number; currency: string; dueDate: string; publishedAt: string; originalAmount: number; reportTotal: number; carriedForwardArrears: number; paidAmount: number; remainingAmount: number; cashRequestedAt?: string | null; cashReceivedOn?: string | null; status: 'unpaid' | 'overdue' | 'paid' | 'noAmountDue' }
 export type ResidentBillList = { items: ResidentBillSummary[]; totalCount: number; pageNumber: number; pageSize: number }
+export type FinanceDashboard = {
+  year: number; month: number; currency: string; administrationReceipts: number
+  overdueBillCount: number; pendingCashRequestCount: number
+  activity: FinanceDashboardActivity[]
+}
+export type FinanceDashboardActivity = { id: string; type: 'reportPublished' | 'cashRecorded'; occurredAt: string;
+  blockName: string; apartmentNumber?: string | null; year: number; month: number }
 export type ResidentBillDetail = { bill: ResidentBillSummary; breakdown: { revision: number; row: FinanceReportRow; chargeContexts: { chargeId: string; amountMode: 'Pool' | 'Rate' | 'Manual'; scope: FinanceScope; description?: string | null; utilityType?: string | null; category?: string | null }[] } }

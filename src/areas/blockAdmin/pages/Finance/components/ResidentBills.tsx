@@ -34,6 +34,10 @@ const PublishedResidentBills = () => {
   const list = useResidentBills(page, period, !waitingForPeriod)
   const detail = useResidentBill(selectedId)
   const changePeriod = (value: string) => { setFilters({ period: value, page: 1 }); setSelection(null) }
+  const retryBills = () => {
+    if (periods.error) periods.refresh()
+    list.refresh()
+  }
   const money = (amount: number, currency = 'RON') => new Intl.NumberFormat(i18n.language, { style: 'currency', currency }).format(amount)
   const select = (bill: ResidentBillSummary, origin: BillSelection['origin']) =>
     setSelection({ id: bill.id, origin, choosingMethod: false })
@@ -64,9 +68,9 @@ const PublishedResidentBills = () => {
   ]
   return <Box sx={{ display: 'grid', gap: 2 }}>
     <ResidentBillMonthFilter periods={periods.data ?? []} value={period} onChange={changePeriod} />
-    {periods.error && <LoadErrorState inline helperText={t('residentFinance.periodsError')} onRetry={periods.refresh} />}
+    {periods.error && list.data && <LoadErrorState inline helperText={t('residentFinance.periodsError')} onRetry={periods.refresh} />}
     {waitingForPeriod || list.loading ? <LoadingState label={t('finance.billing.loading')} />
-      : list.error ? <LoadErrorState helperText={t('residentFinance.billsError')} onRetry={list.refresh} />
+      : list.error ? <LoadErrorState helperText={t('residentFinance.billsError')} onRetry={retryBills} />
         : list.data && <ResponsiveDataView paginationId="resident-published-bills" paginationResetKey={`${identity}:${period}`}
           ariaLabel={t('sidebar.myBills')} rows={list.data.items} columns={columns} getRowId={bill => bill.id}
           serverPagination={{ page, totalCount: list.data.totalCount, onPageChange: page => setFilters({ period, page }) }}

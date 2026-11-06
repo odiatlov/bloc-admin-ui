@@ -16,6 +16,7 @@ import PageHeader from '../../../../../components/shared/PageHeader'
 import ResponsiveDataView, { type DataColumn } from '../../../../../components/shared/ResponsiveDataView'
 import SearchField from '../../../../../components/shared/SearchField'
 import { useFinanceActionScope, useFinanceBlocks, useFinanceIdentity } from '../../../../../hooks/useFinanceWorkspace'
+import { usePageFilter } from '../../../../../hooks/usePageFilter'
 import { ApiError } from '../../../../../services/apiClient'
 import { financeBillsApi, type FinanceBillItem, type FinanceBillList } from '../../../../../services/financeBillsApi'
 import type { ResidentBillSummary } from '../../../../../types/finance'
@@ -30,10 +31,7 @@ function AdminBillList() {
   const [params, setParams] = useSearchParams()
   const requestsOnly = params.get('tab') === 'requests'
   const blocks = useFinanceBlocks()
-  const [blockId, setBlock] = useState('')
-  const [staircaseId, setStaircase] = useState('')
-  const [period, setPeriod] = useState('')
-  const [search, setSearch] = useState('')
+  const [filters, setFilters] = usePageFilter('adminBills.filters', { blockId: '', staircaseId: '', period: '', search: '' })
   const [page, setPage] = useState(1)
   const [revision, setRevision] = useState(0)
   const [state, setState] = useState<{ key: string; data?: FinanceBillList; error?: boolean }>()
@@ -45,24 +43,35 @@ function AdminBillList() {
   const [action, setAction] = useState<{ type: 'record' | 'remind'; id: string }>()
   const inFlight = useRef(false)
   const active = useFinanceActionScope()
+  const selectedBlock = blocks.blocks.find(block => block.id === filters.blockId)
+  const blockId = selectedBlock?.id ?? ''
+  const staircases = selectedBlock ? selectedBlock.staircases
+    : blocks.blocks.flatMap(block => block.staircases.map(stair => ({ ...stair, name: `${block.name} / ${stair.name}` })))
+  const staircaseId = filters.blockId === blockId && staircases.some(stair => stair.id === filters.staircaseId)
+    ? filters.staircaseId : ''
+  const waitingForScope = blocks.loading && Boolean(filters.blockId || filters.staircaseId)
   const scope = `${blockId}:${staircaseId}`
+  const available = months?.key === scope ? months : undefined
+  const savedPeriod = filters.blockId === blockId && filters.staircaseId === staircaseId ? filters.period : ''
+  const waitingForPeriod = Boolean(savedPeriod) && !available
+  const period = available?.values.includes(savedPeriod) ? savedPeriod : ''
+  const { search } = filters
   const filterKey = JSON.stringify([scope, period, search, requestsOnly])
   const key = `${filterKey}:${page}`
   const current = state?.key === key ? state : undefined
-  const available = months?.key === scope ? months : undefined
-  const staircases = blockId ? blocks.blocks.find(block => block.id === blockId)?.staircases ?? []
-    : blocks.blocks.flatMap(block => block.staircases.map(stair => ({ ...stair, name: `${block.name} / ${stair.name}` })))
   const today = billingDate()
 
   useEffect(() => {
+    if (waitingForScope) return
     const abort = new AbortController()
     financeBillsApi.periods({ blockId, staircaseId }, abort.signal)
       .then(values => { if (!abort.signal.aborted) setMonths({ key: scope, values }) })
       .catch(() => { if (!abort.signal.aborted) setMonths({ key: scope, values: [], error: true }) })
     return () => abort.abort()
-  }, [blockId, staircaseId, scope, revision])
+  }, [blockId, staircaseId, scope, revision, waitingForScope])
 
   useEffect(() => {
+    if (waitingForScope || waitingForPeriod) return
     const abort = new AbortController()
     const [year, month] = period.split('-').map(Number)
     financeBillsApi.list({ blockId, staircaseId, year: year || undefined, month: month || undefined,
@@ -73,7 +82,7 @@ function AdminBillList() {
       else setState({ key, data })
     }).catch(() => { if (!abort.signal.aborted) setState({ key, error: true }) })
     return () => abort.abort()
-  }, [blockId, staircaseId, period, search, requestsOnly, page, key, revision])
+  }, [blockId, staircaseId, period, search, requestsOnly, page, key, revision, waitingForScope, waitingForPeriod])
 
   useEffect(() => {
     const refresh = () => setRevision(value => value + 1)
@@ -87,7 +96,11 @@ function AdminBillList() {
     t('finance.billing.apartmentNumber', { number: bill.apartmentNumber })].filter(Boolean).join(' / ')
   const amountLabel = (bill: ResidentBillSummary, amount = bill.remainingAmount) => new Intl.NumberFormat(i18n.language,
     { style: 'currency', currency: bill.currency }).format(amount)
-  const retry = () => { setState(undefined); setRevision(value => value + 1) }
+  const retryFilters = () => {
+    if (blocks.error) blocks.refresh()
+    setRevision(value => value + 1)
+  }
+  const retry = () => { setState(undefined); retryFilters() }
 
   const markPaid = async () => {
     if (!selection || !receivedOn || receivedOn > today || inFlight.current) return
@@ -153,23 +166,26 @@ function AdminBillList() {
     ] },
   ]
 
-  const changeSearch = (value: string) => { setSearch(value.slice(0, 200)); setPage(1) }
+  const changeFilters = (changes: Partial<typeof filters>) => {
+    setFilters(current => ({ ...current, ...changes }))
+    setPage(1)
+  }
   const tab = requestsOnly ? 'requests' : 'bills'
   return <Box>
     <PageHeader title={t('billPayments.bills')} description={t('billPayments.adminDescription')} />
     <Stack spacing={2}>
       <FilterBar>
         <SearchField size="small" label={t('billPayments.search')} value={search}
-          onChange={event => changeSearch(event.target.value)} onClear={() => changeSearch('')} />
+          onChange={event => changeFilters({ search: event.target.value.slice(0, 200) })} onClear={() => changeFilters({ search: '' })} />
         <TextField select size="small" label={t('finance.billing.block')} value={blockId} disabled={blocks.loading || !!blocks.error}
           slotProps={{ select: { displayEmpty: true }, inputLabel: { shrink: true } }}
-          onChange={event => { setBlock(event.target.value); setStaircase(''); setPeriod(''); setPage(1) }}>
+          onChange={event => changeFilters({ blockId: event.target.value, staircaseId: '', period: '' })}>
           <MenuItem value="">{t('common.all')}</MenuItem>
           {blocks.blocks.map(block => <MenuItem key={block.id} value={block.id}>{block.name}</MenuItem>)}
         </TextField>
         <TextField select size="small" label={t('billPayments.staircase')} value={staircaseId} disabled={!staircases.length}
           slotProps={{ select: { displayEmpty: true }, inputLabel: { shrink: true } }}
-          onChange={event => { setStaircase(event.target.value); setPeriod(''); setPage(1) }}>
+          onChange={event => changeFilters({ blockId, staircaseId: event.target.value, period: '' })}>
           <MenuItem value="">{t('common.all')}</MenuItem>
           {staircases.map(stair => <MenuItem key={stair.id} value={stair.id}>{stair.name}</MenuItem>)}
         </TextField>
@@ -177,10 +193,10 @@ function AdminBillList() {
           availableMonths={available?.values ?? []} disabled={!available?.values.length || !!available.error}
           minDate={available?.values.at(-1) ? `${available.values.at(-1)}-01` : undefined}
           maxDate={available?.values[0] ? `${available.values[0]}-01` : undefined}
-          onChange={value => { setPeriod(value); setPage(1) }} />
+          onChange={value => changeFilters({ blockId, staircaseId, period: value })} />
       </FilterBar>
-      {blocks.error && <LoadErrorState helperText={t('billPayments.filtersError')} onRetry={blocks.refresh} />}
-      {available?.error && <LoadErrorState helperText={t('billPayments.filtersError')} onRetry={() => setRevision(value => value + 1)} />}
+      {current?.data && (blocks.error || available?.error) &&
+        <LoadErrorState inline helperText={t('billPayments.filtersError')} onRetry={retryFilters} />}
       <Paper sx={{ overflow: 'hidden' }}>
         <Tabs value={tab} variant="fullWidth" aria-label={t('billPayments.bills')}
           onChange={(_, value: 'bills' | 'requests') => { setPage(1); setParams(value === 'requests' ? { tab: value } : {}) }}>

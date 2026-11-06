@@ -5,15 +5,18 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderWithProviders } from '../../../../../../tests/render'
 import { residentContext } from '../../../../../../tests/financeFixtures'
 import { RoleContext } from '../../../../../contexts/RoleContext'
+import { useResidentFinanceSummary } from '../../../../../hooks/useResidentFinance'
 import { residentFinanceApi } from '../../../../../services/residentFinanceApi'
 import ResidentCurrentDue from './ResidentCurrentDue'
 
-const element = (id = residentContext.account.id) => <MemoryRouter><RoleContext.Provider value={{ ...residentContext, account: { ...residentContext.account, id } }}><ResidentCurrentDue /></RoleContext.Provider></MemoryRouter>
+const CurrentDueProbe = () => <ResidentCurrentDue summary={useResidentFinanceSummary()} />
+const element = (id = residentContext.account.id) => <MemoryRouter><RoleContext.Provider value={{ ...residentContext, account: { ...residentContext.account, id } }}><CurrentDueProbe /></RoleContext.Provider></MemoryRouter>
+const balance = { currentAmountDue: 350.25, currency: 'RON', unpaidBillCount: 12, totalBillCount: 15, recentPublications: [] }
 beforeEach(() => vi.restoreAllMocks())
 
 describe('resident current amount due', () => {
   it('shows the server total across all bills and the unpaid count', async () => {
-    vi.spyOn(residentFinanceApi, 'summary').mockResolvedValue({ currentAmountDue: 350.25, currency: 'RON', unpaidBillCount: 12, totalBillCount: 15 })
+    vi.spyOn(residentFinanceApi, 'summary').mockResolvedValue(balance)
     renderWithProviders(element())
     expect(await screen.findByText(/350.25/)).toBeVisible()
     expect(screen.getByText('12 unpaid bills across your linked apartments')).toBeVisible()
@@ -21,7 +24,7 @@ describe('resident current amount due', () => {
 
   it('keeps failures separate from zero and retries successfully', async () => {
     vi.spyOn(residentFinanceApi, 'summary').mockRejectedValueOnce(new Error('offline'))
-      .mockResolvedValue({ currentAmountDue: 0, currency: 'RON', unpaidBillCount: 0, totalBillCount: 0 })
+      .mockResolvedValue({ ...balance, currentAmountDue: 0, unpaidBillCount: 0, totalBillCount: 0 })
     renderWithProviders(element())
     expect(screen.getByRole('progressbar')).toBeInTheDocument()
     expect(await screen.findByText('Your amount due could not be loaded. Please retry.')).toBeVisible()
@@ -32,7 +35,7 @@ describe('resident current amount due', () => {
   })
 
   it('never shows the previous account’s balance while loading another account', async () => {
-    vi.spyOn(residentFinanceApi, 'summary').mockResolvedValueOnce({ currentAmountDue: 350.25, currency: 'RON', unpaidBillCount: 12, totalBillCount: 15 })
+    vi.spyOn(residentFinanceApi, 'summary').mockResolvedValueOnce(balance)
       .mockImplementation(() => new Promise(() => undefined))
     const view = renderWithProviders(element())
     await screen.findByText(/350.25/)

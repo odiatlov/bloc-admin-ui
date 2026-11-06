@@ -1,5 +1,6 @@
 ﻿{
   "financePublication": {
+    "dashboardEvent": "Raport de cheltuieli publicat pentru {{period}} · {{block}}",
     "publish": "Publică",
     "published": "Publicat",
     "publishing": "Se publică…",
@@ -598,6 +599,8 @@
                                     "activity":  {
                                                      "title":  "Activitate recentă",
                                                      "invoiceGenerated":  "Factură generată - Bloc A",
+                                                     "cashRecorded":  "Plată în numerar înregistrată · {{block}}, ap. {{apartment}} · {{period}}",
+                                                     "empty":  "Nu există activitate recentă.",
                                                      "paymentReceived":  "Plată primită - Ap. 12",
                                                      "waterReadingSubmitted":  "Index apă trimis - Ap. 7",
                                                      "twoHoursAgo":  "acum 2h",
@@ -610,9 +613,14 @@
                                                    "unusualConsumption":  "{{count}} apartamente au consum neobișnuit",
                                                    "cashWorkflow":  "Registrul de numerar are intrări de reconciliat"
                                                },
+                                    "financeLoadError":  "Datele financiare nu au putut fi încărcate. Reîncearcă.",
                                     "keyMetrics":  {
                                                        "title":  "Indicatori cheie",
                                                        "monthlyRevenue":  "Venit lunar",
+                                                       "administrationReceipts":  "Încasări administrare",
+                                                       "billedForMonth":  "Facturi pentru {{month}}",
+                                                       "overdueHelp":  "Neachitate după scadență",
+                                                       "pendingCashRequests":  "Solicitări de plată în așteptare",
                                                        "outstanding":  "Facturi restante",
                                                        "outstandingValue":  "{{count}} facturi",
                                                        "collectionRate":  "Rata colectare",
@@ -655,6 +663,7 @@
                                        "noRegisteredIndexYet":  "Nu există index înregistrat încă",
                                        "recentAnnouncements":  "Anunțuri recente",
                                        "noAnnouncements":  "Nu există anunțuri",
+                                       "announcementsLoadError":  "Anunțurile nu au putut fi încărcate.",
                                        "lastPayment":  "Ultima plată: {{amount}}",
                                        "announcements":  {
                                                              "elevator":  "Revizia liftului este programată pentru 12 mai.",

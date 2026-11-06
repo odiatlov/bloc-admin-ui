@@ -1,7 +1,12 @@
 import React from 'react'
 import Box from '@mui/material/Box'
+import Divider from '@mui/material/Divider'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemText from '@mui/material/ListItemText'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
+import { useTranslation } from 'react-i18next'
 import MetricCard from '../../../../../components/shared/MetricCard'
 
 export { default as ActionBar } from '../../../../../components/shared/ActionBar'
@@ -85,6 +90,28 @@ export const ContentCard: React.FC<ContentCardProps> = ({ accent, children, titl
     {children}
   </Paper>
 )
+
+type DashboardActivityListProps = {
+  items: readonly { id: string; title: string; secondary?: string; occurredAt?: string }[]
+  emptyText: string
+}
+
+export const DashboardActivityList: React.FC<DashboardActivityListProps> = ({ items, emptyText }) => {
+  const { i18n } = useTranslation()
+  const timestamp = new Intl.DateTimeFormat(i18n.language, {
+    dateStyle: 'medium', timeStyle: 'short', hourCycle: 'h23', timeZone: 'Europe/Bucharest',
+  })
+  return <List>
+    {items.length ? items.map(item => (
+      <React.Fragment key={item.id}>
+        <ListItem alignItems="flex-start">
+          <ListItemText primary={item.title} secondary={item.occurredAt ? timestamp.format(new Date(item.occurredAt)) : item.secondary} />
+        </ListItem>
+        <Divider component="li" />
+      </React.Fragment>
+    )) : <ListItem><ListItemText primary={emptyText} /></ListItem>}
+  </List>
+}
 
 export const DashboardPage: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <Box sx={{ display: 'grid', gap: 2 }}>

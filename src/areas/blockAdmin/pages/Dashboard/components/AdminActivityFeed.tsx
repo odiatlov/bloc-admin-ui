@@ -1,38 +1,43 @@
 import React from 'react'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
-import { ContentCard } from './DashboardSystem'
-import { RoleContext } from '../../../../../contexts/RoleContext'
+import LoadErrorState from '../../../../../components/shared/LoadErrorState'
+import LoadingState from '../../../../../components/shared/LoadingState'
+import type { FinanceDashboard } from '../../../../../types/finance'
+import { ContentCard, DashboardActivityList } from './DashboardSystem'
 
-const items = [
+const demoActivity = [
   { textKey: 'invoiceGenerated', timeKey: 'twoHoursAgo' },
   { textKey: 'paymentReceived', timeKey: 'fourHoursAgo' },
   { textKey: 'waterReadingSubmitted', timeKey: 'oneDayAgo' }
 ]
 
-const AdminActivityFeed: React.FC = () => {
-  const { t } = useTranslation()
-  const { account } = React.useContext(RoleContext)
-  const isDemo = account.dataMode === 'mock-populated' || account.dataMode === 'mock-configured-block'
+type Props = {
+  activity: FinanceDashboard['activity']
+  loading: boolean
+  error: boolean
+  onRetry: () => void
+  isDemo: boolean
+}
+
+const AdminActivityFeed: React.FC<Props> = ({ activity, loading, error, onRetry, isDemo }) => {
+  const { t, i18n } = useTranslation()
+  const month = new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' })
+  const items = isDemo ? demoActivity.map(item => ({
+    id: item.textKey, title: t(`dashboard.admin.activity.${item.textKey}`),
+    secondary: t(`dashboard.admin.activity.${item.timeKey}`),
+  })) : activity.map(item => ({
+    id: `${item.type}:${item.id}`,
+    title: t(item.type === 'reportPublished' ? 'financePublication.dashboardEvent' : 'dashboard.admin.activity.cashRecorded', {
+      block: item.blockName, apartment: item.apartmentNumber,
+      period: month.format(new Date(item.year, item.month - 1, 1)),
+    }),
+    occurredAt: item.occurredAt,
+  }))
   return (
     <ContentCard title={t('dashboard.admin.activity.title')}>
-      <Box sx={{ display: 'grid', gap: 1.5 }}>
-        {!isDemo && <Typography variant="body2" color="text.secondary">{t('financeAvailability.activityPending')}</Typography>}
-        {isDemo && items.map((i, idx) => (
-          <Box key={idx} sx={{ display: 'grid', gridTemplateColumns: '12px minmax(0, 1fr)', gap: 1.25, alignItems: 'start' }}>
-            <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'primary.main', mt: '0.5rem', boxShadow: (theme) => `0 0 0 4px ${theme.palette.action.hover}` }} />
-            <Box sx={{ minWidth: 0 }}>
-              <Typography variant="body2" sx={{ lineHeight: 1.4 }}>
-                {t(`dashboard.admin.activity.${i.textKey}`)}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                {t(`dashboard.admin.activity.${i.timeKey}`)}
-              </Typography>
-            </Box>
-          </Box>
-        ))}
-      </Box>
+      {loading ? <LoadingState variant="compact" label={t('finance.billing.loading')} />
+        : error ? <LoadErrorState inline helperText={t('dashboard.admin.financeLoadError')} onRetry={onRetry} />
+          : <DashboardActivityList items={items} emptyText={t('dashboard.admin.activity.empty')} />}
     </ContentCard>
   )
 }

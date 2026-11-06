@@ -3,30 +3,29 @@ import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import CircularProgress from '@mui/material/CircularProgress'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemText from '@mui/material/ListItemText'
-import Divider from '@mui/material/Divider'
 import Paper from '@mui/material/Paper'
 import { useTranslation } from 'react-i18next'
 import EmptyState from '../../../../../components/shared/EmptyState'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
+import LoadingState from '../../../../../components/shared/LoadingState'
 import { RoleContext } from '../../../../../contexts/RoleContext'
 import { blocksApi } from '../../../../../services/blocksApi'
 import { personsApi } from '../../../../../services/personsApi'
 import { formatCurrency, useResidentPortal } from '../../../../../hooks/useApartmentData'
 import { formatCubicMeters } from '../../../../../utils/formatters'
 import { useResidentWaterIndex } from '../../../../../hooks/useResidentWaterIndex'
+import { useResidentFinanceSummary } from '../../../../../hooks/useResidentFinance'
 import type { BlockOverview } from '../../../../../types/block'
 import type { PersonApartmentSummary, PersonResponse } from '../../../../../types/management'
-import { ContentCard, DashboardHeader, DashboardPage, StatGrid } from './DashboardSystem'
+import { ContentCard, DashboardActivityList, DashboardHeader, DashboardPage, StatGrid } from './DashboardSystem'
 import ResidentCurrentDue from './ResidentCurrentDue'
 import ResidentQuickActions from './ResidentQuickActions'
 
 const ResidentDashboard: React.FC = () => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { account } = React.useContext(RoleContext)
   const { currentBalance, financeAvailable, resident, residentInvoices } = useResidentPortal()
+  const finance = useResidentFinanceSummary(!financeAvailable)
   const { rows: waterIndexRows } = useResidentWaterIndex()
   const [databaseResident, setDatabaseResident] = React.useState<PersonResponse | null>(null)
   const [databaseBlocks, setDatabaseBlocks] = React.useState<BlockOverview[]>([])
@@ -77,10 +76,20 @@ const ResidentDashboard: React.FC = () => {
     if (summary.previousTotal === null) return formatCubicMeters(summary.currentTotal)
     return `${formatCubicMeters(summary.previousTotal)} \u2192 ${formatCubicMeters(summary.currentTotal)}`
   }
-  const announcements = [
+  const demoAnnouncements = [
     { id: 'A1', date: '2026-05-01', textKey: 'dashboard.resident.announcements.elevator' },
     { id: 'A2', date: '2026-04-20', textKey: 'dashboard.resident.announcements.water' },
   ]
+  const month = new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' })
+  const announcements = financeAvailable ? demoAnnouncements.map(item => ({
+    id: item.id, title: t(item.textKey), secondary: new Date(item.date).toLocaleDateString(),
+  })) : (finance.data?.recentPublications ?? []).map(item => ({
+    id: item.id,
+    title: t('financePublication.dashboardEvent', {
+      block: item.blockName, period: month.format(new Date(item.year, item.month - 1, 1)),
+    }),
+    occurredAt: item.occurredAt,
+  }))
 
   const loadResidentApartments = React.useCallback(async () => {
     if (!account.personId) {
@@ -224,7 +233,7 @@ const ResidentDashboard: React.FC = () => {
         {financeAvailable ? <ContentCard title={t('dashboard.resident.currentDue')}>
           <Typography variant="h5">{formatCurrency(currentBalance)}</Typography>
           <Typography variant="body2" color="text.secondary">{t('dashboard.resident.currentDueSubtitle')}</Typography>
-        </ContentCard> : <ResidentCurrentDue />}
+        </ContentCard> : <ResidentCurrentDue summary={finance} />}
 
         <ContentCard title={t('dashboard.resident.lastMonthWaterConsumption')}>
           {latestIndexRows.length > 0 ? (
@@ -289,22 +298,9 @@ const ResidentDashboard: React.FC = () => {
         </ContentCard>
 
         <ContentCard title={t('dashboard.resident.recentAnnouncements')}>
-          <List>
-            {announcements.length ? (
-              announcements.map((item) => (
-                <React.Fragment key={item.id}>
-                  <ListItem alignItems="flex-start">
-                    <ListItemText primary={t(item.textKey)} secondary={new Date(item.date).toLocaleDateString()} />
-                  </ListItem>
-                  <Divider component="li" />
-                </React.Fragment>
-              ))
-            ) : (
-              <ListItem>
-                <ListItemText primary={t('dashboard.resident.noAnnouncements')} />
-              </ListItem>
-            )}
-          </List>
+          {finance.loading ? <LoadingState variant="compact" label={t('finance.billing.loading')} />
+            : finance.error ? <Typography color="text.secondary">{t('dashboard.resident.announcementsLoadError')}</Typography>
+              : <DashboardActivityList emptyText={t('dashboard.resident.noAnnouncements')} items={announcements} />}
         </ContentCard>
       </Box>
     </DashboardPage>

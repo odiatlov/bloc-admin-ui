@@ -83,7 +83,7 @@ const CensorEditor = ({ blockId }: { blockId: string }) => {
     && (mode === 'External' ? !!firstName.trim() && !!lastName.trim() : !!candidate)
   const choices = options?.key === searchKey ? options.items : []
   return <Box sx={{ display: 'grid', gap: 1 }}>
-    {loadError ? <LoadErrorState helperText={t('financeReview.settings.loadFailed')} onRetry={() => { setCurrent(undefined); setLoadError(false); setRetry(x => x + 1) }} />
+    {loadError ? (!open && <LoadErrorState helperText={t('financeReview.settings.loadFailed')} onRetry={() => { setCurrent(undefined); setLoadError(false); setRetry(x => x + 1) }} />)
       : !current ? <CircularProgress size={24} aria-label={t('persons.loading')} /> : <TextField
         fullWidth size="small" label={t('financeReview.settings.field')} value={current.fullName ?? t('financeReview.settings.none')}
         onClick={start} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); start() } }}
@@ -115,7 +115,7 @@ const CensorEditor = ({ blockId }: { blockId: string }) => {
           onChange={(_event, value) => { setCandidate(value); setEmail(''); setConfirmed(false) }}
           noOptionsText={t(candidateError ? 'financeReview.settings.loadFailed' : 'financeReview.settings.noResidents')} loadingText={t('persons.loading')}
           renderInput={params => <TextField {...params} size="small" label={t('financeReview.settings.search')} />} />
-        {candidateError && <LoadErrorState helperText={t('financeReview.settings.loadFailed')} onRetry={() => setCandidateRetry(x => x + 1)} />}
+        {candidateError && !loadError && <LoadErrorState helperText={t('financeReview.settings.loadFailed')} onRetry={() => setCandidateRetry(x => x + 1)} />}
         {!candidateError && options?.key === searchKey && options.count > choices.length && <Button disabled={candidateLoading || saving}
           onClick={() => setPage(options.page + 1)}>{t('financeReview.settings.more')}</Button>}
         <Typography variant="body2" color="text.secondary">{t('financeReview.settings.residentHelp')}</Typography>

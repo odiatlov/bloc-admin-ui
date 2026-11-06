@@ -2,12 +2,11 @@ import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
 import LoadingState from '../../../../../components/shared/LoadingState'
-import { useResidentFinanceSummary } from '../../../../../hooks/useResidentFinance'
+import type { useResidentFinanceSummary } from '../../../../../hooks/useResidentFinance'
 import { ContentCard } from './DashboardSystem'
 
-const ResidentCurrentDue = () => {
+const ResidentCurrentDue = ({ summary }: { summary: ReturnType<typeof useResidentFinanceSummary> }) => {
   const { t, i18n } = useTranslation()
-  const summary = useResidentFinanceSummary()
   const data = summary.data
   return <ContentCard title={t('dashboard.resident.currentDue')}>
     {summary.loading ? <LoadingState variant="compact" label={t('finance.billing.loading')} />

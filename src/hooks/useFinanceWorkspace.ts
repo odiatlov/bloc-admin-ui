@@ -10,6 +10,28 @@ export const useFinanceIdentity = () => {
   return `${account.id}:${role}:${token}`
 }
 
+export function useFinanceRequest<T>(scope: string, load: (signal: AbortSignal) => Promise<T>, active: boolean) {
+  const identity = useFinanceIdentity()
+  const [revision, setRevision] = React.useState(0)
+  const [state, setState] = React.useState<{ key: string; data?: T; error?: string }>()
+  const key = `${identity}:${scope}:${revision}`
+  const refresh = React.useCallback(() => setRevision(value => value + 1), [])
+  React.useEffect(() => {
+    if (!active) return
+    const abort = new AbortController()
+    load(abort.signal).then(data => { if (!abort.signal.aborted) setState({ key, data }) })
+      .catch((error: unknown) => { if (!abort.signal.aborted) setState({ key, error: error instanceof Error ? error.message : 'Request failed' }) })
+    return () => abort.abort()
+  }, [active, key, load])
+  React.useEffect(() => {
+    if (!active) return
+    window.addEventListener('focus', refresh)
+    return () => window.removeEventListener('focus', refresh)
+  }, [active, refresh])
+  const current = active && state?.key === key ? state : undefined
+  return { data: current?.data, error: current?.error, loading: active && !current, refresh }
+}
+
 export const useFinanceActionScope = () => {
   const active = React.useRef(false)
   React.useEffect(() => { active.current = true; return () => { active.current = false } }, [])

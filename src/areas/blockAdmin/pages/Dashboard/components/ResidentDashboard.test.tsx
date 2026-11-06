@@ -6,6 +6,7 @@ import { renderWithProviders } from '../../../../../../tests/render'
 import { RoleContext } from '../../../../../contexts/RoleContext'
 import * as portal from '../../../../../hooks/useApartmentData'
 import * as water from '../../../../../hooks/useResidentWaterIndex'
+import { residentFinanceApi } from '../../../../../services/residentFinanceApi'
 import type { ResidentWaterMeterRow } from '../../../../../types/waterReadings'
 import ResidentDashboard from './ResidentDashboard'
 
@@ -27,12 +28,15 @@ const renderDashboard = (rows: ResidentWaterMeterRow[], language: 'en' | 'ro', m
   </RoleContext.Provider></MemoryRouter>, { language, mode })
 }
 
+const portalFixture: ReturnType<typeof portal.useResidentPortal> = {
+  apartment: undefined, apartments: [], apartmentsByBlock: {}, currentBalance: 0, familyLabel: '', financeAvailable: true,
+  lastPayment: undefined, resident: undefined, residentInvoices: [], residentPayments: [], residentReadings: [], role: 'Resident',
+}
+
 beforeEach(() => {
+  vi.restoreAllMocks()
   sessionStorage.clear()
-  vi.spyOn(portal, 'useResidentPortal').mockReturnValue({
-    apartment: undefined, apartments: [], apartmentsByBlock: {}, currentBalance: 0, familyLabel: '', financeAvailable: true,
-    lastPayment: undefined, resident: undefined, residentInvoices: [], residentPayments: [], residentReadings: [], role: 'Resident',
-  })
+  vi.spyOn(portal, 'useResidentPortal').mockReturnValue(portalFixture)
 })
 
 describe('resident water dashboard units', () => {
@@ -50,4 +54,18 @@ describe('resident water dashboard units', () => {
     expect(screen.getByText('0 m³')).toBeVisible()
     expect(screen.getAllByText('No registered index yet')).toHaveLength(2)
   })
+})
+
+it('shows real expense publications in the recent announcements list', async () => {
+  vi.mocked(portal.useResidentPortal).mockReturnValue({ ...portalFixture, financeAvailable: false })
+  const summary = vi.spyOn(residentFinanceApi, 'summary').mockResolvedValue({
+    currentAmountDue: 40, currency: 'RON', unpaidBillCount: 1, totalBillCount: 1,
+    recentPublications: [{ id: '00000000-0000-0000-0000-000000000110', type: 'reportPublished',
+      occurredAt: '2026-11-05T08:00:00Z', blockName: 'Bloc A', year: 2026, month: 10 }],
+  })
+  renderDashboard([], 'ro', 'dark')
+  const announcement = await screen.findByText('Raport de cheltuieli publicat pentru octombrie 2026 · Bloc A')
+  expect(announcement.closest('li')).toHaveTextContent('10:00')
+  expect(screen.queryByText(/Revizia liftului/)).not.toBeInTheDocument()
+  expect(summary).toHaveBeenCalledOnce()
 })
