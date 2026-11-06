@@ -3,6 +3,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { useTranslation } from 'react-i18next'
 import type { FinanceBasis, ResidentBillDetail } from '../../types/finance'
+import BillBreakdownSection from './BillBreakdownSection'
 
 type Props = { detail: ResidentBillDetail; onClose: () => void }
 
@@ -49,8 +50,7 @@ const ResidentBillBreakdown = ({ detail, onClose }: Props) => {
         <Typography variant="body2" color="text.secondary">{label}</Typography><Typography variant="h6">{money(amount)}</Typography>
       </Paper>)}
     </Box>
-    <Paper variant="outlined" sx={{ p: 2, display: 'grid', gap: 1 }}>
-      <Typography variant="h6">{t('resident.bills.summary.title')}</Typography>
+    <BillBreakdownSection title={t('resident.bills.summary.title')}>
       {totalLine(t('resident.bills.summary.expenses'), row.currentCharges)}
       {totalLine(t('resident.bills.summary.debts'), row.arrears)}
       {totalLine(t('finance.billing.adjustments'), row.adjustments)}
@@ -62,7 +62,7 @@ const ResidentBillBreakdown = ({ detail, onClose }: Props) => {
       </>}
       {bill.paidAmount > 0 && totalLine(t('residentFinance.paidAmount'), bill.paidAmount)}
       {totalLine(t('resident.bills.summary.balance'), bill.remainingAmount, true)}
-    </Paper>
+    </BillBreakdownSection>
     <Paper variant="outlined" sx={{ p: 2 }}>
       <Typography variant="h6" sx={{ mb: 1 }}>{t('residentFinance.inputsTitle')}</Typography>
       <Box component="dl" sx={{ m: 0, display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: 1 }}>

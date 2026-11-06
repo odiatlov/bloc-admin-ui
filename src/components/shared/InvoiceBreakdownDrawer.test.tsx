@@ -17,7 +17,7 @@ describe('published resident bill drawer', () => {
       expect(within(drawer).getByText(`Reason: ${entry.reason}`)).toBeVisible()
     }
     expect(within(drawer).getByText(/measured usage is 4 m³/)).toBeVisible()
-    expect(within(drawer).getByText(/not charged twice/)).toBeVisible()
+    expect(within(drawer).getByText(/was included in earlier bills/)).toBeVisible()
     expect(within(drawer).getByText('Saved report total').parentElement).toHaveTextContent('212.00')
     expect(within(drawer).getByText('Amount issued on this bill').parentElement).toHaveTextContent('112.00')
     await user.click(within(drawer).getByRole('button', { name: /Garden repair/ }))

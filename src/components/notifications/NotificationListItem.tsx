@@ -61,6 +61,14 @@ const getNotificationDisplay = (
   t: ReturnType<typeof useTranslation>['t'],
   language: string,
 ) => {
+  if (notification.type === 'BillCashRequested' || notification.type === 'BillPaymentReminder') {
+    const prefix = `billPayments.notifications.${notification.type}`
+    return {
+      context: notification.context,
+      title: t(`${prefix}.title`),
+      message: t(`${prefix}.message`, { period: formatNotificationPeriod(notification, language, notification.message) }),
+    }
+  }
   if (['FinanceReviewSubmitted', 'FinanceReviewResubmitted', 'FinanceReviewApproved', 'FinanceReviewRejected'].includes(notification.type)) {
     return {
       context: notification.type === 'FinanceReviewRejected' ? notification.message : null,

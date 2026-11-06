@@ -15,6 +15,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard'
 import PeopleIcon from '@mui/icons-material/People'
 import SettingsIcon from '@mui/icons-material/Settings'
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn'
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
 import OpacityIcon from '@mui/icons-material/Opacity'
 import PinIcon from '@mui/icons-material/Pin'
 import AssessmentIcon from '@mui/icons-material/Assessment'
@@ -79,6 +80,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ onNavigate, onClose, sh
         { label: t('sidebar.apartments'), to: '/admin/apartments', icon: <ApartmentIcon />, permission: 'blocks' as const },
         { label: t('sidebar.persons'), to: '/admin/persons', icon: <PeopleIcon />, permission: 'persons' as const },
         { label: t('sidebar.finance'), to: '/admin/finance', icon: <MonetizationOnIcon />, permission: 'finance' as const },
+        { label: t('billPayments.bills'), to: '/admin/bills', icon: <ReceiptLongIcon />, permission: 'finance' as const },
         { label: t('sidebar.consumption'), to: '/admin/consumption', icon: <OpacityIcon />, permission: 'consumption' as const },
         { label: t('sidebar.reports'), to: '/admin/reports', icon: <AssessmentIcon />, permission: 'reports' as const },
         { label: t('sidebar.settings'), to: '/admin/settings', icon: <SettingsIcon />, permission: 'settings' as const },

@@ -12,6 +12,7 @@ import Typography from '@mui/material/Typography'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
+import PaymentsOutlinedIcon from '@mui/icons-material/PaymentsOutlined'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import { useTranslation } from 'react-i18next'
 import type { ApartmentMaintenanceTotal } from '../../types/apartment'
@@ -55,7 +56,14 @@ const InvoiceBreakdownDrawer: React.FC<InvoiceBreakdownDrawerProps> = ({ formatC
       {loading ? <LoadingState variant="page" label={t('finance.billing.loading')} /> : error ? <Box sx={{ display: 'grid', gap: 2 }}>
         <Button onClick={onClose} startIcon={<ArrowBackIcon />}>{t('resident.bills.backToBills')}</Button>
         <LoadErrorState helperText={error} onRetry={onRetry ?? onClose} />
-      </Box> : bill ? <ResidentBillBreakdown detail={bill} onClose={onClose} /> : null}
+      </Box> : bill ? <>
+        <Box sx={{ minHeight: 0, overflowY: 'auto', flex: 1 }}>
+          <ResidentBillBreakdown detail={bill} onClose={onClose} />
+        </Box>
+        {onPay && <Box sx={{ pt: 2, mt: 2, borderTop: 1, borderColor: 'divider', display: 'flex', justifyContent: 'flex-end' }}>
+          <Button variant="contained" size="large" startIcon={<PaymentsOutlinedIcon />} onClick={onPay}>{t('resident.bills.payBill')}</Button>
+        </Box>}
+      </> : null}
       {invoice && (
         <Box sx={{ display: 'grid', gap: 2 }}>
           <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
@@ -182,7 +190,7 @@ const InvoiceBreakdownDrawer: React.FC<InvoiceBreakdownDrawerProps> = ({ formatC
           {onPay && (
             <Box>
               <Divider sx={{ mb: 2 }} />
-              <Button variant="contained" size="large" fullWidth disabled={balance <= 0} onClick={onPay}>
+              <Button variant="contained" size="large" startIcon={<PaymentsOutlinedIcon />} fullWidth disabled={balance <= 0} onClick={onPay}>
                 {t('resident.bills.payBill')}
               </Button>
             </Box>

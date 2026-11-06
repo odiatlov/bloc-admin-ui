@@ -1,5 +1,5 @@
 import React from 'react'
-import { Accordion, AccordionDetails, AccordionSummary, Alert, Box, Button, Checkbox, FormControlLabel, IconButton, InputAdornment, MenuItem, Radio, RadioGroup, Snackbar, Step, StepLabel, Stepper, TextField, Typography } from '@mui/material'
+import { Accordion, AccordionDetails, AccordionSummary, Alert, Box, Button, Checkbox, FormControlLabel, IconButton, InputAdornment, MenuItem, Snackbar, Step, StepLabel, Stepper, TextField, Typography } from '@mui/material'
 import ApartmentIcon from '@mui/icons-material/Apartment'
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import AddIcon from '@mui/icons-material/Add'
@@ -11,6 +11,7 @@ import { darken, lighten, useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTranslation } from 'react-i18next'
 import AppDialog from '../shared/AppDialog'
+import IconOptionCards from '../shared/IconOptionCards'
 import IconButtonTooltip from '../shared/IconButtonTooltip'
 import ConfirmationDialog from '../shared/ConfirmationDialog'
 import type { BlockSetupRequest, BlockSetupResponse, CreateBlockRequest, SetupApartment } from '../../types/block'
@@ -282,14 +283,10 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
         sx={{ '& .MuiAlert-action': { alignItems: 'flex-start', pt: 0 } }}>{error}</Alert>}
       {retryRequest && !setupSaved && <Alert severity="info">{w('retry')}</Alert>}
       {failedInvitations.length > 0 && <Alert severity="warning" sx={{ overflowWrap: 'anywhere' }}>{w('invitationFailed', { emails: failedInvitations.join(', ') })}</Alert>}
-      {stage === -1 ? <RadioGroup value={mode} onChange={e => {
-        const selected = e.target.value as 'simple' | 'full'
-        ask(() => { setMode(selected); setName(''); setAddress(''); setStaircases([]); setBlockGroup(newGroup()); dismissNotice() })
-      }} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-        {(['simple', 'full'] as const).map(option => <Box key={option} component="label" sx={{ border: '2px solid', borderColor: mode === option ? 'primary.main' : 'divider', borderRadius: 1, p: 2, display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, '&:focus-within': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2 } }}>
-          <Radio value={option} />{option === 'simple' ? <ApartmentIcon /> : <AccountTreeIcon />}<Typography>{w(option)}</Typography>
-        </Box>)}
-      </RadioGroup> : <>
+      {stage === -1 ? <IconOptionCards label={w('chooseTitle')} value={mode} options={[
+        { value: 'simple', icon: <ApartmentIcon />, label: w('simple') },
+        { value: 'full', icon: <AccountTreeIcon />, label: w('full') },
+      ]} onChange={selected => ask(() => { setMode(selected); setName(''); setAddress(''); setStaircases([]); setBlockGroup(newGroup()); dismissNotice() })} /> : <>
         {mode === 'full' && <>
           <Stepper activeStep={stage} alternativeLabel sx={{ display: { xs: 'none', sm: 'flex' } }}>{steps.map(step => <Step key={step}><StepLabel>{w(step)}</StepLabel></Step>)}</Stepper>
           <Stepper activeStep={stage} aria-label={w('step', { current: stage + 1, total: steps.length })}

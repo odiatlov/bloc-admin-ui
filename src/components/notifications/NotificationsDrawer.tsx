@@ -56,6 +56,8 @@ const NotificationsDrawer: React.FC<Props> = ({
         const targetRole = notification.type === 'FinanceReviewSubmitted' || notification.type === 'FinanceReviewResubmitted' ? 'Censor' : 'Admin'
         if (account.roles.includes(targetRole)) setRole(targetRole)
       }
+      if (notification.type === 'BillCashRequested' && account.roles.includes('Admin')) setRole('Admin')
+      if (notification.type === 'BillPaymentReminder' && account.roles.includes('Resident')) setRole('Resident')
       navigate(notification.actionUrl)
       onClose()
     }
