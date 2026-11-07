@@ -29,6 +29,80 @@ beforeEach(() => {
 })
 
 describe('admin bills', () => {
+  it('enables Staircase only after selecting a block and offers every stair from that block, even without bills', async () => {
+    const blockId = '00000000-0000-0000-0000-000000000061'
+    const emptyStairId = '00000000-0000-0000-0000-000000000063'
+    vi.mocked(financeApi.blocks).mockResolvedValue([
+      { id: blockId, name: 'Block A', hasStaircases: true, staircases: [
+        { id: '00000000-0000-0000-0000-000000000062', name: 'Stair A1' }, { id: emptyStairId, name: 'Stair A2 without bills' },
+      ] },
+      { id: '00000000-0000-0000-0000-000000000064', name: 'Block B', hasStaircases: true,
+        staircases: [{ id: '00000000-0000-0000-0000-000000000065', name: 'Stair B1' }] },
+    ])
+    const list = vi.spyOn(financeBillsApi, 'list').mockResolvedValue(page())
+    const user = userEvent.setup()
+    renderWithProviders(<MemoryRouter><RoleContext.Provider value={adminContext}><AdminBills /></RoleContext.Provider></MemoryRouter>)
+    expect(screen.getByRole('combobox', { name: /^Staircase/ })).toHaveAttribute('aria-disabled', 'true')
+    await waitFor(() => expect(screen.getByRole('combobox', { name: /^Block/ })).not.toHaveAttribute('aria-disabled', 'true'))
+    expect(screen.getByRole('combobox', { name: /^Staircase/ })).toHaveAttribute('aria-disabled', 'true')
+    await user.click(screen.getByRole('combobox', { name: /^Block/ }))
+    await user.click(await screen.findByRole('option', { name: 'Block A' }))
+    expect(screen.getByRole('combobox', { name: /^Staircase/ })).not.toHaveAttribute('aria-disabled', 'true')
+    await user.click(screen.getByRole('combobox', { name: /^Staircase/ }))
+    expect(await screen.findByRole('option', { name: 'Stair A1' })).toBeVisible()
+    expect(screen.getByRole('option', { name: 'Stair A2 without bills' })).toBeVisible()
+    expect(screen.queryByRole('option', { name: 'Stair B1' })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('option', { name: 'Stair A2 without bills' }))
+    await waitFor(() => expect(list).toHaveBeenLastCalledWith(expect.objectContaining({ blockId, staircaseId: emptyStairId }), expect.any(AbortSignal)))
+  })
+
+  it('clears the stair when changing or clearing the block and disables it for blocks without stairs', async () => {
+    const a = '00000000-0000-0000-0000-000000000071'
+    const b = '00000000-0000-0000-0000-000000000072'
+    const stairA = '00000000-0000-0000-0000-000000000073'
+    const stairB = '00000000-0000-0000-0000-000000000074'
+    vi.mocked(financeApi.blocks).mockResolvedValue([
+      { id: a, name: 'Block A', hasStaircases: true, staircases: [{ id: stairA, name: 'Stair A' }] },
+      { id: b, name: 'Block B', hasStaircases: true, staircases: [{ id: stairB, name: 'Stair B' }] },
+      { id: '00000000-0000-0000-0000-000000000075', name: 'No stairs', hasStaircases: false, staircases: [] },
+    ])
+    const list = vi.spyOn(financeBillsApi, 'list').mockResolvedValue(page())
+    const user = userEvent.setup()
+    renderWithProviders(<MemoryRouter><RoleContext.Provider value={adminContext}><AdminBills /></RoleContext.Provider></MemoryRouter>)
+    await waitFor(() => expect(screen.getByRole('combobox', { name: /^Block/ })).not.toHaveAttribute('aria-disabled', 'true'))
+    await user.click(screen.getByRole('combobox', { name: /^Block/ }))
+    await user.click(await screen.findByRole('option', { name: 'Block A' }))
+    await user.click(screen.getByRole('combobox', { name: /^Staircase/ }))
+    await user.click(await screen.findByRole('option', { name: 'Stair A' }))
+    await waitFor(() => expect(list).toHaveBeenLastCalledWith(expect.objectContaining({ blockId: a, staircaseId: stairA }), expect.any(AbortSignal)))
+    await user.click(screen.getByRole('combobox', { name: /^Block/ }))
+    await user.click(await screen.findByRole('option', { name: 'Block B' }))
+    expect(screen.getByRole('combobox', { name: /^Staircase/ })).toHaveTextContent('All')
+    await waitFor(() => expect(list).toHaveBeenLastCalledWith(expect.objectContaining({ blockId: b, staircaseId: '' }), expect.any(AbortSignal)))
+    await user.click(screen.getByRole('combobox', { name: /^Staircase/ }))
+    await user.click(await screen.findByRole('option', { name: 'Stair B' }))
+    await user.click(screen.getByRole('combobox', { name: /^Block/ }))
+    await user.click(await screen.findByRole('option', { name: 'All' }))
+    expect(screen.getByRole('combobox', { name: /^Staircase/ })).toHaveAttribute('aria-disabled', 'true')
+    await waitFor(() => expect(list).toHaveBeenLastCalledWith(expect.objectContaining({ blockId: '', staircaseId: '' }), expect.any(AbortSignal)))
+    await user.click(screen.getByRole('combobox', { name: /^Block/ }))
+    await user.click(await screen.findByRole('option', { name: 'No stairs' }))
+    expect(screen.getByRole('combobox', { name: /^Staircase/ })).toHaveAttribute('aria-disabled', 'true')
+  })
+
+  it('ignores a restored staircase filter without a selected block', async () => {
+    const stairId = '00000000-0000-0000-0000-000000000082'
+    vi.mocked(financeApi.blocks).mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000081', name: 'Block A', hasStaircases: true,
+      staircases: [{ id: stairId, name: 'Stair A' }] }])
+    sessionStorage.setItem(JSON.stringify(['page-filters-v1', adminContext.account.id, 'Admin', '/admin/bills', 'adminBills.filters']),
+      JSON.stringify({ blockId: '', staircaseId: stairId, period: '2026-11', search: '' }))
+    const list = vi.spyOn(financeBillsApi, 'list').mockResolvedValue(page())
+    renderWithProviders(<MemoryRouter initialEntries={['/admin/bills']}><RoleContext.Provider value={adminContext}><AdminBills /></RoleContext.Provider></MemoryRouter>)
+    await waitFor(() => expect(list).toHaveBeenCalled())
+    expect(screen.getByRole('combobox', { name: /^Staircase/ })).toHaveAttribute('aria-disabled', 'true')
+    expect(list.mock.calls.every(([filters]) => !filters.blockId && !filters.staircaseId && !filters.year && !filters.month)).toBe(true)
+  })
+
   it('validates a partial receipt and reuses its identity after an uncertain result', async () => {
     const partial = { ...first, paidAmount: 30, remainingAmount: first.remainingAmount - 30, cashRequestedAt: null }
     vi.spyOn(financeBillsApi, 'list').mockResolvedValueOnce(page(first)).mockResolvedValue(page(partial))

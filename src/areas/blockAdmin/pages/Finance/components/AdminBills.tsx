@@ -48,8 +48,7 @@ function AdminBillList() {
   const active = useFinanceActionScope()
   const selectedBlock = blocks.blocks.find(block => block.id === filters.blockId)
   const blockId = selectedBlock?.id ?? ''
-  const staircases = selectedBlock ? selectedBlock.staircases
-    : blocks.blocks.flatMap(block => block.staircases.map(stair => ({ ...stair, name: `${block.name} / ${stair.name}` })))
+  const staircases = selectedBlock?.staircases ?? []
   const staircaseId = filters.blockId === blockId && staircases.some(stair => stair.id === filters.staircaseId)
     ? filters.staircaseId : ''
   const waitingForScope = blocks.loading && Boolean(filters.blockId || filters.staircaseId)
@@ -192,7 +191,8 @@ function AdminBillList() {
           <MenuItem value="">{t('common.all')}</MenuItem>
           {blocks.blocks.map(block => <MenuItem key={block.id} value={block.id}>{block.name}</MenuItem>)}
         </TextField>
-        <TextField select size="small" label={t('billPayments.staircase')} value={staircaseId} disabled={!staircases.length}
+        <TextField select size="small" label={t('billPayments.staircase')} value={staircaseId}
+          disabled={!blockId || blocks.loading || !!blocks.error || !staircases.length}
           slotProps={{ select: { displayEmpty: true }, inputLabel: { shrink: true } }}
           onChange={event => changeFilters({ blockId, staircaseId: event.target.value, period: '' })}>
           <MenuItem value="">{t('common.all')}</MenuItem>
