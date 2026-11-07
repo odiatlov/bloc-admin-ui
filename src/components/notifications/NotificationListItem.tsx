@@ -69,7 +69,7 @@ const getNotificationDisplay = (
       revision: notification.relatedRevision,
     }),
   }
-  if (notification.type === 'BillCashRequested' || notification.type === 'BillPaymentReminder') {
+  if (notification.type === 'BillCashRequested' || notification.type === 'BillPaymentReminder' || notification.type === 'BillPaymentConfirmed') {
     const prefix = `billPayments.notifications.${notification.type}`
     return {
       context: notification.context,

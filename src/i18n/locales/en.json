@@ -113,6 +113,10 @@
     "noBills": "No published bills match these filters.",
     "noRequests": "No open payment requests match these filters.",
     "notifications": {
+      "BillPaymentConfirmed": {
+        "title": "Bill paid",
+        "message": "The administrator confirmed full payment of your {{period}} bill. Open the bill to view the payment details."
+      },
       "BillCashRequested": {
         "title": "Cash payment requested",
         "message": "A resident requested to pay the {{period}} bill in cash."

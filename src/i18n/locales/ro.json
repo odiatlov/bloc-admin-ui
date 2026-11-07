@@ -113,6 +113,10 @@
     "noBills": "Nicio factură publicată nu corespunde filtrelor.",
     "noRequests": "Nicio solicitare de plată deschisă nu corespunde filtrelor.",
     "notifications": {
+      "BillPaymentConfirmed": {
+        "title": "Factura a fost achitată",
+        "message": "Administratorul a confirmat achitarea integrală a facturii pentru {{period}}. Deschide factura pentru detaliile plății."
+      },
       "BillCashRequested": {
         "title": "Solicitare de plată în numerar",
         "message": "Un locatar a solicitat plata în numerar a facturii pentru {{period}}."
