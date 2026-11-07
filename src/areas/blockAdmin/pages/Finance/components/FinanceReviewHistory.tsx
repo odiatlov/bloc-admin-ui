@@ -1,14 +1,16 @@
-import { Alert, Chip, Typography } from '@mui/material'
+import { Alert, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import ResponsiveDataView, { type DataColumn } from '../../../../../components/shared/ResponsiveDataView'
 import type { FinanceReviewCycle, FinanceReviewState } from '../../../../../types/financeReview'
 import FinanceSection from './FinanceSection'
+import StatusChip from '../../../../../components/shared/StatusChip'
 
 export const FinanceReviewStatus = ({ review }: { review?: Pick<FinanceReviewState, 'status'> }) => {
   const { t } = useTranslation()
   if (!review) return null
-  return <Chip size="small" color={review.status === 'Approved' ? 'success' : review.status === 'Rejected' ? 'error' : 'default'}
+  return <StatusChip status={review.status === 'Approved' ? 'approved' : review.status === 'Rejected' ? 'rejected'
+    : review.status === 'Submitted' || review.status === 'Resubmitted' ? 'pending' : 'draft'}
     label={t(`financeReview.status.${review.status}`)} />
 }
 

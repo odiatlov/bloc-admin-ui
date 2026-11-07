@@ -1,6 +1,6 @@
 import React from 'react'
 import { usePageFilter } from '../../../../../hooks/usePageFilter'
-import { Alert, Box, Checkbox, Chip, FormControlLabel, MenuItem, TextField, Typography } from '@mui/material'
+import { Alert, Box, Checkbox, FormControlLabel, MenuItem, TextField, Typography } from '@mui/material'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import PreviewIcon from '@mui/icons-material/Preview'
 import PublishIcon from '@mui/icons-material/Publish'
@@ -19,6 +19,7 @@ import { financeApi } from '../../../../../services/financeApi'
 import type { FinanceReportSummary } from '../../../../../types/finance'
 import { getCurrentReadingPeriod } from '../../../../../utils/readingPeriods'
 import FinanceExportDialog from './FinanceExportDialog'
+import MaintenanceReportStatus from './MaintenanceReportStatus'
 
 const GeneratedReportsList: React.FC = () => {
   const { t, i18n } = useTranslation()
@@ -52,7 +53,7 @@ const GeneratedReportsList: React.FC = () => {
     { key: 'period', label: t('finance.billing.billingMonth'), cardRole: 'secondary', render: (row) => new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' }).format(new Date(row.year, row.month - 1, 1)) },
     { key: 'revision', label: t('finance.billing.revisionLabel'), render: (row) => row.revision },
     { key: 'review', label: t('financeReview.reviewStatus'), render: row => <FinanceReviewStatus review={row.review} /> },
-    { key: 'status', label: t('finance.billing.status'), cardRole: 'status', render: (row) => <Chip size="small" color={row.status === 'Published' ? 'success' : row.status === 'Outdated' ? 'warning' : 'default'} label={t(row.status === 'Published' ? 'financePublication.published' : `finance.billing.values.${row.status}`)} /> },
+    { key: 'status', label: t('finance.billing.status'), cardRole: 'status', render: row => <MaintenanceReportStatus status={row.status} /> },
     { key: 'generated', label: t('finance.billing.generatedAt'), render: (row) => new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(row.generatedAt)) },
     { key: 'total', label: t('finance.billing.totalDue'), render: (row) => new Intl.NumberFormat(i18n.language, { style: 'currency', currency: 'RON' }).format(row.totalDue) },
     { key: 'actions', label: t('common.actions'), cardRole: 'actions', actions: (row) => [

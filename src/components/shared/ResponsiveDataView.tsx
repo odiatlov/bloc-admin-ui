@@ -23,6 +23,7 @@ import { DATA_VIEW_PAGE_SIZE, getDataViewPage, resolveDataViewPage, type DataVie
 export type DataColumn<T> = {
   key: string
   label: string
+  align?: 'left' | 'center' | 'right'
   cardRole?: CardRole
 } & (
   | { render: (row: T) => React.ReactNode; actions?: never }
@@ -182,6 +183,7 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
               {columns.map((column, index) => (
                 <TableCell
                   key={column.key}
+                  align={column.align}
                   sx={{
                     ...metadataLabelSx,
                     ...stickyCellSx(index, true),
@@ -202,7 +204,7 @@ const ResponsiveDataView = <T,>({ ariaLabel, columns, desktopTableMinWidth = 900
                 } : undefined} sx={onRowClick ? { cursor: 'pointer' } : undefined}>
                 {columns.map((column, index) => {
                   return (
-                    <TableCell key={column.key} sx={stickyCellSx(index)}>
+                    <TableCell key={column.key} align={column.align} sx={stickyCellSx(index)}>
                       {column.actions
                         ? column === firstActionColumn && <ActionButtons actions={actions} variant="row" />
                         : column.render(row)}

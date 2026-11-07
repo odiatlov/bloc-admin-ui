@@ -1,5 +1,48 @@
 ﻿{
+  "financeCorrections": {
+    "totalBefore": "Total publicat anterior",
+    "totalAfter": "Total corectat",
+    "totalDifference": "Diferență totală",
+    "monthPublishedHelp": "Această lună are deja facturi publicate. Generează o corecție cu motiv pentru a le actualiza printr-o verificare nouă.",
+    "unlinkedDraftHelp": "Această lună are deja facturi publicate. Folosește Emite corecție pentru a genera o revizie corectoare din datele lunare salvate acum, cu motiv și o verificare nouă.",
+    "required": "Această lună este deja publicată. Reîncarcă datele lunii și alege Generează corecția.",
+    "create": "Emite corecție",
+    "generate": "Generează corecția",
+    "publish": "Publică corecția",
+    "reason": "Motivul corecției",
+    "prepareHelp": "Salvează mai întâi cheltuielile lunare sau indexurile corectate, apoi generează o revizie legată de această publicare.",
+    "editInputs": "Modifică datele lunii",
+    "reviewHelp": "Revizia corectoare necesită o verificare proprie, conform regulilor actuale ale blocului. Plățile existente și aprobările anterioare rămân în istoric.",
+    "generateError": "Corecția nu a putut fi generată. Verifică datele lunii și dacă a fost publicată o corecție mai nouă, apoi reîncearcă.",
+    "publishHelp": "Actualizează facturile afectate pentru această lună și notifică locatarii lor. Diferențele facturilor deja achitate integral se reportează pe următoarea factură, ca un credit sau o sumă suplimentară. Facturile neachitate și parțial achitate se actualizează în luna lor. Plățile existente se păstrează.",
+    "comparison": "Diferențe față de publicarea anterioară",
+    "before": "Suma publicată anterior",
+    "after": "Suma corectată",
+    "original": "Suma inițială",
+    "totalCorrection": "Corecții publicate",
+    "creditAvailable": "Credit disponibil",
+    "creditApplied": "Credit aplicat acestei facturi",
+    "creditTransferred": "Credit aplicat facturilor ulterioare",
+    "creditStatus": "Credit disponibil",
+    "pendingDebit": "Ajustare pentru factura următoare",
+    "pendingDebitHelp": "Diferența de {{amount}} din această corecție se va adăuga la următoarea factură. Factura acestei luni rămâne stinsă.",
+    "debitApplied": "Corecție adăugată dintr-o factură anterioară",
+    "debitTransferred": "Corecție reportată pe facturile ulterioare",
+    "overpaidStatus": "Plată în plus înregistrată",
+    "overpaidHelp": "Plată în plus înregistrată pe această factură: {{amount}}. Factura nu era achitată integral înainte de corecție, astfel că suma nu a fost reportată pe altă factură.",
+    "carriedPolicy": "Factura era stinsă integral înainte de această corecție. Diferența se reportează pe factura următoare.",
+    "currentPolicy": "Factura nu era stinsă integral înainte de această corecție. Soldul se actualizează pentru această lună.",
+    "creditHelp": "Credit disponibil: {{amount}}. Se va scădea automat din următoarea factură; diferența neutilizată rămâne disponibilă.",
+    "history": "Istoricul corecțiilor",
+    "paymentHistory": "Istoricul încasărilor",
+    "notificationTitle": "Factura ta a fost corectată",
+    "notificationMessage": "A fost publicată o corecție pentru {{block}}, {{period}}, revizia {{revision}}. Deschide factura pentru suma actualizată și orice credit sau sumă suplimentară pentru factura următoare.",
+    "dashboardEvent": "Corecție de raport publicată pentru {{period}} · {{block}}",
+    "recordPayment": "Înregistrează încasarea",
+    "amountReceived": "Suma încasată"
+  },
   "financePublication": {
+    "correctionPublished": "Corecție publicată",
     "dashboardEvent": "Raport de cheltuieli publicat pentru {{period}} · {{block}}",
     "publish": "Publică",
     "published": "Publicat",
@@ -21,6 +64,7 @@
     "retryHelp": "Rezultatul încercării anterioare este incert. Reîncearcă aceeași cerere salvată pentru a evita dublarea facturilor. Scadența și opțiunile pentru datorii rămân blocate.",
     "uncertain": "Publicarea nu a putut fi confirmată. Verifică conexiunea și reîncearcă aceeași cerere.",
     "errors": {
+      "CORRECTION_CHANGED": "Există o corecție mai nouă. Reîncarcă raportul înainte de a continua.",
       "VALIDATION_ERROR": "Verifică scadența și opțiunile pentru datoriile anterioare. Soldul inițial este permis numai înaintea primei facturi; datoria reportată trebuie să corespundă facturilor neachitate existente. Facturile negative care necesită alocarea unui credit nu pot fi încă publicate.",
       "REPORT_OUTDATED": "Datele raportului s-au modificat. Generează și verifică o revizie actuală înainte de publicare.",
       "REPORT_SUPERSEDED": "Deschide cea mai recentă revizie a raportului înainte de publicare.",
@@ -69,6 +113,10 @@
     "noBills": "Nicio factură publicată nu corespunde filtrelor.",
     "noRequests": "Nicio solicitare de plată deschisă nu corespunde filtrelor.",
     "notifications": {
+      "BillPaymentConfirmed": {
+        "title": "Factura a fost achitată",
+        "message": "Administratorul a confirmat achitarea integrală a facturii pentru {{period}}. Deschide factura pentru detaliile plății."
+      },
       "BillCashRequested": {
         "title": "Solicitare de plată în numerar",
         "message": "Un locatar a solicitat plata în numerar a facturii pentru {{period}}."

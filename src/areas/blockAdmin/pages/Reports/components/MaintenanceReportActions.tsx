@@ -8,6 +8,8 @@ import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { MaintenanceReport } from '../../../../../types/finance'
 import FinancePublishDialog from './FinancePublishDialog'
+import FinanceCorrectionDialog from './FinanceCorrectionDialog'
+import EditNoteIcon from '@mui/icons-material/EditNote'
 import AppDialog from '../../../../../components/shared/AppDialog'
 import { useFinanceActionScope, useFinanceIdentity } from '../../../../../hooks/useFinanceWorkspace'
 import { financeReviewActions } from '../../../../../domain/financeReviewActions'
@@ -19,12 +21,14 @@ type Props = { report: MaintenanceReport; onExport: () => void; onPublished: () 
 const MaintenanceReportActions = ({ report, onExport, onPublished }: Props) => {
   const { t } = useTranslation()
   const [publishOpen, setPublishOpen] = useState(false)
+  const [correctionOpen, setCorrectionOpen] = useState(false)
   const [submitOpen, setSubmitOpen] = useState(false)
   const [pending, setPending] = useState(false)
   const [error, setError] = useState('')
   const identity = useFinanceIdentity()
   const active = useFinanceActionScope()
   const actions = financeReviewActions(report)
+  const correctionTarget = report.currentPublication ?? report.publication
   const submit = async () => {
     if (pending || !report.review?.censorAssignmentId || !(actions.submit || actions.resubmit)) return
     setPending(true); setError('')
@@ -40,10 +44,12 @@ const MaintenanceReportActions = ({ report, onExport, onPublished }: Props) => {
   return <Box role="group" aria-label={t('financePublication.reportActions')} sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
     {(actions.submit || actions.resubmit) && <Button variant="contained" startIcon={<SendIcon />} onClick={() => setSubmitOpen(true)}>
       {t(actions.resubmit ? 'financeReview.resubmit' : 'financeReview.submit')}</Button>}
-    {actions.publish && <Button variant="contained" startIcon={<PublishIcon />} onClick={() => setPublishOpen(true)}>{t('financePublication.publish')}</Button>}
+    {actions.publish && <Button variant="contained" startIcon={<PublishIcon />} onClick={() => setPublishOpen(true)}>{t(report.correctsPublicationId ? 'financeCorrections.publish' : 'financePublication.publish')}</Button>}
+    {report.canCorrect && correctionTarget && <Button variant="contained" startIcon={<EditNoteIcon />} onClick={() => setCorrectionOpen(true)}>{t('financeCorrections.create')}</Button>}
     <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={onExport}>{t('finance.billing.exportExcel')}</Button>
     <Button variant="text" component={RouterLink} to="/admin/reports" startIcon={<ArrowBackIcon />}>{t('finance.billing.backReports')}</Button>
     {publishOpen && <FinancePublishDialog report={report} onClose={() => setPublishOpen(false)} onPublished={() => { setPublishOpen(false); onPublished() }} />}
+    {correctionOpen && correctionTarget && <FinanceCorrectionDialog period={report} publication={correctionTarget} onClose={() => setCorrectionOpen(false)} />}
     <AppDialog open={submitOpen} title={t(actions.resubmit ? 'financeReview.resubmit' : 'financeReview.submit')}
       pending={pending} cancelLabel={t('common.cancel')} confirmLabel={t(actions.resubmit ? 'financeReview.resubmit' : 'financeReview.submit')}
       onCancel={() => { if (!pending) setSubmitOpen(false) }} onConfirm={() => { void submit() }}>

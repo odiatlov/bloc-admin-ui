@@ -1,4 +1,5 @@
 import { useContext, useState } from 'react'
+import { useLocation, useSearchParams } from 'react-router-dom'
 import { Box } from '@mui/material'
 import PaymentsOutlinedIcon from '@mui/icons-material/PaymentsOutlined'
 import VisibilityIcon from '@mui/icons-material/Visibility'
@@ -25,7 +26,12 @@ const PublishedResidentBills = () => {
   const { t, i18n } = useTranslation()
   const identity = useFinanceIdentity()
   const [filters, setFilters] = usePageFilter('residentBills.filters', { period: '', page: 1 })
-  const [selection, setSelection] = useState<BillSelection | null>(null)
+  const [params] = useSearchParams()
+  const [selection, setSelection] = useState<BillSelection | null>(() => {
+    const id = params.get('billId')
+    return id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+      ? { id, origin: 'view', choosingMethod: false } : null
+  })
   const selectedId = selection?.id ?? null
   const periods = useResidentBillPeriods()
   const period = periods.data?.includes(filters.period) ? filters.period : ''
@@ -56,7 +62,9 @@ const PublishedResidentBills = () => {
     { key: 'apartment', label: t('finance.columns.apartment'), cardRole: 'secondary', render: bill => [bill.blockName, bill.staircaseName, t('finance.billing.apartmentNumber', { number: bill.apartmentNumber })].filter(Boolean).join(' / ') },
     { key: 'month', label: t('finance.columns.month'), render: bill => new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' }).format(new Date(bill.year, bill.month - 1, 1)) },
     { key: 'dueDate', label: t('financePublication.dueDate'), render: bill => new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' }).format(new Date(`${bill.dueDate}T12:00:00`)) },
-    { key: 'amount', label: t('residentFinance.thisBill'), render: bill => money(bill.originalAmount, bill.currency) },
+    { key: 'amount', label: t('residentFinance.thisBill'), render: bill => money(bill.correctedAmount ?? bill.originalAmount, bill.currency) },
+    { key: 'credit', label: t('financeCorrections.creditAvailable'), render: bill => money(bill.availableCredit ?? 0, bill.currency) },
+    { key: 'pendingDebit', label: t('financeCorrections.pendingDebit'), render: bill => money(bill.pendingCorrectionDebit ?? 0, bill.currency) },
     { key: 'remaining', label: t('resident.bills.summary.balance'), render: bill => money(bill.remainingAmount, bill.currency) },
     { key: 'status', label: t('finance.columns.status'), cardRole: 'status', render: bill => <BillPaymentStatus bill={bill} /> },
     { key: 'actions', label: t('common.actions'), actions: bill => [
@@ -92,7 +100,8 @@ const PublishedResidentBills = () => {
 const ResidentBills = () => {
   const { account } = useContext(RoleContext)
   const identity = useFinanceIdentity()
+  const location = useLocation()
   const demo = account.dataMode === 'mock-populated' || account.dataMode === 'mock-configured-block'
-  return demo ? <ResidentBillsDemo /> : <PublishedResidentBills key={identity} />
+  return demo ? <ResidentBillsDemo /> : <PublishedResidentBills key={`${identity}:${location.search}`} />
 }
 export default ResidentBills

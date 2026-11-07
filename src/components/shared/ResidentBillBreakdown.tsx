@@ -58,8 +58,20 @@ const ResidentBillBreakdown = ({ detail, onClose }: Props) => {
       {totalLine(t('residentFinance.reportTotal'), row.totalDue, true)}
       {bill.carriedForwardArrears > 0 && <>
         <Typography variant="body2" color="text.secondary">{t('residentFinance.carryExplanation', { amount: money(bill.carriedForwardArrears) })}</Typography>
-        {totalLine(t('residentFinance.thisBill'), bill.originalAmount, true)}
+        {totalLine(t('residentFinance.thisBill'), bill.correctedAmount ?? bill.originalAmount, true)}
       </>}
+      {!!bill.corrections?.length && <>
+        {totalLine(t('financeCorrections.original'), bill.originalAmount)}
+        {totalLine(t('financeCorrections.totalCorrection'), bill.correctionAmount ?? 0)}
+        {totalLine(t('financeCorrections.after'), bill.correctedAmount ?? bill.originalAmount, true)}
+      </>}
+      {(bill.compensationReceived ?? 0) > 0 && totalLine(t('financeCorrections.creditApplied'), -(bill.compensationReceived ?? 0))}
+      {(bill.compensationTransferred ?? 0) > 0 && totalLine(t('financeCorrections.creditTransferred'), bill.compensationTransferred ?? 0)}
+      {(bill.correctionDebitApplied ?? 0) > 0 && totalLine(t('financeCorrections.debitApplied'), bill.correctionDebitApplied ?? 0)}
+      {(bill.correctionDebitTransferred ?? 0) > 0 && totalLine(t('financeCorrections.debitTransferred'), -(bill.correctionDebitTransferred ?? 0))}
+      {(bill.pendingCorrectionDebit ?? 0) > 0 && <Typography variant="body2">{t('financeCorrections.pendingDebitHelp', { amount: money(bill.pendingCorrectionDebit ?? 0) })}</Typography>}
+      {(bill.overpaidAmount ?? 0) > 0 && <Typography variant="body2">{t('financeCorrections.overpaidHelp', { amount: money(bill.overpaidAmount ?? 0) })}</Typography>}
+      {(bill.availableCredit ?? 0) > 0 && <Alert severity="success">{t('financeCorrections.creditHelp', { amount: money(bill.availableCredit ?? 0) })}</Alert>}
       {bill.paidAmount > 0 && totalLine(t('residentFinance.paidAmount'), bill.paidAmount)}
       {totalLine(t('resident.bills.summary.balance'), bill.remainingAmount, true)}
     </BillBreakdownSection>
@@ -113,6 +125,18 @@ const ResidentBillBreakdown = ({ detail, onClose }: Props) => {
         <Typography variant="body2">{t('finance.billing.reason')}: {entry.reason}</Typography>
       </Paper>)}
     </Box>}
+    {!!bill.payments?.length && <BillBreakdownSection title={t('financeCorrections.paymentHistory')}>
+      {bill.payments.map(payment => <Box key={payment.id}>
+        {totalLine(new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' }).format(new Date(`${payment.receivedOn}T12:00:00`)), payment.amount)}
+      </Box>)}
+    </BillBreakdownSection>}
+    {!!bill.corrections?.length && <BillBreakdownSection title={t('financeCorrections.history')}>
+      {bill.corrections.map(correction => <Paper key={correction.publicationId} variant="outlined" sx={{ p: 1.5 }}>
+        {totalLine(t('finance.billing.revision', { revision: correction.revision }), correction.amount, true)}
+        <Typography variant="body2" color="text.secondary">{t(correction.carryToNextBill ? 'financeCorrections.carriedPolicy' : 'financeCorrections.currentPolicy')}</Typography>
+        <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{correction.reason}</Typography>
+      </Paper>)}
+    </BillBreakdownSection>}
     <Alert severity="info">{t('residentFinance.savedReport', { revision: breakdown.revision })}</Alert>
   </Box>
 }

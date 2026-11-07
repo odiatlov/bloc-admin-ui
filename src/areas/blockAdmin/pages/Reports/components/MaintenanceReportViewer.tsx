@@ -14,6 +14,8 @@ import { financeApi } from '../../../../../services/financeApi'
 import type { FinanceReportRow, MaintenanceReport } from '../../../../../types/finance'
 import FinanceExportDialog from './FinanceExportDialog'
 import MaintenanceReportActions from './MaintenanceReportActions'
+import MaintenanceReportStatus from './MaintenanceReportStatus'
+import FinanceCorrectionComparison from './FinanceCorrectionComparison'
 import FinanceReviewHistory from '../../Finance/components/FinanceReviewHistory'
 
 export const ReportSheets: React.FC<{ report: MaintenanceReport; onPublished: () => void; reviewSubmissionId?: string; renderActions?: (onExport: () => void) => React.ReactNode }> = ({ report, onPublished, reviewSubmissionId, renderActions }) => {
@@ -56,9 +58,11 @@ export const ReportSheets: React.FC<{ report: MaintenanceReport; onPublished: ()
   return <Box sx={{ display: 'grid', gap: 2 }}>
     <PageHeader title={`${report.blockName} · ${new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' }).format(new Date(report.year, report.month - 1, 1))}`} description={t('finance.billing.reportDescription', { revision: report.revision })} actions={renderActions ? renderActions(() => setExportOpen(true)) : <MaintenanceReportActions report={report} onExport={() => setExportOpen(true)} onPublished={onPublished} />} />
     {(!reviewSubmissionId || report.publication || report.periodPublished || report.status === 'Outdated' || report.status === 'Superseded') && <Alert severity={report.publication ? 'success' : report.status === 'Outdated' || report.status === 'Superseded' ? 'warning' : 'info'}>
-      {t(report.publication ? 'financePublication.publishedHelp' : report.periodPublished ? 'financePublication.periodPublished' : report.status === 'Outdated' ? 'finance.billing.outdatedHelp' : report.status === 'Superseded' ? 'financePublication.supersededHelp' : report.review?.censorRequired ? 'financeReview.reportHelp' : 'financePublication.draftHelp', { date: report.publication ? new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(report.publication.publishedAt)) : '' })}
+      {t(report.publication ? 'financePublication.publishedHelp' : report.correctsPublicationId ? 'financeCorrections.reviewHelp' : report.periodPublished ? report.canCorrect ? 'financeCorrections.unlinkedDraftHelp' : 'financePublication.supersededHelp' : report.status === 'Outdated' ? 'finance.billing.outdatedHelp' : report.status === 'Superseded' ? 'financePublication.supersededHelp' : report.review?.censorRequired ? 'financeReview.reportHelp' : 'financePublication.draftHelp', { date: report.publication ? new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(report.publication.publishedAt)) : '' })}
     </Alert>}
     {exportOpen && <FinanceExportDialog reportId={report.id} reviewSubmissionId={reviewSubmissionId} onClose={() => setExportOpen(false)} />}
+    {!report.correctsPublicationId && <Box><MaintenanceReportStatus status={report.status} /></Box>}
+    <FinanceCorrectionComparison report={report} />
     <Paper sx={{ overflow: 'hidden' }}><Tabs variant="scrollable" scrollButtons="auto" value={sheetIndex} onChange={(_, value: number) => setSheetIndex(value)}>{report.sheets.map((item, index) => <Tab key={item.staircaseId ?? index} label={sheetLabel(item)} />)}<Tab label={t('finance.billing.reconciliation')} /></Tabs></Paper>
     {sheet ? <>
       <Paper sx={{ p: 2, display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'space-between' }}><Typography variant="h6">{sheetLabel(sheet)}</Typography><Chip label={t('finance.billing.sheetTotal', { amount: money(sheet.totalDue) })} /></Paper>

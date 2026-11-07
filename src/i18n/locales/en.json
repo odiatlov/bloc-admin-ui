@@ -1,5 +1,48 @@
 {
+  "financeCorrections": {
+    "totalBefore": "Previously published total",
+    "totalAfter": "Corrected total",
+    "totalDifference": "Total difference",
+    "monthPublishedHelp": "This month already has published bills. Generate a correction with a reason to update them through a new review.",
+    "unlinkedDraftHelp": "This month already has published bills. Use Issue correction to generate a corrective revision from the current saved monthly inputs, with a reason and a new review.",
+    "required": "This month is already published. Refresh the monthly workspace and choose Generate correction.",
+    "create": "Issue correction",
+    "generate": "Generate correction",
+    "publish": "Publish correction",
+    "reason": "Correction reason",
+    "prepareHelp": "Save the corrected monthly expenses or readings first, then generate a revision linked to this publication.",
+    "editInputs": "Edit monthly inputs",
+    "reviewHelp": "This corrective revision requires its own review under the block's current rules. Existing payments and earlier approvals remain in history.",
+    "generateError": "The correction could not be generated. Check the monthly inputs and whether a newer correction has been published, then retry.",
+    "publishHelp": "Update affected bills for this month and notify their residents. Differences on bills already paid in full are carried to the next bill as a credit or an additional charge. Unpaid and partially paid bills are updated in this month. Existing payments are preserved.",
+    "comparison": "Changes from the previous publication",
+    "before": "Previously published amount",
+    "after": "Corrected amount",
+    "original": "Original amount",
+    "totalCorrection": "Published corrections",
+    "creditAvailable": "Available credit",
+    "creditApplied": "Credit applied to this bill",
+    "creditTransferred": "Credit applied to later bills",
+    "creditStatus": "Credit available",
+    "pendingDebit": "Next-bill adjustment",
+    "pendingDebitHelp": "{{amount}} from this correction will be added to your next bill. This month's bill remains settled.",
+    "debitApplied": "Correction added from a previous bill",
+    "debitTransferred": "Correction carried to later bills",
+    "overpaidStatus": "Overpayment recorded",
+    "overpaidHelp": "Overpayment recorded on this bill: {{amount}}. This bill was not fully paid before the correction, so this amount has not been carried to another bill.",
+    "carriedPolicy": "The bill was fully settled before this correction. The difference is carried to the next bill.",
+    "currentPolicy": "The bill was not fully settled before this correction. Its balance is updated for this month.",
+    "creditHelp": "Available credit: {{amount}}. It will be applied automatically to your next bill; any remainder stays available.",
+    "history": "Correction history",
+    "paymentHistory": "Cash payment history",
+    "notificationTitle": "Your bill has been corrected",
+    "notificationMessage": "A correction was published for {{block}}, {{period}}, revision {{revision}}. Open your bill to see the updated amount and any credit or additional charge for the next bill.",
+    "dashboardEvent": "Report correction published for {{period}} · {{block}}",
+    "recordPayment": "Record cash payment",
+    "amountReceived": "Amount received"
+  },
   "financePublication": {
+    "correctionPublished": "Correction published",
     "dashboardEvent": "Expense report published for {{period}} · {{block}}",
     "publish": "Publish",
     "published": "Published",
@@ -21,6 +64,7 @@
     "retryHelp": "The previous outcome is uncertain. Retry the same saved request to avoid duplicate bills. Its due date and debt choices remain locked.",
     "uncertain": "Publication could not be confirmed. Check your connection and retry the same request.",
     "errors": {
+      "CORRECTION_CHANGED": "A newer correction exists. Refresh the report before continuing.",
       "VALIDATION_ERROR": "Check the due date and previous-debt choices. Opening debt is only allowed before the first bill; carried-forward debt must match existing unpaid bills. Negative bills requiring credit allocation cannot be published yet.",
       "REPORT_OUTDATED": "The report inputs changed. Generate and review a current revision before publishing.",
       "REPORT_SUPERSEDED": "Open the latest report revision before publishing.",
@@ -69,6 +113,10 @@
     "noBills": "No published bills match these filters.",
     "noRequests": "No open payment requests match these filters.",
     "notifications": {
+      "BillPaymentConfirmed": {
+        "title": "Bill paid",
+        "message": "The administrator confirmed full payment of your {{period}} bill. Open the bill to view the payment details."
+      },
       "BillCashRequested": {
         "title": "Cash payment requested",
         "message": "A resident requested to pay the {{period}} bill in cash."

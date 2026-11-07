@@ -34,6 +34,12 @@ function BillCostSummary({ detail }: { detail: ResidentBillDetail }) {
         {bill.carriedForwardArrears > 0 && amountLine(t('billPayments.previouslyBilled'), -bill.carriedForwardArrears)}
       </BillBreakdownSection>}
     <BillBreakdownSection compact title={t('resident.bills.summary.title')}>
+      {bill.paidAmount > 0 && amountLine(t('residentFinance.paidAmount'), -bill.paidAmount)}
+      {(bill.compensationReceived ?? 0) > 0 && amountLine(t('financeCorrections.creditApplied'), -(bill.compensationReceived ?? 0))}
+      {(bill.compensationTransferred ?? 0) > 0 && amountLine(t('financeCorrections.creditTransferred'), bill.compensationTransferred ?? 0)}
+      {(bill.correctionDebitApplied ?? 0) > 0 && amountLine(t('financeCorrections.debitApplied'), bill.correctionDebitApplied ?? 0)}
+      {(bill.correctionDebitTransferred ?? 0) > 0 && amountLine(t('financeCorrections.debitTransferred'), -(bill.correctionDebitTransferred ?? 0))}
+      {(bill.pendingCorrectionDebit ?? 0) > 0 && <Typography variant="body2">{t('financeCorrections.pendingDebitHelp', { amount: money.format(bill.pendingCorrectionDebit ?? 0) })}</Typography>}
       {amountLine(t('finance.billing.totalDue'), bill.remainingAmount, true)}
     </BillBreakdownSection>
   </Box>

@@ -61,7 +61,15 @@ const getNotificationDisplay = (
   t: ReturnType<typeof useTranslation>['t'],
   language: string,
 ) => {
-  if (notification.type === 'BillCashRequested' || notification.type === 'BillPaymentReminder') {
+  if (notification.type === 'BillCorrectionPublished') return {
+    context: notification.message,
+    title: t('financeCorrections.notificationTitle'),
+    message: t('financeCorrections.notificationMessage', {
+      block: notification.context ?? '', period: formatNotificationPeriod(notification, language, notification.message),
+      revision: notification.relatedRevision,
+    }),
+  }
+  if (notification.type === 'BillCashRequested' || notification.type === 'BillPaymentReminder' || notification.type === 'BillPaymentConfirmed') {
     const prefix = `billPayments.notifications.${notification.type}`
     return {
       context: notification.context,

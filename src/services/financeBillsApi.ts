@@ -14,7 +14,8 @@ const query = (params: Record<string, string | number | boolean | undefined>) =>
 export const financeBillsApi = {
   list: (filters: Filters, signal?: AbortSignal) => apiGet<FinanceBillList>(`/finance/bills?${query(filters)}`, signal),
   periods: (scope: BillScope, signal?: AbortSignal) => apiGet<string[]>(`/finance/bills/periods?${query(scope)}`, signal),
-  recordCash: (billId: string, receivedOn: string) => apiPost<{ receivedOn: string }, ResidentBillSummary>(
-    `/finance/bills/${encodeURIComponent(billId)}/cash-payment`, { receivedOn }),
+  recordCash: (billId: string, receivedOn: string, payment?: { requestId: string; amount: number }) =>
+    apiPost<{ receivedOn: string; requestId?: string; amount?: number }, ResidentBillSummary>(
+      `/finance/bills/${encodeURIComponent(billId)}/cash-payment`, { receivedOn, ...payment }),
   remind: (billId: string) => apiPost<object, boolean>(`/finance/bills/${encodeURIComponent(billId)}/reminder`, {}),
 }

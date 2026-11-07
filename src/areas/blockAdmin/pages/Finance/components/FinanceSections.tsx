@@ -1,5 +1,5 @@
 import React from 'react'
-import { Alert, Box, Button, Chip, Paper, Tab, Tabs, Typography } from '@mui/material'
+import { Alert, Box, Button, Paper, Tab, Tabs, Typography } from '@mui/material'
 import CalculateIcon from '@mui/icons-material/Calculate'
 import EditIcon from '@mui/icons-material/Edit'
 import RefreshIcon from '@mui/icons-material/Refresh'
@@ -15,6 +15,8 @@ import type { FinanceIssue, FinanceWorkspace } from '../../../../../types/financ
 import FinanceWorkspacePanel from './FinanceWorkspacePanel'
 import FinancePeriodEditor from './FinancePeriodEditor'
 import { FinanceReviewStatus } from './FinanceReviewHistory'
+import MaintenanceReportStatus from '../../Reports/components/MaintenanceReportStatus'
+import FinanceCorrectionDialog from '../../Reports/components/FinanceCorrectionDialog'
 
 const MonthlyWorkspace: React.FC<{ workspace: FinanceWorkspace; refresh: () => void; onDirty: (dirty: boolean) => void }> = ({ workspace, refresh, onDirty }) => {
   const { t, i18n } = useTranslation()
@@ -22,12 +24,14 @@ const MonthlyWorkspace: React.FC<{ workspace: FinanceWorkspace; refresh: () => v
   const [tab, setTab] = React.useState(0)
   const [dirty, setDirty] = React.useState(false)
   const [generating, setGenerating] = React.useState(false)
+  const [correctionOpen, setCorrectionOpen] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const busy = React.useRef(false)
   const active = useFinanceActionScope()
   const month = new Intl.DateTimeFormat(i18n.language, { year: 'numeric', month: 'long' }).format(new Date(workspace.year, workspace.month - 1, 1))
   const generate = async () => {
     if (busy.current || !workspace.canGenerate || dirty) return
+    if (workspace.currentPublication) { setCorrectionOpen(true); return }
     busy.current = true; setGenerating(true); setError(null)
     const storageKey = `finance-generation:${account.id}:${workspace.blockId}:${workspace.year}-${workspace.month}:${workspace.inputVersion}`
     let requestId: string
@@ -40,7 +44,8 @@ const MonthlyWorkspace: React.FC<{ workspace: FinanceWorkspace; refresh: () => v
     }
     catch (nextError) {
       if (nextError instanceof ApiError && nextError.code === 'INPUTS_CHANGED') { try { sessionStorage.removeItem(storageKey) } catch { /* Keep the server error visible. */ } }
-      if (active.current) setError(nextError instanceof Error ? nextError.message : t('finance.billing.generateFailed'))
+      if (active.current) setError(nextError instanceof ApiError && nextError.code === 'CORRECTION_REQUIRED'
+        ? t('financeCorrections.required') : nextError instanceof Error ? nextError.message : t('finance.billing.generateFailed'))
     }
     finally { busy.current = false; if (active.current) setGenerating(false) }
   }
@@ -67,21 +72,23 @@ const MonthlyWorkspace: React.FC<{ workspace: FinanceWorkspace; refresh: () => v
         <Typography color="text.secondary">{t('finance.billing.periodExplanation')}</Typography>
         <Alert severity={workspace.canGenerate ? 'success' : 'warning'}>{workspace.canGenerate ? t('finance.billing.ready') : t('finance.billing.blocked', { count: workspace.issues.length })}</Alert>
         {dirty && <Alert severity="warning">{t('finance.billing.saveBeforeGenerate')}</Alert>}
+        {workspace.currentPublication && <Alert severity="info">{t('financeCorrections.monthPublishedHelp')}</Alert>}
         {error && <Alert severity="error">{error}</Alert>}
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1, flexWrap: 'wrap', '& > .MuiButton-root': { width: { xs: '100%', sm: 'auto' }, justifyContent: 'center', textAlign: 'center' } }}>
-          <Button variant="contained" startIcon={<CalculateIcon />} disabled={!workspace.canGenerate || dirty || generating} onClick={() => void generate()}>{generating ? t('finance.billing.generating') : t(workspace.latestReport ? 'finance.billing.regenerate' : 'finance.billing.generate', { block: workspace.blockName })}</Button>
+          <Button variant="contained" startIcon={<CalculateIcon />} disabled={!workspace.canGenerate || dirty || generating} onClick={() => void generate()}>{generating ? t('finance.billing.generating') : t(workspace.currentPublication ? 'financeCorrections.generate' : workspace.latestReport ? 'finance.billing.regenerate' : 'finance.billing.generate', { block: workspace.blockName })}</Button>
           <Button variant="outlined" startIcon={<RefreshIcon />} disabled={dirty || generating} onClick={refresh}>{t('finance.billing.refreshReadiness')}</Button>
           <Button component={RouterLink} to={`/admin/settings?blockId=${workspace.blockId}&period=${workspace.year}-${String(workspace.month).padStart(2, '0')}`} startIcon={<SettingsIcon />}>{t('finance.billing.configureBlock')}</Button>
         </Box>
       </Paper>
       {workspace.latestReport && <Paper sx={{ p: 2, display: 'grid', gap: 1.5 }}>
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}><Typography variant="h6">{t('finance.billing.savedReport')}</Typography><Chip size="small" color={workspace.latestReport.status === 'Published' ? 'success' : workspace.latestReport.status === 'Outdated' ? 'warning' : 'default'} label={t(`finance.billing.values.${workspace.latestReport.status}`)} /><FinanceReviewStatus review={workspace.latestReport.review} /></Box>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}><Typography variant="h6">{t('finance.billing.savedReport')}</Typography><MaintenanceReportStatus status={workspace.latestReport.status} /><FinanceReviewStatus review={workspace.latestReport.review} /></Box>
         <Typography>{t('finance.billing.revision', { revision: workspace.latestReport.revision })} · {new Intl.NumberFormat(i18n.language, { style: 'currency', currency: 'RON' }).format(workspace.latestReport.totalDue)}</Typography>
         <Button component={RouterLink} to={`/admin/reports/maintenance/${workspace.latestReport.id}`} variant="outlined">{t('finance.billing.openReport')}</Button>
       </Paper>}
       {workspace.issues.length > 0 && <ResponsiveDataView paginationId="finance-readiness" paginationResetKey={workspace.inputVersion} ariaLabel={t('finance.billing.prerequisites')} rows={workspace.issues.map((issue, index) => ({ ...issue, id: String(index) }))} columns={issueColumns} getRowId={(issue) => issue.id} />}
     </Box>
     <Box hidden={tab !== 1} sx={{ display: tab === 1 ? 'block' : 'none' }}><FinancePeriodEditor workspace={workspace} refresh={refresh} onDirty={(value) => { setDirty(value); onDirty(value) }} /></Box>
+    {correctionOpen && workspace.currentPublication && <FinanceCorrectionDialog period={workspace} publication={workspace.currentPublication} onClose={() => setCorrectionOpen(false)} />}
   </Box>
 }
 
