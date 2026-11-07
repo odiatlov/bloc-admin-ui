@@ -1,4 +1,4 @@
-import { act, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -31,6 +31,8 @@ const link: ApartmentResidentResponse = { id: '8c55e5bd-9eeb-477b-b860-3f086f418
 const response = (data: unknown, status = 200) => new Response(JSON.stringify({ success: status < 400, data, message: status < 400 ? '' : 'Not found' }),
   { status, headers: { 'Content-Type': 'application/json' } })
 const getResidents = vi.fn(async () => response([link]))
+const getWaterConfiguration = vi.fn(async () => response({ apartmentId, hasBoiler: false,
+  zones: [{ locationType: 'Kitchen', name: 'Kitchen', coldWaterCount: 1, hotWaterCount: 1 }] }))
 
 function renderPage() {
   return renderWithProviders(<MemoryRouter><RoleContext.Provider value={{ ...residentContext, role: 'Admin' }}>
@@ -41,6 +43,8 @@ function renderPage() {
 beforeEach(() => {
   sessionStorage.clear()
   getResidents.mockReset().mockImplementation(async () => response([link]))
+  getWaterConfiguration.mockReset().mockImplementation(async () => response({ apartmentId, hasBoiler: false,
+    zones: [{ locationType: 'Kitchen', name: 'Kitchen', coldWaterCount: 1, hotWaterCount: 1 }] }))
   vi.mocked(useBlocks).mockReturnValue({ blocks: [block], totalBlocks: 1, error: null, isLoading: false,
     refresh: vi.fn(async () => true), search: '', setSearch: vi.fn() })
   // Exercise the real API clients: unexpected relationship URLs receive a 404.
@@ -49,14 +53,45 @@ beforeEach(() => {
     if (endpoint === '/apartments') return response([apartment])
     if (endpoint === '/staircases' || endpoint === '/persons') return response([])
     if (endpoint === `/apartments/${apartmentId}/residents`) return getResidents()
-    if (endpoint === `/apartments/${apartmentId}/water-meters/configuration`) return response({ apartmentId, hasBoiler: false,
-      zones: [{ locationType: 'Kitchen', name: 'Kitchen', coldWaterCount: 1, hotWaterCount: 1 }] })
+    if (endpoint === `/apartments/${apartmentId}/water-meters/configuration`) return getWaterConfiguration()
     return response(null, 404)
   }))
 })
 afterEach(() => vi.unstubAllGlobals())
 
 describe('apartment drawer resident loading', () => {
+  it('requires an active meter before showing configured status', async () => {
+    const user = userEvent.setup()
+    renderPage()
+    await user.click(await screen.findByRole('button', { name: 'Edit' }))
+    const cold = await screen.findByRole('spinbutton', { name: 'Cold' })
+    fireEvent.change(cold, { target: { value: '0' } })
+    fireEvent.change(screen.getByRole('spinbutton', { name: 'Hot' }), { target: { value: '0' } })
+    expect(screen.getByText('Add at least one consumption zone. Save to apply changes.')).toBeVisible()
+    expect(screen.queryByText('Requirements met. Save to apply changes.')).not.toBeInTheDocument()
+  })
+
+  it('preserves individual water meter quantities through loading and saving', async () => {
+    const user = userEvent.setup()
+    getWaterConfiguration.mockResolvedValueOnce(response({ apartmentId, hasBoiler: false,
+      zones: [{ locationType: 'Kitchen', name: 'Kitchen', coldWaterCount: 2, hotWaterCount: 0 }] }))
+    const fallback = vi.mocked(fetch).getMockImplementation()!
+    vi.mocked(fetch).mockImplementation(async (input, init) => {
+      const endpoint = new URL(String(input), 'http://tests.invalid').pathname.replace(/^\/api(?=\/)/, '')
+      if (endpoint === `/apartments/${apartmentId}` && init?.method === 'PATCH') return response(apartment)
+      return fallback(input, init)
+    })
+    renderPage()
+    await user.click(await screen.findByRole('button', { name: 'Edit' }))
+    expect(await screen.findByRole('spinbutton', { name: 'Cold' })).toHaveValue(2)
+    expect(screen.getByRole('spinbutton', { name: 'Hot' })).toHaveValue(0)
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled())
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+    await waitFor(() => expect(vi.mocked(fetch).mock.calls.some(([, init]) => init?.method === 'PATCH')).toBe(true))
+    const request = vi.mocked(fetch).mock.calls.find(([, init]) => init?.method === 'PATCH')![1]!
+    expect(JSON.parse(String(request.body)).zones).toEqual([{ locationType: 'Kitchen', name: 'Kitchen', coldWaterCount: 2, hotWaterCount: 0 }])
+  })
+
   it('keeps the apartment list mounted on failure, blocks edits and retries the canonical assignment endpoint', async () => {
     const user = userEvent.setup()
     getResidents.mockResolvedValueOnce(response(null, 404))

@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
@@ -32,6 +32,7 @@ describe('block setup review totals', () => {
   it.each(cases)('interpolates all counts in $language without creating the block', async labels => {
     const { user, onSetup } = await openApartmentEditor(labels)
     await user.click(screen.getByRole('button', { name: labels.next }))
+    await user.click(screen.getByRole('button', { name: labels.next }))
     expect(await screen.findByText(labels.totals)).toBeVisible()
     expect(screen.queryByText(/\{\{residents\}\}/)).not.toBeInTheDocument()
     expect(screen.getByText(labels.language === 'ro' ? /0 persoane · 0 proprietari$/ : /0 people · 0 owners$/)).toBeInTheDocument()
@@ -48,8 +49,66 @@ describe('block setup review totals', () => {
     expect(screen.getByText(floorCounts)).toBeVisible()
 
     await user.click(screen.getByRole('button', { name: 'Next' }))
+    await user.click(screen.getByRole('button', { name: 'Next' }))
     await user.click(screen.getByRole('button', { name: 'Block A (1)' }))
     await waitFor(() => expect(screen.getByText(floorCounts)).toBeVisible())
     expect(onSetup).not.toHaveBeenCalled()
+  })
+
+  it('carries boiler settings into generated meters and the submitted setup request', async () => {
+    const { user, onSetup } = await openApartmentEditor(cases[0])
+    onSetup.mockResolvedValue({ block: {}, invitations: [] })
+    fireEvent.change(within(screen.getByRole('article', { name: 'Apartment 1' })).getByRole('spinbutton', { name: 'Usable sqm' }), { target: { value: '50' } })
+    await user.click(screen.getByLabelText('Apartment has boiler'))
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    expect(screen.getByRole('combobox', { name: /Zone 1/ })).toBeVisible()
+    await user.click(screen.getByRole('combobox', { name: /Zone 1/ }))
+    await user.click(screen.getByRole('option', { name: 'Kitchen' }))
+    await user.click(screen.getByRole('button', { name: 'Generate meters for Block A' }))
+    expect(await screen.findByRole('spinbutton', { name: 'Hot' })).toBeDisabled()
+    expect(screen.getByRole('spinbutton', { name: 'Hot' })).toHaveValue(0)
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    await user.click(screen.getByRole('button', { name: 'Block A (1)' }))
+    expect(await screen.findByText('Configured')).toBeVisible()
+    expect(screen.queryByText('Unconfigured')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Create Block' }))
+    await waitFor(() => expect(onSetup).toHaveBeenCalledOnce())
+    expect(onSetup.mock.calls[0][0].apartments[0]).toMatchObject({
+      hasBoiler: true, usableSqm: 50, waterZones: [{ locationType: 'Kitchen', name: 'Kitchen', coldWaterCount: 1, hotWaterCount: 0 }],
+    })
+  })
+
+  it.each([
+    { surface: '', generateMeters: true },
+    { surface: '0', generateMeters: true },
+    { surface: '50', generateMeters: false },
+  ])('keeps review unconfigured with surface "$surface" and generated meters $generateMeters', async ({ surface, generateMeters }) => {
+    const { user } = await openApartmentEditor(cases[0])
+    fireEvent.change(within(screen.getByRole('article', { name: 'Apartment 1' })).getByRole('spinbutton', { name: 'Usable sqm' }), { target: { value: surface } })
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    if (generateMeters) {
+      await user.click(screen.getByRole('combobox', { name: /Zone 1/ }))
+      await user.click(screen.getByRole('option', { name: 'Kitchen' }))
+      await user.click(screen.getByRole('button', { name: 'Generate meters for Block A' }))
+    }
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    await user.click(screen.getByRole('button', { name: 'Block A (1)' }))
+    expect(await screen.findByText('Unconfigured')).toBeVisible()
+    expect(screen.queryByText('Configured')).not.toBeInTheDocument()
+  })
+
+  it('removes hot water when the boiler is enabled after generating meters', async () => {
+    const { user } = await openApartmentEditor(cases[0])
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    await user.click(screen.getByRole('combobox', { name: /Zone 1/ }))
+    await user.click(screen.getByRole('option', { name: 'Kitchen' }))
+    await user.click(screen.getByRole('button', { name: 'Generate meters for Block A' }))
+    expect(await screen.findByRole('spinbutton', { name: 'Hot' })).toHaveValue(1)
+    await user.click(screen.getByRole('button', { name: 'Back' }))
+    await user.click(screen.getByLabelText('Apartment has boiler'))
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    expect(await screen.findByRole('spinbutton', { name: 'Hot' })).toBeDisabled()
+    expect(screen.getByRole('spinbutton', { name: 'Hot' })).toHaveValue(0)
+    expect(screen.getByRole('spinbutton', { name: 'Cold' })).toHaveValue(1)
   })
 })

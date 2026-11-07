@@ -1,13 +1,17 @@
+import type { WaterZoneDraft } from '../../domain/waterMeterConfiguration'
+
 export type ResidentDraft = { mode: 'new' | 'existing'; personId: string; firstName: string; lastName: string; phone: string; email: string; invitePerson: boolean }
-export type ApartmentDraft = { id: string; number: string; floor: string; usableSqm: string; hasBoiler: boolean; householdCount: string; addResident: boolean; resident: ResidentDraft; expanded?: boolean }
+export type ApartmentDraft = { id: string; number: string; floor: string; usableSqm: string; hasBoiler: boolean; householdCount: string; addResident: boolean; resident: ResidentDraft; waterZones: WaterZoneDraft[]; expanded?: boolean }
 export type GenerationSettings = { start: string; quantity: string; startingFloor: string; floorCount: string; usableSqm: string }
 export const defaultGenerationSettings: GenerationSettings = { start: '1', quantity: '1', startingFloor: '0', floorCount: '1', usableSqm: '' }
 export type FloorDraft = { id: string; level: number; expanded: boolean }
-export type Group = { id: string; name: string; floors: FloorDraft[]; apartments: ApartmentDraft[]; generation: GenerationSettings; expanded?: boolean; unassignedExpanded?: boolean }
+export type CounterZoneSelection = { id: string; locationType: string }
+export const newCounterZoneSelection = (): CounterZoneSelection => ({ id: crypto.randomUUID(), locationType: '' })
+export type Group = { id: string; name: string; floors: FloorDraft[]; apartments: ApartmentDraft[]; generation: GenerationSettings; counterGeneration: CounterZoneSelection[]; expanded?: boolean; unassignedExpanded?: boolean }
 export const newApartment = (number = ''): ApartmentDraft => ({ id: crypto.randomUUID(), number, floor: '', usableSqm: '', hasBoiler: false,
-  householdCount: '0', addResident: false, resident: { mode: 'new', personId: '', firstName: '', lastName: '', phone: '', email: '', invitePerson: false } })
+  householdCount: '0', addResident: false, resident: { mode: 'new', personId: '', firstName: '', lastName: '', phone: '', email: '', invitePerson: false }, waterZones: [] })
 export const newFloor = (level: number, expanded = true): FloorDraft => ({ id: crypto.randomUUID(), level, expanded })
-export const newGroup = (name = ''): Group => ({ id: crypto.randomUUID(), name, floors: [], apartments: [], generation: { ...defaultGenerationSettings } })
+export const newGroup = (name = ''): Group => ({ id: crypto.randomUUID(), name, floors: [], apartments: [], generation: { ...defaultGenerationSettings }, counterGeneration: [newCounterZoneSelection()] })
 export const unique = (values: string[]) => new Set(values.map(v => v.trim().toLowerCase())).size === values.length
 export type ApartmentValidationField = 'number' | 'floor' | 'usableSqm' | 'householdCount' | 'personId' | 'firstName' | 'lastName' | 'phone' | 'email'
 export type ApartmentValidationErrors = Partial<Record<ApartmentValidationField, string>>
