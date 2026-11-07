@@ -1,5 +1,11 @@
 ﻿{
   "financeCorrections": {
+    "totalBefore": "Total publicat anterior",
+    "totalAfter": "Total corectat",
+    "totalDifference": "Diferență totală",
+    "monthPublishedHelp": "Această lună are deja facturi publicate. Generează o corecție cu motiv pentru a le actualiza printr-o verificare nouă.",
+    "unlinkedDraftHelp": "Această lună are deja facturi publicate. Folosește Emite corecție pentru a genera o revizie corectoare din datele lunare salvate acum, cu motiv și o verificare nouă.",
+    "required": "Această lună este deja publicată. Reîncarcă datele lunii și alege Generează corecția.",
     "create": "Emite corecție",
     "generate": "Generează corecția",
     "publish": "Publică corecția",

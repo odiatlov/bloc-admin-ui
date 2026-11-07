@@ -1,6 +1,6 @@
 import type { ComponentProps } from 'react'
 import { RoleContext } from '../src/contexts/RoleContext'
-import type { MaintenanceReport, ResidentBillDetail } from '../src/types/finance'
+import type { FinanceWorkspace, MaintenanceReport, ResidentBillDetail } from '../src/types/finance'
 
 export const residentContext: ComponentProps<typeof RoleContext.Provider>['value'] = {
   role: 'Resident', account: { id: '00000000-0000-0000-0000-000000000001', userId: '00000000-0000-0000-0000-000000000001', personId: '00000000-0000-0000-0000-000000000002',
@@ -45,4 +45,12 @@ export const maintenanceReport: MaintenanceReport = {
   columns: billDetail.breakdown.row.charges.map((line, order) => ({ id: line.chargeId, name: line.name, order })),
   sheets: [{ staircaseId: '00000000-0000-0000-0000-000000000052', name: 'A', rows: [billDetail.breakdown.row], chargeTotals: {}, currentCharges: 115, totalArrears: 100, totalAdjustments: -3, totalDue: 212 }],
   reconciliation: [], supplyGroups: [], totalCurrentCharges: 115, totalArrears: 100, totalAdjustments: -3,
+}
+
+export const financeWorkspace: FinanceWorkspace = {
+  blockId: maintenanceReport.blockId, blockName: maintenanceReport.blockName, year: 2026, month: 10,
+  configurationVersion: 1, configurationEditVersion: 1, periodVersion: 1, inputVersion: 'saved-input',
+  configuration: { effectiveFromYear: 2026, effectiveFromMonth: 10, supplyGroups: [], charges: [], apartmentHeating: [] },
+  periodData: { expenses: [], apartmentInputs: [], supplyInputs: [], adjustments: [] },
+  canGenerate: true, issues: [], apartments: [], mainMeters: [], availablePeriods: [], latestReport: maintenanceReport,
 }

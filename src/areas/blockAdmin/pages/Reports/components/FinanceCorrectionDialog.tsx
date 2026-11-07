@@ -6,11 +6,11 @@ import AppDialog from '../../../../../components/shared/AppDialog'
 import { useFinanceActionScope, useFinanceIdentity } from '../../../../../hooks/useFinanceWorkspace'
 import { financeApi } from '../../../../../services/financeApi'
 import { reviewRequestIdentity } from '../../../../../services/financeReviewRequests'
-import type { MaintenanceReport } from '../../../../../types/finance'
+import type { FinancePublication, MaintenanceReport } from '../../../../../types/finance'
 
-type Props = { report: MaintenanceReport; onClose: () => void }
+type Props = { period: Pick<MaintenanceReport, 'blockId' | 'year' | 'month'>; publication: FinancePublication; onClose: () => void }
 
-export default function FinanceCorrectionDialog({ report, onClose }: Props) {
+export default function FinanceCorrectionDialog({ period, publication, onClose }: Props) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const identity = useFinanceIdentity()
@@ -19,15 +19,15 @@ export default function FinanceCorrectionDialog({ report, onClose }: Props) {
   const [pending, setPending] = useState(false)
   const [error, setError] = useState(false)
   const generate = async () => {
-    if (pending || !report.canCorrect || !report.publication || !reason.trim()) return
+    if (pending || !reason.trim() || reason.trim().length > 2000) return
     setPending(true); setError(false)
     try {
-      const workspace = await financeApi.workspace(report.blockId, report.year, report.month)
+      const workspace = await financeApi.workspace(period.blockId, period.year, period.month)
       if (!active.current) return
-      const correction = { correctsPublicationId: report.publication.id, correctionReason: reason.trim() }
-      const request = reviewRequestIdentity(`${identity}:correction:${report.id}`,
+      const correction = { correctsPublicationId: publication.id, correctionReason: reason.trim() }
+      const request = reviewRequestIdentity(`${identity}:correction:${publication.id}`,
         { ...correction, expectedInputVersion: workspace.inputVersion })
-      const next = await financeApi.generate(report.blockId, report.year, report.month, request.id, workspace.inputVersion, correction)
+      const next = await financeApi.generate(period.blockId, period.year, period.month, request.id, workspace.inputVersion, correction)
       request.complete()
       if (active.current) navigate(`/admin/reports/maintenance/${next.id}`)
     } catch { if (active.current) setError(true) }
@@ -39,7 +39,7 @@ export default function FinanceCorrectionDialog({ report, onClose }: Props) {
     <Box sx={{ display: 'grid', gap: 2 }}>
       <Typography>{t('financeCorrections.prepareHelp')}</Typography>
       <Button component={RouterLink} variant="text"
-        to={`/admin/finance?blockId=${report.blockId}&period=${report.year}-${String(report.month).padStart(2, '0')}`}>
+        to={`/admin/finance?blockId=${period.blockId}&period=${period.year}-${String(period.month).padStart(2, '0')}`}>
         {t('financeCorrections.editInputs')}
       </Button>
       <TextField label={t('financeCorrections.reason')} multiline minRows={3} value={reason} disabled={pending}

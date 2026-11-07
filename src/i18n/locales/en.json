@@ -1,5 +1,11 @@
 {
   "financeCorrections": {
+    "totalBefore": "Previously published total",
+    "totalAfter": "Corrected total",
+    "totalDifference": "Total difference",
+    "monthPublishedHelp": "This month already has published bills. Generate a correction with a reason to update them through a new review.",
+    "unlinkedDraftHelp": "This month already has published bills. Use Issue correction to generate a corrective revision from the current saved monthly inputs, with a reason and a new review.",
+    "required": "This month is already published. Refresh the monthly workspace and choose Generate correction.",
     "create": "Issue correction",
     "generate": "Generate correction",
     "publish": "Publish correction",
