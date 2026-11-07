@@ -22,15 +22,19 @@ import { personsApi } from '../../services/personsApi'
 import type { PersonResponse } from '../../types/management'
 import SetupApartmentCard from './SetupApartmentCard'
 import SetupFloorSection from './SetupFloorSection'
+import SetupCountersStep from './SetupCountersStep'
 import SetupAccordionHeader from './SetupAccordionHeader'
 import { translateApartmentSetupStatus } from '../../domain/displayLabels'
 import { primaryContainedButtonColors } from '../../theme/themeConfig'
 import { assignedOwnerCount, apartmentValidationErrors, declaredOccupantCount, generateStaircases, newGroup, unique, type ApartmentDraft, type ApartmentValidationErrors, type ApartmentValidationField, type GenerationSettings, type Group } from './setupDraft'
 import { addApartmentToFloor, addFloor, appendApartmentBatch, deleteApartment, deleteEmptyFloor, expandApartment, floorLevel, floorSections, moveApartment, orderedApartments, orderedFloors, type LayoutResult } from './setupFloorLayout'
+import { applyApartmentPatch, copyCounterZoneSettings, generateCounterZones, groupWaterMeterCount } from './setupMeterDraft'
+import { toWaterZones, waterMeterCount, waterZonesError } from '../../domain/waterMeterConfiguration'
+import { apartmentConfigurationStatus } from '../../domain/apartmentConfiguration'
 type DraftNotice = { id: string; key: string; values?: Record<string, unknown>; groupId?: string }
 type FocusTarget = { id: string; selector?: string }
 const toApartment = (a: ApartmentDraft): SetupApartment => ({ number: a.number.trim(), floor: a.floor.trim() ? Number(a.floor) : null,
-  usableSqm: a.usableSqm.trim() ? Number(a.usableSqm) : null, hasBoiler: a.hasBoiler,
+  usableSqm: a.usableSqm.trim() ? Number(a.usableSqm) : null, hasBoiler: a.hasBoiler, waterZones: toWaterZones(a.waterZones, a.hasBoiler),
   householdCount: a.addResident ? Number(a.householdCount) : 0, resident: a.addResident ? {
     personId: a.resident.mode === 'existing' ? a.resident.personId : null,
     firstName: a.resident.mode === 'new' ? a.resident.firstName.trim() : '', lastName: a.resident.mode === 'new' ? a.resident.lastName.trim() : '',
@@ -79,10 +83,10 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
   const [residentsError, setResidentsError] = React.useState(false)
   const locked = busy || Boolean(retryRequest) || setupSaved
   const groups = hasStaircases ? staircases : [blockGroup]
-  const steps = ['details', ...(hasStaircases ? ['staircases'] : []), 'apartments', 'review']
+  const steps = ['details', ...(hasStaircases ? ['staircases'] : []), 'apartments', 'counters', 'review']
   const current = steps[stage]
   const goToStage = (nextStage: number) => {
-    if (steps[nextStage] === 'apartments' && current !== 'apartments') {
+    if ((steps[nextStage] === 'apartments' || steps[nextStage] === 'counters') && current !== steps[nextStage]) {
       if (hasStaircases) setStaircases(value => value.map((group, index) => ({ ...group, expanded: index === 0 })))
       else setBlockGroup(value => ({ ...value, expanded: true }))
     }
@@ -136,7 +140,7 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
   const undoLayout = () => {
     if (!undo || locked || submitting.current || !groups.some(group => group.id === undo.id)) return
     updateGroup(undo.id, () => structuredClone(undo), true, false)
-    pendingFocus.current = { id: `setup-toggle-${undo.id}` }
+    pendingFocus.current = { id: `${current === 'counters' ? 'counter' : 'setup'}-toggle-${undo.id}` }
     setUndo(null)
     setNotice({ id: crypto.randomUUID(), key: 'layoutUndone' })
   }
@@ -147,6 +151,13 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
     setStaircases(current => current.map(group => group.id === source.id ? group : { ...group, generation: { ...source.generation } }))
     setUndo(null)
     setNotice({ id: crypto.randomUUID(), key: 'generationCopied', values: { staircase: source.name } })
+  }
+  const copyCounterGeneration = (source: Group) => {
+    if (locked || submitting.current) return
+    setStaircases(value => copyCounterZoneSettings(value, source.id))
+    setUndo(null)
+    setError(null)
+    setNotice({ id: crypto.randomUUID(), key: 'counterGenerationCopied', values: { staircase: source.name } })
   }
   const errorsFor = (group: Group, apartment: ApartmentDraft): ApartmentValidationErrors => {
     const errors = apartmentValidationErrors(apartment)
@@ -165,6 +176,16 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
     lastName: 'persons.fields.lastName', phone: 'persons.fields.phone', email: 'persons.fields.email',
   }
   const reportValidationError = (step: string) => {
+    if (step === 'counters') {
+      for (const group of groups) for (const apartment of group.apartments) {
+        const issue = waterZonesError(apartment.waterZones, apartment.hasBoiler)
+        if (!issue) continue
+        pendingFocus.current = { id: `counter-apartment-${apartment.id}`, selector: '[aria-invalid="true"], input, [role="combobox"]' }
+        updateGroup(group.id, value => expandApartment(value, apartment.id), false)
+        setError(w('counterValidation', { location: hasStaircases ? group.name : name, number: apartment.number, reason: w(issue) }))
+        return
+      }
+    }
     if (step !== 'apartments') { setError(w('validation')); return }
     for (const group of groups) {
       const location = hasStaircases ? t('settings.fields.staircaseName', { staircase: group.name }) : t('common.blockValue', { block: name })
@@ -186,6 +207,7 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
     if (step === 'details') return Boolean(name.trim())
     if (step === 'staircases') return staircases.length > 0 && staircases.every(g => Boolean(g.name.trim()) && g.name.trim().length <= 100) && unique(staircases.map(g => g.name))
     if (step === 'apartments') return groups.length > 0 && groups.every(g => g.apartments.length > 0 && g.apartments.every(a => Object.keys(errorsFor(g, a)).length === 0))
+    if (step === 'counters') return groups.every(group => group.apartments.every(apartment => !waterZonesError(apartment.waterZones, apartment.hasBoiler)))
     return true
   }
   const batch = () => {
@@ -212,6 +234,9 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
       goToStage(steps.indexOf('apartments')); reportValidationError('apartments'); return
     }
     if (mode === 'full' && !retryRequest && hasStaircases && !validate('staircases')) { reportValidationError('staircases'); return }
+    if (mode === 'full' && !retryRequest && !validate('counters')) {
+      goToStage(steps.indexOf('counters')); reportValidationError('counters'); return
+    }
     submitting.current = true; setBusy(true); setError(null); setUndo(null); setNotice(null); pendingFocus.current = null
     try {
       if (mode === 'simple') await onSimple({ name: name.trim(), address: address.trim() || undefined, hasStaircases: false, apartmentCount: 0, residentCount: 0, staircaseCount: 0 })
@@ -236,6 +261,17 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
     if (!validate(current)) { reportValidationError(current); return }
     if (mode === 'simple' || current === 'review') void submit()
     else goToStage(stage + 1)
+  }
+  const generateCounters = (group: Group) => {
+    const result = generateCounterZones(group, location => t(`apartments.waterIndex.locations.${location}`))
+    if (result.error) {
+      pendingFocus.current = { id: `counter-generation-${group.id}`, selector: '[role="combobox"]' }
+      updateGroup(group.id, value => ({ ...value, expanded: true }), false)
+    } else if (result.group === group) {
+      setNotice({ id: crypto.randomUUID(), key: 'counterZonesAlreadyPresent' })
+      return
+    }
+    applyLayout(group, () => result, 'counterZonesGenerated')
   }
   const batchControls = (group?: Group) => <Box sx={{
     display: 'grid', gap: 1.5, alignItems: 'start',
@@ -372,7 +408,7 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
                     if (patch.floor !== undefined) {
                       const nextGroup = applyLayout(g, value => moveApartment(value, a.id, patch.floor!), 'apartmentMoved', { number: a.number })
                       if (nextGroup) pendingFocus.current = { id: `setup-apartment-${a.id}`, selector: '[data-setup-floor-choice] [role="combobox"]' }
-                    } else updateGroup(g.id, value => ({ ...value, apartments: value.apartments.map(item => item.id === a.id ? { ...item, ...patch } : item) }))
+                    } else updateGroup(g.id, value => ({ ...value, apartments: value.apartments.map(item => item.id === a.id ? applyApartmentPatch(item, patch) : item) }))
                   }}
                   onRemove={() => {
                     const nextGroup = applyLayout(g, value => deleteApartment(value, a.id), 'apartmentRemoved', { number: a.number })
@@ -386,6 +422,9 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
               }}>{w('addFloor')}</Button>
             </AccordionDetails>
           </Accordion>)}
+          {current === 'counters' && <SetupCountersStep groups={groups} hasStaircases={hasStaircases} blockName={name} disabled={locked}
+            showErrors={Boolean(error)} onUpdate={updateGroup} onGenerate={generateCounters} onCopy={copyCounterGeneration} onEntered={focusPending}
+            onFocusRequest={target => { pendingFocus.current = target }} />}
           {current === 'review' && <>
             <Typography variant="h6" sx={{ overflowWrap: 'anywhere' }}>{name}</Typography>
             {address && <Typography sx={{ overflowWrap: 'anywhere' }}>{address}</Typography>}
@@ -393,6 +432,7 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
               occupants: declaredOccupantCount(groups.flatMap(g => g.apartments)),
               residents: assignedOwnerCount(groups.flatMap(g => g.apartments)),
             })}</Typography>
+            <Typography variant="body2" color="text.secondary">{w('metersCount', { count: groups.reduce((sum, group) => sum + groupWaterMeterCount(group), 0) })}</Typography>
             {groups.map(g => <Accordion key={g.id} disableGutters sx={groupSurfaceSx}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}><Typography sx={{ overflowWrap: 'anywhere' }}>{hasStaircases ? g.name : name} ({g.apartments.length})</Typography></AccordionSummary>
               <AccordionDetails sx={{ pt: 0 }}>
@@ -410,8 +450,10 @@ export default function BlockSetupWizard({ onClose, onSimple, onSetup, loadResid
                     <Box component="span" sx={{ fontWeight: 600 }}>{w('mobile.apartmentTitle', { number: a.number })}</Box>
                     <span>{w('mobile.floor')}: {a.floor || '-'}</span>
                     <span>{a.usableSqm ? `${Number(a.usableSqm).toLocaleString(i18n.resolvedLanguage ?? i18n.language, { maximumFractionDigits: 2 })} m²` : '-'}</span>
-                    <span>{translateApartmentSetupStatus(t, 'unconfigured')}</span>
+                    <span>{translateApartmentSetupStatus(t, apartmentConfigurationStatus(a.usableSqm, waterMeterCount(a.waterZones) > 0))}</span>
                     <span>{w('mobile.boiler')}: {w(a.hasBoiler ? 'yes' : 'no')}</span>
+                    <span>{w('metersCount', { count: waterMeterCount(a.waterZones) })}</span>
+                    {a.waterZones.map(zone => <span key={zone.id}>{zone.name}: {t('apartments.waterIndex.coldTotal', { count: zone.coldWaterCount })} · {t('apartments.waterIndex.hotTotal', { count: a.hasBoiler ? 0 : zone.hotWaterCount })}</span>)}
                     <span>{t('apartments.setup.householdMembers')}: {a.addResident ? a.householdCount : '0'}</span>
                     {a.addResident && <span>{w('owner')}: {a.resident.mode === 'existing' ? persons.find(resident => resident.id === a.resident.personId)?.fullName : `${a.resident.firstName} ${a.resident.lastName}`}</span>}
                     {a.addResident && a.resident.invitePerson && <span>{t('persons.fields.invitePerson')}: {a.resident.email}</span>}

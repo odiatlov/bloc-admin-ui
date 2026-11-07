@@ -13,16 +13,17 @@ type Props = {
   apartmentCount: number
   ownerCount: number
   occupantCount: number
+  meterCount?: number
   expanded: boolean
   disabled: boolean
   onExpandedChange: (expanded: boolean) => void
-  onAdd: () => void
+  onAdd?: () => void
   onRemove?: () => void
   onEntered: () => void
   children: ReactNode
 }
 
-export default function SetupFloorSection({ id, floor, apartmentCount, ownerCount, occupantCount, expanded, disabled, onExpandedChange, onAdd, onRemove, onEntered, children }: Props) {
+export default function SetupFloorSection({ id, floor, apartmentCount, ownerCount, occupantCount, meterCount, expanded, disabled, onExpandedChange, onAdd, onRemove, onEntered, children }: Props) {
   const { t } = useTranslation()
   const floorLabel = floor ? t('blockSetup.floorLabel', { floor: floor.level }) : t('blockSetup.unassignedFloor')
   const label = floor?.level === 0 ? `${floorLabel} (${t('blockSetup.groundFloor')})` : floorLabel
@@ -36,13 +37,15 @@ export default function SetupFloorSection({ id, floor, apartmentCount, ownerCoun
       ]} />}>
       <Box sx={{ minWidth: 0 }}>
         <Typography variant="subtitle2" sx={{ overflowWrap: 'anywhere' }}>{label}</Typography>
-        <Typography variant="caption" color="text.secondary">{t('blockSetup.apartmentsCount', { count: apartmentCount })} · {t('blockSetup.declaredOccupantsCount', { count: occupantCount })} · {t('blockSetup.assignedOwnersCount', { count: ownerCount })}</Typography>
+        <Typography variant="caption" color="text.secondary">{t('blockSetup.apartmentsCount', { count: apartmentCount })} · {meterCount === undefined
+          ? <>{t('blockSetup.declaredOccupantsCount', { count: occupantCount })} · {t('blockSetup.assignedOwnersCount', { count: ownerCount })}</>
+          : t('blockSetup.metersCount', { count: meterCount })}</Typography>
       </Box>
     </SetupAccordionHeader>
     <AccordionDetails id={`${id}-content`} sx={{ display: 'grid', gap: 1.5, p: { xs: 1, sm: 1.5 }, borderTop: '1px solid', borderColor: 'divider', minWidth: 0 }}>
-      {apartmentCount === 0 ? <Typography variant="body2" color="text.secondary">{t('blockSetup.emptyFloor')} {t('blockSetup.deleteFloorHint')}</Typography> : children}
-      <Button fullWidth variant="text" startIcon={<AddIcon />} disabled={disabled} onClick={onAdd}
-        sx={{ minWidth: 0, whiteSpace: 'normal', overflowWrap: 'anywhere' }}>{t('blockSetup.addApartment')}</Button>
+      {apartmentCount === 0 ? <Typography variant="body2" color="text.secondary">{t('blockSetup.emptyFloor')} {onAdd && t('blockSetup.deleteFloorHint')}</Typography> : children}
+      {onAdd && <Button fullWidth variant="text" startIcon={<AddIcon />} disabled={disabled} onClick={onAdd}
+        sx={{ minWidth: 0, whiteSpace: 'normal', overflowWrap: 'anywhere' }}>{t('blockSetup.addApartment')}</Button>}
     </AccordionDetails>
   </Accordion>
 }

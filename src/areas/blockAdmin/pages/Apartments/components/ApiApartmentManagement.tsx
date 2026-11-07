@@ -12,7 +12,6 @@ import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import InputLabel from '@mui/material/InputLabel'
-import IconButton from '@mui/material/IconButton'
 import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Select, { type SelectChangeEvent } from '@mui/material/Select'
@@ -34,7 +33,6 @@ import ConfirmationDialog from '../../../../../components/shared/ConfirmationDia
 import EmptyState from '../../../../../components/shared/EmptyState'
 import { EntityListItem } from '../../../../../components/shared/EntityPresentation'
 import ActionButtons from '../../../../../components/shared/ActionButtons'
-import IconButtonTooltip from '../../../../../components/shared/IconButtonTooltip'
 import FilterBar from '../../../../../components/shared/FilterBar'
 import LoadErrorState from '../../../../../components/shared/LoadErrorState'
 import PagedResponsiveDataView from '../../../../../components/shared/PagedResponsiveDataView'
@@ -52,7 +50,8 @@ import { staircasesApi } from '../../../../../services/staircasesApi'
 import { waterReadingsApi } from '../../../../../services/waterReadingsApi'
 import type { ApartmentSetupStatus } from '../../../../../types/apartment'
 import type { ApartmentResidentResponse, ApartmentResponse, PersonResponse, StaircaseResponse } from '../../../../../types/management'
-import type { ApartmentWaterConfigurationZone } from '../../../../../types/waterReadings'
+import WaterMeterZoneFields from '../../../../../components/water/WaterMeterZoneFields'
+import { newWaterZone, toWaterZones, waterMeterCount, waterZonesError, type WaterZoneDraft } from '../../../../../domain/waterMeterConfiguration'
 
 type ApiApartmentManagementProps = {
   hideScopeFilters?: boolean
@@ -72,9 +71,7 @@ type FormState = {
   hasBoiler: boolean
 }
 
-type WaterZoneForm = ApartmentWaterConfigurationZone & {
-  id: string
-}
+type WaterZoneForm = WaterZoneDraft
 
 const emptyForm: FormState = {
   blockId: '',
@@ -87,7 +84,6 @@ const emptyForm: FormState = {
 }
 
 const setupStatuses: ApartmentSetupStatus[] = ['configured', 'unconfigured']
-const waterLocationTypes = ['Kitchen', 'Bathroom', 'SecondaryBathroom', 'ServiceToilet', 'Other']
 
 const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideScopeFilters = false, initialBlockId, showOverviewFilters = false, filterActions, afterFilters }) => {
   const { t } = useTranslation()
@@ -203,8 +199,8 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
         id: `${zone.locationType}-${zone.name}-${index}`,
         locationType: zone.locationType,
         name: zone.name,
-        coldWaterCount: 1,
-        hotWaterCount: configuration.hasBoiler ? 0 : 1,
+        coldWaterCount: zone.coldWaterCount,
+        hotWaterCount: configuration.hasBoiler ? 0 : zone.hotWaterCount,
       })))
     } catch (nextError) {
       setWaterZones([])
@@ -303,7 +299,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
     const block = blocks.find((item) => item.id === form.blockId)
     if (!block || !form.number.trim()) return
     if (formBlockHasStaircases && !form.staircaseId) return
-    if (editingApartment && (isLoadingApartmentResidents || apartmentResidentsError || error || isLoadingWaterConfig || waterConfigError)) return
+    if (editingApartment && (isLoadingApartmentResidents || apartmentResidentsError || error || isLoadingWaterConfig || waterConfigError || waterZonesError(waterZones, form.hasBoiler))) return
 
     const request = {
       blockId: form.blockId,
@@ -320,12 +316,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
     setSaveError(false)
     try {
       if (editingApartment) {
-        await apartmentsApi.update(editingApartment.id, { ...request, zones: waterZones.map((zone) => ({
-          locationType: zone.locationType,
-          name: zone.name.trim() || zone.locationType,
-          coldWaterCount: 1,
-          hotWaterCount: form.hasBoiler ? 0 : 1,
-        })) })
+        await apartmentsApi.update(editingApartment.id, { ...request, zones: toWaterZones(waterZones, form.hasBoiler) })
       } else {
         await apartmentsApi.create(request)
       }
@@ -450,6 +441,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
     && form.number.trim()
     && (!formBlockHasStaircases || form.staircaseId)
     && hasValidResidentCount
+    && (!editingApartment || !waterZonesError(waterZones, form.hasBoiler))
     && (!editingApartment || (!isLoadingWaterConfig && !waterConfigError && !isLoadingApartmentResidents && !apartmentResidentsError && !error))
   )
   const updateWaterZone = (id: string, patch: Partial<WaterZoneForm>) => {
@@ -459,13 +451,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
   const addWaterZone = () => {
     setWaterZones((zones) => [
       ...zones,
-      {
-        id: crypto.randomUUID(),
-        locationType: 'Kitchen',
-        name: t('apartments.waterIndex.locations.Kitchen'),
-        coldWaterCount: 1,
-        hotWaterCount: form.hasBoiler ? 0 : 1,
-      },
+      newWaterZone('Kitchen', t('apartments.waterIndex.locations.Kitchen'), form.hasBoiler),
     ])
   }
 
@@ -617,7 +603,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
 
               {editTab === 0 && (
                 <Box component="fieldset" disabled={isSaving} sx={{ border: 0, p: 0, m: 0, minWidth: 0, display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' }, gap: 1.5 }}>
-                  <ApartmentConfigurationBadge usableSqm={form.usableSqm} hasConsumptionZone={waterZones.length > 0}
+                  <ApartmentConfigurationBadge usableSqm={form.usableSqm} hasConsumptionZone={waterMeterCount(waterZones) > 0}
                     loading={isLoadingWaterConfig} unavailable={Boolean(waterConfigError)} />
                   {saveError && <Alert severity="error" sx={{ gridColumn: '1 / -1' }}>{t('apartments.setup.saveFailed')}</Alert>}
                   <TextField fullWidth required size="small" label={t('apartments.setup.number')} value={form.number} onChange={(event) => setForm((value) => ({ ...value, number: event.target.value }))} />
@@ -677,6 +663,7 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                         {t('apartments.waterIndex.helper')}
                       </Typography>
                     </Box>
+                    {!isLoadingWaterConfig && !waterConfigError && waterZonesError(waterZones, form.hasBoiler) && <Alert severity="error">{t(`blockSetup.${waterZonesError(waterZones, form.hasBoiler)}`)}</Alert>}
                     {isLoadingWaterConfig ? (
                       <Box sx={{ alignItems: 'center', display: 'flex', gap: 1 }}>
                         <CircularProgress size={20} />
@@ -689,48 +676,8 @@ const ApiApartmentManagement: React.FC<ApiApartmentManagementProps> = ({ hideSco
                         {t('apartments.waterIndex.empty')}
                       </Typography>
                     ) : waterZones.map((zone) => (
-                      <Box
-                        key={zone.id}
-                        sx={{
-                          alignItems: 'center',
-                          display: 'grid',
-                          gap: 1,
-                          gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr auto' },
-                        }}
-                      >
-                        <FormControl fullWidth size="small">
-                          <InputLabel>{t('apartments.waterIndex.locationType')}</InputLabel>
-                          <Select
-                            label={t('apartments.waterIndex.locationType')}
-                            value={zone.locationType}
-                            onChange={(event: SelectChangeEvent) => {
-                              const locationType = event.target.value
-                              updateWaterZone(zone.id, {
-                                locationType,
-                                name: t(`apartments.waterIndex.locations.${locationType}`),
-                              })
-                            }}
-                          >
-                            {waterLocationTypes.map((locationType) => (
-                              <MenuItem key={locationType} value={locationType}>
-                                {t(`apartments.waterIndex.locations.${locationType}`)}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                        <TextField
-                          fullWidth
-                          label={t('apartments.waterIndex.zoneName')}
-                          onChange={(event) => updateWaterZone(zone.id, { name: event.target.value })}
-                          size="small"
-                          value={zone.name}
-                        />
-                        <IconButtonTooltip title={t('apartments.waterIndex.removeZone')}>
-                        <IconButton aria-label={t('apartments.waterIndex.removeZone')} onClick={() => removeWaterZone(zone.id)}>
-                          <DeleteIcon />
-                        </IconButton>
-                        </IconButtonTooltip>
-                      </Box>
+                      <WaterMeterZoneFields key={zone.id} zone={zone} hasBoiler={form.hasBoiler} disabled={isSaving} showErrors
+                        onChange={patch => updateWaterZone(zone.id, patch)} onRemove={() => removeWaterZone(zone.id)} />
                     ))}
                   </Box>
                   <Box sx={{ display: 'flex', gridColumn: '1 / -1', justifyContent: { xs: 'stretch', sm: 'flex-end' }, pt: 0.5 }}>

@@ -1,3 +1,5 @@
+import type { ApartmentWaterConfigurationZone } from './waterReadings'
+
 export type BlockOverviewDto = {
   id: string
   name: string
@@ -50,6 +52,7 @@ export type SetupApartment = {
   hasBoiler: boolean
   householdCount: number
   resident: SetupPerson | null
+  waterZones?: ApartmentWaterConfigurationZone[]
 }
 
 export type SetupPerson = {
