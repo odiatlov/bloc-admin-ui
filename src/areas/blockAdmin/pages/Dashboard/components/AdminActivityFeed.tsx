@@ -27,7 +27,8 @@ const AdminActivityFeed: React.FC<Props> = ({ activity, loading, error, onRetry,
     secondary: t(`dashboard.admin.activity.${item.timeKey}`),
   })) : activity.map(item => ({
     id: `${item.type}:${item.id}`,
-    title: t(item.type === 'reportPublished' ? 'financePublication.dashboardEvent' : 'dashboard.admin.activity.cashRecorded', {
+    title: t(item.type === 'reportPublished' ? 'financePublication.dashboardEvent'
+      : item.type === 'correctionPublished' ? 'financeCorrections.dashboardEvent' : 'dashboard.admin.activity.cashRecorded', {
       block: item.blockName, apartment: item.apartmentNumber,
       period: month.format(new Date(item.year, item.month - 1, 1)),
     }),

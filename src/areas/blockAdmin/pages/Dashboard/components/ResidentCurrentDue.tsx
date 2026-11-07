@@ -14,6 +14,15 @@ const ResidentCurrentDue = ({ summary }: { summary: ReturnType<typeof useResiden
         : data ? <>
           <Typography variant="h5">{new Intl.NumberFormat(i18n.language, { style: 'currency', currency: data.currency }).format(data.currentAmountDue)}</Typography>
           <Typography variant="body2" color="text.secondary">{t(data.totalBillCount ? 'residentFinance.unpaidCount' : 'residentFinance.noPublishedBills', { count: data.unpaidBillCount })}</Typography>
+          {(data.availableCredit ?? 0) > 0 && <Typography variant="body2" color="success.main">{t('financeCorrections.creditHelp', {
+            amount: new Intl.NumberFormat(i18n.language, { style: 'currency', currency: data.currency }).format(data.availableCredit ?? 0),
+          })}</Typography>}
+          {(data.pendingCorrectionDebit ?? 0) > 0 && <Typography variant="body2" color="text.secondary">{t('financeCorrections.pendingDebitHelp', {
+            amount: new Intl.NumberFormat(i18n.language, { style: 'currency', currency: data.currency }).format(data.pendingCorrectionDebit ?? 0),
+          })}</Typography>}
+          {(data.overpaidAmount ?? 0) > 0 && <Typography variant="body2" color="text.secondary">{t('financeCorrections.overpaidHelp', {
+            amount: new Intl.NumberFormat(i18n.language, { style: 'currency', currency: data.currency }).format(data.overpaidAmount ?? 0),
+          })}</Typography>}
         </> : null}
   </ContentCard>
 }

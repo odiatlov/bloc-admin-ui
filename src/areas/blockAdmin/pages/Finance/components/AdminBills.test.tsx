@@ -29,6 +29,29 @@ beforeEach(() => {
 })
 
 describe('admin bills', () => {
+  it('validates a partial receipt and reuses its identity after an uncertain result', async () => {
+    const partial = { ...first, paidAmount: 30, remainingAmount: first.remainingAmount - 30, cashRequestedAt: null }
+    vi.spyOn(financeBillsApi, 'list').mockResolvedValueOnce(page(first)).mockResolvedValue(page(partial))
+    const record = vi.spyOn(financeBillsApi, 'recordCash').mockRejectedValueOnce(new Error('offline')).mockResolvedValue(partial)
+    const user = userEvent.setup()
+    renderWithProviders(<MemoryRouter><RoleContext.Provider value={adminContext}><AdminBills /></RoleContext.Provider></MemoryRouter>)
+    await user.click(await screen.findByRole('button', { name: 'Record cash payment' }))
+    const dialog = within(screen.getByRole('dialog'))
+    const amount = dialog.getByRole('spinbutton', { name: 'Amount received' })
+    await user.clear(amount)
+    await user.type(amount, String(first.remainingAmount + 1))
+    expect(dialog.getByRole('button', { name: 'Confirm cash received' })).toBeDisabled()
+    await user.clear(amount)
+    await user.type(amount, '30')
+    await user.click(dialog.getByRole('button', { name: 'Confirm cash received' }))
+    await waitFor(() => expect(record).toHaveBeenCalledOnce())
+    await waitFor(() => expect(dialog.getByRole('button', { name: 'Confirm cash received' })).toBeEnabled())
+    await user.click(dialog.getByRole('button', { name: 'Confirm cash received' }))
+    await waitFor(() => expect(record).toHaveBeenCalledTimes(2))
+    expect(record.mock.calls[1]).toEqual(record.mock.calls[0])
+    expect(record.mock.calls[0][2]).toEqual({ requestId: expect.any(String), amount: 30 })
+  })
+
   it('restores the block, staircase, billing month and search after leaving Bills', async () => {
     const blockId = '00000000-0000-0000-0000-000000000051'
     const staircaseId = '00000000-0000-0000-0000-000000000052'
@@ -78,11 +101,12 @@ describe('admin bills', () => {
     </MemoryRouter>)
     expect(await screen.findAllByText('Cash requested')).not.toHaveLength(0)
     expect(screen.queryByText('Unpaid')).not.toBeInTheDocument()
-    await user.click(await screen.findByRole('button', { name: 'Mark paid' }))
-    const dialog = await screen.findByRole('dialog', { name: 'Mark paid' })
+    await user.click(await screen.findByRole('button', { name: 'Record cash payment' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Record cash payment' })
     expect(within(dialog).getByText(/October 2026/)).toBeVisible()
     await user.click(within(dialog).getByRole('button', { name: 'Confirm cash received' }))
-    expect(record).toHaveBeenCalledExactlyOnceWith(first.id, expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/))
+    expect(record).toHaveBeenCalledExactlyOnceWith(first.id, expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+      { requestId: expect.any(String), amount: first.remainingAmount })
     await waitFor(() => expect(list).toHaveBeenCalledTimes(2))
     expect(await screen.findByText('No open payment requests match these filters.')).toBeVisible()
     await user.click(screen.getByRole('tab', { name: 'All bills' }))

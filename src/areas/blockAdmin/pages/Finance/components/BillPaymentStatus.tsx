@@ -7,6 +7,8 @@ export default function BillPaymentStatus({ bill, admin = false }: { bill: Resid
   if (bill.cashRequestedAt) {
     return <StatusChip status="pending" label={t(admin ? 'billPayments.cashRequested' : 'billPayments.awaitingConfirmation')} />
   }
+  if (bill.status === 'credit') return <StatusChip status="approved"
+    label={t((bill.availableCredit ?? 0) > 0 ? 'financeCorrections.creditStatus' : 'financeCorrections.overpaidStatus')} />
   const status = bill.status === 'overdue' ? 'unpaid' : bill.status
   return <StatusChip status={status} label={t(`residentFinance.status.${status}`)} />
 }

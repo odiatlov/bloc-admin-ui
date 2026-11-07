@@ -14,6 +14,16 @@ const notification: NotificationResponse = { id: '734cb554-6365-447c-bb7a-a23da3
   context: 'Block A', isRead: false, createdAt: '2026-11-03T08:00:00Z', actionUrl: '/admin/reports/maintenance/76df6377-6e91-4103-bf8b-41f53456a1ec?submissionId=75655156-5cbb-41ef-bfb4-4824e6270faf' }
 
 describe('financial review notifications', () => {
+  it.each(['en', 'ro'] as const)('localizes a correction notification and identifies the affected billing month in %s', language => {
+    renderWithProviders(<NotificationListItem onClick={vi.fn()} notification={{ ...notification,
+      type: 'BillCorrectionPublished', title: 'BillCorrectionPublished', message: 'Supplier invoice corrected',
+      actionUrl: '/admin/finance?billId=00000000-0000-0000-0000-000000000010' }} />, { language })
+    expect(screen.getByText(language === 'en' ? 'Your bill has been corrected' : 'Factura ta a fost corectată')).toBeVisible()
+    expect(screen.getByText(language === 'en' ? /Block A.*September 2026.*3/ : /Block A.*septembrie 2026.*3/)).toBeVisible()
+    expect(screen.getByText('Supplier invoice corrected')).toBeVisible()
+    expect(screen.queryByText('BillCorrectionPublished')).not.toBeInTheDocument()
+  })
+
   it.each(['en', 'ro'] as const)('localizes the event and identifies its exact revision/cycle in %s', language => {
     renderWithProviders(<NotificationListItem notification={notification} onClick={vi.fn()} />, { language })
     expect(screen.getByText(language === 'en' ? 'Financial report rejected' : 'Raport financiar respins')).toBeVisible()

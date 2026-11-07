@@ -19,6 +19,7 @@ import { useFinanceActionScope, useFinanceBlocks, useFinanceIdentity } from '../
 import { usePageFilter } from '../../../../../hooks/usePageFilter'
 import { ApiError } from '../../../../../services/apiClient'
 import { financeBillsApi, type FinanceBillItem, type FinanceBillList } from '../../../../../services/financeBillsApi'
+import { reviewRequestIdentity } from '../../../../../services/financeReviewRequests'
 import type { ResidentBillSummary } from '../../../../../types/finance'
 import BillPaymentStatus from './BillPaymentStatus'
 
@@ -28,6 +29,7 @@ const billingDate = () => new Intl.DateTimeFormat('sv-SE', {
 
 function AdminBillList() {
   const { t, i18n } = useTranslation()
+  const identity = useFinanceIdentity()
   const [params, setParams] = useSearchParams()
   const requestsOnly = params.get('tab') === 'requests'
   const blocks = useFinanceBlocks()
@@ -38,6 +40,7 @@ function AdminBillList() {
   const [months, setMonths] = useState<{ key: string; values: string[]; error?: boolean }>()
   const [selection, setSelection] = useState<ResidentBillSummary | null>(null)
   const [receivedOn, setReceivedOn] = useState('')
+  const [paymentAmount, setPaymentAmount] = useState('')
   const [recordError, setRecordError] = useState('')
   const [notice, setNotice] = useState<{ severity: 'success' | 'error'; message: string }>()
   const [action, setAction] = useState<{ type: 'record' | 'remind'; id: string }>()
@@ -103,12 +106,16 @@ function AdminBillList() {
   const retry = () => { setState(undefined); retryFilters() }
 
   const markPaid = async () => {
-    if (!selection || !receivedOn || receivedOn > today || inFlight.current) return
+    if (!selection || !receivedOn || receivedOn > today || !Number(paymentAmount)
+      || Number(paymentAmount) < 0 || Number(paymentAmount) > selection.remainingAmount || inFlight.current) return
     inFlight.current = true
     setAction({ type: 'record', id: selection.id })
     setRecordError('')
     try {
-      const paid = await financeBillsApi.recordCash(selection.id, receivedOn)
+      const payload = { receivedOn, amount: Number(paymentAmount) }
+      const request = reviewRequestIdentity(`${identity}:cash:${selection.id}`, payload)
+      const paid = await financeBillsApi.recordCash(selection.id, receivedOn, { requestId: request.id, amount: payload.amount })
+      request.complete()
       if (!active.current) return
       setState(previous => previous?.data && previous.key === key ? {
         key, data: { ...previous.data,
@@ -151,7 +158,9 @@ function AdminBillList() {
     { key: 'apartment', label: t('finance.columns.apartment'), cardRole: 'primary', render: ({ bill }) => locationLabel(bill) },
     { key: 'resident', label: t('billPayments.resident'), cardRole: 'secondary', render: ({ residentName }) => residentName || '—' },
     { key: 'month', label: t('finance.columns.month'), render: ({ bill }) => periodLabel(bill) },
-    { key: 'amount', label: t('finance.columns.amount'), render: ({ bill }) => amountLabel(bill, bill.originalAmount) },
+    { key: 'amount', label: t('finance.columns.amount'), render: ({ bill }) => amountLabel(bill, bill.correctedAmount ?? bill.originalAmount) },
+    { key: 'credit', label: t('financeCorrections.creditAvailable'), render: ({ bill }) => amountLabel(bill, bill.availableCredit ?? 0) },
+    { key: 'pendingDebit', label: t('financeCorrections.pendingDebit'), render: ({ bill }) => amountLabel(bill, bill.pendingCorrectionDebit ?? 0) },
     { key: 'balance', label: t('resident.bills.summary.balance'), render: ({ bill }) => amountLabel(bill) },
     { key: 'due', label: t('financePublication.dueDate'), render: ({ bill }) => new Intl.DateTimeFormat(i18n.language,
       { dateStyle: 'medium' }).format(new Date(`${bill.dueDate}T12:00:00`)) },
@@ -159,8 +168,8 @@ function AdminBillList() {
       ? new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(bill.cashRequestedAt)) : '—' }] : []),
     { key: 'status', label: t('finance.columns.status'), cardRole: 'status', render: ({ bill }) => <BillPaymentStatus bill={bill} admin /> },
     { key: 'actions', label: t('common.actions'), actions: ({ bill }) => bill.remainingAmount <= 0 ? [] : [
-      { id: 'markPaid', label: t('billPayments.markPaid'), icon: <CheckCircleOutlinedIcon />, priority: 2, disabled: !!action,
-        onClick: () => { setSelection(bill); setReceivedOn(today); setRecordError('') } },
+      { id: 'markPaid', label: t('financeCorrections.recordPayment'), icon: <CheckCircleOutlinedIcon />, priority: 2, disabled: !!action,
+        onClick: () => { setSelection(bill); setPaymentAmount(String(bill.remainingAmount)); setReceivedOn(today); setRecordError('') } },
       { id: 'remind', label: t('billPayments.sendReminder'), icon: <NotificationsNoneIcon />, visible: !requestsOnly,
         disabled: !!action, loading: action?.type === 'remind' && action.id === bill.id, onClick: () => { void remind(bill.id) } },
     ] },
@@ -214,15 +223,19 @@ function AdminBillList() {
             emptyState={<EmptyState headline={t(requestsOnly ? 'billPayments.noRequests' : 'billPayments.noBills')} helperText="" />} />}
       </Stack>
     </Stack>
-    {selection && <ConfirmationDialog open title={t('billPayments.markPaid')} pending={action?.type === 'record'}
+    {selection && <ConfirmationDialog open title={t('financeCorrections.recordPayment')} pending={action?.type === 'record'}
       cancelLabel={t('common.cancel')} onCancel={() => setSelection(null)} onConfirm={() => { void markPaid() }}
-      confirmLabel={t('billPayments.confirmCash')} confirmDisabled={!receivedOn || receivedOn > today}>
+      confirmLabel={t('billPayments.confirmCash')} confirmDisabled={!receivedOn || receivedOn > today
+        || !Number.isFinite(Number(paymentAmount)) || Number(paymentAmount) <= 0 || Number(paymentAmount) > selection.remainingAmount}>
       <Stack spacing={2}>
         <MetadataGrid items={[
           { key: 'apartment', label: t('finance.columns.apartment'), value: locationLabel(selection), fullWidth: true },
           { key: 'month', label: t('finance.columns.month'), value: periodLabel(selection) },
           { key: 'amount', label: t('finance.billing.totalDue'), value: amountLabel(selection) },
         ]} />
+        <TextField label={t('financeCorrections.amountReceived')} type="number" value={paymentAmount}
+          disabled={action?.type === 'record'} onChange={event => setPaymentAmount(event.target.value)}
+          slotProps={{ htmlInput: { min: 0.01, max: selection.remainingAmount, step: 0.01 } }} />
         <AppDatePicker label={t('billPayments.cashReceivedOn')} value={receivedOn} maxDate={today}
           disabled={action?.type === 'record'} onChange={setReceivedOn} />
         {recordError && <Alert severity="error">{recordError}</Alert>}

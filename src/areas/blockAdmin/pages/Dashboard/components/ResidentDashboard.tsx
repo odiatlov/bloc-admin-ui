@@ -85,7 +85,7 @@ const ResidentDashboard: React.FC = () => {
     id: item.id, title: t(item.textKey), secondary: new Date(item.date).toLocaleDateString(),
   })) : (finance.data?.recentPublications ?? []).map(item => ({
     id: item.id,
-    title: t('financePublication.dashboardEvent', {
+    title: t(item.type === 'correctionPublished' ? 'financeCorrections.dashboardEvent' : 'financePublication.dashboardEvent', {
       block: item.blockName, period: month.format(new Date(item.year, item.month - 1, 1)),
     }),
     occurredAt: item.occurredAt,

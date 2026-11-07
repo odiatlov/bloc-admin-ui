@@ -9,7 +9,10 @@ export const financeApi = {
   workspace: (blockId: string, year: number, month: number, signal?: AbortSignal) => apiGet<FinanceWorkspace>(`${blockPath(blockId)}/workspace?year=${year}&month=${month}`, signal),
   saveConfiguration: (blockId: string, expectedVersion: number, configuration: FinanceConfiguration) => apiPut<{ expectedVersion: number; configuration: FinanceConfiguration }, { version: number; configuration: FinanceConfiguration }>(`${blockPath(blockId)}/configuration`, { expectedVersion, configuration }),
   savePeriod: (blockId: string, year: number, month: number, expectedVersion: number, data: FinancePeriodData, expectedConfigurationVersion: number) => apiPut<{ expectedVersion: number; expectedConfigurationVersion: number; data: FinancePeriodData }, { version: number; data: FinancePeriodData }>(`${blockPath(blockId)}/periods/${year}/${month}`, { expectedVersion, expectedConfigurationVersion, data }),
-  generate: (blockId: string, year: number, month: number, requestId: string, expectedInputVersion: string) => apiPost<{ requestId: string; expectedInputVersion: string }, MaintenanceReport>(`${blockPath(blockId)}/periods/${year}/${month}/generate`, { requestId, expectedInputVersion }),
+  generate: (blockId: string, year: number, month: number, requestId: string, expectedInputVersion: string,
+    correction?: { correctsPublicationId: string; correctionReason: string }) =>
+    apiPost<{ requestId: string; expectedInputVersion: string; correctsPublicationId?: string; correctionReason?: string }, MaintenanceReport>(
+      `${blockPath(blockId)}/periods/${year}/${month}/generate`, { requestId, expectedInputVersion, ...correction }),
   reports: (params: { blockId?: string; year?: number; month?: number; includeHistory?: boolean; pageNumber?: number }, signal?: AbortSignal) => {
     const query = new URLSearchParams({ pageSize: '10' })
     Object.entries(params).forEach(([key, value]) => { if (value !== undefined && value !== '') query.set(key, String(value)) })
