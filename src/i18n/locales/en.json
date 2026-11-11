@@ -950,6 +950,9 @@
       "clearEnd": "Remove end period",
       "defaultPercentage": "Default heating percentage (%)",
       "defaultPercentageHelp": "Enter one decimal place. Used by apartments in percentage mode without an override.",
+      "boilerHeatingDefaults": "Use the block percentage by default only for apartments with a boiler",
+      "boilerHeatingDefaultsHelp": "Optional. When checked, apartments without a boiler use their full usable area (100%); apartments with a boiler use the block percentage. Individual percentages and manual MP always take priority. When unchecked, configure each apartment individually.",
+      "fullAreaInput": "100% of usable area",
       "supplyGroups": "Water supply groups",
       "supplyGroupsHelp": "Define which apartments share each incoming supply. Configure cold and hot water independently. A staircase meter serves that staircase; a shared meter serves the configured block or apartment group.",
       "newSupply": "New supply group",
@@ -983,7 +986,7 @@
       "oneOff": "One-off charge",
       "addCharge": "Add custom charge",
       "apartmentHeating": "Apartment heating allocation",
-      "heatingHelp": "Select manual MP or a percentage for every apartment that participates in heating. A boiler does not automatically exclude an apartment. The preview is rounded to one decimal; the backend saves the authoritative value.",
+      "heatingHelp": "Choose full usable area (100%), a percentage or manual MP for each apartment, with or without a boiler. The optional block rule supplies defaults; individual settings take priority. The preview is rounded to one decimal.",
       "applyDefaultHeating": "Use block percentage for unconfigured apartments",
       "scopeFromSupply": "Beneficiaries follow the supply group: {{name}}.",
       "saving": "Saving…",
@@ -1141,7 +1144,7 @@
         "Manual": "Manual entry", "IncomingIndexes": "Incoming meter indexes", "SupplierQuantity": "Supplier quantity",
         "Equal": "Equal per apartment", "People": "Per declared occupant", "Consumption": "Proportional to consumption",
         "Area": "Usable area", "HeatingMp": "Heating allocation MP", "ColdConsumption": "Cold-water consumption", "HotConsumption": "Hot-water consumption",
-        "Pool": "Total bill / pool", "Rate": "Rate per unit", "Percentage": "Percentage of usable area",
+        "Pool": "Total bill / pool", "Rate": "Rate per unit", "Percentage": "Percentage of usable area", "FullArea": "Full usable area (100%)",
         "Arrears": "Opening arrears", "Penalty": "Manual penalty", "Credit": "Credit (negative amount)", "Other": "Other adjustment",
         "Draft": "Draft", "Outdated": "Outdated draft", "Published": "Published", "Superseded": "Superseded draft"
       }

@@ -1041,6 +1041,9 @@
         "clearEnd": "Elimină perioada de sfârșit",
         "defaultPercentage": "Procent implicit pentru încălzire (%)",
         "defaultPercentageHelp": "Introduceți o zecimală. Se aplică apartamentelor cu metoda procentuală fără procent individual.",
+        "boilerHeatingDefaults": "Aplică implicit procentul blocului doar apartamentelor cu centrală",
+        "boilerHeatingDefaultsHelp": "Opțional. Când este bifat, apartamentele fără centrală folosesc suprafața utilă integrală (100%), iar cele cu centrală folosesc procentul blocului. Procentele individuale și MP introduși manual au întotdeauna prioritate. Când este debifat, configurați fiecare apartament individual.",
+        "fullAreaInput": "100% din suprafața utilă",
         "supplyGroups": "Grupuri de alimentare cu apă",
         "supplyGroupsHelp": "Definiți apartamentele deservite de fiecare alimentare. Configurați separat apa rece și caldă. Un contor de scară deservește scara; unul comun deservește blocul sau apartamentele configurate.",
         "newSupply": "Grup nou de alimentare",
@@ -1074,7 +1077,7 @@
         "oneOff": "Cheltuială unică",
         "addCharge": "Adaugă cheltuială personalizată",
         "apartmentHeating": "Repartizarea încălzirii pe apartamente",
-        "heatingHelp": "Alegeți MP introduși manual sau procent pentru fiecare apartament inclus la încălzire. Centrala proprie nu exclude automat apartamentul. Previzualizarea are o zecimală; serverul salvează valoarea finală.",
+        "heatingHelp": "Alegeți suprafața utilă integrală (100%), un procent sau MP introduși manual pentru fiecare apartament, cu sau fără centrală. Regula opțională a blocului oferă valori implicite; setările individuale au prioritate. Previzualizarea are o zecimală.",
         "applyDefaultHeating": "Aplică procentul blocului apartamentelor neconfigurate",
         "scopeFromSupply": "Beneficiarii urmează grupul de alimentare: {{name}}.",
         "saving": "Se salvează…",
@@ -1232,7 +1235,7 @@
           "Manual": "Introducere manuală", "IncomingIndexes": "Indexuri contor general", "SupplierQuantity": "Cantitate furnizor",
           "Equal": "Egal pe apartament", "People": "După persoane declarate", "Consumption": "Proporțional cu consumul",
           "Area": "Suprafață utilă", "HeatingMp": "MP de repartizare a încălzirii", "ColdConsumption": "Consum apă rece", "HotConsumption": "Consum apă caldă",
-          "Pool": "Total factură de repartizat", "Rate": "Tarif unitar", "Percentage": "Procent din suprafața utilă",
+          "Pool": "Total factură de repartizat", "Rate": "Tarif unitar", "Percentage": "Procent din suprafața utilă", "FullArea": "Suprafață utilă integrală (100%)",
           "Arrears": "Restanțe inițiale", "Penalty": "Penalizare manuală", "Credit": "Credit (sumă negativă)", "Other": "Altă ajustare",
           "Draft": "Ciornă", "Outdated": "Ciornă depășită", "Published": "Publicat", "Superseded": "Ciornă înlocuită"
         }
