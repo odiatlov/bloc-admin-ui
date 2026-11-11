@@ -10,7 +10,7 @@ import ActionButtons from '../../../../../components/shared/ActionButtons'
 import ResponsiveDataView, { type DataColumn } from '../../../../../components/shared/ResponsiveDataView'
 import { EntityListItem } from '../../../../../components/shared/EntityPresentation'
 import { financeApi } from '../../../../../services/financeApi'
-import type { FinanceApartment, FinanceBasis, FinanceBlock, FinanceConfiguration, FinanceWorkspace } from '../../../../../types/finance'
+import type { ApartmentHeating, FinanceApartment, FinanceBasis, FinanceBlock, FinanceConfiguration, FinanceWorkspace } from '../../../../../types/finance'
 import { useFinanceActionScope } from '../../../../../hooks/useFinanceWorkspace'
 import { FinanceNumber, FinanceScopeFields, FinanceSelect } from './FinanceFields'
 import { financeGrid } from './financePresentation'
@@ -61,16 +61,29 @@ const FinanceConfigurationEditor: React.FC<Props> = ({ workspace, block, refresh
     const existing = config.apartmentHeating.find((item) => item.apartmentId === apartmentId)
     update({ ...config, apartmentHeating: [...config.apartmentHeating.filter((item) => item.apartmentId !== apartmentId), { apartmentId, mode: 'Percentage', ...existing, ...changes }] })
   }
-  const heatingMode = (row: FinanceApartment) => <FinanceSelect inline label={t('finance.billing.heatingMode')} value={config.apartmentHeating.find((item) => item.apartmentId === row.id)?.mode ?? ''} empty options={['Manual', 'Percentage']} onChange={(mode) => { if (mode) updateHeating(row.id, { mode }) }} />
+  const heatingSetting = (row: FinanceApartment): ApartmentHeating | undefined => config.apartmentHeating.find((item) => item.apartmentId === row.id)
+    ?? (config.useBoilerBasedHeatingDefaults ? { apartmentId: row.id, mode: 'Percentage' } : undefined)
+  const defaultHeatingPercentage = (row: FinanceApartment) => config.useBoilerBasedHeatingDefaults && !row.hasBoiler ? 100 : config.defaultHeatingPercentage
+  // Full area uses an explicit 100% override so it remains independent of the block rule.
+  const heatingModeValue = (row: FinanceApartment) => {
+    const item = heatingSetting(row)
+    return item?.mode === 'Percentage' && item.percentageOverride === 100 ? 'FullArea' : item?.mode ?? ''
+  }
+  const heatingMode = (row: FinanceApartment) => <FinanceSelect inline label={t('finance.billing.heatingMode')} value={heatingModeValue(row)} empty options={['Manual', 'Percentage', 'FullArea']} onChange={(mode) => {
+    if (!mode) return
+    if (mode === 'FullArea') updateHeating(row.id, { mode: 'Percentage', percentageOverride: 100 })
+    else updateHeating(row.id, { mode, ...(mode === 'Percentage' && heatingSetting(row)?.percentageOverride === 100 ? { percentageOverride: null } : {}) })
+  }} />
   const heatingInput = (row: FinanceApartment) => {
-    const item = config.apartmentHeating.find((entry) => entry.apartmentId === row.id)
+    const item = heatingSetting(row)
+    if (heatingModeValue(row) === 'FullArea') return <Typography variant="body2">{t('finance.billing.fullAreaInput')}</Typography>
     return !item ? '—' : item.mode === 'Manual'
       ? <FinanceNumber inline decimal={1} label={t('finance.billing.manualMp')} value={item.manualMp} onChange={(manualMp) => updateHeating(row.id, { manualMp })} />
-      : <FinanceNumber inline decimal={1} label={t('finance.billing.percentageOverride')} helperText={t('finance.billing.defaultPercentageHint', { value: number(config.defaultHeatingPercentage) })} value={item.percentageOverride} onChange={(percentageOverride) => updateHeating(row.id, { percentageOverride })} />
+      : <FinanceNumber inline decimal={1} label={t('finance.billing.percentageOverride')} helperText={t('finance.billing.defaultPercentageHint', { value: number(defaultHeatingPercentage(row)) })} value={item.percentageOverride} onChange={(percentageOverride) => updateHeating(row.id, { percentageOverride })} />
   }
   const heatingMp = (row: FinanceApartment) => {
-    const item = config.apartmentHeating.find((entry) => entry.apartmentId === row.id)
-    const percentage = item?.percentageOverride ?? config.defaultHeatingPercentage
+    const item = heatingSetting(row)
+    const percentage = item?.percentageOverride ?? defaultHeatingPercentage(row)
     const effective = item?.mode === 'Manual' ? item.manualMp : item?.mode === 'Percentage' && row.usableSqm != null && percentage != null ? Math.round((row.usableSqm * percentage / 100 + Number.EPSILON) * 10) / 10 : null
     return <Typography sx={{ fontWeight: 700 }}>{number(effective)} m²</Typography>
   }
@@ -78,6 +91,7 @@ const FinanceConfigurationEditor: React.FC<Props> = ({ workspace, block, refresh
     { key: 'number', label: t('finance.billing.apartment'), cardRole: 'primary', render: (row) => `${row.staircaseName ? `${row.staircaseName} / ` : ''}${row.number}` },
     { key: 'contact', label: t('finance.billing.contact'), cardRole: 'secondary', render: (row) => row.contactName || '—' },
     { key: 'area', label: t('finance.billing.usableArea'), render: (row) => row.usableSqm == null ? '—' : new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 2 }).format(row.usableSqm) },
+    { key: 'boiler', label: t('blockSetup.boiler'), render: (row) => t(row.hasBoiler ? 'blockSetup.yes' : 'blockSetup.no') },
     { key: 'mode', label: t('finance.billing.heatingMode'), render: (row) => <Box sx={{ width: 260 }}>{heatingMode(row)}</Box> },
     { key: 'input', label: t('finance.billing.heatingInput'), render: (row) => <Box sx={{ width: 220 }}>{heatingInput(row)}</Box> },
     { key: 'effective', label: t('finance.billing.heatingMp'), render: heatingMp },
@@ -91,8 +105,12 @@ const FinanceConfigurationEditor: React.FC<Props> = ({ workspace, block, refresh
           <AppDatePicker monthOnly confirmOnAccept label={t('finance.billing.effectiveTo')} value={config.effectiveToYear && config.effectiveToMonth ? `${config.effectiveToYear}-${String(config.effectiveToMonth).padStart(2, '0')}` : ''} onChange={(value) => { const [effectiveToYear, effectiveToMonth] = value.split('-').map(Number); update({ ...config, effectiveToYear, effectiveToMonth }) }} />
           {config.effectiveToYear && <Button sx={{ justifySelf: 'start' }} onClick={() => update({ ...config, effectiveToYear: null, effectiveToMonth: null })}>{t('finance.billing.clearEnd')}</Button>}
         </Box>
-        <FinanceNumber decimal={1} label={t('finance.billing.defaultPercentage')} value={config.defaultHeatingPercentage} helperText={t('finance.billing.defaultPercentageHelp')} onChange={(defaultHeatingPercentage) => update({ ...config, defaultHeatingPercentage })} />
         <BlockCensorField blockId={block.id} />
+        <FinanceNumber decimal={1} label={t('finance.billing.defaultPercentage')} value={config.defaultHeatingPercentage} helperText={t('finance.billing.defaultPercentageHelp')} onChange={(defaultHeatingPercentage) => update({ ...config, defaultHeatingPercentage })} />
+        <Box>
+          <FormControlLabel label={t('finance.billing.boilerHeatingDefaults')} control={<Checkbox checked={config.useBoilerBasedHeatingDefaults ?? false} onChange={(event) => update({ ...config, useBoilerBasedHeatingDefaults: event.target.checked })} />} />
+          <Typography variant="body2" color="text.secondary">{t('finance.billing.boilerHeatingDefaultsHelp')}</Typography>
+        </Box>
       </Box>
     </FinanceSection>
     <FinanceSection title={t('finance.billing.supplyGroups')}>
@@ -151,15 +169,16 @@ const FinanceConfigurationEditor: React.FC<Props> = ({ workspace, block, refresh
     </FinanceSection>
     <FinanceSection title={t('finance.billing.apartmentHeating')}>
       <Typography color="text.secondary" variant="body2">{t('finance.billing.heatingHelp')}</Typography>
-      <Button variant="outlined" disabled={config.defaultHeatingPercentage == null} onClick={() => update({ ...config, apartmentHeating: [...config.apartmentHeating, ...workspace.apartments.filter((row) => !config.apartmentHeating.some((item) => item.apartmentId === row.id)).map((row) => ({ apartmentId: row.id, mode: 'Percentage' as const }))] })}>{t('finance.billing.applyDefaultHeating')}</Button>
+      <Button variant="outlined" disabled={config.defaultHeatingPercentage == null || config.useBoilerBasedHeatingDefaults} onClick={() => update({ ...config, apartmentHeating: [...config.apartmentHeating, ...workspace.apartments.filter((row) => !config.apartmentHeating.some((item) => item.apartmentId === row.id)).map((row) => ({ apartmentId: row.id, mode: 'Percentage' as const }))] })}>{t('finance.billing.applyDefaultHeating')}</Button>
       <ResponsiveDataView desktopTableMinWidth={1100} paginationId="finance-heating" paginationResetKey={`${block.id}:${workspace.configurationVersion}`} ariaLabel={t('finance.billing.apartmentHeating')} rows={workspace.apartments} columns={heatingColumns} getRowId={(row) => row.id} renderMobileRow={(row) => <Box component="li" sx={{ pb: 1.5 }}><EntityListItem
         title={`${row.staircaseName ? `${row.staircaseName} / ` : ''}${row.number}`}
         secondary={row.contactName || '—'} secondaryLabel={t('finance.billing.contact')}
         metadata={[
           { key: 'area', label: t('finance.billing.usableArea'), value: row.usableSqm == null ? '—' : new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 2 }).format(row.usableSqm) },
+          { key: 'boiler', label: t('blockSetup.boiler'), value: t(row.hasBoiler ? 'blockSetup.yes' : 'blockSetup.no') },
           { key: 'effective', label: t('finance.billing.heatingMp'), value: heatingMp(row) },
           { key: 'mode', label: t('finance.billing.heatingMode'), value: heatingMode(row), fullWidth: true },
-          { key: 'input', label: t(config.apartmentHeating.find((item) => item.apartmentId === row.id)?.mode === 'Manual' ? 'finance.billing.manualMp' : config.apartmentHeating.some((item) => item.apartmentId === row.id) ? 'finance.billing.percentageOverride' : 'finance.billing.heatingInput'), value: heatingInput(row), fullWidth: true },
+          { key: 'input', label: t(heatingModeValue(row) === 'FullArea' ? 'finance.billing.heatingInput' : heatingSetting(row)?.mode === 'Manual' ? 'finance.billing.manualMp' : heatingSetting(row) ? 'finance.billing.percentageOverride' : 'finance.billing.heatingInput'), value: heatingInput(row), fullWidth: true },
         ]}
       /></Box>} />
     </FinanceSection>

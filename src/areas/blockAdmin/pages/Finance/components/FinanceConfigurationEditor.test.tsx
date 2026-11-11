@@ -25,12 +25,12 @@ const workspace: FinanceWorkspace = {
     charges: [{ id: chargeId, name: 'Cost Administrare', scope: 'Block', apartmentIds: [], amountMode: 'Rate', basis: 'Equal', rate: 25, required: true, enabled: true, oneOff: false, order: 0 }],
   },
 }
-const setup = (language: 'en' | 'ro' = 'en') => {
+const setup = (language: 'en' | 'ro' = 'en', currentWorkspace = workspace) => {
   vi.stubGlobal('ResizeObserver', class { observe() {} unobserve() {} disconnect() {} })
   const save = vi.spyOn(financeApi, 'saveConfiguration').mockResolvedValue({ version: 2, configuration: workspace.configuration })
   const refresh = vi.fn()
   renderWithProviders(<MemoryRouter><RoleContext.Provider value={{ ...residentContext, role: 'Admin' }}>
-    <FinanceConfigurationEditor workspace={workspace} block={block} refresh={refresh} onDirty={vi.fn()} />
+    <FinanceConfigurationEditor workspace={currentWorkspace} block={block} refresh={refresh} onDirty={vi.fn()} />
   </RoleContext.Provider></MemoryRouter>, { language })
   const locale = language === 'ro' ? ro : en
   const labels = locale.finance.billing
@@ -122,4 +122,66 @@ describe('configuration section removal confirmation', () => {
     await waitFor(() => expect(refresh).toHaveBeenCalledOnce())
   })
 
+})
+
+const heatingWorkspace = (): FinanceWorkspace => ({
+  ...structuredClone(workspace),
+  apartments: [
+    { id: 'without-boiler', number: '101', contactName: 'Without boiler', setupStatus: 'configured', usableSqm: 51.25, hasBoiler: false, meters: [] },
+    { id: 'with-boiler', number: '102', contactName: 'With boiler', setupStatus: 'configured', usableSqm: 60, hasBoiler: true, meters: [] },
+  ],
+  configuration: { ...structuredClone(workspace.configuration), defaultHeatingPercentage: 20,
+    apartmentHeating: [{ apartmentId: 'without-boiler', mode: 'Percentage' }],
+  },
+})
+
+const heatingRow = (number: string) => within(screen.getAllByRole('listitem').find(row => within(row).queryByText(number))!)
+
+describe('optional heating defaults', () => {
+  it.each(['en', 'ro'] as const)('previews and saves the optional block rule while allowing a boiler apartment to use full area in %s', async language => {
+    const user = userEvent.setup()
+    const { save, labels } = setup(language, heatingWorkspace())
+    await user.click(screen.getByRole('button', { name: labels.configurationTitle.replace('{{block}}', block.name) }))
+    const checkbox = screen.getByRole('checkbox', { name: labels.boilerHeatingDefaults })
+    expect(checkbox).not.toBeChecked()
+    await user.click(screen.getByRole('button', { name: labels.apartmentHeating }))
+    expect(heatingRow('101').getByText(language === 'ro' ? '10,3 m²' : '10.3 m²')).toBeVisible()
+    expect(heatingRow('102').getByRole('combobox')).toHaveTextContent(labels.notSet)
+    await user.click(checkbox)
+    expect(heatingRow('101').getByText(language === 'ro' ? '51,3 m²' : '51.3 m²')).toBeVisible()
+    expect(heatingRow('102').getByText(language === 'ro' ? '12,0 m²' : '12.0 m²')).toBeVisible()
+    await user.click(heatingRow('102').getByRole('combobox'))
+    await user.click(screen.getByRole('option', { name: labels.values.FullArea }))
+    expect(heatingRow('102').getByText(language === 'ro' ? '60,0 m²' : '60.0 m²')).toBeVisible()
+    await user.click(screen.getByRole('button', { name: labels.saveConfiguration }))
+    await waitFor(() => expect(save).toHaveBeenCalledOnce())
+    expect(save.mock.calls[0][2]).toMatchObject({ useBoilerBasedHeatingDefaults: true,
+      apartmentHeating: [{ apartmentId: 'without-boiler', mode: 'Percentage' }, { apartmentId: 'with-boiler', mode: 'Percentage', percentageOverride: 100 }],
+    })
+  })
+
+  it('loads full area, returns to the block percentage and preserves individual settings when the rule changes', async () => {
+    const user = userEvent.setup()
+    const current = heatingWorkspace()
+    current.configuration.useBoilerBasedHeatingDefaults = true
+    current.configuration.apartmentHeating = [
+      { apartmentId: 'without-boiler', mode: 'Manual', manualMp: 0 },
+      { apartmentId: 'with-boiler', mode: 'Percentage', percentageOverride: 100 },
+    ]
+    const { save, labels } = setup('en', current)
+    await user.click(screen.getByRole('button', { name: labels.configurationTitle.replace('{{block}}', block.name) }))
+    await user.click(screen.getByRole('button', { name: labels.apartmentHeating }))
+    expect(heatingRow('102').getByRole('combobox')).toHaveTextContent(labels.values.FullArea)
+    await user.click(screen.getByRole('checkbox', { name: labels.boilerHeatingDefaults }))
+    expect(heatingRow('101').getByText('0.0 m²')).toBeVisible()
+    expect(heatingRow('102').getByText('60.0 m²')).toBeVisible()
+    await user.click(heatingRow('102').getByRole('combobox'))
+    await user.click(screen.getByRole('option', { name: labels.values.Percentage }))
+    expect(heatingRow('102').getByText('12.0 m²')).toBeVisible()
+    await user.click(screen.getByRole('button', { name: labels.saveConfiguration }))
+    await waitFor(() => expect(save).toHaveBeenCalledOnce())
+    expect(save.mock.calls[0][2]).toMatchObject({ useBoilerBasedHeatingDefaults: false,
+      apartmentHeating: [{ apartmentId: 'without-boiler', mode: 'Manual', manualMp: 0 }, { apartmentId: 'with-boiler', mode: 'Percentage', percentageOverride: null }],
+    })
+  })
 })
