@@ -18,8 +18,8 @@ const LogoutConfirmButton: React.FC<LogoutConfirmButtonProps> = ({ fullWidth = f
   const navigate = useNavigate()
   const [open, setOpen] = React.useState(false)
 
-  const confirmLogout = () => {
-    logout()
+  const confirmLogout = async () => {
+    try { await logout() } catch { setOpen(false); return }
     setOpen(false)
     navigate('/login', { replace: true })
   }

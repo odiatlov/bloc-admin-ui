@@ -1,85 +1,46 @@
 import React from 'react'
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import CircularProgress from '@mui/material/CircularProgress'
-import MenuItem from '@mui/material/MenuItem'
-import Paper from '@mui/material/Paper'
-import TextField from '@mui/material/TextField'
-import Typography from '@mui/material/Typography'
-import { useNavigate } from 'react-router-dom'
-import { RoleContext } from '../../contexts/RoleContext'
+import { Alert, Box, Button, CircularProgress, Paper, TextField, Typography } from '@mui/material'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import EmptyState from '../../components/shared/EmptyState'
+import { RoleContext } from '../../contexts/RoleContext'
+import { ApiError } from '../../services/apiClient'
 import LoadErrorState from '../../components/shared/LoadErrorState'
-
+import LoadingState from '../../components/shared/LoadingState'
+const safeReturnUrl = (value: unknown): string | undefined =>
+  typeof value === 'string' && /^\/(admin|superadmin)(\/|$)/.test(value) && !/[\\\r\n]/.test(value) ? value : undefined
 const Login: React.FC = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { t } = useTranslation()
-  const { account, accounts, accountsError, accountsLoading, login, refreshAccounts } = React.useContext(RoleContext)
-  const [accountId, setAccountId] = React.useState(account.id)
-  const selectedAccount = accounts.find((item) => item.id === accountId) ?? accounts[0]
-
+  const { login, account, isAuthenticated, accountsLoading, accountsError, refreshAccounts } = React.useContext(RoleContext)
+  const [email, setEmail] = React.useState('')
+  const [password, setPassword] = React.useState('')
+  const [pending, setPending] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
   React.useEffect(() => {
-    if (accounts.some((item) => item.id === accountId)) return
-    setAccountId(accounts[0]?.id ?? account.id)
-  }, [account.id, accountId, accounts])
-
-  const handleSubmit = (event: React.FormEvent) => {
+    if (isAuthenticated && !accountsLoading && !accountsError)
+      navigate(safeReturnUrl(location.state?.returnTo) ?? (account.defaultRole === 'SuperAdmin' ? '/superadmin/dashboard' : '/admin/dashboard'), { replace: true })
+  }, [isAuthenticated, accountsLoading, accountsError, account.defaultRole, location.state, navigate])
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
-    if (!selectedAccount) return
-    login(accountId)
-    navigate(selectedAccount.defaultRole === 'SuperAdmin' ? '/superadmin/dashboard' : '/admin/dashboard', { replace: true })
+    setPending(true)
+    setError(null)
+    try { await login(email, password) }
+    catch (error) { setError(error instanceof ApiError && error.status === 429 ? 'auth.login.throttled' : 'auth.login.failed') }
+    finally { setPassword(''); setPending(false) }
   }
-
-  return (
-    <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', p: 2 }}>
-      <Paper component="form" onSubmit={handleSubmit} sx={{ width: 'min(100%, 440px)', p: 3, display: 'grid', gap: 2 }}>
-        <Box>
-          <Typography variant="h4" sx={{ fontWeight: 800 }}>{t('app.title')}</Typography>
-          <Typography variant="body2" color="text.secondary">
-            {t('auth.login.description')}
-          </Typography>
-        </Box>
-        {accountsLoading ? (
-          <Box sx={{ alignItems: 'center', display: 'flex', gap: 1 }}>
-            <CircularProgress size={18} />
-            <Typography variant="body2" color="text.secondary">{t('auth.login.loadingAccounts')}</Typography>
-          </Box>
-        ) : accountsError ? (
-          <LoadErrorState helperText={t('auth.login.accountsFallback')} onRetry={() => { void refreshAccounts() }} />
-        ) : accounts.length === 0 ? (
-          <EmptyState
-            actionLabel={t('common.refresh')}
-            headline={t('emptyState.headline', { information: t('auth.login.userAccount') })}
-            helperText={t('emptyState.helper.dedicated', { information: t('auth.login.userAccount') })}
-            onAction={() => { void refreshAccounts() }}
-          />
-        ) : (
-          <TextField
-            select
-            label={t('auth.login.userAccount')}
-            value={accountId}
-            onChange={(event) => {
-              const nextAccount = accounts.find((item) => item.id === event.target.value) ?? accounts[0]
-              setAccountId(nextAccount.id)
-            }}
-            fullWidth
-          >
-            {accounts.map((item) => (
-              <MenuItem key={item.id} value={item.id}>
-                {item.name}
-              </MenuItem>
-            ))}
-          </TextField>
-        )}
-        <TextField label={t('persons.fields.email')} value={selectedAccount?.email ?? ''} fullWidth disabled />
-        <TextField label={t('auth.login.password')} type="password" value="demo-password" fullWidth disabled />
-        <Button type="submit" variant="contained" size="large" disabled={accountsLoading || !selectedAccount}>
-          {t('auth.login.submit')}
-        </Button>
-      </Paper>
-    </Box>
-  )
+  return <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', p: 2 }}>
+    <Paper component="form" onSubmit={event => { void handleSubmit(event) }} sx={{ width: 'min(100%, 440px)', p: 3, display: 'grid', gap: 2 }}>
+      <Box><Typography variant="h4" sx={{ fontWeight: 800 }}>{t('app.title')}</Typography>
+        <Typography variant="body2" color="text.secondary">{t('auth.login.description')}</Typography></Box>
+      {accountsLoading ? <LoadingState label={t('auth.login.checking')} /> : accountsError
+        ? <LoadErrorState helperText={t('auth.login.unavailable')} onRetry={refreshAccounts} /> : <>
+          {error && <Alert severity="error">{t(error)}</Alert>}
+          <TextField label={t('persons.fields.email')} type="email" autoComplete="username" value={email} onChange={event => setEmail(event.target.value)} required fullWidth disabled={pending} slotProps={{ htmlInput: { maxLength: 320 } }} />
+          <TextField label={t('auth.login.password')} type="password" autoComplete="current-password" value={password} onChange={event => setPassword(event.target.value)} required fullWidth disabled={pending} slotProps={{ htmlInput: { maxLength: 128 } }} />
+          <Button type="submit" variant="contained" size="large" disabled={pending}>{pending ? <CircularProgress size={22} color="inherit" aria-label={t('auth.login.submit')} /> : t('auth.login.submit')}</Button>
+        </>}
+    </Paper>
+  </Box>
 }
-
 export default Login

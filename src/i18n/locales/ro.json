@@ -469,11 +469,15 @@
     "auth":  {
                  "logout":  {
                                 "title":  "Vă deconectați?",
-                                "body":  "Sigur doriți să încheiați această sesiune demonstrativă?",
+                                "body": "Sigur doriți să încheiați sesiunea?",
                                 "confirm":  "Da, deconectează-mă"
                             },
                  "login":  {
-                              "description":  "Autentificare demonstrativă cu sesiuni pentru platformă, administrator, cenzor și locatar.",
+                              "description": "Autentificați-vă cu adresa de e-mail și parola.",
+                              "checking": "Se verifică sesiunea…",
+                              "unavailable": "Sesiunea nu a putut fi verificată. Încercați din nou.",
+                              "failed": "Autentificarea a eșuat. Verificați datele sau încercați mai târziu.",
+                              "throttled": "Prea multe încercări de autentificare. Încercați din nou peste un minut.",
                               "demoAccount":  "Cont demonstrativ",
                               "userAccount":  "Utilizator",
                               "loadingAccounts":  "Se încarcă utilizatorii din baza de date...",

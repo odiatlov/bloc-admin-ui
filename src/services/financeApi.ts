@@ -1,4 +1,4 @@
-import { ApiError, apiGet, apiPost, apiPut } from './apiClient'
+import { apiDownload, apiGet, apiPost, apiPut } from './apiClient'
 import type { FinanceBlock, FinanceConfiguration, FinanceDashboard, FinanceExportFormat, FinancePeriodData, FinancePublication, FinanceReportSummary, FinanceWorkspace, MaintenanceReport, PublishFinanceRequest } from '../types/finance'
 
 const blockPath = (blockId: string) => `/finance/blocks/${encodeURIComponent(blockId)}`
@@ -20,19 +20,12 @@ export const financeApi = {
   },
   report: (id: string, signal?: AbortSignal) => apiGet<MaintenanceReport>(`/finance/reports/${encodeURIComponent(id)}`, signal),
   export: async (id: string, language: string, format: FinanceExportFormat = 'detailed', reviewSubmissionId?: string) => {
-    const token = localStorage.getItem('mockJwt')
     const query = new URLSearchParams({ language, format })
     const endpoint = reviewSubmissionId ? `reviews/${encodeURIComponent(reviewSubmissionId)}` : `reports/${encodeURIComponent(id)}`
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL ?? '/api'}/finance/${endpoint}/export?${query}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
-    if (!response.ok || !response.headers.get('Content-Type')?.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
-      const payload = await response.json().catch(() => null)
-      throw new ApiError(payload?.message ?? 'Excel export failed', response.status)
-    }
-    const blob = await response.blob()
+    const { blob, disposition } = await apiDownload(`/finance/${endpoint}/export?${query}`)
     const url = URL.createObjectURL(blob)
     const anchor = document.createElement('a')
     anchor.href = url
-    const disposition = response.headers.get('Content-Disposition') ?? ''
     const encoded = disposition.match(/filename\*=UTF-8''([^;]+)/i)?.[1]
     anchor.download = encoded ? decodeURIComponent(encoded) : disposition.match(/filename="?([^";]+)/i)?.[1] ?? `maintenance-${format}-${id}.xlsx`
     anchor.click()

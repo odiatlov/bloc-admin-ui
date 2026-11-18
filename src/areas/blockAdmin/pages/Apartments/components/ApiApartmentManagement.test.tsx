@@ -50,6 +50,7 @@ beforeEach(() => {
   // Exercise the real API clients: unexpected relationship URLs receive a 404.
   vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
     const endpoint = new URL(String(input), 'http://tests.invalid').pathname.replace(/^\/api(?=\/)/, '')
+    if (endpoint === '/auth/csrf') return response({ requestToken: 'fixture-csrf' })
     if (endpoint === '/apartments') return response([apartment])
     if (endpoint === '/staircases' || endpoint === '/persons') return response([])
     if (endpoint === `/apartments/${apartmentId}/residents`) return getResidents()

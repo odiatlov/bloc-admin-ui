@@ -1,5 +1,5 @@
 import { apiGet, apiPost } from './apiClient'
-import { withPlatformDeletionSession } from './developmentPlatformSession'
+const withPlatformDeletionSession = <T,>(request: (options: { trustedSession: boolean; headers?: Record<string, string> }) => Promise<T>) => request({ trustedSession: true })
 import type { BlockOverviewDto, BlockSetupRequest, BlockSetupResponse, CreateBlockRequest } from '../types/block'
 import type { PersonResponse } from '../types/management'
 import type { AdminUserDeletionPreview, AdminUserDeletionResult, DeleteAdminUserRequest, DeletionOperationStatus } from '../areas/supportPlatform/types/adminUserDeletion'
