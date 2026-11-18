@@ -16,6 +16,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      workbox: { navigateFallbackDenylist: [/^\/api(?:\/|$)/], runtimeCaching: [{ urlPattern: ({ url }) => url.pathname.startsWith('/api/'), handler: 'NetworkOnly' }] },
       manifest: {
         name: 'Bloc Admin',
         short_name: 'BlocAdmin',

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { RoleContext } from '../../contexts/RoleContext'
 import { rolePermissions, type Permission } from '../../mocks/roles'
 import LoadErrorState from '../../components/shared/LoadErrorState'
@@ -14,9 +14,11 @@ type ProtectedRouteProps = {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, permission }) => {
   const { isAuthenticated, role, accountsLoading, accountsError, refreshAccounts } = React.useContext(RoleContext)
   const { t } = useTranslation()
-  if (!isAuthenticated) return <Navigate to="/login" replace />
+  const location = useLocation()
   if (accountsLoading) return <LoadingState variant="page" label={t('common.pagination.loading')} />
   if (accountsError) return <LoadErrorState onRetry={refreshAccounts} />
+
+  if (!isAuthenticated) return <Navigate to="/login" state={{ returnTo: location.pathname + location.search }} replace />
 
   const allowed = rolePermissions[role]?.includes(permission)
   if (!allowed) return <Navigate to={role === 'SuperAdmin' ? '/superadmin/dashboard' : '/admin/dashboard'} replace />

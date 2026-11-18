@@ -17,3 +17,10 @@ export type NotificationResponse = {
   readAt?: string | null
   actionUrl?: string | null
 }
+
+export type NotificationSource = {
+  getAll: () => Promise<NotificationResponse[]>
+  getUnreadCount: () => Promise<number>
+  markAsRead: (id: string) => Promise<unknown>
+  markAllAsRead: () => Promise<unknown>
+}

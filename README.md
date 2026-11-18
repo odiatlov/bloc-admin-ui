@@ -50,7 +50,7 @@ The application provides dedicated workspaces for platform administrators, assoc
 ### 🌍 Shared experience
 
 - Role-based navigation and route protection
-- Mock login/session flow backed by available database accounts
+- Email/password sign-in with server-validated cookie sessions
 - Responsive sidebar, topbar, tables and mobile cards
 - Dark and light themes with matching native controls and scrollbars
 - English and Romanian localization with i18next
@@ -156,14 +156,14 @@ The frontend uses the API for the following workflows.
 
 - Blocks, staircases, apartments and block setup
 - Persons, apartment assignments, profile updates and invitations
-- User accounts, mock login and platform administration
+- User accounts, cookie authentication and platform administration
 - Water reading settings, consumption, submissions and meter history
 - Finance configuration, monthly inputs, report generation, Excel exports and publication
 - Censor assignments, review submissions, decisions and review history
 - Resident balances, published bills and bill details
 - Notifications and unread counts
 
-Platform account deletion uses a trusted API session. In local development, the API can exchange the selected super admin mock login for a development session.
+Platform account deletion uses the authenticated SuperAdmin cookie and CSRF protection. Mock account selection and development ticket exchange have been removed. Password-only SuperAdmin access is restricted to Development until MFA is implemented.
 
 The platform data export workspace, resident dashboard announcements and some demo account views still use local fixtures.
 
@@ -173,7 +173,7 @@ The platform data export workspace, resident dashboard announcements and some de
 
 ### Implemented
 
-- Responsive role-based application shell with theme switching, localization and mock login
+- Responsive role-based application shell with theme switching, localization and cookie sign-in
 - Backend-connected property setup, people and account management
 - Monthly water readings and meter history for platform staff and residents
 - Maintenance reporting from monthly finance inputs through censor review and publication
@@ -182,7 +182,7 @@ The platform data export workspace, resident dashboard announcements and some de
 
 ### Planned
 
-- Production authentication flow
+- Production prerequisites: supported .NET runtime, full resource authorization audit, protected Data Protection keys, and SuperAdmin MFA
 - Online payments
 - Full invoice lifecycle
 - Resident bill downloads

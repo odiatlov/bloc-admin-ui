@@ -463,11 +463,15 @@
   "auth": {
     "logout": {
       "title": "Log out?",
-      "body": "Are you sure you want to end this mock session?",
+      "body": "Are you sure you want to end your session?",
       "confirm": "Yes, log out"
     },
     "login": {
-      "description": "Mock authentication with scoped platform, administrator, censor, and resident sessions.",
+      "description": "Sign in with your email address and password.",
+      "checking": "Checking your session…",
+      "unavailable": "Your session could not be verified. Please retry.",
+      "failed": "Sign-in failed. Check your credentials or try again later.",
+      "throttled": "Too many sign-in attempts. Please try again in a minute.",
       "demoAccount": "Demo account",
       "userAccount": "User",
       "loadingAccounts": "Loading users from database...",
@@ -1637,6 +1641,7 @@
     }
   },
   "superAdmin": {
+    "notifications": { "emptyHelp": "Platform notifications will be available here." },
     "users": {
       "title": "Platform users",
       "columns": {

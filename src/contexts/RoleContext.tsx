@@ -1,149 +1,108 @@
 import React from 'react'
-import { mockAccounts } from '../mocks/auth'
-import { mockLoginApi } from '../services/mockLoginApi'
-import { endDevelopmentPlatformSession } from '../services/developmentPlatformSession'
+import { authApi } from '../services/authApi'
+import { ApiError, resetSessionRequests } from '../services/apiClient'
 import type { AuthRole, MockAccount } from '../types/apartment'
-
 export type Role = AuthRole
-
-const fallbackAccount = mockAccounts[0]
-const getDefaultAccount = (accounts: MockAccount[]) =>
-  accounts.find((item) => item.systemRole !== 'SuperAdmin') ?? accounts[0] ?? fallbackAccount
-
+const guest: MockAccount = { id: '', name: '', email: '', systemRole: 'None', blockRoles: [], roles: [], defaultRole: 'None', token: '' }
 type RoleContextType = {
-  role: Role
-  account: MockAccount
-  accounts: MockAccount[]
-  accountsError: string | null
-  accountsLoading: boolean
-  token: string
-  isAuthenticated: boolean
-  refreshAccounts: () => Promise<void>
-  login: (accountId: string, role?: Role) => void
-  logout: () => void
-  setRole: (r: Role) => void
+  role: Role; account: MockAccount; accounts: MockAccount[]; accountsError: string | null; accountsLoading: boolean
+  token: string; isAuthenticated: boolean
+  refreshAccounts: () => Promise<void>; login: (email: string, password: string) => Promise<MockAccount>
+  logout: () => Promise<void>; setRole: (role: Role) => void
 }
-
-const defaultAccount = getDefaultAccount(mockAccounts)
-
 // eslint-disable-next-line react-refresh/only-export-components
 export const RoleContext = React.createContext<RoleContextType>({
-  role: 'Admin',
-  account: defaultAccount,
-  accounts: mockAccounts,
-  accountsError: null,
-  accountsLoading: false,
-  token: defaultAccount.token,
-  isAuthenticated: true,
-  refreshAccounts: async () => undefined,
-  login: () => undefined,
-  logout: () => undefined,
-  setRole: () => undefined,
+  role: 'None', account: guest, accounts: [], accountsError: null, accountsLoading: true, token: '', isAuthenticated: false,
+  refreshAccounts: async () => {}, login: async () => { throw new Error('Session provider unavailable') }, logout: async () => {}, setRole: () => {},
 })
-
 export const RoleProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const [accounts, setAccounts] = React.useState<MockAccount[]>(mockAccounts)
-  const [accountsError, setAccountsError] = React.useState<string | null>(null)
-  const [accountsLoading, setAccountsLoading] = React.useState(true)
-  const [account, setAccount] = React.useState<MockAccount>(() => {
-    const savedAccountId = typeof window !== 'undefined' ? localStorage.getItem('mockAccountId') : null
-    return mockAccounts.find((item) => item.id === savedAccountId) ?? defaultAccount
-  })
-  const [isAuthenticated, setIsAuthenticated] = React.useState(() => {
-    if (typeof window === 'undefined') return true
-    return localStorage.getItem('mockSessionActive') !== 'false'
-  })
-  const [role, setActiveRole] = React.useState<Role>(() => {
-    const savedRole = typeof window !== 'undefined' ? localStorage.getItem('mockActiveRole') : null
-    return account.roles.includes(savedRole as Role) ? savedRole as Role : account.defaultRole
-  })
-
+  const [account, setAccount] = React.useState(guest)
+  const [role, setActiveRole] = React.useState<Role>('None')
+  const [accountsError, setError] = React.useState<string | null>(null)
+  const [accountsLoading, setLoading] = React.useState(true)
+  const [revision, setRevision] = React.useState(0)
+  const serial = React.useRef(0)
+  const channel = React.useRef<BroadcastChannel | null>(null)
+  const accept = React.useCallback((next: MockAccount) => {
+    setAccount(next)
+    setActiveRole(previous => next.roles.includes(previous) ? previous : next.defaultRole)
+    setError(null)
+    setLoading(false)
+  }, [])
+  const clear = React.useCallback(() => {
+    serial.current++
+    resetSessionRequests()
+    try {
+      for (const key of Object.keys(sessionStorage)) if (key.startsWith('["page-filters-v1",')) sessionStorage.removeItem(key)
+    } catch { /* Private filters also work without storage. */ }
+    setAccount(guest)
+    setActiveRole('None')
+    setError(null)
+    setLoading(false)
+    setRevision(value => value + 1)
+  }, [])
   const refreshAccounts = React.useCallback(async () => {
-    setAccountsLoading(true)
-    setAccountsError(null)
-
+    const request = ++serial.current
+    setLoading(true)
+    setError(null)
     try {
-      const nextAccounts = await mockLoginApi.getAccounts()
-      if (nextAccounts.length === 0) {
-        setAccounts([])
-        setAccountsError('No database accounts are available yet.')
-        return
-      }
-
-      setAccounts(nextAccounts)
-      const savedAccountId = typeof window !== 'undefined' ? localStorage.getItem('mockAccountId') : null
-      const nextAccount = nextAccounts.find((item) => item.id === savedAccountId)
-        ?? nextAccounts.find((item) => item.id === account.id)
-        ?? getDefaultAccount(nextAccounts)
-
-      const savedRole = typeof window !== 'undefined' ? localStorage.getItem('mockActiveRole') : null
-      const nextRole = nextAccount.roles.includes(savedRole as Role) ? savedRole as Role : nextAccount.defaultRole
-      setAccount(nextAccount)
-      setActiveRole(nextRole)
-      try {
-        localStorage.setItem('mockAccountId', nextAccount.id)
-        localStorage.setItem('mockActiveRole', nextRole)
-        localStorage.setItem('mockJwt', nextAccount.token)
-      } catch {
-        // Keep the in-memory account usable when storage is unavailable.
-      }
-    } catch (nextError) {
-      setAccounts([])
-      setAccountsError(nextError instanceof Error ? nextError.message : 'Unable to load database accounts.')
-    } finally {
-      setAccountsLoading(false)
+      const next = await authApi.me()
+      if (request === serial.current) accept(next)
+    } catch (error) {
+      if (request !== serial.current) return
+      if (error instanceof ApiError && error.status === 401) clear()
+      else { setAccount(guest); setError('SESSION_UNAVAILABLE'); setLoading(false) }
     }
-  }, [account.id])
-
+  }, [accept, clear])
   React.useEffect(() => {
-    void refreshAccounts()
-  }, [refreshAccounts])
-
-  const persistAccount = (nextAccount: MockAccount, requestedRole?: Role) => {
-    const nextRole = requestedRole && nextAccount.roles.includes(requestedRole) ? requestedRole : nextAccount.defaultRole
-    setAccount(nextAccount)
-    setActiveRole(nextRole)
-    setIsAuthenticated(true)
-    try {
-      localStorage.setItem('mockAccountId', nextAccount.id)
-      localStorage.setItem('mockActiveRole', nextRole)
-      localStorage.setItem('mockSessionActive', 'true')
-      localStorage.setItem('mockJwt', nextAccount.token)
-    } catch {
-      // ignore mock persistence failures
+    // Historical mock selections can never establish a session.
+    try { for (const key of ['mockJwt', 'mockAccountId', 'mockActiveRole', 'mockSessionActive']) localStorage.removeItem(key) } catch { /* storage may be disabled */ }
+    let active = true
+    const requestSerial = serial
+    queueMicrotask(() => { if (active) void refreshAccounts() })
+    const expired = () => clear()
+    const changed = () => { clear(); void refreshAccounts() }
+    window.addEventListener('blocadmin:session-expired', expired)
+    const onStorage = (event: StorageEvent) => { if (event.key === 'blocadmin:session-change') changed() }
+    window.addEventListener('storage', onStorage)
+    if (typeof BroadcastChannel !== 'undefined') {
+      channel.current = new BroadcastChannel('blocadmin:session')
+      channel.current.onmessage = changed
     }
-  }
-
-  const login = (accountId: string, requestedRole?: Role) => {
-    const nextAccount = accounts.find((item) => item.id === accountId)
-    if (!nextAccount) return
-
-    persistAccount(nextAccount, requestedRole)
-  }
-
-  const logout = () => {
-    endDevelopmentPlatformSession()
-    setIsAuthenticated(false)
-    try {
-      localStorage.setItem('mockSessionActive', 'false')
-      localStorage.removeItem('mockJwt')
-    } catch {
-      // ignore
+    return () => {
+      active = false
+      requestSerial.current++
+      window.removeEventListener('blocadmin:session-expired', expired)
+      window.removeEventListener('storage', onStorage)
+      channel.current?.close()
+      channel.current = null
     }
+  }, [refreshAccounts, clear])
+  const broadcast = () => {
+    channel.current?.postMessage('changed')
+    try { localStorage.setItem('blocadmin:session-change', String(Date.now()) + Math.random()) } catch { /* BroadcastChannel still works */ }
   }
-
-  const setRole = (nextRole: Role) => {
-    if (!account.roles.includes(nextRole)) return
-    persistAccount(account, nextRole)
+  const login = async (email: string, password: string) => {
+    const request = ++serial.current
+    const next = await authApi.login(email, password)
+    if (request !== serial.current) throw new DOMException('Session changed', 'AbortError')
+    accept(next)
+    setRevision(value => value + 1)
+    broadcast()
+    return next
   }
-
-  return (
-    <RoleContext.Provider
-      value={{ account, accounts, accountsError, accountsLoading, isAuthenticated, login, logout, refreshAccounts, role, setRole, token: isAuthenticated ? account.token : '' }}
-    >
-      {children}
-    </RoleContext.Provider>
-  )
+  const logout = async () => {
+    clear()
+    setLoading(true)
+    try { await authApi.logout(); setLoading(false); broadcast() }
+    catch (error) { setError('SESSION_UNAVAILABLE'); setLoading(false); throw error }
+  }
+  const setRole = (next: Role) => {
+    if (account.roles.includes(next)) { resetSessionRequests(); setActiveRole(next); setRevision(value => value + 1) }
+  }
+  return <RoleContext.Provider value={{ account, accounts: account.id ? [account] : [], role, token: String(revision),
+    accountsError, accountsLoading, isAuthenticated: !!account.id, refreshAccounts, login, logout, setRole }}>
+    <React.Fragment key={revision}>{children}</React.Fragment>
+  </RoleContext.Provider>
 }
-
 export default RoleProvider

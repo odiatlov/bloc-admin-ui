@@ -44,10 +44,9 @@ describe('ProtectedRoute', () => {
     expect(screen.getByRole('heading', { name: 'Protected content' })).toBeInTheDocument()
   })
 
-  it('redirects an unauthenticated account to login before showing loading or errors', async () => {
+  it('keeps the session check visible before deciding whether to redirect', () => {
     renderRoute({ isAuthenticated: false, accountsLoading: true, accountsError: 'Unavailable' })
-    expect(await screen.findByRole('heading', { name: 'Login' })).toBeInTheDocument()
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument()
+    expect(screen.getByRole('progressbar')).toBeInTheDocument()
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
     expect(screen.queryByText('Protected content')).not.toBeInTheDocument()
   })
