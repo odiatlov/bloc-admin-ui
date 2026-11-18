@@ -8,6 +8,7 @@ import { useTheme } from '@mui/material/styles'
 import Sidebar from '../components/layout/sidebar/Sidebar'
 import Topbar from '../components/layout/topbar/Topbar'
 import { RoleContext } from '../contexts/RoleContext'
+import NotificationsProvider from '../components/notifications/NotificationsProvider'
 
 const drawerWidth = 240
 
@@ -38,40 +39,42 @@ const AppLayout: React.FC<AppLayoutProps> = ({ toggleTheme, themeMode }) => {
   }
 
   return (
-    <Box sx={{ display: 'flex', width: '100%', maxWidth: '100%', overflowX: 'hidden' }}>
-      <CssBaseline />
-      <Topbar
-        drawerWidth={drawerWidth}
-        toggleTheme={toggleTheme}
-        themeMode={themeMode}
-        isMobile={isMobile}
-        onMenuClick={handleDrawerToggle}
-      />
+    <NotificationsProvider>
+      <Box sx={{ display: 'flex', width: '100%', maxWidth: '100%', overflowX: 'hidden' }}>
+        <CssBaseline />
+        <Topbar
+          drawerWidth={drawerWidth}
+          toggleTheme={toggleTheme}
+          themeMode={themeMode}
+          isMobile={isMobile}
+          onMenuClick={handleDrawerToggle}
+        />
 
-      <Sidebar drawerWidth={drawerWidth} mobileOpen={mobileOpen} onMobileClose={handleDrawerClose} />
+        <Sidebar drawerWidth={drawerWidth} mobileOpen={mobileOpen} onMobileClose={handleDrawerClose} />
 
-      <Box
-        component="main"
-        ref={mainRef}
-        sx={{
-          flexGrow: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          minHeight: '100dvh',
-          minWidth: 0,
-          maxWidth: '100%',
-          overflowX: 'hidden',
-          p: { xs: 2, sm: 3 },
-          width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` },
-          transition: (theme) => theme.transitions.create(['width', 'margin'], { easing: theme.transitions.easing.sharp, duration: theme.transitions.duration.leavingScreen }),
-        }}
-      >
-        <Toolbar sx={{ flexShrink: 0 }} />
-        <React.Fragment key={`${location.pathname}:${account.id}:${role}`}>
-          <Outlet />
-        </React.Fragment>
+        <Box
+          component="main"
+          ref={mainRef}
+          sx={{
+            flexGrow: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: '100dvh',
+            minWidth: 0,
+            maxWidth: '100%',
+            overflowX: 'hidden',
+            p: { xs: 2, sm: 3 },
+            width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` },
+            transition: (theme) => theme.transitions.create(['width', 'margin'], { easing: theme.transitions.easing.sharp, duration: theme.transitions.duration.leavingScreen }),
+          }}
+        >
+          <Toolbar sx={{ flexShrink: 0 }} />
+          <React.Fragment key={`${location.pathname}:${account.id}:${role}`}>
+            <Outlet />
+          </React.Fragment>
+        </Box>
       </Box>
-    </Box>
+    </NotificationsProvider>
   )
 }
 

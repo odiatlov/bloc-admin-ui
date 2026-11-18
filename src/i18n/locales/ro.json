@@ -1798,6 +1798,7 @@
                        "loading":  "Se încarcă scările..."
                    },
     "superAdmin":  {
+                       "notifications": { "emptyHelp": "Notificările platformei vor fi disponibile aici." },
                        "users": {
                            "title": "Utilizatori platformă",
                            "columns": {

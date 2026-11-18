@@ -29,6 +29,8 @@ type Props = {
   onMarkAllAsRead: () => Promise<void>
   onNotificationClick: (notification: NotificationResponse) => Promise<void>
   onRetry: () => void
+  canRefresh?: boolean
+  emptyHelperText?: string
   open: boolean
 }
 
@@ -40,6 +42,8 @@ const NotificationsDrawer: React.FC<Props> = ({
   onMarkAllAsRead,
   onNotificationClick,
   onRetry,
+  canRefresh = true,
+  emptyHelperText,
   open,
 }) => {
   const { t } = useTranslation()
@@ -106,10 +110,10 @@ const NotificationsDrawer: React.FC<Props> = ({
           {!loading && !error && notifications.length === 0 && (
             <Box sx={{ p: 2 }}>
               <EmptyState
-                actionLabel={t('common.refresh')}
+                actionLabel={canRefresh ? t('common.refresh') : undefined}
                 headline={t('notifications.empty.headline')}
-                helperText={t('notifications.empty.helperText')}
-                onAction={onRetry}
+                helperText={emptyHelperText ?? t('notifications.empty.helperText')}
+                onAction={canRefresh ? onRetry : undefined}
               />
             </Box>
           )}
