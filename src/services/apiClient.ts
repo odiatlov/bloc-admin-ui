@@ -36,10 +36,10 @@ const transport = async (path: string, options: RequestInit, version: number) =>
     options.signal?.removeEventListener('abort', abort)
   }
 }
-const csrfToken = async (): Promise<string> => {
+const csrfToken = async (signal?: AbortSignal | null): Promise<string> => {
   if (!csrf || csrf.epoch !== epoch) {
     const version = epoch
-    const promise = transport('/auth/csrf', {}, version).then(async response => {
+    const promise = transport('/auth/csrf', { signal }, version).then(async response => {
       const payload = await response.json() as ApiResponse<{ requestToken: string }>
       assertEpoch(version)
       if (!response.ok || !payload.success || !payload.data?.requestToken) throw new ApiError('Unable to verify session', response.status)
@@ -50,7 +50,7 @@ const csrfToken = async (): Promise<string> => {
   }
   return csrf.promise
 }
-export const renewCsrf = async () => { csrf = undefined; await csrfToken() }
+export const renewCsrf = async (signal?: AbortSignal) => { csrf = undefined; await csrfToken(signal) }
 const checkUnauthorized = (response: Response, path: string) => {
   if (response.status === 401 && !path.startsWith('/auth/')) window.dispatchEvent(new Event('blocadmin:session-expired'))
 }
@@ -60,8 +60,9 @@ const apiRequest = async <T>(path: string, options: ApiRequestOptions = {}): Pro
   void _trustedSession
   const headers = new Headers(init.headers)
   headers.set('Content-Type', 'application/json')
-  if (!['GET', 'HEAD', 'OPTIONS'].includes((init.method ?? 'GET').toUpperCase())) headers.set('X-CSRF-TOKEN', await csrfToken())
+  if (!['GET', 'HEAD', 'OPTIONS'].includes((init.method ?? 'GET').toUpperCase())) headers.set('X-CSRF-TOKEN', await csrfToken(init.signal))
   assertEpoch(version)
+  if (init.signal?.aborted) throw new DOMException('Request cancelled', 'AbortError')
   const response = await transport(path, { ...init, headers }, version)
   const payload = await response.json().catch(() => null) as (ApiResponse<T> & ProblemDetails) | null
   assertEpoch(version)

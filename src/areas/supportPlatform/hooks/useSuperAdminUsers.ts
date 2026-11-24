@@ -2,6 +2,7 @@ import React from 'react'
 import { usePageFilter } from '../../../hooks/usePageFilter'
 import { RoleContext } from '../../../contexts/RoleContext'
 import { usePagedList } from '../../../hooks/usePagedList'
+import { acquirePagedListRequest } from '../../../services/pagedListRequests'
 import { superAdminApi, type SuperAdminUserFiltersResponse, type SuperAdminUserResponse } from '../../../services/superAdminApi'
 
 export const useSuperAdminUsers = () => {
@@ -15,12 +16,14 @@ export const useSuperAdminUsers = () => {
   const scope = JSON.stringify([account.id, token, retry])
   const [options, setOptions] = React.useState<{ scope: string; data?: SuperAdminUserFiltersResponse; error?: boolean }>()
   React.useEffect(() => {
-    const controller = new AbortController()
-    void superAdminApi.getUserFilters(controller.signal).then(
-      (data) => { if (!controller.signal.aborted) setOptions({ scope, data }) },
-      () => { if (!controller.signal.aborted) setOptions({ scope, error: true }) },
+    let subscribed = true
+    const request = acquirePagedListRequest(JSON.stringify(['SuperAdminUsers.filters', scope]),
+      signal => superAdminApi.getUserFilters(signal))
+    void request.promise.then(
+      (data) => { if (subscribed) setOptions({ scope, data }) },
+      () => { if (subscribed) setOptions({ scope, error: true }) },
     )
-    return () => controller.abort()
+    return () => { subscribed = false; request.release() }
   }, [scope])
   React.useEffect(() => {
     if (options?.scope !== scope || !options.data) return

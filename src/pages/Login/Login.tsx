@@ -12,11 +12,15 @@ const Login: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { t } = useTranslation()
-  const { login, account, isAuthenticated, accountsLoading, accountsError, refreshAccounts } = React.useContext(RoleContext)
+  const { login, logout, logoutRequested, account, isAuthenticated, accountsLoading, accountsError, refreshAccounts } = React.useContext(RoleContext)
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
   const [pending, setPending] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
+  const retrySession = async () => {
+    if (logoutRequested) { try { await logout() } catch { /* The provider keeps the retryable failure visible. */ } }
+    else await refreshAccounts()
+  }
   React.useEffect(() => {
     if (isAuthenticated && !accountsLoading && !accountsError)
       navigate(safeReturnUrl(location.state?.returnTo) ?? (account.defaultRole === 'SuperAdmin' ? '/superadmin/dashboard' : '/admin/dashboard'), { replace: true })
@@ -33,8 +37,8 @@ const Login: React.FC = () => {
     <Paper component="form" onSubmit={event => { void handleSubmit(event) }} sx={{ width: 'min(100%, 440px)', p: 3, display: 'grid', gap: 2 }}>
       <Box><Typography variant="h4" sx={{ fontWeight: 800 }}>{t('app.title')}</Typography>
         <Typography variant="body2" color="text.secondary">{t('auth.login.description')}</Typography></Box>
-      {accountsLoading ? <LoadingState label={t('auth.login.checking')} /> : accountsError
-        ? <LoadErrorState helperText={t('auth.login.unavailable')} onRetry={refreshAccounts} /> : <>
+      {accountsLoading ? <LoadingState label={t(logoutRequested ? 'auth.logout.pending' : 'auth.login.checking')} showLabel={logoutRequested} /> : accountsError
+        ? <LoadErrorState helperText={t(logoutRequested ? 'auth.logout.unavailable' : 'auth.login.unavailable')} onRetry={retrySession} /> : <>
           {error && <Alert severity="error">{t(error)}</Alert>}
           <TextField label={t('persons.fields.email')} type="email" autoComplete="username" value={email} onChange={event => setEmail(event.target.value)} required fullWidth disabled={pending} slotProps={{ htmlInput: { maxLength: 320 } }} />
           <TextField label={t('auth.login.password')} type="password" autoComplete="current-password" value={password} onChange={event => setPassword(event.target.value)} required fullWidth disabled={pending} slotProps={{ htmlInput: { maxLength: 128 } }} />
