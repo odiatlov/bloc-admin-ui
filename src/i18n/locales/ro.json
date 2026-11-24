@@ -470,7 +470,9 @@
                  "logout":  {
                                 "title":  "Vă deconectați?",
                                 "body": "Sigur doriți să încheiați sesiunea?",
-                                "confirm":  "Da, deconectează-mă"
+                                "confirm":  "Da, deconectează-mă",
+                                "pending": "Se încheie sesiunea…",
+                                "unavailable": "Nu am putut confirma încheierea sesiunii. Reîncercați deconectarea."
                             },
                  "login":  {
                               "description": "Autentificați-vă cu adresa de e-mail și parola.",

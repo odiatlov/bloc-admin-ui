@@ -12,9 +12,10 @@ type ProtectedRouteProps = {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, permission }) => {
-  const { isAuthenticated, role, accountsLoading, accountsError, refreshAccounts } = React.useContext(RoleContext)
+  const { isAuthenticated, role, accountsLoading, accountsError, refreshAccounts, logoutRequested } = React.useContext(RoleContext)
   const { t } = useTranslation()
   const location = useLocation()
+  if (logoutRequested) return <Navigate to="/login" replace />
   if (accountsLoading) return <LoadingState variant="page" label={t('common.pagination.loading')} />
   if (accountsError) return <LoadErrorState onRetry={refreshAccounts} />
 

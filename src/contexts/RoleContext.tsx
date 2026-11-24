@@ -7,12 +7,13 @@ const guest: MockAccount = { id: '', name: '', email: '', systemRole: 'None', bl
 type RoleContextType = {
   role: Role; account: MockAccount; accounts: MockAccount[]; accountsError: string | null; accountsLoading: boolean
   token: string; isAuthenticated: boolean
+  logoutRequested?: boolean
   refreshAccounts: () => Promise<void>; login: (email: string, password: string) => Promise<MockAccount>
   logout: () => Promise<void>; setRole: (role: Role) => void
 }
 // eslint-disable-next-line react-refresh/only-export-components
 export const RoleContext = React.createContext<RoleContextType>({
-  role: 'None', account: guest, accounts: [], accountsError: null, accountsLoading: true, token: '', isAuthenticated: false,
+  role: 'None', account: guest, accounts: [], accountsError: null, accountsLoading: true, token: '', isAuthenticated: false, logoutRequested: false,
   refreshAccounts: async () => {}, login: async () => { throw new Error('Session provider unavailable') }, logout: async () => {}, setRole: () => {},
 })
 export const RoleProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
@@ -20,10 +21,12 @@ export const RoleProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
   const [role, setActiveRole] = React.useState<Role>('None')
   const [accountsError, setError] = React.useState<string | null>(null)
   const [accountsLoading, setLoading] = React.useState(true)
+  const [logoutRequested, setLogoutRequested] = React.useState(false)
   const [revision, setRevision] = React.useState(0)
   const serial = React.useRef(0)
   const channel = React.useRef<BroadcastChannel | null>(null)
   const accept = React.useCallback((next: MockAccount) => {
+    setLogoutRequested(false)
     setAccount(next)
     setActiveRole(previous => next.roles.includes(previous) ? previous : next.defaultRole)
     setError(null)
@@ -92,16 +95,25 @@ export const RoleProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     return next
   }
   const logout = async () => {
+    setLogoutRequested(true)
     clear()
+    const request = serial.current
     setLoading(true)
-    try { await authApi.logout(); setLoading(false); broadcast() }
-    catch (error) { setError('SESSION_UNAVAILABLE'); setLoading(false); throw error }
+    try {
+      await authApi.logout()
+      if (request !== serial.current) throw new DOMException('Session changed', 'AbortError')
+      setLoading(false)
+      broadcast()
+    } catch (error) {
+      if (request === serial.current) { setError('SESSION_UNAVAILABLE'); setLoading(false) }
+      throw error
+    }
   }
   const setRole = (next: Role) => {
     if (account.roles.includes(next)) { resetSessionRequests(); setActiveRole(next); setRevision(value => value + 1) }
   }
   return <RoleContext.Provider value={{ account, accounts: account.id ? [account] : [], role, token: String(revision),
-    accountsError, accountsLoading, isAuthenticated: !!account.id, refreshAccounts, login, logout, setRole }}>
+    accountsError, accountsLoading, logoutRequested, isAuthenticated: !!account.id, refreshAccounts, login, logout, setRole }}>
     <React.Fragment key={revision}>{children}</React.Fragment>
   </RoleContext.Provider>
 }
